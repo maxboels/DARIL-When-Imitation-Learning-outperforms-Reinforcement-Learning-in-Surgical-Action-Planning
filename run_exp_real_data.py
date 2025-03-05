@@ -26,13 +26,13 @@ LEARNING_RATE = 0.001
 EPOCHS = 20
 
 # Step 1: Data Loading from CholecT50 Dataset
-def load_cholect50_data(base_path, metadata_path=None, risk_score_path=None, max_videos=None,
-                        frame_risk_agg='max'):
+def load_cholect50_data(paths_config, risk_score_path=None, max_videos=None,
+                        frame_risk_agg='max', split='train'):
     """
     Load frame embeddings from the CholecT50 dataset.
     
     Args:
-        base_path: Path to the folder containing video directories
+        data_dir: Path to the folder containing video directories
         metadata_path: Path to metadata CSV file (if available)
         risk_score_path: Path to risk score JSON file (if available)
         max_videos: Maximum number of videos to load (for testing)
@@ -40,7 +40,20 @@ def load_cholect50_data(base_path, metadata_path=None, risk_score_path=None, max
     Returns:
         List of dictionaries containing video data
     """
-    print(f"Loading CholecT50 data from {base_path}")
+    # extract paths from config
+    data_dir = paths_config['data_dir']
+    metadata_file = paths_config['metadata_file']
+    fold = paths_config['fold']
+    print(f"Loading CholecT50 data from {data_dir}")
+
+
+    if split == 'train':
+        split_folder = paths_config['train_folder']
+        metadata_path = os.path.join(data_dir, split_folder, f"fold{fold}", metadata_file)
+    else:
+        split_folder = paths_config['test_folder']
+        metadata_path = os.path.join(data_dir, split_folder, f"fold{fold}", metadata_file)
+    print(f"Metadata path: {metadata_path}")
     
     # Load metadata if available
     metadata = None
@@ -91,7 +104,9 @@ def load_cholect50_data(base_path, metadata_path=None, risk_score_path=None, max
         # remove root from embedding path
         remove_root = '/nfs/home/mboels/projects/self-distilled-swin/outputs/embeddings_train_set/'
         if remove_root in metadata['embedding_path'][0]:
-            metadata['embedding_path'] = metadata['embedding_path'].apply(lambda x: x.replace(remove_root, '/'))
+            metadata['embedding_path'] = metadata['embedding_path'].apply(lambda x: x.replace(remove_root, ''))
+        elif f'/fold{fold}/' in metadata['embedding_path'][0]:
+            metadata['embedding_path'] = metadata['embedding_path'].apply(lambda x: x.replace('/fold0/', 'fold0/'))
         else:
             print(f"Root not found in embedding path, skipping")
         # save new version of metadata
@@ -100,14 +115,15 @@ def load_cholect50_data(base_path, metadata_path=None, risk_score_path=None, max
 
     # Find all videos in metadata csv file
     if metadata is not None:
-        video_ids = metadata['video'].unique()  
+        video_ids = metadata['video'].unique().tolist()
     if max_videos:
         video_ids = video_ids[:max_videos]
     
-    print(f"Found {len(video_dirs)} video directories")
+    print(f"Found {len(video_ids)} video directories")
     
     # Initialize data list
     data = []
+    global_risk_scores = []
     
     # Load frame embeddings for each video from the metadata
     for video_id in tqdm(video_ids, desc="Loading videos"):
@@ -116,12 +132,11 @@ def load_cholect50_data(base_path, metadata_path=None, risk_score_path=None, max
         print(f"Found {len(video_metadata)} frames for video {video_id}")
 
         frame_files = video_metadata['embedding_path'].tolist()
-        frame_files = [os.path.join(base_path, f) for f in frame_files]
 
         # Load frame embeddings
         frame_embeddings = []
-        for frame_file in tqdm(frame_files, desc=f"Frames for {video_dir}", leave=False):
-            embedding = np.load(frame_file)
+        for frame_file in tqdm(frame_files, desc=f"Frames for {video_id}"):
+            embedding = np.load(os.path.join(data_dir, split_folder, frame_file))
             frame_embeddings.append(embedding)
         
         frame_embeddings = np.array(frame_embeddings)
@@ -134,19 +149,24 @@ def load_cholect50_data(base_path, metadata_path=None, risk_score_path=None, max
         # In a real scenario, you would extract these from metadata
         num_frames = len(frame_embeddings)
         
-        # Generate synthetic action classes and risk scores if not in metadata
-        action_classes = np.random.randint(0, 100, size=num_frames)
-        risk_scores = np.random.randint(1, 6, size=num_frames)
-        
-        # Random survival time between 50 and 200 weeks
-        survival_time = np.random.randint(50, 201)
-        
-        # TODO: Extract actual action classes, risk scores, and outcomes from metadata if available
-        
+        risk_scores = metadata[risk_column_name].values
+
+        # indices from column 'tri0':'tri199'
+        action_columns = [f'tri{i}' for i in range(0, 100)]
+        action_classes = metadata[action_columns].values
+
+        # Take the mean of the 
+        mean_risk_score = np.mean(risk_scores)
+        global_risk_scores.append(mean_risk_score)
+
+        # Calculate survival time based on risk score
+        m = 100 / max(risk_scores)
+        survival_time = 100 - np.mean(risk_scores) * m
+                
         # Store video data
         data.append({
             'video_id': video_id,
-            'video_dir': video_dir,
+            'video_dir': os.path.join(data_dir, split_folder, video_id),
             'frame_embeddings': frame_embeddings,
             'action_classes': action_classes,
             'risk_scores': risk_scores,
@@ -156,7 +176,9 @@ def load_cholect50_data(base_path, metadata_path=None, risk_score_path=None, max
     
     if not data:
         raise ValueError("No valid videos loaded!")
-        
+    
+    print(f"Mean global risk score: {np.mean(global_risk_scores):.2f}")
+    print(f"Risk scores: {global_risk_scores}")
     print(f"Successfully loaded {len(data)} videos")
     return data
 
@@ -745,8 +767,7 @@ def analyze_results(results, action_weights):
     }
 
 # Main function to run the experiment with CholecT50 data
-def run_cholect50_experiment(gpt2_config, reward_config,
-                            base_path, metadata_path=None, max_videos=None):
+def run_cholect50_experiment(paths_config, gpt2_config, reward_config, max_videos=None):
     """Run the experiment with CholecT50 data."""
     print("Starting CholecT50 experiment for surgical video analysis")
     
@@ -755,7 +776,7 @@ def run_cholect50_experiment(gpt2_config, reward_config,
     print(f"Using device: {device}")
     
     # Step 1: Load data
-    data = load_cholect50_data(base_path, metadata_path, max_videos)
+    data = load_cholect50_data(paths_config, max_videos)
     
     # Get embedding dimension from the first video
     embedding_dim = data[0]['frame_embeddings'].shape[1]
@@ -797,8 +818,13 @@ def run_cholect50_experiment(gpt2_config, reward_config,
 
 if __name__ == "__main__":
     # Set paths
-    base_path = "/home/maxboels/datasets/CholecT50/embeddings_train_set/fold0"
-    metadata_path = os.path.join(base_path, "embeddings_f0_swin_bas_129.csv")
+    paths_config = {
+        'data_dir': "/home/maxboels/datasets/CholecT50",
+        'train_folder': "embeddings_train_set",
+        'test_folder': "embeddings_test_set",
+        'fold': 0,
+        'metadata_file': "embeddings_f0_swin_bas_129.csv",
+    }
     gpt2_config = {
         'hidden_dim': 768,  # GPT-2 hidden dimension
         'embedding_dim': 1024,  # GPT-2 embedding dimension
@@ -817,8 +843,9 @@ if __name__ == "__main__":
     
     # Run the experiment
     next_frame_model, reward_model, policy_model, action_weights, results, analysis = run_cholect50_experiment(
+        paths_config, # paths configuration
         gpt2_config, reward_config, # config dictionaries
-        base_path, metadata_path, max_videos, # others
+        max_videos, # data paths
     )
     
     print("\nExperiment completed!")
