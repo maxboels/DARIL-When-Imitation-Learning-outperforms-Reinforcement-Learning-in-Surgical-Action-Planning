@@ -48,73 +48,76 @@ def load_cholect50_data(base_path, metadata_path=None, risk_score_path=None, max
         print(f"Loading metadata from {metadata_path}")
         metadata = pd.read_csv(metadata_path)
         print(f"Metadata shape: {metadata.shape}")
-        
+    
+    risk_score_root = "/home/maxboels/datasets/CholecT50/instructions/anticipation_5s_with_goals/"
     # Add the risk score for each frame to the metadata correctly
-    add_risk_score = True
-    if metadata is not None and add_risk_score:
-        print(f"Adding risk scores to metadata")
+    video_ids_cache = []
+    risk_column_name = f'risk_score_{frame_risk_agg}'
+    if metadata is not None:
         for i, row in metadata.iterrows():
             video_id = row['video']
             frame_id = row['frame']
 
-            # Load risk scores if available
-            risk_score_root = "/home/maxboels/datasets/CholecT50/instructions/anticipation_5s_with_goals/"
-            risk_score_path = risk_score_root + f"{video_id}_sorted_with_risk_scores_instructions_with_goals.json"
-            risk_scores = None
-            if risk_score_path and os.path.exists(risk_score_path):
-                print(f"Loading risk scores from {risk_score_path}")
-                with open(risk_score_path, 'r') as f:
-                    risk_scores = json.load(f)
+            # Load risk scores if available and is a new video in the metadata
+            if risk_column_name not in metadata.columns:
+                if video_id not in video_ids_cache:
+                    print(f"Loading risk scores for video {video_id}")
+                    video_ids_cache.append(video_id)
+                    risk_scores = None
+                    risk_score_path = risk_score_root + f"{video_id}_sorted_with_risk_scores_instructions_with_goals.json" 
+                    if risk_score_path and os.path.exists(risk_score_path):
+                        print(f"Loading risk scores from {risk_score_path}")
+                        with open(risk_score_path, 'r') as f:
+                            risk_scores = json.load(f)
+                    else:
+                        print(f"Risk score path not found, skipping")
+                
+                # Get risk score for this frame
+                current_actions = risk_scores[str(frame_id)]['current_actions']
+                frame_risk_scores = []
+                for action in current_actions: # it's a list of dictionaries
+                    frame_risk_scores.append(action['expert_risk_score'])
+                if frame_risk_agg == 'mean':
+                    risk_score = np.mean(frame_risk_scores)
+                elif frame_risk_agg == 'max':
+                    risk_score = np.max(frame_risk_scores)
+                else:
+                    print(f"Frame risk aggregation method {frame_risk_agg} not supported, skipping")
+                # create new column if doesnt exist and add risk score
+                # is it better to add it once at the end or during the loop?
+                # answer: it is better to add it during the loop
+                metadata.loc[i, risk_column_name] = risk_score
 
-            current_actions = risk_scores[str(frame_id)]['current_actions']
-            frame_risk_scores = []
-            for action in current_actions: # it's a list of dictionaries
-                frame_risk_scores.append(action['expert_risk_score'])
-            if frame_risk_agg == 'mean':
-                risk_score = np.mean(frame_risk_scores)
-            elif frame_risk_agg == 'max':
-                risk_score = np.max(frame_risk_scores)
-            # create new column if doesnt exist and add risk score
-            # is it better to add it once at the end or during the loop?
-            # answer: it is better to add it during the loop
-            metadata.loc[i, 'risk_score'] = risk_score
-        print(f"Added risk scores to metadata")
-    
-    # Find all video directories
-    video_dirs = [d for d in os.listdir(base_path) if d.startswith('VID') and os.path.isdir(os.path.join(base_path, d))]
-    
+        # remove root from embedding path
+        remove_root = '/nfs/home/mboels/projects/self-distilled-swin/outputs/embeddings_train_set/'
+        if remove_root in metadata['embedding_path'][0]:
+            metadata['embedding_path'] = metadata['embedding_path'].apply(lambda x: x.replace(remove_root, '/'))
+        else:
+            print(f"Root not found in embedding path, skipping")
+        # save new version of metadata
+        metadata.to_csv(metadata_path, index=False)
+        print(f"Saved metadata with risk scores to {metadata_path}")
+
+    # Find all videos in metadata csv file
+    if metadata is not None:
+        video_ids = metadata['video'].unique()  
     if max_videos:
-        video_dirs = video_dirs[:max_videos]
+        video_ids = video_ids[:max_videos]
     
     print(f"Found {len(video_dirs)} video directories")
-
-    # risk data path: "/home/maxboels/datasets/CholecT50/instructions/anticipation_5s_with_goals/VID01_sorted_with_risk_scores_instructions_with_goals.json"
-    # risk access keys: ['current_actions']['expert_risk_score']
     
     # Initialize data list
     data = []
     
-    # Process each video directory
-    for video_dir in tqdm(video_dirs, desc="Loading videos"):
-        video_path = os.path.join(base_path, video_dir)
-        
-        # Extract video ID
-        match = re.search(r'VID(\d+)', video_dir)
-        if not match:
-            print(f"Could not extract video ID from {video_dir}, skipping")
-            continue
-            
-        video_id = int(match.group(1))
-        
-        # Find all frame embedding files for this video
-        frame_files = sorted(glob.glob(os.path.join(video_path, f"fold0_VID*_*.npy")))
-        
-        if not frame_files:
-            print(f"No frame files found for {video_dir}, skipping")
-            continue
-        
-        print(f"Loading {len(frame_files)} frames for {video_dir}")
-        
+    # Load frame embeddings for each video from the metadata
+    for video_id in tqdm(video_ids, desc="Loading videos"):
+        # Filter metadata for this video
+        video_metadata = metadata[metadata['video'] == video_id]
+        print(f"Found {len(video_metadata)} frames for video {video_id}")
+
+        frame_files = video_metadata['embedding_path'].tolist()
+        frame_files = [os.path.join(base_path, f) for f in frame_files]
+
         # Load frame embeddings
         frame_embeddings = []
         for frame_file in tqdm(frame_files, desc=f"Frames for {video_dir}", leave=False):
