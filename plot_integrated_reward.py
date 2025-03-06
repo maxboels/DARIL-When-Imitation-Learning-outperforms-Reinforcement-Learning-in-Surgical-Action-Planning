@@ -10,12 +10,10 @@ import argparse
 from tqdm import tqdm
 from collections import defaultdict
 
-# Import the simplified SurgicalRewardFunction defined inline
-# No need to import from external file
 class SurgicalRewardFunction:
     """
     Reward function for surgical procedures that balances task completion with risk assessment.
-    Simplified version that doesn't require historical data loading.
+    Order-independent version that handles missing phases and variable phase ordering.
     """
     
     def __init__(self, 
@@ -30,18 +28,6 @@ class SurgicalRewardFunction:
                  smoothing_factor=3.0):
         """
         Initialize the reward function with configurable weights.
-        
-        Args:
-            phase_weights: Dictionary mapping phase IDs to their relative importance weights
-                           (default: equal weighting for all phases)
-            risk_weight: Weight for the risk penalty component (higher means risk is more important)
-            time_penalty: Small penalty per timestep to encourage efficiency
-            transition_bonus: Reward for successfully transitioning between phases
-            completion_bonus: Final reward for completing the entire procedure
-            critical_risk_threshold: Threshold above which risk is considered critical
-            critical_risk_penalty: Additional penalty for exceeding critical risk threshold
-            default_phase_duration: Default expected duration for phases (frames)
-            smoothing_factor: Smoothing factor for reward calculation to reduce noise
         """
         # Default phase weights if not provided (equal weight to all phases)
         self.phase_weights = phase_weights or {i: 1.0 for i in range(7)}  # Assuming phases 0-6
@@ -59,20 +45,26 @@ class SurgicalRewardFunction:
         self.phase_duration_stats = {i: {'mean': default_phase_duration, 'std': default_phase_duration/4} 
                                     for i in range(7)}
         
-        # Expected phase sequence (can be customized)
-        self.expected_phase_sequence = list(range(7))  # Phases 0 to 6 in order
-        
-        # Phase progress tracking
-        self.phase_progress = {i: 0.0 for i in range(7)}
+        # Phase tracking
         self.current_phase = None
+        self.previous_phase = None
+        self.last_processed_frame = None
+        
+        # Track completed phases (set of phase IDs)
         self.completed_phases = set()
         
-        # Empty placeholders for historical data
-        self.historical_phase_durations = defaultdict(list)
-        self.historical_risk_distributions = defaultdict(list)
-        self.risk_distribution_stats = {}
+        # Track phase segments (for handling multiple segments of the same phase)
+        self.phase_segments = None  # Will be set with phase_segments if provided
+        self.current_segment_idx = None  # Current phase segment index
+        
+        # Store frame-based progress within segments
+        self.segment_progress = {}  # {segment_idx: progress_value}
+        
+        # Track the last created phase transition rewards to avoid duplicates
+        self.last_transition_source = None
+        self.last_transition_target = None
     
-    def calculate_reward(self, frame_data, is_terminal=False):
+    def calculate_reward(self, frame_data, is_terminal=False, phase_segments=None):
         """
         Calculate the reward for a single frame in the surgical procedure.
         
@@ -81,9 +73,8 @@ class SurgicalRewardFunction:
                 - 'phase_id': Current surgical phase ID
                 - 'risk_scores': Dictionary of risk scores (different types)
                 - 'frame_id': Current frame ID
-                - 'action_data': Optional dictionary with detailed action information
-                - 'progress_within_phase': Optional estimate of progress within current phase (0-1)
             is_terminal: Whether this is the terminal state (procedure completed)
+            phase_segments: DataFrame with phase segment information (start_frame, end_frame, phase_id)
             
         Returns:
             total_reward: The calculated reward value
@@ -93,51 +84,82 @@ class SurgicalRewardFunction:
         phase_id = frame_data.get('phase_id')
         risk_scores = frame_data.get('risk_scores', {})
         frame_id = frame_data.get('frame_id', 0)
-        progress_within_phase = frame_data.get('progress_within_phase', None)
         
         reward_components = {}
         
-        # 1. Phase completion/progress component
-        phase_reward = 0.0
+        # Store phase segments if provided (first time)
+        if self.phase_segments is None and phase_segments is not None:
+            self.phase_segments = phase_segments.copy()
+            # Initialize segment progress dictionary
+            self.segment_progress = {i: 0.0 for i in range(len(phase_segments))}
+        
+        # --------- FIND CURRENT PHASE SEGMENT ---------
+        current_segment_idx = None
+        if self.phase_segments is not None:
+            # Find which segment this frame belongs to
+            for i, row in self.phase_segments.iterrows():
+                if frame_id >= row['start_frame'] and frame_id <= row['end_frame']:
+                    current_segment_idx = i
+                    break
+        
+        # Update phase tracking
+        self.previous_phase = self.current_phase
+        self.current_phase = phase_id
+        
+        # --------- PHASE TRANSITION HANDLING ---------
         phase_transition_reward = 0.0
         
         # Check if phase has changed
-        if self.current_phase is not None and phase_id != self.current_phase:
-            # Successfully completed previous phase
-            if phase_id in self.expected_phase_sequence and self.current_phase in self.expected_phase_sequence:
-                expected_idx = self.expected_phase_sequence.index(phase_id)
-                prev_idx = self.expected_phase_sequence.index(self.current_phase)
-                
-                # Only reward forward progress in the expected sequence
-                if expected_idx > prev_idx:
-                    # Phase transition reward
-                    phase_transition_reward = self.transition_bonus * self.phase_weights.get(self.current_phase, 1.0)
-                    self.completed_phases.add(self.current_phase)
-                    
-        self.current_phase = phase_id
+        phase_changed = (self.previous_phase is not None and 
+                         phase_id is not None and 
+                         self.previous_phase != phase_id)
         
-        # Reward for progress within the current phase
-        if phase_id is not None:
-            if progress_within_phase is not None:
-                # If the caller provides a progress estimate, use it
-                self.phase_progress[phase_id] = progress_within_phase
-                phase_reward = progress_within_phase * self.phase_weights.get(phase_id, 1.0)
-            else:
-                # Otherwise use a simple incrementing counter (normalized by expected duration)
-                expected_duration = self.phase_duration_stats.get(phase_id, {}).get('mean', self.default_phase_duration)
-                progress_increment = 1.0 / expected_duration
-                self.phase_progress[phase_id] += progress_increment
+        # Handle phase transitions (only when phase actually changes)
+        if phase_changed:
+            # Avoid duplicate transition rewards
+            transition_key = (self.previous_phase, phase_id)
+            if transition_key != (self.last_transition_source, self.last_transition_target):
+                # Award transition bonus regardless of direction (no assumption about correct sequence)
+                phase_transition_reward = self.transition_bonus * self.phase_weights.get(self.previous_phase, 1.0)
+                
+                # Mark the source phase as completed
+                self.completed_phases.add(self.previous_phase)
+                
+                # Update last transition to avoid duplicates
+                self.last_transition_source, self.last_transition_target = transition_key
+        
+        # --------- PHASE PROGRESS CALCULATION ---------
+        phase_reward = 0.0
+        
+        if current_segment_idx is not None:
+            # Calculate progress within the current segment
+            segment = self.phase_segments.iloc[current_segment_idx]
+            segment_duration = segment['end_frame'] - segment['start_frame']
+            
+            if segment_duration > 0:
+                # Calculate position within segment
+                position_in_segment = (frame_id - segment['start_frame']) / segment_duration
+                
+                # Ensure progress never decreases within a segment
+                current_progress = max(self.segment_progress.get(current_segment_idx, 0.0), position_in_segment)
+                
                 # Cap at 1.0
-                self.phase_progress[phase_id] = min(self.phase_progress[phase_id], 1.0)
-                phase_reward = self.phase_progress[phase_id] * self.phase_weights.get(phase_id, 1.0)
+                current_progress = min(current_progress, 1.0)
+                
+                # Store progress
+                self.segment_progress[current_segment_idx] = current_progress
+                
+                # Calculate reward based on progress and phase importance
+                segment_phase_id = segment['phase_id']
+                phase_reward = current_progress * self.phase_weights.get(segment_phase_id, 1.0)
         
         reward_components['phase_progress_reward'] = phase_reward
         reward_components['phase_transition_reward'] = phase_transition_reward
         
-        # 2. Risk assessment component (penalty)
+        # --------- RISK ASSESSMENT CALCULATION ---------
         risk_penalty = 0.0
         
-        # Calculate average risk score (or use a more sophisticated aggregation)
+        # Calculate average risk score
         if risk_scores:
             # Can be weighted by risk type importance if needed
             avg_risk = np.mean(list(risk_scores.values()))
@@ -151,21 +173,22 @@ class SurgicalRewardFunction:
         
         reward_components['risk_penalty'] = -risk_penalty  # Negative because it's a penalty
         
-        # 3. Time efficiency penalty
+        # --------- TIME EFFICIENCY PENALTY ---------
         time_penalty = self.time_penalty
         reward_components['time_penalty'] = -time_penalty  # Negative because it's a penalty
         
-        # 4. Completion bonus (if terminal state)
+        # --------- COMPLETION BONUS ---------
         completion_reward = 0.0
-        if is_terminal:
-            # Check if all expected phases were completed
-            all_phases_completed = all(phase in self.completed_phases for phase in self.expected_phase_sequence)
-            if all_phases_completed:
+        if is_terminal and self.phase_segments is not None:
+            # Calculate completion based on segment coverage
+            all_segments_finished = all(progress >= 0.99 for progress in self.segment_progress.values())
+            
+            if all_segments_finished:
                 completion_reward = self.completion_bonus
         
         reward_components['completion_reward'] = completion_reward
         
-        # Calculate total reward
+        # --------- TOTAL REWARD CALCULATION ---------
         total_reward = (
             phase_reward + 
             phase_transition_reward + 
@@ -174,13 +197,22 @@ class SurgicalRewardFunction:
             completion_reward
         )
         
+        # Update last processed frame
+        self.last_processed_frame = frame_id
+        
         return total_reward, reward_components
     
     def reset(self):
         """Reset the reward function state for a new procedure"""
-        self.phase_progress = {i: 0.0 for i in range(7)}
         self.current_phase = None
+        self.previous_phase = None
+        self.last_processed_frame = None
         self.completed_phases = set()
+        self.phase_segments = None
+        self.current_segment_idx = None
+        self.segment_progress = {}
+        self.last_transition_source = None
+        self.last_transition_target = None
 
 
 def load_data_from_metadata(metadata_df, video_id, risk_column_names=None):
@@ -315,6 +347,9 @@ def calculate_rewards_for_video(metadata_df, video_id, risk_column_name='risk_sc
     # Reset reward function state
     reward_function.reset()
     
+    # First, get phase segments for better progress calculation
+    _, phase_segments, _ = load_data_from_metadata(metadata_df, video_id)
+    
     # Calculate rewards for each frame
     frame_rewards = {}
     cumulative_rewards = {}
@@ -344,7 +379,7 @@ def calculate_rewards_for_video(metadata_df, video_id, risk_column_name='risk_sc
         
         # Calculate reward for this frame
         is_terminal = (frame_id == video_metadata['frame'].iloc[-1])
-        reward, components = reward_function.calculate_reward(frame_data, is_terminal)
+        reward, components = reward_function.calculate_reward(frame_data, is_terminal, phase_segments)
         
         # Store results
         frame_rewards[frame_id] = reward
@@ -703,15 +738,6 @@ def main():
             phase_weights = {i: float(w) for i, w in enumerate(args.phase_importance)}
             print(f"Using custom phase weights: {phase_weights}")
         
-        # Initialize reward function
-        reward_function = SurgicalRewardFunction(
-            phase_weights=phase_weights,
-            risk_weight=args.risk_weight,
-            transition_bonus=args.transition_bonus,
-            default_phase_duration=args.default_phase_duration,
-            smoothing_factor=args.smooth_factor
-        )
-        
         # Process each video
         success_count = 0
         error_count = 0
@@ -725,6 +751,15 @@ def main():
                     print(f"Skipping video {video_id} (visualization already exists)")
                     skip_count += 1
                     continue
+                
+                # Initialize reward function
+                reward_function = SurgicalRewardFunction(
+                    phase_weights=phase_weights,
+                    risk_weight=args.risk_weight,
+                    transition_bonus=args.transition_bonus,
+                    default_phase_duration=args.default_phase_duration,
+                    smoothing_factor=args.smooth_factor
+                )
                 
                 # Load risk scores and phase information
                 risk_scores_dict, phases_df, frame_phases = load_data_from_metadata(
