@@ -43,35 +43,48 @@ def load_cholect50_data(paths_config, risk_score_path=None, max_videos=None,
     # extract paths from config
     data_dir = paths_config['data_dir']
     metadata_file = paths_config['metadata_file']
+    frame_reward_file = paths_config['frame_reward_file']       # embeddings_f0_swin_bas_129_with_enhanced.csv
+    video_global_outcome_file = paths_config['video_global_outcome_file'] # embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv
     fold = paths_config['fold']
     print(f"Loading CholecT50 data from {data_dir}")
 
-
-    if split == 'train':
-        split_folder = paths_config['train_folder']
-        metadata_path = os.path.join(data_dir, split_folder, f"fold{fold}", metadata_file)
-    else:
-        split_folder = paths_config['test_folder']
-        metadata_path = os.path.join(data_dir, split_folder, f"fold{fold}", metadata_file)
+    # Create metadata path
+    split_folder = f"embeddings_{split}_set"    
+    metadata_dir = os.path.join(data_dir, split_folder, f"fold{fold}")
+    metadata_path = os.path.join(metadata_dir, metadata_file)
+    frame_reward_path = os.path.join(metadata_dir, frame_reward_file)
+    video_global_outcome_path = os.path.join(metadata_dir, video_global_outcome_file)
     print(f"Metadata path: {metadata_path}")
     
     # Load metadata if available
     metadata = None
     if metadata_path and os.path.exists(metadata_path):
-        print(f"Loading metadata from {metadata_path}")
         metadata = pd.read_csv(metadata_path)
-        print(f"Metadata shape: {metadata.shape}")
+        print(f"Metadata loaded with shape: {metadata.shape}")
+
+    # Load frame rewards if available
+    frame_rewards = None
+    if frame_reward_path and os.path.exists(frame_reward_path):
+        frame_rewards = pd.read_csv(frame_reward_path)
+        print(f"Frame rewards loaded with shape: {frame_rewards.shape}")
+    
+    # Load video global outcomes if available
+    video_global_outcomes = None
+    if video_global_outcome_path and os.path.exists(video_global_outcome_path):
+        video_global_outcomes = pd.read_csv(video_global_outcome_path)
+        print(f"Video global outcomes loaded with shape: {video_global_outcomes.shape}")
     
     risk_score_root = "/home/maxboels/datasets/CholecT50/instructions/anticipation_5s_with_goals/"
     # Add the risk score for each frame to the metadata correctly
     video_ids_cache = []
+    all_risk_scores = []
     risk_column_name = f'risk_score_{frame_risk_agg}'
     if metadata is not None:
         for i, row in metadata.iterrows():
             video_id = row['video']
             frame_id = row['frame']
 
-            # Load risk scores if available and is a new video in the metadata
+            # Add risk score to metadata if not already there or column has nan value
             if risk_column_name not in metadata.columns:
                 if video_id not in video_ids_cache:
                     print(f"Loading risk scores for video {video_id}")
@@ -96,15 +109,21 @@ def load_cholect50_data(paths_config, risk_score_path=None, max_videos=None,
                     risk_score = np.max(frame_risk_scores)
                 else:
                     print(f"Frame risk aggregation method {frame_risk_agg} not supported, skipping")
-                # create new column if doesnt exist and add risk score
-                # is it better to add it once at the end or during the loop?
-                # answer: it is better to add it during the loop
-                metadata.loc[i, risk_column_name] = risk_score
+                risk_score = float(risk_score)
+                all_risk_scores.append(risk_score)
+
+                # if last frame, add risk score to metadata
+                if i == len(metadata) - 1:
+                    metadata[risk_column_name] = all_risk_scores
+                    print(f"Added risk scores to metadata")
 
         # remove root from embedding path
-        remove_root = '/nfs/home/mboels/projects/self-distilled-swin/outputs/embeddings_train_set/'
-        if remove_root in metadata['embedding_path'][0]:
-            metadata['embedding_path'] = metadata['embedding_path'].apply(lambda x: x.replace(remove_root, ''))
+        remove_root_1 = f'/nfs/home/mboels/projects/self-distilled-swin/outputs/embeddings_{split}_set/fold0/'
+        remove_root_2 = f'/nfs/home/mboels/projects/self-distilled-swin/outputs/embeddings_{split}_setfold0/'
+        if remove_root_1 in metadata['embedding_path'][0]:
+            metadata['embedding_path'] = metadata['embedding_path'].apply(lambda x: x.replace(remove_root_1, f'fold{fold}/'))
+        elif remove_root_2 in metadata['embedding_path'][0]:
+            metadata['embedding_path'] = metadata['embedding_path'].apply(lambda x: x.replace(remove_root_2, f'fold{fold}/'))
         elif f'/fold{fold}/' in metadata['embedding_path'][0]:
             metadata['embedding_path'] = metadata['embedding_path'].apply(lambda x: x.replace('/fold0/', 'fold0/'))
         else:
@@ -795,35 +814,36 @@ def run_cholect50_experiment(paths_config, gpt2_config, reward_config, max_video
     print(f"Using device: {device}")
     
     # Step 1: Load data
-    data = load_cholect50_data(paths_config, max_videos)
+    train_data = load_cholect50_data(paths_config, max_videos=max_videos, split='train')
+    test_data = load_cholect50_data(paths_config, max_videos=max_videos, split='test')
     
     # Get embedding dimension from the first video
-    embedding_dim = data[0]['frame_embeddings'].shape[1]
+    embedding_dim = train_data[0]['frame_embeddings'].shape[1]
     print(f"Embedding dimension: {embedding_dim}")
     
     # Get number of unique action classes
-    all_actions = np.concatenate([video['action_classes'] for video in data])
+    all_actions = np.concatenate([video['action_classes'] for video in train_data])
     num_action_classes = int(max(all_actions)) + 1
     print(f"Number of action classes: {num_action_classes}")
     
     # Step 2: Pre-train next frame prediction model
     print("\nTraining next frame prediction model...")
     next_frame_predictor = CausalGPT2ForFrameEmbeddings(gpt2_config).to(device)
-    train_next_frame_model(next_frame_predictor, data, device, epochs=1)  # Reduced epochs for demonstration
+    train_next_frame_model(next_frame_predictor, train_data, device, epochs=1)  # Reduced epochs for demonstration
 
     # Step 3: Train reward prediction model
     print("\nTraining reward prediction model...")
     reward_model = RewardPredictor(**reward_config).to(device)
-    train_reward_model(reward_model, data, device, epochs=5)  # Reduced epochs for demonstration
+    train_reward_model(reward_model, train_data, device, epochs=5)  # Reduced epochs for demonstration
     
     # Calculate action rewards
     print("\nCalculating action rewards...")
-    avg_action_rewards = calculate_action_rewards(data, next_frame_model, reward_model, device)
+    avg_action_rewards = calculate_action_rewards(train_data, next_frame_model, reward_model, device)
     
     # Train action policy model with reward weighting
     print("\nTraining action policy model...")
     policy_model, action_weights = train_action_policy(
-        data, avg_action_rewards, device, embedding_dim, num_action_classes, epochs=5)
+        train_data, avg_action_rewards, device, embedding_dim, num_action_classes, epochs=5)
     
     # Run TD-MPC2 to evaluate the model
     print("\nRunning TD-MPC2...")
@@ -839,10 +859,10 @@ if __name__ == "__main__":
     # Set paths
     paths_config = {
         'data_dir': "/home/maxboels/datasets/CholecT50",
-        'train_folder': "embeddings_train_set",
-        'test_folder': "embeddings_test_set",
         'fold': 0,
         'metadata_file': "embeddings_f0_swin_bas_129.csv",
+        'frame_reward_file': "embeddings_f0_swin_bas_129_with_enhanced.csv",
+        'video_global_outcome_file': "embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv"
     }
     gpt2_config = {
         'hidden_dim': 768,  # GPT-2 hidden dimension
