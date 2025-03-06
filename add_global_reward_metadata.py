@@ -126,6 +126,7 @@ class SurgicalRewardFunction:
             if transition_key != (self.last_transition_source, self.last_transition_target):
                 # Award transition bonus regardless of direction (no assumption about correct sequence)
                 phase_transition_reward = self.transition_bonus * self.phase_weights.get(self.previous_phase, 1.0)
+                phase_transition_reward = round(phase_transition_reward, 4)
                 
                 # Mark the source phase as completed
                 self.completed_phases.add(self.previous_phase)
@@ -145,6 +146,7 @@ class SurgicalRewardFunction:
             if segment_duration > 0:
                 # Calculate position within segment
                 position_in_segment = (frame_id - segment['start_frame']) / segment_duration
+                position_in_segment = round(position_in_segment, 4)
                 
                 # Ensure progress never decreases within a segment
                 current_progress = max(self.segment_progress.get(current_segment_idx, 0.0), position_in_segment)
@@ -154,11 +156,11 @@ class SurgicalRewardFunction:
                 
                 # Store progress
                 self.segment_progress[current_segment_idx] = current_progress
-                phase_progress = current_progress
+                phase_progress = round(current_progress, 4)
                 
                 # Calculate reward based on progress and phase importance
                 segment_phase_id = segment['phase_id']
-                phase_reward = current_progress * self.phase_weights.get(segment_phase_id, 1.0)
+                phase_reward = round(current_progress * self.phase_weights.get(segment_phase_id, 1.0), 4)
         
         reward_components['phase_progress_reward'] = phase_reward
         reward_components['phase_transition_reward'] = phase_transition_reward
@@ -172,6 +174,7 @@ class SurgicalRewardFunction:
         if risk_scores:
             # Can be weighted by risk type importance if needed
             risk_value = np.mean(list(risk_scores.values()))
+            risk_value = round(risk_value, 4)
             
             # Basic risk penalty proportional to risk score
             risk_penalty = self.risk_weight * risk_value
@@ -179,13 +182,15 @@ class SurgicalRewardFunction:
             # Additional penalty for exceeding critical threshold
             if risk_value > self.critical_risk_threshold:
                 risk_penalty += self.critical_risk_penalty * (risk_value - self.critical_risk_threshold)
+            
+            risk_penalty = round(risk_penalty, 4)
         
-        reward_components['risk_penalty'] = -risk_penalty  # Negative because it's a penalty
+        reward_components['risk_penalty'] = round(-risk_penalty, 4)  # Negative because it's a penalty
         reward_components['risk_value'] = risk_value
         
         # --------- TIME EFFICIENCY PENALTY ---------
-        time_penalty = self.time_penalty
-        reward_components['time_penalty'] = -time_penalty  # Negative because it's a penalty
+        time_penalty = round(self.time_penalty, 4)
+        reward_components['time_penalty'] = round(-time_penalty, 4)  # Negative because it's a penalty
         
         # --------- COMPLETION BONUS ---------
         completion_reward = 0.0
@@ -194,17 +199,18 @@ class SurgicalRewardFunction:
             all_segments_finished = all(progress >= 0.99 for progress in self.segment_progress.values())
             
             if all_segments_finished:
-                completion_reward = self.completion_bonus
+                completion_reward = round(self.completion_bonus, 4)
         
         reward_components['completion_reward'] = completion_reward
         
         # --------- TOTAL REWARD CALCULATION ---------
-        total_reward = (
+        total_reward = round(
             phase_reward + 
             phase_transition_reward + 
             -risk_penalty +  # Negative because it's a penalty
             -time_penalty +  # Negative because it's a penalty
-            completion_reward
+            completion_reward,
+            4
         )
         
         # Store the rewards and components
@@ -214,7 +220,7 @@ class SurgicalRewardFunction:
         
         # Update cumulative reward
         prev_cumulative = self.cumulative_rewards.get(self.last_processed_frame, 0.0) if self.last_processed_frame is not None else 0.0
-        self.cumulative_rewards[frame_id] = prev_cumulative + total_reward
+        self.cumulative_rewards[frame_id] = round(prev_cumulative + total_reward, 4)
         
         # Update last processed frame
         self.last_processed_frame = frame_id
@@ -763,7 +769,7 @@ class SurgicalDataset(Dataset):
     def __getitem__(self, idx):
         return {
             'features': torch.tensor(self.features[idx], dtype=torch.float32),
-            'target': torch.tensor(self.targets[idx], dtype=torch.float32),
+            'target': torch.tensor(self.targets[idx], dtype=np.float32),
             'frame_id': self.frames[idx],
             'video_id': self.video_ids[idx]
         }
@@ -904,7 +910,7 @@ def train_prediction_model(dataset, test_size=0.2, batch_size=64,
 
 def main():
     parser = argparse.ArgumentParser(description='Enhanced surgical reward system')
-    parser.add_argument('--metadata_path', type=str, default="/home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129.csv",
+    parser.add_argument('--metadata_path', type=str, default="/home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129.csv",
                       help='Path to metadata CSV file')
     parser.add_argument('--new_metadata_name', type=str, default='embeddings_f0_swin_bas_129_with_enhanced.csv',
                       help='Path to save enhanced metadata CSV file')
@@ -919,7 +925,7 @@ def main():
     parser.add_argument('--epochs', type=int, default=50,
                       help='Number of training epochs')
     
-    args = argparse.ArgumentParser()
+    args = parser.parse_args()
     
     # Create output directory
     os.makedirs(args.output_dir, exist_ok=True)
