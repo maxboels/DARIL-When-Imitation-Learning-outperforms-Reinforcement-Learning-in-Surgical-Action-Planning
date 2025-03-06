@@ -535,7 +535,7 @@ def calculate_global_metrics(video_metadata, phase_segments, component_rewards):
     if phase_segments is not None:
         unique_phases = phase_segments['phase_id'].unique()
         metrics['unique_phase_count'] = len(unique_phases)
-        metrics['phase_coverage'] = len(unique_phases) / 7  # Assuming 7 possible phases
+        metrics['phase_coverage'] = round(len(unique_phases) / 7, 4)  # Assuming 7 possible phases
         
         # Phase durations
         phase_durations = {}
@@ -543,21 +543,21 @@ def calculate_global_metrics(video_metadata, phase_segments, component_rewards):
             segments = phase_segments[phase_segments['phase_id'] == phase_id]
             total_frames = sum(row['end_frame'] - row['start_frame'] + 1 for _, row in segments.iterrows())
             phase_durations[f'phase_{phase_id}_frames'] = total_frames
-            phase_durations[f'phase_{phase_id}_percentage'] = total_frames / len(video_metadata) * 100
+            phase_durations[f'phase_{phase_id}_percentage'] = round(total_frames / len(video_metadata) * 100, 4)
         
         metrics.update(phase_durations)
     
     # 2. Risk Profile
     if 'risk_value' in component_rewards:
         risk_values = list(component_rewards['risk_value'].values())
-        metrics['avg_risk'] = np.mean(risk_values)
-        metrics['max_risk'] = np.max(risk_values)
-        metrics['risk_std'] = np.std(risk_values)
+        metrics['avg_risk'] = round(np.mean(risk_values), 4)
+        metrics['max_risk'] = round(np.max(risk_values), 4)
+        metrics['risk_std'] = round(np.std(risk_values), 4)
         
         # Critical risk events (risk > 4.0)
         critical_risk_count = sum(1 for risk in risk_values if risk > 4.0)
         metrics['critical_risk_events'] = critical_risk_count
-        metrics['critical_risk_percentage'] = critical_risk_count / len(risk_values) * 100 if risk_values else 0
+        metrics['critical_risk_percentage'] = round(critical_risk_count / len(risk_values) * 100 if risk_values else 0, 4)
     
     # 3. Phase Transitions
     if 'phase_transition_reward' in component_rewards:
@@ -566,12 +566,12 @@ def calculate_global_metrics(video_metadata, phase_segments, component_rewards):
         metrics['phase_transition_count'] = transition_count
         
         if phase_segments is not None and len(unique_phases) > 0:
-            metrics['transition_efficiency'] = transition_count / len(unique_phases)
+            metrics['transition_efficiency'] = round(transition_count / len(unique_phases), 4)
     
     # 4. Progress Metrics
     if 'phase_progress' in component_rewards and phase_segments is not None:
         progress_values = list(component_rewards['phase_progress'].values())
-        metrics['avg_phase_progress'] = np.mean(progress_values)
+        metrics['avg_phase_progress'] = round(np.mean(progress_values), 4)
         
         # Calculate progress efficiency (how quickly phases are completed)
         if len(unique_phases) > 0:
@@ -591,17 +591,17 @@ def calculate_global_metrics(video_metadata, phase_segments, component_rewards):
             for phase_id, progress_list in progress_by_phase.items():
                 if len(progress_list) > 1:
                     # Rate of progress per frame
-                    progress_rates[f'phase_{phase_id}_progress_rate'] = (progress_list[-1] - progress_list[0]) / len(progress_list)
+                    progress_rates[f'phase_{phase_id}_progress_rate'] = round((progress_list[-1] - progress_list[0]) / len(progress_list), 4)
             
             metrics.update(progress_rates)
     
     # 5. Reward Summary
     if 'frame_reward' in component_rewards:
         frame_rewards = list(component_rewards['frame_reward'].values())
-        metrics['total_reward'] = sum(frame_rewards)
-        metrics['avg_frame_reward'] = np.mean(frame_rewards)
-        metrics['reward_std'] = np.std(frame_rewards)
-        metrics['positive_reward_percentage'] = sum(1 for r in frame_rewards if r > 0) / len(frame_rewards) * 100
+        metrics['total_reward'] = round(sum(frame_rewards), 4)
+        metrics['avg_frame_reward'] = round(np.mean(frame_rewards), 4)
+        metrics['reward_std'] = round(np.std(frame_rewards), 4)
+        metrics['positive_reward_percentage'] = round(sum(1 for r in frame_rewards if r > 0) / len(frame_rewards) * 100, 4)
     
     # 6. Global Outcome Score (0-10 scale)
     # Combine all the above metrics into a single score
@@ -636,7 +636,7 @@ def calculate_global_metrics(video_metadata, phase_segments, component_rewards):
         normalized_reward = min(2, max(0, metrics['total_reward'] / 100 + 1))
         outcome_score += normalized_reward
     
-    metrics['global_outcome_score'] = outcome_score
+    metrics['global_outcome_score'] = round(outcome_score, 4)
     
     return metrics
 
@@ -919,7 +919,7 @@ def main():
     parser.add_argument('--epochs', type=int, default=50,
                       help='Number of training epochs')
     
-    args = parser.parse_args()
+    args = argparse.ArgumentParser()
     
     # Create output directory
     os.makedirs(args.output_dir, exist_ok=True)

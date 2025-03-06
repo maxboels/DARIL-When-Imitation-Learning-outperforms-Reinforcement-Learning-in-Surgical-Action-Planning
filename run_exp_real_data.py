@@ -43,7 +43,6 @@ def load_cholect50_data(paths_config, risk_score_path=None, max_videos=None,
     # extract paths from config
     data_dir = paths_config['data_dir']
     metadata_file = paths_config['metadata_file']
-    frame_reward_file = paths_config['frame_reward_file']       # embeddings_f0_swin_bas_129_with_enhanced.csv
     video_global_outcome_file = paths_config['video_global_outcome_file'] # embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv
     fold = paths_config['fold']
     print(f"Loading CholecT50 data from {data_dir}")
@@ -52,7 +51,6 @@ def load_cholect50_data(paths_config, risk_score_path=None, max_videos=None,
     split_folder = f"embeddings_{split}_set"    
     metadata_dir = os.path.join(data_dir, split_folder, f"fold{fold}")
     metadata_path = os.path.join(metadata_dir, metadata_file)
-    frame_reward_path = os.path.join(metadata_dir, frame_reward_file)
     video_global_outcome_path = os.path.join(metadata_dir, video_global_outcome_file)
     print(f"Metadata path: {metadata_path}")
     
@@ -62,17 +60,25 @@ def load_cholect50_data(paths_config, risk_score_path=None, max_videos=None,
         metadata = pd.read_csv(metadata_path)
         print(f"Metadata loaded with shape: {metadata.shape}")
 
-    # Load frame rewards if available
-    frame_rewards = None
-    if frame_reward_path and os.path.exists(frame_reward_path):
-        frame_rewards = pd.read_csv(frame_reward_path)
-        print(f"Frame rewards loaded with shape: {frame_rewards.shape}")
-    
     # Load video global outcomes if available
     video_global_outcomes = None
     if video_global_outcome_path and os.path.exists(video_global_outcome_path):
         video_global_outcomes = pd.read_csv(video_global_outcome_path)
         print(f"Video global outcomes loaded with shape: {video_global_outcomes.shape}")
+    
+    # 
+    if metadata is not None and frame_rewards is not None:
+        metadata = pd.merge(metadata, frame_rewards, on='image_path', how='left')
+        print(f"Merged metadata with frame rewards, new shape: {metadata.shape}")
+    
+    # Here we need to add the video global outcomes to the metadata
+    # however, we only have x rows for each video, so we need to find the video id for each frame and then
+    # select the value from the other dataframe and pass it to the metadata
+    if metadata is not None and video_global_outcomes is not None:
+        video_ids = metadata['video'].unique().tolist()
+        video_global_outcomes_dict = dict(zip(video_global_outcomes['video'], video_global_outcomes['global_outcome']))
+        metadata['global_outcome'] = metadata['video'].map(video_global_outcomes_dict)
+        print(f"Added global outcomes to metadata")
     
     risk_score_root = "/home/maxboels/datasets/CholecT50/instructions/anticipation_5s_with_goals/"
     # Add the risk score for each frame to the metadata correctly
@@ -860,7 +866,7 @@ if __name__ == "__main__":
     paths_config = {
         'data_dir': "/home/maxboels/datasets/CholecT50",
         'fold': 0,
-        'metadata_file': "embeddings_f0_swin_bas_129.csv",
+        'metadata_file': "embeddings_f0_swin_bas_129_with_enhanced.csv", # initially: "embeddings_f0_swin_bas_129.csv",
         'frame_reward_file': "embeddings_f0_swin_bas_129_with_enhanced.csv",
         'video_global_outcome_file': "embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv"
     }
