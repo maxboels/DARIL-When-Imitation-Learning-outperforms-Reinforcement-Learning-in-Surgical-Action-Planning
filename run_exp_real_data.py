@@ -123,7 +123,9 @@ def load_cholect50_data(paths_config, risk_score_path=None, max_videos=None,
     
     # Initialize data list
     data = []
-    global_risk_scores = []
+    video_durations = []
+    all_videos_mean_risk_scores = []
+    all_videos_mean_risk_score_durs = []
     
     # Load frame embeddings for each video from the metadata
     for video_id in tqdm(video_ids, desc="Loading videos"):
@@ -134,51 +136,68 @@ def load_cholect50_data(paths_config, risk_score_path=None, max_videos=None,
         frame_files = video_metadata['embedding_path'].tolist()
 
         # Load frame embeddings
-        frame_embeddings = []
+        video_frame_embeddings = []
         for frame_file in tqdm(frame_files, desc=f"Frames for {video_id}"):
             embedding = np.load(os.path.join(data_dir, split_folder, frame_file))
-            frame_embeddings.append(embedding)
+            video_frame_embeddings.append(embedding)
         
-        frame_embeddings = np.array(frame_embeddings)
+        video_frame_embeddings = np.array(video_frame_embeddings)
         
         # Check embedding dimension
-        embedding_dim = frame_embeddings.shape[1]
+        embedding_dim = video_frame_embeddings.shape[1]
         print(f"Embedding dimension: {embedding_dim}")
         
         # For demonstration: Generate random action classes and survival time if metadata not available
         # In a real scenario, you would extract these from metadata
-        num_frames = len(frame_embeddings)
+        num_frames = len(video_frame_embeddings)
+        video_durations.append(num_frames)
         
-        risk_scores = metadata[risk_column_name].values
+        video_risk_scores = video_metadata[risk_column_name].values
 
         # indices from column 'tri0':'tri199'
         action_columns = [f'tri{i}' for i in range(0, 100)]
-        action_classes = metadata[action_columns].values
+        video_action_classes = video_metadata[action_columns].values
 
         # Take the mean of the 
-        mean_risk_score = np.mean(risk_scores)
-        global_risk_scores.append(mean_risk_score)
+        video_mean_risk_score = np.mean(video_risk_scores)
+        all_videos_mean_risk_scores.append(video_mean_risk_score)
+
+        # Multiple average risk score by video length
+        video_mean_risk_score_dur = video_mean_risk_score * num_frames
+        all_videos_mean_risk_score_durs.append(video_mean_risk_score_dur)
 
         # Calculate survival time based on risk score
-        m = 100 / max(risk_scores)
-        survival_time = 100 - np.mean(risk_scores) * m
-                
+        m = 100 / 5 # 5 is the max risk score
+        video_mean_survival_time = 100 - (video_mean_risk_score * m)
+        
         # Store video data
         data.append({
             'video_id': video_id,
             'video_dir': os.path.join(data_dir, split_folder, video_id),
-            'frame_embeddings': frame_embeddings,
-            'action_classes': action_classes,
-            'risk_scores': risk_scores,
-            'survival_time': survival_time,
+            'frame_embeddings': video_frame_embeddings,
+            'action_classes': video_action_classes,
+            'risk_scores': video_risk_scores,
+            'video_mean_risk_score': video_mean_risk_score,
+            'video_mean_risk_score_dur': video_mean_risk_score_dur,
+            'survival_time': video_mean_survival_time,
             'num_frames': num_frames
         })
+    
+    avg_video_duration = np.mean(video_durations)
+    print(f"Average video duration: {avg_video_duration:.2f} frames")
     
     if not data:
         raise ValueError("No valid videos loaded!")
     
-    print(f"Mean global risk score: {np.mean(global_risk_scores):.2f}")
-    print(f"Risk scores: {global_risk_scores}")
+    # Normalize by average video duration
+    all_videos_mean_risk_score_durs = np.array(all_videos_mean_risk_score_durs) / avg_video_duration
+    
+    print(f"All Videos Mean Risk Score: {np.mean(all_videos_mean_risk_scores):.2f}")
+    print(f"Standard Deviation of All Videos Mean Risk Score: {np.std(all_videos_mean_risk_scores):.2f}")
+    print(f"All Videos Risk Scores: {all_videos_mean_risk_scores}")
+    print(f"All Videos Mean Risk Score Dur: {np.mean(all_videos_mean_risk_score_durs):.2f}")
+    print(f"Standard Deviation of All Videos Mean Risk Score Dur: {np.std(all_videos_mean_risk_score_durs):.2f}")
+    print(f"All Videos Risk Score Dur: {all_videos_mean_risk_score_durs}")
     print(f"Successfully loaded {len(data)} videos")
     return data
 
