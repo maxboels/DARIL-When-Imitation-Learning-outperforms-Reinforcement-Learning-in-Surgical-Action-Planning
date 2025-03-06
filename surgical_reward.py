@@ -10,9 +10,227 @@ import argparse
 from tqdm import tqdm
 from collections import defaultdict
 
-# Import the SurgicalRewardFunction from the surgical_reward.py file
-# Make sure this file is in the same directory or in your Python path
-from surgical_reward import SurgicalRewardFunction
+class SurgicalRewardFunction:
+    """
+    Reward function for surgical procedures that balances task completion with risk assessment.
+    Improved version with correct phase progress tracking.
+    """
+    
+    def __init__(self, 
+                 phase_weights=None, 
+                 risk_weight=1.0, 
+                 time_penalty=0.01,
+                 transition_bonus=5.0,
+                 completion_bonus=20.0,
+                 critical_risk_threshold=4.0,
+                 critical_risk_penalty=10.0,
+                 default_phase_duration=100,
+                 smoothing_factor=3.0):
+        """
+        Initialize the reward function with configurable weights.
+        """
+        # Default phase weights if not provided (equal weight to all phases)
+        self.phase_weights = phase_weights or {i: 1.0 for i in range(7)}  # Assuming phases 0-6
+        
+        self.risk_weight = risk_weight
+        self.time_penalty = time_penalty
+        self.transition_bonus = transition_bonus
+        self.completion_bonus = completion_bonus
+        self.critical_risk_threshold = critical_risk_threshold
+        self.critical_risk_penalty = critical_risk_penalty
+        self.smoothing_factor = smoothing_factor
+        self.default_phase_duration = default_phase_duration
+        
+        # Initialize phase statistics with defaults
+        self.phase_duration_stats = {i: {'mean': default_phase_duration, 'std': default_phase_duration/4} 
+                                    for i in range(7)}
+        
+        # Expected phase sequence (can be customized)
+        self.expected_phase_sequence = list(range(7))  # Phases 0 to 6 in order
+        
+        # Phase tracking
+        self.phase_progress = {i: 0.0 for i in range(7)}
+        self.current_phase = None
+        self.completed_phases = set()
+        
+        # Track phase start frames - critical for progress calculation
+        self.phase_start_frames = {}
+        self.last_frame_in_phase = {}
+        
+        # To store the known phase durations from the current procedure
+        self.current_phase_durations = {}
+        
+        # Empty placeholders for historical data
+        self.historical_phase_durations = defaultdict(list)
+        self.historical_risk_distributions = defaultdict(list)
+        self.risk_distribution_stats = {}
+    
+    def calculate_reward(self, frame_data, is_terminal=False, phase_segments=None):
+        """
+        Calculate the reward for a single frame in the surgical procedure.
+        
+        Args:
+            frame_data: Dictionary containing:
+                - 'phase_id': Current surgical phase ID
+                - 'risk_scores': Dictionary of risk scores (different types)
+                - 'frame_id': Current frame ID
+                - 'action_data': Optional dictionary with detailed action information
+            is_terminal: Whether this is the terminal state (procedure completed)
+            phase_segments: Optional DataFrame with phase segment information
+                            (start_frame, end_frame, phase_id)
+            
+        Returns:
+            total_reward: The calculated reward value
+            reward_components: Dictionary breaking down reward components
+        """
+        # Extract data
+        phase_id = frame_data.get('phase_id')
+        risk_scores = frame_data.get('risk_scores', {})
+        frame_id = frame_data.get('frame_id', 0)
+        
+        reward_components = {}
+        
+        # --------- PHASE TRANSITION HANDLING ---------
+        phase_transition_reward = 0.0
+        
+        # Check if phase has changed
+        phase_changed = self.current_phase is not None and phase_id != self.current_phase
+        
+        if phase_changed:
+            # Set the progress of the completed phase to 1.0
+            if self.current_phase is not None:
+                self.phase_progress[self.current_phase] = 1.0
+                
+                # Store the phase duration for future reference
+                if self.current_phase in self.phase_start_frames:
+                    self.current_phase_durations[self.current_phase] = frame_id - self.phase_start_frames[self.current_phase]
+            
+            # Check if this is a valid phase transition (moving forward)
+            if (self.current_phase in self.expected_phase_sequence and 
+                phase_id in self.expected_phase_sequence):
+                
+                expected_idx = self.expected_phase_sequence.index(phase_id)
+                prev_idx = self.expected_phase_sequence.index(self.current_phase)
+                
+                # Only reward forward progress in the expected sequence
+                if expected_idx > prev_idx:
+                    # Phase transition reward
+                    phase_transition_reward = self.transition_bonus * self.phase_weights.get(self.current_phase, 1.0)
+                    self.completed_phases.add(self.current_phase)
+            
+            # Reset progress for the new phase and track start frame
+            if phase_id is not None:
+                self.phase_progress[phase_id] = 0.0
+                self.phase_start_frames[phase_id] = frame_id
+        
+        # If this is the first frame of any phase or a new phase
+        if self.current_phase is None or phase_changed:
+            self.current_phase = phase_id
+            if phase_id is not None and phase_id not in self.phase_start_frames:
+                self.phase_start_frames[phase_id] = frame_id
+        
+        # --------- PHASE PROGRESS CALCULATION ---------
+        phase_reward = 0.0
+        
+        if phase_id is not None:
+            # Get the expected end frame for this phase
+            phase_end_frame = None
+            
+            # If we have phase segment information, use that
+            if phase_segments is not None:
+                phase_segment = phase_segments[phase_segments['phase_id'] == phase_id]
+                if not phase_segment.empty:
+                    phase_end_frame = phase_segment['end_frame'].iloc[0]
+            
+            # If we don't have segment info, use educated guess based on previous durations
+            if phase_end_frame is None:
+                # If we've seen this phase before in this video
+                if phase_id in self.current_phase_durations:
+                    phase_duration = self.current_phase_durations[phase_id]
+                else:
+                    # Use historical or default duration
+                    phase_duration = self.phase_duration_stats.get(phase_id, {}).get('mean', self.default_phase_duration)
+                
+                # Calculate expected end frame
+                phase_end_frame = self.phase_start_frames.get(phase_id, frame_id) + phase_duration
+            
+            # Update the last known frame for this phase
+            self.last_frame_in_phase[phase_id] = frame_id
+            
+            # Calculate progress based on position within phase
+            start_frame = self.phase_start_frames.get(phase_id, frame_id)
+            frames_elapsed = frame_id - start_frame
+            total_frames = phase_end_frame - start_frame
+            
+            # Avoid division by zero
+            if total_frames > 0:
+                progress = min(frames_elapsed / total_frames, 1.0)
+            else:
+                progress = 0.0
+            
+            # Update progress (never decrease progress)
+            self.phase_progress[phase_id] = max(self.phase_progress[phase_id], progress)
+                
+            # Cap at 1.0
+            self.phase_progress[phase_id] = min(self.phase_progress[phase_id], 1.0)
+            
+            # Calculate reward based on progress and phase importance
+            phase_reward = self.phase_progress[phase_id] * self.phase_weights.get(phase_id, 1.0)
+        
+        reward_components['phase_progress_reward'] = phase_reward
+        reward_components['phase_transition_reward'] = phase_transition_reward
+        
+        # --------- RISK ASSESSMENT CALCULATION ---------
+        risk_penalty = 0.0
+        
+        # Calculate average risk score (or use a more sophisticated aggregation)
+        if risk_scores:
+            # Can be weighted by risk type importance if needed
+            avg_risk = np.mean(list(risk_scores.values()))
+            
+            # Basic risk penalty proportional to risk score
+            risk_penalty = self.risk_weight * avg_risk
+            
+            # Additional penalty for exceeding critical threshold
+            if avg_risk > self.critical_risk_threshold:
+                risk_penalty += self.critical_risk_penalty * (avg_risk - self.critical_risk_threshold)
+        
+        reward_components['risk_penalty'] = -risk_penalty  # Negative because it's a penalty
+        
+        # --------- TIME EFFICIENCY PENALTY ---------
+        time_penalty = self.time_penalty
+        reward_components['time_penalty'] = -time_penalty  # Negative because it's a penalty
+        
+        # --------- COMPLETION BONUS ---------
+        completion_reward = 0.0
+        if is_terminal:
+            # Check if all expected phases were completed
+            all_phases_completed = all(phase in self.completed_phases for phase in self.expected_phase_sequence)
+            if all_phases_completed:
+                completion_reward = self.completion_bonus
+        
+        reward_components['completion_reward'] = completion_reward
+        
+        # --------- TOTAL REWARD CALCULATION ---------
+        total_reward = (
+            phase_reward + 
+            phase_transition_reward + 
+            -risk_penalty +  # Negative because it's a penalty
+            -time_penalty +  # Negative because it's a penalty
+            completion_reward
+        )
+        
+        return total_reward, reward_components
+    
+    def reset(self):
+        """Reset the reward function state for a new procedure"""
+        self.phase_progress = {i: 0.0 for i in range(7)}
+        self.current_phase = None
+        self.completed_phases = set()
+        self.phase_start_frames = {}
+        self.last_frame_in_phase = {}
+        self.current_phase_durations = {}
+
 
 def load_data_from_metadata(metadata_df, video_id, risk_column_names=None):
     """
@@ -146,6 +364,9 @@ def calculate_rewards_for_video(metadata_df, video_id, risk_column_name='risk_sc
     # Reset reward function state
     reward_function.reset()
     
+    # First, get phase segments for better progress calculation
+    _, phase_segments, _ = load_data_from_metadata(metadata_df, video_id)
+    
     # Calculate rewards for each frame
     frame_rewards = {}
     cumulative_rewards = {}
@@ -175,7 +396,7 @@ def calculate_rewards_for_video(metadata_df, video_id, risk_column_name='risk_sc
         
         # Calculate reward for this frame
         is_terminal = (frame_id == video_metadata['frame'].iloc[-1])
-        reward, components = reward_function.calculate_reward(frame_data, is_terminal)
+        reward, components = reward_function.calculate_reward(frame_data, is_terminal, phase_segments)
         
         # Store results
         frame_rewards[frame_id] = reward
@@ -230,7 +451,7 @@ def plot_rewards_and_risk(video_id, risk_scores_dict, frame_rewards, cumulative_
     # Set up figure with subplots
     n_plots = 3  # Risk, reward, cumulative reward
     if show_components and component_rewards:
-        n_plots += len(component_rewards)
+        n_plots += min(len(component_rewards), 3)  # Limit to 3 component plots to keep size reasonable
     
     fig, axs = plt.subplots(n_plots, 1, figsize=(14, 4 * n_plots), sharex=True)
     
@@ -309,15 +530,20 @@ def plot_rewards_and_risk(video_id, risk_scores_dict, frame_rewards, cumulative_
         display_name = risk_type.replace('risk_score_', '')
         ax_risk.plot(risk_x, risk_y, label=display_name, color=risk_type_colors[i % len(risk_type_colors)], linewidth=2)
     
-    # Add phase backgrounds
+    # Set y limits to include 0
     risk_ymin, risk_ymax = ax_risk.get_ylim()
+    risk_ymin = min(0, risk_ymin)
+    ax_risk.set_ylim(risk_ymin, risk_ymax)
+    
+    # Add phase backgrounds
     add_phase_backgrounds(ax_risk, risk_ymin, risk_ymax)
     
     # Set labels
     ax_risk.set_ylabel('Risk Score')
     ax_risk.set_title(f'Risk Scores for Video {video_id}')
     ax_risk.grid(True, linestyle='--', alpha=0.7)
-    ax_risk.legend(loc='upper right')
+    if risk_scores_dict:
+        ax_risk.legend(loc='upper right')
     
     # === PLOT 2: FRAME REWARDS ===
     ax_reward = axs[1]
@@ -332,8 +558,13 @@ def plot_rewards_and_risk(video_id, risk_scores_dict, frame_rewards, cumulative_
     # Add horizontal line at y=0
     ax_reward.axhline(y=0, color='red', linestyle='--', alpha=0.7)
     
-    # Add phase backgrounds
+    # Set y limits to make the zero line visible
     reward_ymin, reward_ymax = ax_reward.get_ylim()
+    reward_ymin = min(-0.1, reward_ymin)
+    reward_ymax = max(0.1, reward_ymax)
+    ax_reward.set_ylim(reward_ymin, reward_ymax)
+    
+    # Add phase backgrounds
     add_phase_backgrounds(ax_reward, reward_ymin, reward_ymax)
     
     # Set labels
@@ -354,8 +585,12 @@ def plot_rewards_and_risk(video_id, risk_scores_dict, frame_rewards, cumulative_
     # Add horizontal line at y=0
     ax_cumul.axhline(y=0, color='red', linestyle='--', alpha=0.7)
     
-    # Add phase backgrounds
+    # Set y limits to make the zero line visible
     cumul_ymin, cumul_ymax = ax_cumul.get_ylim()
+    cumul_ymin = min(-1, cumul_ymin)
+    ax_cumul.set_ylim(cumul_ymin, cumul_ymax)
+    
+    # Add phase backgrounds
     add_phase_backgrounds(ax_cumul, cumul_ymin, cumul_ymax)
     
     # Set labels
@@ -373,7 +608,30 @@ def plot_rewards_and_risk(video_id, risk_scores_dict, frame_rewards, cumulative_
             'completion_reward': 'purple'
         }
         
-        for i, (component, rewards) in enumerate(component_rewards.items(), start=3):
+        # Prioritize the most important components
+        priority_components = ['phase_progress_reward', 'risk_penalty', 'phase_transition_reward']
+        
+        # Get components that exist in our data
+        available_components = list(component_rewards.keys())
+        
+        # Prioritize components for display (limit to 3)
+        components_to_show = []
+        
+        # First add prioritized components that exist in our data
+        for comp in priority_components:
+            if comp in available_components and len(components_to_show) < 3:
+                components_to_show.append(comp)
+                
+        # Then add any remaining components until we reach 3
+        for comp in available_components:
+            if comp not in components_to_show and len(components_to_show) < 3:
+                components_to_show.append(comp)
+        
+        for i, component in enumerate(components_to_show, start=3):
+            if i >= len(axs):
+                break  # Don't exceed number of subplots
+                
+            rewards = component_rewards[component]
             ax_comp = axs[i]
             
             # Convert component rewards to arrays for plotting
@@ -385,11 +643,17 @@ def plot_rewards_and_risk(video_id, risk_scores_dict, frame_rewards, cumulative_
             ax_comp.plot(comp_x, comp_y, color=color, linewidth=2)
             
             # Add horizontal line at y=0 if there are negative values
-            if min(comp_y) < 0:
+            if min(comp_y + [0]) < 0:
                 ax_comp.axhline(y=0, color='black', linestyle='--', alpha=0.7)
             
-            # Add phase backgrounds
+            # Set y limits to make the zero line visible if needed
             comp_ymin, comp_ymax = ax_comp.get_ylim()
+            if min(comp_y + [0]) < 0:
+                comp_ymin = min(-0.1, comp_ymin)
+                comp_ymax = max(0.1, comp_ymax)
+                ax_comp.set_ylim(comp_ymin, comp_ymax)
+            
+            # Add phase backgrounds
             add_phase_backgrounds(ax_comp, comp_ymin, comp_ymax)
             
             # Set labels
@@ -427,6 +691,7 @@ def plot_rewards_and_risk(video_id, risk_scores_dict, frame_rewards, cumulative_
         plt.savefig(output_path, dpi=300, bbox_inches='tight')
         print(f"Saved plot to {output_path}")
     else:
+        plt.tight_layout()
         plt.show()
     
     plt.close()
@@ -435,13 +700,13 @@ def main():
     parser = argparse.ArgumentParser(description='Visualize rewards and risk scores for surgical videos')
     parser.add_argument('--video_id', type=str, default=None, 
                       help='Specific video ID to visualize (if not specified, will process all videos in metadata)')
-    parser.add_argument('--metadata_path', type=str, default="/home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129.csv",
+    parser.add_argument('--metadata_path', type=str, required=True,
                       help='Path to metadata CSV file containing risk scores and phase information')
     parser.add_argument('--risk_column', type=str, default='risk_score_max',
                       help='Risk score column to use for reward calculation')
     parser.add_argument('--risk_weight', type=float, default=1.0,
                       help='Weight for risk penalties in reward function')
-    parser.add_argument('--phase_importance', type=int, nargs='+', default=None,
+    parser.add_argument('--phase_importance', type=float, nargs='+', default=None,
                       help='Importance weights for phases (space-separated list of 7 values)')
     parser.add_argument('--smooth_factor', type=float, default=5.0, 
                       help='Smoothing factor for curves (0 = no smoothing)')
@@ -449,8 +714,12 @@ def main():
                       help='Directory to save output plots')
     parser.add_argument('--skip_existing', action='store_true',
                       help='Skip videos that already have visualization files')
-    parser.add_argument('--show_components', action='store_true',
+    parser.add_argument('--show_components', action='store_true', default=True,
                       help='Show individual reward components in separate plots')
+    parser.add_argument('--transition_bonus', type=float, default=5.0,
+                      help='Reward for completing a phase')
+    parser.add_argument('--default_phase_duration', type=int, default=500,
+                      help='Default expected duration of phases in frames')
     
     args = parser.parse_args()
     
@@ -486,13 +755,6 @@ def main():
             phase_weights = {i: float(w) for i, w in enumerate(args.phase_importance)}
             print(f"Using custom phase weights: {phase_weights}")
         
-        # Initialize reward function
-        reward_function = SurgicalRewardFunction(
-            phase_weights=phase_weights,
-            risk_weight=args.risk_weight,
-            smoothing_factor=args.smooth_factor
-        )
-        
         # Process each video
         success_count = 0
         error_count = 0
@@ -506,6 +768,15 @@ def main():
                     print(f"Skipping video {video_id} (visualization already exists)")
                     skip_count += 1
                     continue
+                
+                # Initialize reward function
+                reward_function = SurgicalRewardFunction(
+                    phase_weights=phase_weights,
+                    risk_weight=args.risk_weight,
+                    transition_bonus=args.transition_bonus,
+                    default_phase_duration=args.default_phase_duration,
+                    smoothing_factor=args.smooth_factor
+                )
                 
                 # Load risk scores and phase information
                 risk_scores_dict, phases_df, frame_phases = load_data_from_metadata(
