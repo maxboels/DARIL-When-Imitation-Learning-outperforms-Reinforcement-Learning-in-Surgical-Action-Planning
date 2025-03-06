@@ -51,7 +51,6 @@ def load_cholect50_data(paths_config, risk_score_path=None, max_videos=None,
     split_folder = f"embeddings_{split}_set"    
     metadata_dir = os.path.join(data_dir, split_folder, f"fold{fold}")
     metadata_path = os.path.join(metadata_dir, metadata_file)
-    video_global_outcome_path = os.path.join(metadata_dir, video_global_outcome_file)
     print(f"Metadata path: {metadata_path}")
     
     # Load metadata if available
@@ -62,24 +61,24 @@ def load_cholect50_data(paths_config, risk_score_path=None, max_videos=None,
 
     # Load video global outcomes if available
     video_global_outcomes = None
-    if video_global_outcome_path and os.path.exists(video_global_outcome_path):
+    if video_global_outcome_file:
+        video_global_outcome_path = os.path.join(metadata_dir, video_global_outcome_file)
         video_global_outcomes = pd.read_csv(video_global_outcome_path)
         print(f"Video global outcomes loaded with shape: {video_global_outcomes.shape}")
     
-    # 
-    if metadata is not None and frame_rewards is not None:
-        metadata = pd.merge(metadata, frame_rewards, on='image_path', how='left')
-        print(f"Merged metadata with frame rewards, new shape: {metadata.shape}")
-    
+    # Add correct video_global_outcomes row and with all columns to the metadata file using the video id as unique identifier
     # Here we need to add the video global outcomes to the metadata
     # however, we only have x rows for each video, so we need to find the video id for each frame and then
     # select the value from the other dataframe and pass it to the metadata
     if metadata is not None and video_global_outcomes is not None:
+        columns_to_add = ["avg_risk", "max_risk", "risk_std", "critical_risk_events", "critical_risk_percentage", "global_outcome_score"]
         video_ids = metadata['video'].unique().tolist()
-        video_global_outcomes_dict = dict(zip(video_global_outcomes['video'], video_global_outcomes['global_outcome']))
-        metadata['global_outcome'] = metadata['video'].map(video_global_outcomes_dict)
-        print(f"Added global outcomes to metadata")
-    
+        for video_id in video_ids:
+            video_global_outcome = video_global_outcomes[video_global_outcomes['video'] == video_id]
+            for column in columns_to_add:
+                metadata.loc[metadata['video'] == video_id, column] = video_global_outcome[column].values[0]
+        print(f"Added video global outcomes to metadata")
+        
     risk_score_root = "/home/maxboels/datasets/CholecT50/instructions/anticipation_5s_with_goals/"
     # Add the risk score for each frame to the metadata correctly
     video_ids_cache = []
@@ -194,7 +193,13 @@ def load_cholect50_data(paths_config, risk_score_path=None, max_videos=None,
         # Calculate survival time based on risk score
         m = 100 / 5 # 5 is the max risk score
         video_mean_survival_time = 100 - (video_mean_risk_score * m)
-        
+
+        # global outcome score
+        columns_to_add = ["avg_risk", "max_risk", "risk_std", "critical_risk_events", "critical_risk_percentage", "global_outcome_score"]
+        video_outcome_data = {}
+        for column in columns_to_add:
+            video_outcome_data[column] = video_metadata[column].values[0]
+
         # Store video data
         data.append({
             'video_id': video_id,
@@ -205,8 +210,10 @@ def load_cholect50_data(paths_config, risk_score_path=None, max_videos=None,
             'video_mean_risk_score': video_mean_risk_score,
             'video_mean_risk_score_dur': video_mean_risk_score_dur,
             'survival_time': video_mean_survival_time,
-            'num_frames': num_frames
+            'num_frames': num_frames,
+            **video_outcome_data        # unpack video_outcome_data
         })
+
     
     avg_video_duration = np.mean(video_durations)
     print(f"Average video duration: {avg_video_duration:.2f} frames")
@@ -867,14 +874,26 @@ if __name__ == "__main__":
         'data_dir': "/home/maxboels/datasets/CholecT50",
         'fold': 0,
         'metadata_file': "embeddings_f0_swin_bas_129_with_enhanced.csv", # initially: "embeddings_f0_swin_bas_129.csv",
-        'frame_reward_file': "embeddings_f0_swin_bas_129_with_enhanced.csv",
-        'video_global_outcome_file': "embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv"
+        'video_global_outcome_file': None # "embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv"
     }
+
+    # Loss terms configuration
+    loss_gpt2_config = {
+        'next_z': True, # Embedding prediction
+        'next_a': True, # Action prediction
+        'next_r': False, # Reward prediction
+        'next_q': False, # Q-value prediction (to define)
+        'final_R': False, # Final reward estimation (outcome)
+    }
+    # GPT-2 model configuration
     gpt2_config = {
         'hidden_dim': 768,  # GPT-2 hidden dimension
         'embedding_dim': 1024,  # GPT-2 embedding dimension
-        'n_layer': 6  # Number of transformer layers
+        'n_layer': 6,  # Number of transformer layers
+        # add loss terms configuration
+        **loss_gpt2_config
     }
+
     # Run the experiment with a subset of videos for faster execution
     max_videos = 5  # Set to None to use all videos
 

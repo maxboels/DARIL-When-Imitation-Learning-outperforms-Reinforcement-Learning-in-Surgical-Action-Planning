@@ -10,14 +10,28 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
     """
     GPT-2 based model for predicting future frame embeddings.
     """
-    def __init__(self, gpt2_config: Dict[str, Any]):
-        super().__init__()
-        self.hidden_dim = gpt2_config['hidden_dim']
-        self.embedding_dim = gpt2_config['embedding_dim']
-        self.n_layer = gpt2_config['n_layer']
-        self.max_length = gpt2_config.get('max_length', 1024)
-        
+    def __init__(self, hidden_dim: int, embedding_dim: int, n_layer: int, max_length: int = 1024,
+                    next_z: bool = True, next_a: bool = True, next_r: bool = False, next_q: bool = False, final_R: bool = False,
+                    num_action_classes: int = 100,
+                    num_outcomes: int = 1):
+        """
+        Initialize the model.
+        """
+        super(CausalGPT2ForFrameEmbeddings, self).__init__()
+        self.hidden_dim = hidden_dim
+        self.embedding_dim = embedding_dim
+        self.n_layer = n_layer
+        self.max_length = max_length
+        self.next_z = next_z
+        self.next_a = next_a
+        self.next_r = next_r
+        self.next_q = next_q
+        self.final_R = final_R
+        self.num_action_classes = num_action_classes
+        self.num_outcomes = num_outcomes
         # Update GPT2 config
+        self.loss_terms = gpt2_config.get('loss_terms', ['mse'])
+        # Configuration for GPT-2 model
         self.config = GPT2Config.from_pretrained('gpt2')
         self.config.hidden_size = self.hidden_dim
         self.config.num_hidden_layers = self.n_layer
@@ -37,6 +51,19 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
         # Output projection: from GPT-2 hidden dimension back to frame embedding dimension
         # Replacing the standard language model head with our custom output projection
         self.model.lm_head = nn.Linear(self.hidden_dim, self.embedding_dim)
+
+
+        # Add Classifier Head based on the loss terms specified
+        self.classifier_head = nn.ModuleDict()
+        for loss_term in self.loss_terms:
+            if loss_term == 'mse':
+                self.classifier_head[loss_term] = nn.Linear(self.hidden_dim, self.embedding_dim)
+            elif loss_term == 'action':
+                self.classifier_head[loss_term] = nn.Linear(self.hidden_dim, self.num_action_classes)
+            elif loss_term == 'outcome':
+                self.classifier_head[loss_term] = nn.Linear(self.hidden_dim, self.num_outcomes)
+            else:
+                raise ValueError(f"Invalid loss term: {loss_term}")
         
         # Initialize weights
         self._init_weights()
