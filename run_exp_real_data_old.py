@@ -11,26 +11,37 @@ import json
 import pandas as pd
 import re
 from tqdm import tqdm
-import yaml
-import os
 
 from model import CausalGPT2ForFrameEmbeddings, RewardPredictor
 
 # Set random seed for reproducibility
 np.random.seed(42)
 torch.manual_seed(42)
+
+# Configuration
+CONTEXT_LENGTH = 5  # c_a
+ANTICIPATION_LENGTH = 3  # l_a
+BATCH_SIZE = 16
+LEARNING_RATE = 0.001
+EPOCHS = 20
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Step 1: Data Loading from CholecT50 Dataset
-def load_cholect50_data(cfg, split='train'):
+def load_cholect50_data(paths_config, risk_score_path=None, max_videos=None,
+                        frame_risk_agg='max', split='train'):
     """
-    Load frame embeddings from the CholecT50 dataset for training or validation.
-
+    Load frame embeddings from the CholecT50 dataset.
+    
+    Args:
+        data_dir: Path to the folder containing video directories
+        metadata_path: Path to metadata CSV file (if available)
+        risk_score_path: Path to risk score JSON file (if available)
+        max_videos: Maximum number of videos to load (for testing)
+        
     Returns:
         List of dictionaries containing video data
     """
     # extract paths from config
-    paths_config = cfg['paths']
     data_dir = paths_config['data_dir']
     metadata_file = paths_config['metadata_file']
     video_global_outcome_file = paths_config['video_global_outcome_file'] # embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv
@@ -73,7 +84,7 @@ def load_cholect50_data(cfg, split='train'):
     # Add the risk score for each frame to the metadata correctly
     video_ids_cache = []
     all_risk_scores = []
-    risk_column_name = f'risk_score_{cfg['frame_risk_agg']}'
+    risk_column_name = f'risk_score_{frame_risk_agg}'
     if metadata is not None:
         for i, row in metadata.iterrows():
             video_id = row['video']
@@ -98,12 +109,12 @@ def load_cholect50_data(cfg, split='train'):
                 frame_risk_scores = []
                 for action in current_actions: # it's a list of dictionaries
                     frame_risk_scores.append(action['expert_risk_score'])
-                if cfg['frame_risk_agg'] == 'mean':
+                if frame_risk_agg == 'mean':
                     risk_score = np.mean(frame_risk_scores)
-                elif cfg['frame_risk_agg'] == 'max':
+                elif frame_risk_agg == 'max':
                     risk_score = np.max(frame_risk_scores)
                 else:
-                    print(f"Frame risk aggregation method {cfg['frame_risk_agg']} not supported, skipping")
+                    print(f"Frame risk aggregation method {frame_risk_agg} not supported, skipping")
                 risk_score = float(risk_score)
                 all_risk_scores.append(risk_score)
 
@@ -130,8 +141,8 @@ def load_cholect50_data(cfg, split='train'):
     # Find all videos in metadata csv file
     if metadata is not None:
         video_ids = metadata['video'].unique().tolist()
-    if cfg['max_videos']:
-        video_ids = video_ids[:cfg['max_videos']]
+    if max_videos:
+        video_ids = video_ids[:max_videos]
     
     print(f"Found {len(video_ids)} video directories")
     
@@ -225,59 +236,45 @@ def load_cholect50_data(cfg, split='train'):
 
 # Custom dataset for frame prediction with sequence inputs
 class NextFramePredictionDataset(Dataset):
-    def __init__(self, cfg, data):
+    def __init__(self, data, sequence_length=5, padding_value=0.0):
         """
         Initialize the dataset with sequences of frame embeddings
         
         Args:
             data: List of video dictionaries containing frame_embeddings and actions_binaries
-            context_length: Number of previous frames to include in each input sequence
+            sequence_length: Number of previous frames to include in each input sequence
             padding_value: Value to use for padding when not enough previous frames exist
         """
         self.samples = []
-        
-        context_length = cfg.get('context_length', 10)
-        padding_value = cfg.get('padding_value', 0.0)
+        self.sequence_length = sequence_length
+        self.padding_value = padding_value
 
         for video in data:
-            embeddings = video['frame_embeddings']
-            actions = video['actions_binaries']
-                            
+            embeddings = video.get('frame_embeddings', [])
+            actions = video.get('actions_binaries', [])
+            
+            if not embeddings or len(embeddings) < 2:
+                continue
+                
             embedding_dim = len(embeddings[0])
-
+            
             for i in range(len(embeddings) - 1):
-                # For position i, take context_length frames from the left (previous frames)
-                # This means frames from (i-context_length+1) to i, inclusive
-                z_seq = []
-                _z_seq = []
-                _a_seq = []
+                # For position i, take sequence_length frames from the left (previous frames)
+                # This means frames from (i-sequence_length+1) to i, inclusive
+                seq = []
                 
                 # Add previous frames, using padding if needed
-                for j in range(i - context_length + 1, i + 1):
+                for j in range(i - sequence_length + 1, i + 1):
                     if j < 0:
                         # Padding for positions before the start of the video
-                        z_seq.append([padding_value] * embedding_dim)
+                        seq.append([padding_value] * embedding_dim)
                     else:
-                        z_seq.append(embeddings[j])
-                    
-                for k in range(i - context_length + 2, i + 2):
-                    if k < 0:
-                        # Padding for positions before the start of the video
-                        _z_seq.append([padding_value] * embedding_dim)
-                        print(f"Padding for position {k}/{len(embeddings)}")
-                    elif k >= len(embeddings):
-                        # Padding for positions after the end of the video
-                        _z_seq.append([padding_value] * embedding_dim)
-                        print(f"Padding for position {k}/{len(embeddings)}")
-                    else:
-                        _z_seq.append(embeddings[k])
-                        _a_seq.append(actions[k])
-
-                # Add the sequence to the samples list
+                        seq.append(embeddings[j])
+                
                 self.samples.append({
-                    'z': z_seq,  # Sequence of frames from (i-context_length+1) to i
-                    '_z': _z_seq,  # Sequence of frames from (i-context_length+2) to i+1
-                    '_a': _a_seq  # Sequence of actions from (i-context_length+2) to i+1
+                    'z': seq,  # Sequence of frames from (i-sequence_length+1) to i
+                    '_z': embeddings[i + 1],  # Next frame (i+1) to predict
+                    '_a': actions[i + 1]  # Next action
                 })
     
     def __len__(self):
@@ -286,7 +283,7 @@ class NextFramePredictionDataset(Dataset):
     def __getitem__(self, idx):
         sample = self.samples[idx]
 
-        z = torch.tensor(sample['z'], dtype=torch.float32)  # Shape: [context_length, embedding_dim]
+        z = torch.tensor(sample['z'], dtype=torch.float32)  # Shape: [sequence_length, embedding_dim]
         _z = torch.tensor(sample['_z'], dtype=torch.float32)
         _a = torch.tensor(sample['_a'], dtype=torch.float32)
 
@@ -322,7 +319,7 @@ class FramePredictionDataset(Dataset):
 
 # Custom dataset for reward prediction
 class RewardPredictionDataset(Dataset):
-    def __init__(self, data, context_length=10):
+    def __init__(self, data, context_length=CONTEXT_LENGTH):
         self.samples = []
         self.context_length = context_length
         
@@ -346,7 +343,7 @@ class RewardPredictionDataset(Dataset):
 
 # Action Policy Model with reward weighting
 class ActionPolicyModel(nn.Module):
-    def __init__(self, input_dim, context_length=10, num_action_classes=100, hidden_dim=256):
+    def __init__(self, input_dim, context_length=CONTEXT_LENGTH, num_action_classes=100, hidden_dim=256):
         super(ActionPolicyModel, self).__init__()
         
         # LSTM to process sequence of frame embeddings
@@ -377,7 +374,7 @@ class ActionPolicyModel(nn.Module):
         return action_logits
 
 # Training function for next frame predictor
-def train_next_frame_model(cfg, model, data, val_data=None, device='cuda'):
+def train_next_frame_model(model, data, val_data=None, device='cuda', epochs=1):
     # Split data
     if val_data is None:
         train_data, val_data = train_test_split(data, test_size=0.2, random_state=42)
@@ -385,20 +382,20 @@ def train_next_frame_model(cfg, model, data, val_data=None, device='cuda'):
         train_data = data
     
     # Create datasets and dataloaders
-    train_dataset = NextFramePredictionDataset(cfg['data'], train_data)
-    val_dataset = NextFramePredictionDataset(cfg['data'], val_data)
+    train_dataset = NextFramePredictionDataset(train_data)
+    val_dataset = NextFramePredictionDataset(val_data)
     
-    train_loader = DataLoader(train_dataset, batch_size=cfg['training']['batch_size'], shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=cfg['training']['batch_size'])
-
+    train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE)
+    
     # Loss function and optimizer
     criterion = nn.MSELoss()
-    optimizer = optim.Adam(model.parameters(), lr=cfg['training']['learning_rate'])
+    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
     
     # Training loop
     train_losses = []
     val_losses = []
-    epochs = cfg['training']['epochs']
+    
     for epoch in range(epochs):
         # Training
         model.train()
@@ -406,6 +403,11 @@ def train_next_frame_model(cfg, model, data, val_data=None, device='cuda'):
         
         for z, _z, _a in tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs} Training"):
             z, _z, _a = z.to(device), _z.to(device), _a.to(device)
+            
+            # For GPT2 model, reshape inputs to include sequence dimension
+            z_seq = z.unsqueeze(1)  # [batch_size, 1, embedding_dim]
+            _z_seq = _z.unsqueeze(1)  # [batch_size, 1, embedding_dim]
+            _a_seq = _a.unsqueeze(1)  # [batch_size, 1, num_actions]
             
             # Forward pass
             outputs = model(z_seq, next_frame=_z_seq, next_actions=_a_seq)
@@ -435,7 +437,7 @@ def train_next_frame_model(cfg, model, data, val_data=None, device='cuda'):
                 # Generate next frame predictions
                 future_embeddings = model.generate_future(
                     initial_embedding=inputs_seq,
-                    length=cfg['world_model']['eval']['horizon']
+                    length=1  # Generate one step ahead
                 )
                 
                 # Extract predictions (remove sequence dim if necessary)
@@ -453,7 +455,7 @@ def train_next_frame_model(cfg, model, data, val_data=None, device='cuda'):
     return train_losses, val_losses
 
 # Training function for reward predictor
-def train_reward_model(cfg, model, data, device):
+def train_reward_model(model, data, device, epochs=EPOCHS):
     # Split data
     train_data, val_data = train_test_split(data, test_size=0.2, random_state=42)
     
@@ -461,18 +463,18 @@ def train_reward_model(cfg, model, data, device):
     train_dataset = RewardPredictionDataset(train_data)
     val_dataset = RewardPredictionDataset(val_data)
     
-    train_loader = DataLoader(train_dataset, batch_size=cfg['batch_size'], shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=cfg['batch_size'])
+    train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE)
     
     # Loss function and optimizer
     criterion = nn.MSELoss()
-    optimizer = optim.Adam(model.parameters(), lr=cfg['learning_rate'])
+    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
     
     # Training loop
     train_losses = []
     val_losses = []
     
-    for epoch in range(cfg['epochs']):
+    for epoch in range(epochs):
         # Training
         model.train()
         train_loss = 0.0
@@ -515,17 +517,15 @@ def train_reward_model(cfg, model, data, device):
     return train_losses, val_losses
 
 # Step 4: Estimate reward difference
-def estimate_reward_difference(cfg, reward_model, frame_embeddings, next_frame_model, t, device):
-    context_length = cfg['context_length']
-    ANTICIPATION_LENGTH = cfg['anticipation_length']
+def estimate_reward_difference(reward_model, frame_embeddings, next_frame_model, t, device):
     """Estimate the difference in expected rewards between current and future states."""
     # Get context embeddings (previous c_a frames)
-    start_idx = max(0, t - context_length + 1)
+    start_idx = max(0, t - CONTEXT_LENGTH + 1)
     context_embeddings = frame_embeddings[start_idx:t+1]
     
     # If context is shorter than expected, pad it
-    if len(context_embeddings) < context_length:
-        padding = np.zeros((context_length - len(context_embeddings), context_embeddings.shape[1]))
+    if len(context_embeddings) < CONTEXT_LENGTH:
+        padding = np.zeros((CONTEXT_LENGTH - len(context_embeddings), context_embeddings.shape[1]))
         context_embeddings = np.vstack([padding, context_embeddings])
     
     # Convert to tensor
@@ -546,16 +546,16 @@ def estimate_reward_difference(cfg, reward_model, frame_embeddings, next_frame_m
     # Combine context with future for anticipated reward
     # Use only the most recent context frames plus future frames
     combined_embeddings = np.vstack([
-        context_embeddings[-(context_length - ANTICIPATION_LENGTH):] if context_length > ANTICIPATION_LENGTH else [],
+        context_embeddings[-(CONTEXT_LENGTH - ANTICIPATION_LENGTH):] if CONTEXT_LENGTH > ANTICIPATION_LENGTH else [],
         future_np
     ])
     
     # Ensure we have the right context length
-    if len(combined_embeddings) < context_length:
-        padding = np.zeros((context_length - len(combined_embeddings), combined_embeddings.shape[1]))
+    if len(combined_embeddings) < CONTEXT_LENGTH:
+        padding = np.zeros((CONTEXT_LENGTH - len(combined_embeddings), combined_embeddings.shape[1]))
         combined_embeddings = np.vstack([padding, combined_embeddings])
-    elif len(combined_embeddings) > context_length:
-        combined_embeddings = combined_embeddings[-context_length:]
+    elif len(combined_embeddings) > CONTEXT_LENGTH:
+        combined_embeddings = combined_embeddings[-CONTEXT_LENGTH:]
     
     # Convert back to tensor
     combined_tensor = torch.tensor(combined_embeddings, dtype=torch.float32).unsqueeze(0).to(device)
@@ -568,7 +568,7 @@ def estimate_reward_difference(cfg, reward_model, frame_embeddings, next_frame_m
     return future_reward - current_reward
 
 # Calculate action rewards - find which actions lead to positive reward differences
-def calculate_action_rewards(data, next_frame_model, reward_model, device, context_length=10, ANTICIPATION_LENGTH=5):
+def calculate_action_rewards(data, next_frame_model, reward_model, device):
     """Calculate average reward difference for each action class."""
     print("Calculating action rewards...")
     
@@ -579,9 +579,15 @@ def calculate_action_rewards(data, next_frame_model, reward_model, device, conte
         frame_embeddings = video['frame_embeddings']
         actions_binaries = video['actions_binaries']
         
-        for t in range(context_length, len(frame_embeddings) - ANTICIPATION_LENGTH):
+        for t in range(CONTEXT_LENGTH, len(frame_embeddings) - ANTICIPATION_LENGTH):
             # Calculate reward difference for this frame
-            reward_diff = estimate_reward_difference(cfg, reward_model, frame_embeddings, next_frame_model, t, device)
+            reward_diff = estimate_reward_difference(
+                reward_model,
+                frame_embeddings,
+                next_frame_model,
+                t,
+                device
+            )
             
             # Get action class for this frame
             action = int(actions_binaries[t])
@@ -606,7 +612,7 @@ def calculate_action_rewards(data, next_frame_model, reward_model, device, conte
 
 # Create a dataset for action policy training with weighted actions
 class ActionPolicyDataset(Dataset):
-    def __init__(self, data, action_weights, context_length=10):
+    def __init__(self, data, action_weights, context_length=CONTEXT_LENGTH):
         self.samples = []
         self.context_length = context_length
         
@@ -639,13 +645,7 @@ class ActionPolicyDataset(Dataset):
         )
 
 # Train action policy model with reward weighting
-def train_action_policy(cfg, data, action_weights, device):
-    input_dim = cfg['embedding_dim']
-    num_action_classes = cfg['num_action_classes']
-    num_epochs = cfg['epochs']
-    BATCH_SIZE = cfg['batch_size']
-    LEARNING_RATE = cfg['learning_rate']
-
+def train_action_policy(data, action_weights, device, input_dim, num_action_classes=100, epochs=10):
     """Train a policy model that prioritizes high-reward actions."""
     print("Training action policy model with reward weighting...")
     
@@ -744,14 +744,14 @@ def run_tdmpc(data, next_frame_model, reward_model, policy_model, action_weights
         frame_embeddings = video['frame_embeddings']
         original_actions = video['actions_binaries']
         
-        for t in range(context_length, len(frame_embeddings) - ANTICIPATION_LENGTH):
+        for t in range(CONTEXT_LENGTH, len(frame_embeddings) - ANTICIPATION_LENGTH):
             # Get context window
-            start_idx = max(0, t - context_length + 1)
+            start_idx = max(0, t - CONTEXT_LENGTH + 1)
             context_embeddings = frame_embeddings[start_idx:t+1]
             
             # Pad if needed
-            if len(context_embeddings) < context_length:
-                padding = np.zeros((context_length - len(context_embeddings), context_embeddings.shape[1]))
+            if len(context_embeddings) < CONTEXT_LENGTH:
+                padding = np.zeros((CONTEXT_LENGTH - len(context_embeddings), context_embeddings.shape[1]))
                 context_embeddings = np.vstack([padding, context_embeddings])
             
             # Convert to tensor
@@ -885,7 +885,7 @@ def analyze_results(results, action_weights):
     }
 
 # Main function to run the experiment with CholecT50 data
-def run_cholect50_experiment(cfg):
+def run_cholect50_experiment(cfg, paths_config, gpt2_config, reward_config, max_videos=None):
     """Run the experiment with CholecT50 data."""
     print("Starting CholecT50 experiment for surgical video analysis")
     
@@ -894,19 +894,27 @@ def run_cholect50_experiment(cfg):
     print(f"Using device: {device}")
     
     # Step 1: Load data
-    print("\nLoading CholecT50 data...")
-    train_data = load_cholect50_data(cfg['data'], split='train')
-    test_data = load_cholect50_data(cfg['data'], split='test')
+    train_data = load_cholect50_data(paths_config, max_videos=max_videos, split='train')
+    test_data = load_cholect50_data(paths_config, max_videos=max_videos, split='test')
+    
+    # Get embedding dimension from the first video
+    embedding_dim = train_data[0]['frame_embeddings'].shape[1]
+    print(f"Embedding dimension: {embedding_dim}")
+    
+    # Get number of unique action classes
+    all_actions = np.concatenate([video['actions_binaries'] for video in train_data])
+    num_action_classes = all_actions.shape[1]
+    print(f"Number of action classes: {num_action_classes}")
     
     # Step 2: Pre-train next frame prediction model
     print("\nTraining next frame prediction model...")
-    world_model = CausalGPT2ForFrameEmbeddings(**cfg['models']['world_model']).to(device)
+    world_model = CausalGPT2ForFrameEmbeddings(**gpt2_config).to(device)
     train_next_frame_model(cfg, world_model, train_data, test_data, device=device)  # Reduced epochs for demonstration
 
     # Step 3: Train reward prediction model
     print("\nTraining reward prediction model...")
-    reward_model = RewardPredictor(**cfg['models']['reward']).to(device)
-    train_reward_model(cfg['reward_model'], train_data, device)  # Reduced epochs for demonstration
+    reward_model = RewardPredictor(**reward_config).to(device)
+    train_reward_model(reward_model, train_data, device, epochs=5)  # Reduced epochs for demonstration
     
     # Calculate action rewards
     print("\nCalculating action rewards...")
@@ -914,7 +922,8 @@ def run_cholect50_experiment(cfg):
     
     # Train action policy model with reward weighting
     print("\nTraining action policy model...")
-    policy_model, action_weights = train_action_policy(cfg, train_data, avg_action_rewards, device)
+    policy_model, action_weights = train_action_policy(
+        train_data, avg_action_rewards, device, embedding_dim, num_action_classes, epochs=5)
     
     # Run TD-MPC2 to evaluate the model
     print("\nRunning TD-MPC2...")
@@ -926,21 +935,67 @@ def run_cholect50_experiment(cfg):
     
     return next_frame_model, reward_model, policy_model, action_weights, results, analysis
 
-def load_config(config_path):
-    """Load configuration from YAML file."""
-    with open(config_path, 'r') as f:
-        config = yaml.safe_load(f)
-    return config
-
 if __name__ == "__main__":
-    # Load config
-    config_path = 'config.yaml'
-    print(f"Loading configuration from {os.path.abspath(config_path)}")
-    cfg = load_config(config_path)
-        
-    print("\nConfiguration loaded successfully!")
+    # Configuration for training
+    cfg = {
+        num_epochs: 1,
+        batch_size: 16,
+        learning_rate: 1e-4,
+        context_length: 5,
+        horizon: 15,
+    }
+    # Set paths
+    paths_config = {
+        'data_dir': "/home/maxboels/datasets/CholecT50",
+        'fold': 0,
+        'metadata_file': "embeddings_f0_swin_bas_129_with_enhanced.csv", # initially: "embeddings_f0_swin_bas_129.csv",
+        'video_global_outcome_file': None # "embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv"
+    }
+
+    # Weights for loss components in GPT-2 model
+    loss_gpt2_config = {
+        'w_z': 1.0,  # Embedding prediction (default: 0.8)
+        'w_a': None,  # Action prediction (0.2)
+        'w_r': None,  # Reward prediction (0.1)
+        'w_q': None,  # Q-value prediction (0.1)
+        'w_R': None,  # Final reward estimation (0.05)
+    }
+    gpt2_targets_dims = {
+        'next_z': 512,
+        'next_a': 100,
+        'next_r': 1,
+        'next_q': 1,
+        'final_R': 1
+    }
+    # GPT-2 model configuration
+    gpt2_config = {
+        'hidden_dim': 768,  # GPT-2 hidden dimension
+        'embedding_dim': 1024,  # GPT-2 embedding dimension
+        'n_layer': 6,  # Number of transformer layers
+        'use_head': True,
+        'targets_dims': gpt2_targets_dims,
+        'targets': None#'next_a', 'next_r', 'next_q', 'final_R'],
+        **loss_gpt2_config,
+    }
+
+    # Run the experiment with a subset of videos for faster execution
+    max_videos = 5  # Set to None to use all videos
+
+    reward_config = {
+        'input_dim': 1024,
+        'context_length': 5,
+        'hidden_dim': 256,
+        'num_heads': 4,
+        'num_layers': 2
+    }
     
     # Run the experiment
-    next_frame_model, reward_model, policy_model, action_weights, results, analysis = run_cholect50_experiment(cfg)    
+    next_frame_model, reward_model, policy_model, action_weights, results, analysis = run_cholect50_experiment(
+        cfg,
+        paths_config, # paths configuration
+        gpt2_config, reward_config, # config dictionaries
+        max_videos, # data paths
+    )
+    
     print("\nExperiment completed!")
     print(f"Model performance: {analysis['percent_improvement']:.2f}% improvement in action quality")

@@ -13,10 +13,11 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
     def __init__(self, hidden_dim: int, embedding_dim: int, n_layer: int, max_length: int = 1024,
                     use_head: bool = False,
                     targets_dims: Dict[str, int] = None,
-                    targets: List[str] = ['_z'],
-                    w_z: float = 1.0, w_a: float = 1.0, w_r: float = 1.0, w_q: float = 1.0, w_R: float = 1.0,
+                    target_heads: List[str] = None,
+                    loss_weights: Dict[str, float] = None,
                     num_action_classes: int = 100,
-                    num_outcomes: int = 1):
+                    num_outcomes: int = 1,
+                    eval: Dict[str, Any] = None):
         """
         Initialize the generative model.
         """
@@ -25,11 +26,15 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
         self.embedding_dim = embedding_dim
         self.n_layer = n_layer
         self.max_length = max_length
-        self.w_z = w_z
-        self.w_a = w_a
-        self.w_r = w_r
-        self.w_q = w_q
-        self.w_R = w_R
+        self.use_head = use_head
+        self.targets_dims = targets_dims
+        self.target_heads = target_heads
+        self.loss_weights = loss_weights
+        self.w_z = loss_weights.get('_z', 1.0) if loss_weights else 1.0
+        self.w_a = loss_weights.get('_a', 1.0) if loss_weights else 1.0
+        self.w_r = loss_weights.get('_r', 1.0) if loss_weights else 1.0
+        self.w_q = loss_weights.get('_q', 1.0) if loss_weights else 1.0
+        self.w_R = loss_weights.get('_R', 1.0) if loss_weights else 1.0
         self.num_action_classes = num_action_classes
         self.num_outcomes = num_outcomes
         # Configuration for GPT-2 model
@@ -42,26 +47,25 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
         self.config.n_layer = self.n_layer
         self.config.n_embd = self.hidden_dim
         self.config.vocab_size = 1  # Not using vocab embeddings in traditional sense
+        
+        # Initialize the world model
+        self._init_world_model()
+        self._init_weights()
 
+    def _init_world_model(self):
         # GPT-2 model
         self.model = GPT2LMHeadModel(self.config)        
         self.input_projection = nn.Linear(self.embedding_dim, self.hidden_dim)
         # Output projection: from GPT-2 hidden dimension back to frame embedding dimension
         # Replacing the standard language model head with our custom output projection
         self.model.lm_head = nn.Linear(self.hidden_dim, self.embedding_dim)
-
         # Head
-        if len(targets) > 1:
+        if self.target_heads:
             self.head = nn.ModuleDict()
-            for target in targets:
-                if target == '_z':
-                    continue
-                target_dim = targets_dims[target]
+            for target in self.target_heads:
+                target_dim = self.targets_dims[target]
                 self.head[target] = nn.Linear(self.hidden_dim, target_dim)
-        
-        # Initialize weights
-        self._init_weights()
-        
+
     def _init_weights(self):
         """Initialize the weights for the custom layers."""
         nn.init.normal_(self.input_projection.weight, std=0.02)
@@ -132,9 +136,9 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
         # Calculate MSE loss between predictions and targets
         loss = F.mse_loss(predictions, target_embeddings)
 
-        if self.head is not None:
+        if self.target_heads:
             head_outputs = {}
-            for target in self.head:
+            for target in self.target_heads:
                 head_outputs[target] = self.head[target](last_hidden_state)
 
                 if target == '_a' and self.w_a is not None:
