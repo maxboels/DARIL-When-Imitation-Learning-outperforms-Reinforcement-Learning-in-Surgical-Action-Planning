@@ -24,6 +24,7 @@ ANTICIPATION_LENGTH = 3  # l_a
 BATCH_SIZE = 16
 LEARNING_RATE = 0.001
 EPOCHS = 20
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Step 1: Data Loading from CholecT50 Dataset
 def load_cholect50_data(paths_config, risk_score_path=None, max_videos=None,
@@ -205,7 +206,7 @@ def load_cholect50_data(paths_config, risk_score_path=None, max_videos=None,
             'video_id': video_id,
             'video_dir': os.path.join(data_dir, split_folder, video_id),
             'frame_embeddings': video_frame_embeddings,
-            'action_classes': video_action_classes,
+            'actions_binaries': video_action_classes,
             'risk_scores': video_risk_scores,
             'video_mean_risk_score': video_mean_risk_score,
             'video_mean_risk_score_dur': video_mean_risk_score_dur,
@@ -230,21 +231,23 @@ def load_cholect50_data(paths_config, risk_score_path=None, max_videos=None,
     print(f"All Videos Mean Risk Score Dur: {np.mean(all_videos_mean_risk_score_durs):.2f}")
     print(f"Standard Deviation of All Videos Mean Risk Score Dur: {np.std(all_videos_mean_risk_score_durs):.2f}")
     print(f"All Videos Risk Score Dur: {all_videos_mean_risk_score_durs}")
-    print(f"Successfully loaded {len(data)} videos")
+    print(f"Successfully loaded {len(data)} ({split}ing) videos")
     return data
 
 # Custom dataset for frame prediction
 class FramePredictionDataset(Dataset):
     def __init__(self, data):
         self.samples = []
-        
+
         for video in data:
             embeddings = video['frame_embeddings']
+            actions = video['actions_binaries']
             
             for i in range(len(embeddings) - 1):
                 self.samples.append({
-                    'input': embeddings[i],
-                    'target': embeddings[i + 1]
+                    'z': embeddings[i],
+                    '_z': embeddings[i + 1],
+                    '_a': actions[i + 1]
                 })
     
     def __len__(self):
@@ -252,7 +255,59 @@ class FramePredictionDataset(Dataset):
     
     def __getitem__(self, idx):
         sample = self.samples[idx]
-        return torch.tensor(sample['input'], dtype=torch.float32), torch.tensor(sample['target'], dtype=torch.float32)
+
+        z = torch.tensor(sample['z'], dtype=torch.float32)
+        _z = torch.tensor(sample['_z'], dtype=torch.float32)
+        _a = torch.tensor(sample['_a'], dtype=torch.float32)
+
+        return z, _z, _a
+
+class SequenceFramePredictionDataset(Dataset):
+    def __init__(self, data, input_seq_len=5, target_seq_len=3):
+        """
+        Dataset for sequence-to-sequence frame prediction.
+        
+        Args:
+            data: List of video dictionaries with frame_embeddings and actions_binaries
+            input_seq_len: Length of input sequence
+            target_seq_len: Length of target sequence to predict
+        """
+        self.samples = []
+        self.input_seq_len = input_seq_len
+        self.target_seq_len = target_seq_len
+        
+        for video in data:
+            embeddings = video['frame_embeddings']
+            actions = video['actions_binaries']
+            
+            # Ensure we have enough frames for both input and target sequences
+            total_seq_len = input_seq_len + target_seq_len
+            
+            for i in range(len(embeddings) - total_seq_len + 1):
+                # Extract input sequence
+                input_embeddings = embeddings[i:i+input_seq_len]
+                
+                # Extract target sequence for next frames
+                target_embeddings = embeddings[i+input_seq_len:i+total_seq_len]
+                target_actions = actions[i+input_seq_len:i+total_seq_len]
+                
+                self.samples.append({
+                    'input_z': np.array(input_embeddings),
+                    'target_z': np.array(target_embeddings),
+                    'target_a': np.array(target_actions)
+                })
+    
+    def __len__(self):
+        return len(self.samples)
+    
+    def __getitem__(self, idx):
+        sample = self.samples[idx]
+
+        input_z = torch.tensor(sample['input_z'], dtype=torch.float32)
+        target_z = torch.tensor(sample['target_z'], dtype=torch.float32)
+        target_a = torch.tensor(sample['target_a'], dtype=torch.float32)
+
+        return input_z, target_z, target_a
 
 # Custom dataset for reward prediction
 class RewardPredictionDataset(Dataset):
@@ -311,9 +366,12 @@ class ActionPolicyModel(nn.Module):
         return action_logits
 
 # Training function for next frame predictor
-def train_next_frame_model(model, data, device, epochs=EPOCHS):
+def train_next_frame_model(model, data, val_data=None, device='cuda', epochs=1):
     # Split data
-    train_data, val_data = train_test_split(data, test_size=0.2, random_state=42)
+    if val_data is None:
+        train_data, val_data = train_test_split(data, test_size=0.2, random_state=42)
+    else:
+        train_data = data
     
     # Create datasets and dataloaders
     train_dataset = FramePredictionDataset(train_data)
@@ -335,15 +393,16 @@ def train_next_frame_model(model, data, device, epochs=EPOCHS):
         model.train()
         train_loss = 0.0
         
-        for inputs, targets in tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs} Training"):
-            inputs, targets = inputs.to(device), targets.to(device)
+        for z, _z, _a in tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs} Training"):
+            z, _z, _a = z.to(device), _z.to(device), _a.to(device)
             
             # For GPT2 model, reshape inputs to include sequence dimension
-            inputs_seq = inputs.unsqueeze(1)  # [batch_size, 1, embedding_dim]
-            targets_seq = targets.unsqueeze(1)  # [batch_size, 1, embedding_dim]
+            z_seq = z.unsqueeze(1)  # [batch_size, 1, embedding_dim]
+            _z_seq = _z.unsqueeze(1)  # [batch_size, 1, embedding_dim]
+            _a_seq = _a.unsqueeze(1)  # [batch_size, 1, num_actions]
             
             # Forward pass
-            outputs = model(inputs_seq, labels=targets_seq)
+            outputs = model(z_seq, next_frame=_z_seq, next_actions=_a_seq)
             loss = outputs["loss"]
             
             # Backward pass and optimize
@@ -351,7 +410,7 @@ def train_next_frame_model(model, data, device, epochs=EPOCHS):
             loss.backward()
             optimizer.step()
             
-            train_loss += loss.item() * inputs.size(0)
+            train_loss += loss.item() * z.size(0)
         
         train_loss /= len(train_loader.dataset)
         train_losses.append(train_loss)
@@ -361,11 +420,11 @@ def train_next_frame_model(model, data, device, epochs=EPOCHS):
         val_loss = 0.0
         
         with torch.no_grad():
-            for inputs, targets in tqdm(val_loader, desc=f"Epoch {epoch+1}/{epochs} Validation"):
-                inputs, targets = inputs.to(device), targets.to(device)
+            for z, _z, _a in tqdm(val_loader, desc=f"Epoch {epoch+1}/{epochs} Validation"):
+                z, _z, _a = z.to(device), _z.to(device), _a.to(device)
                 
                 # Add sequence dimension for model input
-                inputs_seq = inputs.unsqueeze(1)  # [batch_size, 1, embedding_dim]
+                inputs_seq = z.unsqueeze(1)  # [batch_size, 1, embedding_dim]
                 
                 # Generate next frame predictions
                 future_embeddings = model.generate_future(
@@ -377,8 +436,8 @@ def train_next_frame_model(model, data, device, epochs=EPOCHS):
                 predictions = future_embeddings.squeeze(1)  # [batch_size, embedding_dim]
                 
                 # Calculate loss between predictions and targets
-                loss = criterion(predictions, targets)
-                val_loss += loss.item() * inputs.size(0)
+                loss = criterion(predictions, _z)
+                val_loss += loss.item() * z.size(0)
         
         val_loss /= len(val_loader.dataset)
         val_losses.append(val_loss)
@@ -510,7 +569,7 @@ def calculate_action_rewards(data, next_frame_model, reward_model, device):
     
     for video in tqdm(data, desc="Processing videos for action rewards"):
         frame_embeddings = video['frame_embeddings']
-        action_classes = video['action_classes']
+        actions_binaries = video['actions_binaries']
         
         for t in range(CONTEXT_LENGTH, len(frame_embeddings) - ANTICIPATION_LENGTH):
             # Calculate reward difference for this frame
@@ -523,7 +582,7 @@ def calculate_action_rewards(data, next_frame_model, reward_model, device):
             )
             
             # Get action class for this frame
-            action = int(action_classes[t])
+            action = int(actions_binaries[t])
             
             # Update running sum and count for this action
             if action not in action_rewards:
@@ -551,7 +610,7 @@ class ActionPolicyDataset(Dataset):
         
         for video in data:
             embeddings = video['frame_embeddings']
-            actions = video['action_classes']
+            actions = video['actions_binaries']
             
             for i in range(context_length - 1, len(embeddings)):
                 context = embeddings[i - (context_length - 1):i + 1]
@@ -675,7 +734,7 @@ def run_tdmpc(data, next_frame_model, reward_model, policy_model, action_weights
     for video in tqdm(data, desc="Evaluating videos"):
         video_results = []
         frame_embeddings = video['frame_embeddings']
-        original_actions = video['action_classes']
+        original_actions = video['actions_binaries']
         
         for t in range(CONTEXT_LENGTH, len(frame_embeddings) - ANTICIPATION_LENGTH):
             # Get context window
@@ -835,14 +894,14 @@ def run_cholect50_experiment(paths_config, gpt2_config, reward_config, max_video
     print(f"Embedding dimension: {embedding_dim}")
     
     # Get number of unique action classes
-    all_actions = np.concatenate([video['action_classes'] for video in train_data])
-    num_action_classes = int(max(all_actions)) + 1
+    all_actions = np.concatenate([video['actions_binaries'] for video in train_data])
+    num_action_classes = all_actions.shape[1]
     print(f"Number of action classes: {num_action_classes}")
     
     # Step 2: Pre-train next frame prediction model
     print("\nTraining next frame prediction model...")
-    next_frame_predictor = CausalGPT2ForFrameEmbeddings(gpt2_config).to(device)
-    train_next_frame_model(next_frame_predictor, train_data, device, epochs=1)  # Reduced epochs for demonstration
+    next_frame_predictor = CausalGPT2ForFrameEmbeddings(**gpt2_config).to(device)
+    train_next_frame_model(next_frame_predictor, train_data, test_data, device=device, epochs=1)  # Reduced epochs for demonstration
 
     # Step 3: Train reward prediction model
     print("\nTraining reward prediction model...")
@@ -877,21 +936,30 @@ if __name__ == "__main__":
         'video_global_outcome_file': None # "embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv"
     }
 
-    # Loss terms configuration
+    # Weights for loss components in GPT-2 model
     loss_gpt2_config = {
-        'next_z': True, # Embedding prediction
-        'next_a': True, # Action prediction
-        'next_r': False, # Reward prediction
-        'next_q': False, # Q-value prediction (to define)
-        'final_R': False, # Final reward estimation (outcome)
+        'w_z': 1.0,  # Embedding prediction (default: 0.8)
+        'w_a': None,  # Action prediction (0.2)
+        'w_r': None,  # Reward prediction (0.1)
+        'w_q': None,  # Q-value prediction (0.1)
+        'w_R': None,  # Final reward estimation (0.05)
+    }
+    gpt2_targets_dims = {
+        'next_z': 512,
+        'next_a': 100,
+        'next_r': 1,
+        'next_q': 1,
+        'final_R': 1
     }
     # GPT-2 model configuration
     gpt2_config = {
         'hidden_dim': 768,  # GPT-2 hidden dimension
         'embedding_dim': 1024,  # GPT-2 embedding dimension
         'n_layer': 6,  # Number of transformer layers
-        # add loss terms configuration
-        **loss_gpt2_config
+        'use_head': True,
+        'targets_dims': gpt2_targets_dims,
+        'targets': None#'next_a', 'next_r', 'next_q', 'final_R'],
+        **loss_gpt2_config,
     }
 
     # Run the experiment with a subset of videos for faster execution

@@ -11,26 +11,27 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
     GPT-2 based model for predicting future frame embeddings.
     """
     def __init__(self, hidden_dim: int, embedding_dim: int, n_layer: int, max_length: int = 1024,
-                    next_z: bool = True, next_a: bool = True, next_r: bool = False, next_q: bool = False, final_R: bool = False,
+                    use_head: bool = False,
+                    targets_dims: Dict[str, int] = None,
+                    targets: List[str] = ['_z'],
+                    w_z: float = 1.0, w_a: float = 1.0, w_r: float = 1.0, w_q: float = 1.0, w_R: float = 1.0,
                     num_action_classes: int = 100,
                     num_outcomes: int = 1):
         """
-        Initialize the model.
+        Initialize the generative model.
         """
         super(CausalGPT2ForFrameEmbeddings, self).__init__()
         self.hidden_dim = hidden_dim
         self.embedding_dim = embedding_dim
         self.n_layer = n_layer
         self.max_length = max_length
-        self.next_z = next_z
-        self.next_a = next_a
-        self.next_r = next_r
-        self.next_q = next_q
-        self.final_R = final_R
+        self.w_z = w_z
+        self.w_a = w_a
+        self.w_r = w_r
+        self.w_q = w_q
+        self.w_R = w_R
         self.num_action_classes = num_action_classes
         self.num_outcomes = num_outcomes
-        # Update GPT2 config
-        self.loss_terms = gpt2_config.get('loss_terms', ['mse'])
         # Configuration for GPT-2 model
         self.config = GPT2Config.from_pretrained('gpt2')
         self.config.hidden_size = self.hidden_dim
@@ -43,27 +44,20 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
         self.config.vocab_size = 1  # Not using vocab embeddings in traditional sense
 
         # GPT-2 model
-        self.model = GPT2LMHeadModel(self.config)
-        
-        # Input projection: from frame embedding dimension to GPT-2 hidden dimension
+        self.model = GPT2LMHeadModel(self.config)        
         self.input_projection = nn.Linear(self.embedding_dim, self.hidden_dim)
-        
         # Output projection: from GPT-2 hidden dimension back to frame embedding dimension
         # Replacing the standard language model head with our custom output projection
         self.model.lm_head = nn.Linear(self.hidden_dim, self.embedding_dim)
 
-
-        # Add Classifier Head based on the loss terms specified
-        self.classifier_head = nn.ModuleDict()
-        for loss_term in self.loss_terms:
-            if loss_term == 'mse':
-                self.classifier_head[loss_term] = nn.Linear(self.hidden_dim, self.embedding_dim)
-            elif loss_term == 'action':
-                self.classifier_head[loss_term] = nn.Linear(self.hidden_dim, self.num_action_classes)
-            elif loss_term == 'outcome':
-                self.classifier_head[loss_term] = nn.Linear(self.hidden_dim, self.num_outcomes)
-            else:
-                raise ValueError(f"Invalid loss term: {loss_term}")
+        # Head
+        if len(targets) > 1:
+            self.head = nn.ModuleDict()
+            for target in targets:
+                if target == '_z':
+                    continue
+                target_dim = targets_dims[target]
+                self.head[target] = nn.Linear(self.hidden_dim, target_dim)
         
         # Initialize weights
         self._init_weights()
@@ -77,14 +71,15 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
     
     def forward(self, 
                 inputs: torch.Tensor, 
-                labels: Optional[torch.Tensor] = None,
+                next_frame: Optional[torch.Tensor] = None,
+                next_actions: Optional[torch.Tensor] = None,
                 attention_mask: Optional[torch.Tensor] = None) -> Dict[str, torch.Tensor]:
         """
         Forward pass for training the model.
         
         Args:
             inputs: Frame embeddings tensor of shape [batch_size, seq_length, embedding_dim]
-            labels: Target frame embeddings tensor of shape [batch_size, seq_length, embedding_dim]
+            next_frame: Target frame embeddings tensor of shape [batch_size, seq_length, embedding_dim]
                    If None, will use inputs shifted to the right for teacher forcing
             attention_mask: Attention mask of shape [batch_size, seq_length]
         
@@ -94,14 +89,14 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
         batch_size, seq_length, _ = inputs.size()
         
         # Project input embeddings to GPT-2 hidden dimension
-        hidden_states = self.input_projection(inputs)
+        proj_inputs = self.input_projection(inputs)
         
         # Create position IDs
         position_ids = torch.arange(seq_length, dtype=torch.long, device=inputs.device)
         position_ids = position_ids.unsqueeze(0).expand(batch_size, -1)
         
-        # If no labels provided, use inputs shifted right for teacher forcing
-        if labels is None:
+        # If no next_frame provided, use inputs shifted right for teacher forcing
+        if next_frame is None:
             # Shift inputs to the right, prepend with zeros as first token
             shifted_inputs = torch.cat([
                 torch.zeros(batch_size, 1, self.embedding_dim, device=inputs.device),
@@ -114,9 +109,9 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
             # Use the original inputs as targets
             target_embeddings = inputs
         else:
-            # Use provided inputs and labels
-            shifted_hidden_states = hidden_states
-            target_embeddings = labels
+            # Use provided inputs and next_frame (can predict any future frame embeddings)
+            shifted_hidden_states = proj_inputs
+            target_embeddings = next_frame
         
         # Pass through GPT-2 model
         # We're using the model differently - we're providing hidden states directly
@@ -136,10 +131,21 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
         
         # Calculate MSE loss between predictions and targets
         loss = F.mse_loss(predictions, target_embeddings)
+
+        if self.head is not None:
+            head_outputs = {}
+            for target in self.head:
+                head_outputs[target] = self.head[target](last_hidden_state)
+
+                if target == '_a' and self.w_a is not None:
+                    loss += self.w_a * F.binary_cross_entropy_with_logits(head_outputs[target], next_actions)
+                elif target == '_R':
+                    pass 
         
         return {
             "loss": loss,
             "predictions": predictions,
+            "head_outputs": head_outputs,
             "hidden_states": outputs.hidden_states
         }
     
