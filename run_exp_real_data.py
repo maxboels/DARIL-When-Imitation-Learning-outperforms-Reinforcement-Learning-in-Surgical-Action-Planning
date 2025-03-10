@@ -416,7 +416,7 @@ def train_next_frame_model(cfg, model, train_loader, val_loader=None, device='cu
         action_accuracies = []
         with torch.no_grad():
             for batch_idx, (z_seq, _z_seq, _a_seq, f_a_seq) in enumerate(tqdm(val_loader, desc=f"Epoch {epoch+1}/{epochs} Validation")):
-                z_seq, _z_seq, _a_seq = z_seq.to(device), _z_seq.to(device), _a_seq.to(device)
+                z_seq, _z_seq, _a_seq, f_a_seq = z_seq.to(device), _z_seq.to(device), _a_seq.to(device), f_a_seq.to(device)
 
                 # New frame observed
                 # We should already have seen the previous frames and stored them memory
@@ -431,95 +431,94 @@ def train_next_frame_model(cfg, model, train_loader, val_loader=None, device='cu
                 _z_loss = F.mse_loss(outputs['_zs_hat'][:, 0, :], _z_seq[:, -1, :]) # Check if first frame isn't the input frame
                 val_loss += _z_loss.item() * z_seq.size(0)
 
-                if '_a_seq_hat' in outputs:
-                    _a_loss = F.binary_cross_entropy_with_logits(outputs['_a_seq_hat'], f_a_seq)
-                    val_loss += _a_loss.item() * z_seq.size(0)
+                if 'f_a_seq_hat' in outputs:
+                    f_a_loss = F.binary_cross_entropy_with_logits(outputs['f_a_seq_hat'], f_a_seq)
+                    val_loss += f_a_loss.item() * z_seq.size(0)
 
-                    for h in [1, 5, 10]:
-                        # For each step in the prediction horizon
-                        for step in range(min(h, hidden_states.shape[1])):
-                            # Get target step (adjust if needed based on dataset structure)
-                            target_step = step
+                    # Select intervals for evaluation
+                    for h in eval_horizons:
+                        if h <= outputs['f_a_seq_hat'].shape[1]:  # Make sure horizon is within prediction range
                             
-                            # Ensure we have target data for this step
-                            if target_step < _a_seq.shape[1]:
-                                # Predict actions from hidden states
-                                action_logits = model.action_head(hidden_states[:, step, :])
+                            f_a_h_hat = outputs['f_a_seq_hat'][:, :h, :]
+                            f_a_h_targets = f_a_seq[:, :h, :]
+                            
+                            # Calculate top-k accuracy over the sequence horizon
+                            for k in top_ks:
+                                # Ensure k isn't larger than the number of classes
+                                k = min(k, f_a_h_hat.shape[2])
                                 
-                                # Get target actions
-                                target_actions = _a_seq[:, target_step, :]
+                                # Get probabilities
+                                f_a_h_probs = torch.sigmoid(f_a_h_hat)
+
+                                # Get top-k predictions for each frame
+                                _, topk_indices = torch.topk(f_a_h_probs, k, dim=2)  # [batch, h, k]
                                 
-                                # Convert one-hot encoded targets to indices
-                                target_indices = torch.argmax(target_actions, dim=1)
+                                # Calculate accuracy - correct multi-label handling
+                                batch_size, horizon_len = f_a_h_targets.shape[0], f_a_h_targets.shape[1]
+                                correct_count = 0
+                                total_count = 0
                                 
-                                # Calculate top-k accuracy
-                                for k in top_ks:
-                                    # Ensure k isn't larger than the number of classes
-                                    k = min(k, action_logits.shape[1])
-                                    
-                                    # Get top-k predictions
-                                    _, topk_indices = torch.topk(action_logits, k, dim=1)
-                                    
-                                    # Check if target is in top-k
-                                    correct = torch.any(topk_indices == target_indices.unsqueeze(1), dim=1)
-                                    
-                                    # Calculate and store accuracy
-                                    accuracy = correct.float().mean().item()
-                                    results[f"horizon_{h}_top_{k}"].append(accuracy)
-                        # Calculate accuracy with top-k actions over short time horizon to relax a bit the exact timing
-                        topk = 5
-                        _, topk_actions = outputs['_a_seq_hat'].topk(topk, dim=2)
-                        topk_actions = topk_actions.squeeze(0)
-                        correct = topk_actions.eq(_a_seq[:, -1, :].argmax(dim=1).unsqueeze(1).expand_as(topk_actions))
-                        accuracy = correct.float().mean()
-                        writer.add_scalar('Accuracy/World_Model_Action_Prediction', accuracy.item(), epoch * len(val_loader) + len(val_loader))
+                                # For each batch and time step
+                                for b in range(batch_size):
+                                    for t in range(horizon_len):
+                                        # Get active classes (indices where value is 1) for this frame
+                                        true_action_indices = torch.where(f_a_h_targets[b, t] > 0.5)[0]
+                                        
+                                        # Skip frames with no active classes
+                                        # TODO: is in not supposed to be part of the performance evaluation?
+                                        if len(true_action_indices) == 0:
+                                            continue
+                                            
+                                        # Get predicted top-k indices for this frame
+                                        pred_action_indices = topk_indices[b, t]
+                                        
+                                        # Check if any true action is in the predicted top-k
+                                        match_found = False
+                                        for true_idx in true_action_indices:
+                                            if true_idx in pred_action_indices:
+                                                match_found = True
+                                                break
+                                                
+                                        if match_found:
+                                            correct_count += 1
+                                        total_count += 1
+                                
+                                # Calculate accuracy
+                                accuracy = correct_count / max(1, total_count)  # Avoid division by zero
+                                results[f"horizon_{h}_top_{k}"].append(accuracy)
+                                
+                                # Log accuracy
+                                writer.add_scalar(f'Accuracy/Horizon_{h}_Top_{k}', accuracy, global_step)
                 
                 # Calculate global step using epoch and batch index
                 global_step = epoch * len(val_loader) + batch_idx
-                writer.add_scalar('Loss/World_Model_Val', _z_loss.item(), global_step)
+                writer.add_scalar('Loss/World_Model_Val', val_loss, global_step)
+                writer.add_scalar('Loss/World_Model_Val_Z', _z_loss.item(), global_step)
+                writer.add_scalar('Loss/World_Model_Val_A', f_a_loss.item(), global_step)
 
-
-            # Calculate average metrics
-            avg_results = {}
-            for key, values in results.items():
-                if values:
-                    avg_results[key] = sum(values) / len(values)
-                else:
-                    avg_results[key] = 0.0
-            
-            # Print results table
-            print("\nAction Prediction Accuracy:")
-            print("-" * 60)
-            print(f"{'Horizon':<10} {'Top-k':<10} {'Accuracy':<10} {'Num. Samples':<15}")
-            print("-" * 60)
-            for horizon in sorted(eval_horizons):
-                for k in sorted(top_ks):
-                    key = f"horizon_{horizon}_top_{k}"
-                    samples = len(results[key])
-                    print(f"{horizon:<10} {k:<10} {avg_results[key]:.4f} {samples:<15}")
-            print("-" * 60)
-            
-            # Visualize results
-            # plot_eval_metrics = False
-            # if plot_eval_metrics:
-            #     plot_evaluation_results(avg_results, eval_horizons, top_ks)
-            
         val_loss /= len(val_loader.dataset)
         val_losses.append(val_loss)
-            
-        # Calculate average action prediction accuracy if available
-        if action_accuracies:
-            avg_action_accuracy = sum(action_accuracies) / len(action_accuracies)
-            writer.add_scalar('Accuracy/Epoch_Avg_Action_Prediction', avg_action_accuracy, epoch)
-            print(f'Epoch {epoch+1}/{epochs}, Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, Action Accuracy: {avg_action_accuracy:.4f}')
-        else:
-            print(f'Epoch {epoch+1}/{epochs}, Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}')
+
+        # Calculate and log average accuracies for each horizon and top-k
+        print("\nAction Prediction Accuracy:")
+        print("-" * 50)
+        print(f"{'Horizon':<10} {'Top-k':<10} {'Accuracy':<10}")
+        print("-" * 50)
         
-        # Save best model
+        for horizon in sorted(eval_horizons):
+            for k in sorted(top_ks):
+                key = f"horizon_{horizon}_top_{k}"
+                if results[key]:
+                    avg_accuracy = sum(results[key]) / len(results[key])
+                    print(f"{horizon:<10} {k:<10} {avg_accuracy:.4f}")
+                    writer.add_scalar(f'Accuracy/Avg_Horizon_{horizon}_Top_{k}', avg_accuracy, epoch)
+        print("-" * 50)
+        
+        # Save model if it's the best so far
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             
-            # Create a descriptive filename
+            # Create descriptive filename
             checkpoint_filename = f"best_model_epoch{epoch+1}_valloss{val_loss:.6f}.pt"
             checkpoint_path = os.path.join(checkpoint_dir, checkpoint_filename)
             
@@ -531,6 +530,8 @@ def train_next_frame_model(cfg, model, train_loader, val_loader=None, device='cu
                 'val_loss': val_loss,
                 'train_loss': train_loss,
                 'config': cfg,
+                'action_accuracies': {key: sum(results[key]) / len(results[key]) if results[key] else 0.0 
+                                     for key in results}
             }, checkpoint_path)
             
             best_model_path = checkpoint_path

@@ -296,11 +296,10 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
         # Stack all hidden states
         all_hidden_states = torch.stack(all_hidden_states, dim=1)  # [batch_size, num_frames, hidden_dim]
         
-        # Stack predictions over the sequence dimension
-
+        # Stack future predictions over the sequence dimension
         if self.target_heads:
             for target in self.target_heads:
-                all_head_outputs[f"{target}_seq_hat"] = torch.stack(all_head_outputs[target], dim=1)
+                all_head_outputs[f"f{target}_seq_hat"] = torch.stack(all_head_outputs[target], dim=1)
         
         # Return the full sequence including the input and generated frames
         result = {
