@@ -928,6 +928,9 @@ def run_cholect50_experiment(cfg):
     action_weights = None
     results = None
     analysis = None
+
+    cfg_exp = cfg['experiment']
+    print(f"Running experiment: {cfg_exp}")
     
     # Set device (use GPU if available)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -939,34 +942,34 @@ def run_cholect50_experiment(cfg):
     test_data = load_cholect50_data(cfg['data'], split='test')
     
     # Step 2: Pre-train next frame prediction model
-    if cfg['pretrain_next_frame']:        
+    if cfg_exp['pretrain_next_frame']:        
         print("\nTraining next frame prediction model...")
         world_model = CausalGPT2ForFrameEmbeddings(**cfg['models']['world_model']).to(device)
         train_next_frame_model(cfg, world_model, train_data, test_data, device=device)  # Reduced epochs for demonstration
 
     # Step 3: Train reward prediction model
-    if cfg['pretrain_reward_model']:
+    if cfg_exp['pretrain_reward_model']:
         print("\nTraining reward prediction model...")
         reward_model = RewardPredictor(**cfg['models']['reward']).to(device)
         train_reward_model(cfg['reward_model'], train_data, device)
     
     # Calculate action rewards
-    if cfg['calculate_action_rewards']:
+    if cfg_exp['calculate_action_rewards']:
         print("\nCalculating action rewards...")
         avg_action_rewards = calculate_action_rewards(train_data, next_frame_model, reward_model, device)
     
     # Train action policy model with reward weighting
-    if cfg['train_action_policy']:
+    if cfg_exp['train_action_policy']:
         print("\nTraining action policy model...")
         policy_model, action_weights = train_action_policy(cfg, train_data, avg_action_rewards, device)
     
     # Run TD-MPC2 to evaluate the model
-    if cfg['run_tdmpc']:
+    if cfg_exp['run_tdmpc']:
         print("\nRunning TD-MPC2...")
         results = run_tdmpc(data, next_frame_model, reward_model, policy_model, action_weights, device)
     
     # Analyze and visualize results
-    if cfg['analyze_results']:
+    if cfg_exp['analyze_results']:
         print("\nAnalyzing results...")
         analysis = analyze_results(results, action_weights)
     

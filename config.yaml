@@ -1,5 +1,14 @@
 # Debug mode
 debug: false
+experiment:
+  max_videos: 2  # Set to null to use all videos
+  pretrain_next_frame: true
+  pretrain_reward_model: false
+  calculate_action_rewards: false
+  train_action_policy: false
+  run_tdmpc: false
+  analyze_results: false
+  run_evaluation: false
 
 # Training parameters
 training:
@@ -31,7 +40,7 @@ data:
     metadata_file: "embeddings_f0_swin_bas_129_with_enhanced.csv"
     video_global_outcome_file: null
   risk_score_path: null
-  max_videos: 2                     # Set to null to use all videos
+  max_videos: null                     # Set to null to use all videos
   frame_risk_agg: 'max'
 
 # Model configurations
@@ -64,14 +73,3 @@ models:
     hidden_dim: 256
     num_heads: 4
     num_layers: 2
-
-# Experiment settings
-experiment:
-  max_videos: 2  # Set to null to use all videos
-  pretrain_next_frame: true
-  pretrain_reward_model: false
-  calculate_action_rewards: false
-  train_action_policy: false
-  run_tdmpc: false
-  analyze_results: false
-  run_evaluation: false
