@@ -3,3 +3,4 @@ logs/*/events.*
 __pycache__/*.pyc
 __pycache__/*.pyc
 logs/*/*/*.pt
+logs/*/tensorboard/*

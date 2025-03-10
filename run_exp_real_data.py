@@ -20,6 +20,7 @@ from datetime import datetime
 from model import CausalGPT2ForFrameEmbeddings, RewardPredictor
 from eval_world_model import plot_evaluation_results
 from visualization import plot_action_prediction_results
+from metrics import calculate_map, plot_map_vs_accuracy
 
 # Set random seed for reproducibility
 np.random.seed(42)
@@ -446,14 +447,21 @@ def train_next_frame_model(cfg, model, train_loader, val_loader=None, device='cu
                             f_a_h_hat = outputs['f_a_seq_hat'][:, :h, :]
                             f_a_h_targets = f_a_seq[:, :h, :]
                             
+                            # Get probabilities
+                            f_a_h_probs = torch.sigmoid(f_a_h_hat)
+
+                            # During validation
+                            map_scores = calculate_map(f_a_h_probs, f_a_h_targets)
+                            results[f"horizon_{h}_mAP"] = map_scores['mAP']
+
+                            # Log and visualize results
+                            writer.add_scalar(f'Metrics/mAP_Horizon_{h}', map_scores['mAP'], global_step)
+
                             # Calculate top-k accuracy over the sequence horizon
                             for k in top_ks:
                                 # Ensure k isn't larger than the number of classes
                                 k = min(k, f_a_h_hat.shape[2])
                                 
-                                # Get probabilities
-                                f_a_h_probs = torch.sigmoid(f_a_h_hat)
-
                                 # Get top-k predictions for each frame
                                 _, topk_indices = torch.topk(f_a_h_probs, k, dim=2)  # [batch, h, k]
                                 
@@ -510,6 +518,10 @@ def train_next_frame_model(cfg, model, train_loader, val_loader=None, device='cu
         print("-" * 50)
         
         for horizon in sorted(eval_horizons):
+            map_key = f"horizon_{horizon}_mAP"
+            if map_key in results:
+                print(f"{horizon:<10} {'mAP':<15} {results[map_key]:.4f}")
+            
             for k in sorted(top_ks):
                 key = f"horizon_{horizon}_top_{k}"
                 if results[key]:
@@ -517,11 +529,11 @@ def train_next_frame_model(cfg, model, train_loader, val_loader=None, device='cu
                     print(f"{horizon:<10} {k:<10} {avg_accuracy:.4f}")
                     writer.add_scalar(f'Accuracy/Avg_Horizon_{horizon}_Top_{k}', avg_accuracy, epoch)
         print("-" * 50)
-        
 
-        # Generate visualizations
+        # Mean Average Precision
         plots_save_dir = os.path.join(save_logs_dir, 'plots')
         os.makedirs(plots_save_dir, exist_ok=True)
+        plot_map_vs_accuracy(results, plots_save_dir, "World_Model_MAP_vs_Accuracy")
         plot_files = plot_action_prediction_results(
             results, 
             save_dir=plots_save_dir,
