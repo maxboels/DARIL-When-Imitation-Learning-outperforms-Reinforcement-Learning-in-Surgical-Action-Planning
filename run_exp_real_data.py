@@ -20,7 +20,7 @@ from datetime import datetime
 from model import CausalGPT2ForFrameEmbeddings, RewardPredictor
 from eval_world_model import plot_evaluation_results
 from visualization import plot_action_prediction_results
-from metrics import calculate_map, plot_map_vs_accuracy
+from metrics import calculate_map, generate_map_vs_accuracy_plots
 
 # Set random seed for reproducibility
 np.random.seed(42)
@@ -530,10 +530,19 @@ def train_next_frame_model(cfg, model, train_loader, val_loader=None, device='cu
                     writer.add_scalar(f'Accuracy/Avg_Horizon_{horizon}_Top_{k}', avg_accuracy, epoch)
         print("-" * 50)
 
-        # Mean Average Precision
+        # Save plots
         plots_save_dir = os.path.join(save_logs_dir, 'plots')
         os.makedirs(plots_save_dir, exist_ok=True)
-        plot_map_vs_accuracy(results, plots_save_dir, "World_Model_MAP_vs_Accuracy")
+
+        # mAP plots
+        # Generate all plots at once using the comprehensive function
+        plot_files = generate_map_vs_accuracy_plots(
+            results, 
+            plots_save_dir,
+            cfg.get('experiment', {}).get('name', 'World_Model')
+        )
+
+        # Accuracy plots
         plot_files = plot_action_prediction_results(
             results, 
             save_dir=plots_save_dir,

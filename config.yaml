@@ -1,7 +1,7 @@
 # Debug mode
 debug: false
 experiment:
-  max_videos: 2  # Set to null to use all videos
+  max_videos: 1  # Set to null to use all videos
   pretrain_next_frame: true
   pretrain_reward_model: false
   calculate_action_rewards: false

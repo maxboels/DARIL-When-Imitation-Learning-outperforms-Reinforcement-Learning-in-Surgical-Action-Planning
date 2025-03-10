@@ -226,69 +226,344 @@ def evaluate_action_prediction_map(model, val_loader, cfg, device='cuda'):
     
     return avg_results
 
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+
 
 def plot_map_vs_accuracy(results, save_dir, experiment_name):
     """
-    Create plots comparing mAP and accuracy metrics.
+    Create plots comparing mAP and accuracy metrics for a single horizon.
     
     Args:
-        results: Dictionary containing evaluation results
+        results: Dictionary containing evaluation results with keys like 'horizon_X_top_Y' and 'horizon_X_mAP'
         save_dir: Directory to save plots
         experiment_name: Name for the experiment
         
     Returns:
-        Dictionary with file paths
+        Path to saved figure
     """
-    import os
-    import matplotlib.pyplot as plt
-    import numpy as np
+    # Ensure save directory exists
+    os.makedirs(save_dir, exist_ok=True)
     
-    # Extract horizons
-    horizons = set()
-    for key in results['mAP'].keys():
+    # Extract horizon value from the results keys
+    horizon = None
+    for key in results.keys():
         if key.startswith('horizon_'):
-            horizon = int(key.split('_')[1])
-            horizons.add(horizon)
+            parts = key.split('_')
+            if len(parts) > 1:
+                try:
+                    horizon = int(parts[1])
+                    break
+                except ValueError:
+                    continue
+    
+    if horizon is None:
+        print("Warning: Could not determine horizon from results keys")
+        horizon = "unknown"
+    
+    # Extract top-k values for this horizon
+    top_ks = []
+    accuracies = []
+    map_value = None
+    
+    for key, value in results.items():
+        if key == f"horizon_{horizon}_mAP":
+            # Found mAP value
+            if isinstance(value, list):
+                map_value = sum(value) / len(value) if value else 0.0
+            else:
+                map_value = value
+        elif key.startswith(f"horizon_{horizon}_top_"):
+            try:
+                k = int(key.split('_top_')[1])
+                top_ks.append(k)
+                
+                # Get average if it's a list
+                if isinstance(value, list):
+                    accuracies.append(sum(value) / len(value) if value else 0.0)
+                else:
+                    accuracies.append(value)
+            except (ValueError, IndexError):
+                continue
+    
+    # Sort by top-k values
+    if top_ks and accuracies:
+        sorted_pairs = sorted(zip(top_ks, accuracies))
+        top_ks, accuracies = zip(*sorted_pairs)
+    
+    # Create the comparison plot
+    plt.figure(figsize=(10, 6))
+    
+    # Plot accuracy for each top-k
+    plt.bar(range(len(top_ks)), accuracies, width=0.4, label='Top-k Accuracy', color='skyblue')
+    
+    # Add mAP as a horizontal line if available
+    if map_value is not None:
+        plt.axhline(y=map_value, color='r', linestyle='-', linewidth=2, label=f'mAP: {map_value:.4f}')
+    
+    # Add labels and formatting
+    plt.title(f'Action Prediction Metrics for Horizon {horizon}', fontsize=16)
+    plt.xlabel('Top-k Value', fontsize=14)
+    plt.ylabel('Score', fontsize=14)
+    plt.xticks(range(len(top_ks)), [f"Top-{k}" for k in top_ks])
+    plt.grid(True, linestyle='--', alpha=0.7, axis='y')
+    plt.legend(fontsize=12)
+    plt.ylim(0, 1.1)  # Allow space for annotations
+    
+    # Add value annotations
+    for i, acc in enumerate(accuracies):
+        plt.text(i, acc + 0.02, f'{acc:.4f}', ha='center', va='bottom', fontsize=10)
+    
+    plt.tight_layout()
+    
+    # Save figure
+    filename = f"{experiment_name}_h{horizon}.png"
+    filepath = os.path.join(save_dir, filename)
+    plt.savefig(filepath, dpi=300, bbox_inches='tight')
+    plt.close()
+    
+    return filepath
+
+
+def plot_all_horizons_comparison(results, save_dir, experiment_name):
+    """
+    Create a multi-panel plot showing mAP vs accuracy across all horizons.
+    
+    Args:
+        results: Dictionary with evaluation results
+        save_dir: Directory to save plots
+        experiment_name: Name for the experiment
+        
+    Returns:
+        Path to saved figure
+    """
+    # Extract horizons from results
+    horizons = set()
+    for key in results.keys():
+        if key.startswith("horizon_"):
+            parts = key.split("_")
+            if len(parts) > 1:
+                try:
+                    horizons.add(int(parts[1]))
+                except ValueError:
+                    continue
     
     horizons = sorted(list(horizons))
     
     # Extract top-k values
     top_ks = set()
-    for key in results['accuracy'].keys():
-        if '_top_' in key:
-            k = int(key.split('_top_')[1])
-            top_ks.add(k)
+    for key in results.keys():
+        if "_top_" in key:
+            parts = key.split("_top_")
+            if len(parts) > 1:
+                try:
+                    top_ks.add(int(parts[1]))
+                except ValueError:
+                    continue
     
     top_ks = sorted(list(top_ks))
     
-    # Create comparison plot
-    plt.figure(figsize=(12, 8))
+    # Create multi-panel plot
+    fig, axes = plt.subplots(1, len(horizons), figsize=(5*len(horizons), 6), sharey=True)
     
-    # Plot mAP
-    map_values = [results['mAP'][f'horizon_{h}_mAP'] for h in horizons]
-    plt.plot(horizons, map_values, 'o-', linewidth=2, label='mAP')
+    # Handle case of single horizon
+    if len(horizons) == 1:
+        axes = [axes]
     
-    # Plot accuracy for each top-k
-    for k in top_ks:
-        acc_values = [results['accuracy'][f'horizon_{h}_top_{k}'] for h in horizons]
-        plt.plot(horizons, acc_values, 's--', linewidth=2, label=f'Top-{k} Accuracy')
+    # Process each horizon
+    for i, horizon in enumerate(horizons):
+        ax = axes[i]
+        
+        # Get mAP for this horizon
+        map_key = f"horizon_{horizon}_mAP"
+        map_value = None
+        if map_key in results:
+            if isinstance(results[map_key], list):
+                map_value = sum(results[map_key]) / len(results[map_key]) if results[map_key] else 0.0
+            else:
+                map_value = results[map_key]
+        
+        # Get accuracy values for each top-k
+        acc_values = []
+        for k in top_ks:
+            key = f"horizon_{horizon}_top_{k}"
+            if key in results:
+                if isinstance(results[key], list):
+                    acc_values.append(sum(results[key]) / len(results[key]) if results[key] else 0.0)
+                else:
+                    acc_values.append(results[key])
+            else:
+                acc_values.append(0.0)
+        
+        # Plot accuracy bars
+        bars = ax.bar(range(len(top_ks)), acc_values, width=0.6, color='skyblue')
+        
+        # Add value labels
+        for bar in bars:
+            height = bar.get_height()
+            ax.annotate(f'{height:.2f}',
+                        xy=(bar.get_x() + bar.get_width() / 2, height),
+                        xytext=(0, 3),
+                        textcoords="offset points",
+                        ha='center', va='bottom', fontsize=9)
+        
+        # Add mAP line if available
+        if map_value is not None:
+            ax.axhline(y=map_value, color='r', linestyle='-', linewidth=2, 
+                      label=f'mAP: {map_value:.4f}')
+            # Add mAP value text
+            ax.text(len(top_ks)/2 - 0.5, map_value + 0.03, f'mAP: {map_value:.4f}', 
+                   color='red', fontsize=10, ha='center')
+        
+        ax.set_title(f'Horizon = {horizon}', fontsize=14)
+        ax.set_xticks(range(len(top_ks)))
+        ax.set_xticklabels([f'Top-{k}' for k in top_ks])
+        ax.grid(True, linestyle='--', axis='y', alpha=0.7)
+        
+        if i == 0:
+            ax.set_ylabel('Accuracy / mAP', fontsize=14)
+        
+        # Set y-axis limits
+        ax.set_ylim(0, 1.05)
     
-    plt.title('mAP vs Accuracy across Prediction Horizons', fontsize=16)
-    plt.xlabel('Prediction Horizon', fontsize=14)
-    plt.ylabel('Score', fontsize=14)
-    plt.grid(True, linestyle='--', alpha=0.7)
-    plt.legend(fontsize=12)
-    plt.xticks(horizons)
-    plt.ylim(0, 1.0)
+    plt.suptitle('Action Prediction: mAP vs Top-k Accuracy by Horizon', fontsize=16)
+    plt.tight_layout()
     
-    # Save figure
-    os.makedirs(save_dir, exist_ok=True)
-    filename = f"{experiment_name}_map_vs_accuracy.png"
+    # Save combined figure
+    filename = f"{experiment_name}_all_horizons.png"
     filepath = os.path.join(save_dir, filename)
     plt.savefig(filepath, dpi=300, bbox_inches='tight')
     plt.close()
     
-    return {'comparison_plot': filepath}
+    return filepath
+
+
+def plot_metrics_by_horizon(results, save_dir, experiment_name):
+    """
+    Create a line plot showing how metrics change with increasing horizon.
+    
+    Args:
+        results: Dictionary with evaluation results
+        save_dir: Directory to save plots
+        experiment_name: Name for the experiment
+        
+    Returns:
+        Path to saved figure
+    """
+    # Extract horizons
+    horizons = set()
+    map_values = {}
+    accuracy_values = {}
+    
+    for key in results.keys():
+        if key.startswith("horizon_"):
+            parts = key.split("_")
+            if len(parts) > 1:
+                try:
+                    horizon = int(parts[1])
+                    horizons.add(horizon)
+                    
+                    # Store mAP values
+                    if key.endswith("_mAP"):
+                        if isinstance(results[key], list):
+                            map_values[horizon] = sum(results[key]) / len(results[key]) if results[key] else 0.0
+                        else:
+                            map_values[horizon] = results[key]
+                    
+                    # Store top-k accuracy values
+                    elif "_top_" in key:
+                        k = int(key.split("_top_")[1])
+                        if k not in accuracy_values:
+                            accuracy_values[k] = {}
+                        
+                        if isinstance(results[key], list):
+                            accuracy_values[k][horizon] = sum(results[key]) / len(results[key]) if results[key] else 0.0
+                        else:
+                            accuracy_values[k][horizon] = results[key]
+                            
+                except ValueError:
+                    continue
+    
+    horizons = sorted(list(horizons))
+    top_ks = sorted(list(accuracy_values.keys()))
+    
+    # Create plot
+    plt.figure(figsize=(12, 8))
+    
+    # Plot mAP line
+    if map_values:
+        map_line_values = [map_values.get(h, 0.0) for h in horizons]
+        plt.plot(horizons, map_line_values, 'o-', linewidth=3, color='red', 
+                label='mAP', markersize=8)
+    
+    # Plot accuracy lines for each top-k
+    for k in top_ks:
+        acc_line_values = [accuracy_values[k].get(h, 0.0) for h in horizons]
+        plt.plot(horizons, acc_line_values, 's--', linewidth=2, 
+                label=f'Top-{k} Accuracy')
+    
+    plt.title('Action Prediction Performance Across Horizons', fontsize=16)
+    plt.xlabel('Prediction Horizon', fontsize=14)
+    plt.ylabel('Score', fontsize=14)
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.legend(fontsize=12, loc='best')
+    plt.xticks(horizons)
+    plt.ylim(0, 1.05)
+    
+    # Add data point values
+    if map_values:
+        for h in horizons:
+            if h in map_values:
+                plt.text(h, map_values[h] + 0.02, f'{map_values[h]:.3f}', 
+                        ha='center', va='bottom', fontsize=9, color='red')
+    
+    for k in top_ks:
+        for h in horizons:
+            if h in accuracy_values[k]:
+                plt.text(h, accuracy_values[k][h] - 0.04, f'{accuracy_values[k][h]:.3f}', 
+                        ha='center', va='bottom', fontsize=8)
+    
+    plt.tight_layout()
+    
+    # Save figure
+    filename = f"{experiment_name}_metrics_by_horizon.png"
+    filepath = os.path.join(save_dir, filename)
+    plt.savefig(filepath, dpi=300, bbox_inches='tight')
+    plt.close()
+    
+    return filepath
+
+
+# Integration function for the training loop
+def generate_map_vs_accuracy_plots(results, save_dir, experiment_name):
+    """
+    Generate all types of mAP vs accuracy plots.
+    
+    Args:
+        results: Results dictionary with horizon and top-k keys
+        save_dir: Directory to save plots
+        experiment_name: Base name for the experiment
+        
+    Returns:
+        Dictionary with paths to generated plots
+    """
+    plot_paths = {}
+    
+    # Create individual horizon plots
+    for horizon in set([int(k.split('_')[1]) for k in results.keys() if k.startswith('horizon_')]):
+        # Filter results for this horizon
+        horizon_results = {k: v for k, v in results.items() if k.startswith(f'horizon_{horizon}_')}
+        plot_name = f"{experiment_name}_horizon_{horizon}"
+        plot_paths[f'horizon_{horizon}'] = plot_map_vs_accuracy(horizon_results, save_dir, plot_name)
+    
+    # Create all-horizons comparison
+    plot_paths['all_horizons'] = plot_all_horizons_comparison(results, save_dir, experiment_name)
+    
+    # Create metrics by horizon plot
+    plot_paths['metrics_by_horizon'] = plot_metrics_by_horizon(results, save_dir, experiment_name)
+    
+    return plot_paths
 
 
 def generate_precision_recall_curves(model, val_loader, cfg, device='cuda', num_classes=10):
