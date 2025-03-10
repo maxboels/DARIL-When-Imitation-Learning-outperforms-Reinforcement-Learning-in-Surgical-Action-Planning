@@ -136,19 +136,25 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
         # Calculate MSE loss between predictions and targets
         _z_loss = F.mse_loss(_z_hat, _z)
 
+        # Heads
         head_outputs = None
         if self.target_heads:
             head_outputs = {}
+            other_losses = {}
             for target in self.target_heads:
+
+                # Forward pass through the heads
                 head_outputs[target] = self.heads[target](last_hidden_state)
 
+                # Calculate loss for the heads
                 if target == '_a' and self.w_a is not None:
-                    loss += self.w_a * F.binary_cross_entropy_with_logits(head_outputs[target], next_actions)
+                    other_losses['_a_loss'] = self.w_a * F.binary_cross_entropy_with_logits(head_outputs[target], next_actions)
                 elif target == '_R':
                     pass 
         
         return {
             "_z_loss": _z_loss,
+            **other_losses,
             "logits": outputs.logits,
             "head_outputs": head_outputs,
             "last_hidden_states": last_hidden_state
@@ -162,7 +168,8 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
                 top_p: Optional[float] = None,
                 repetition_penalty: float = 1.0,
                 do_sample: bool = True,
-                use_past: bool = True) -> Dict[str, torch.Tensor]:
+                use_past: bool = True,
+                use_memory: bool = False) -> Dict[str, torch.Tensor]:
         """
         Generate future frame embeddings autoregressively.
         
@@ -289,21 +296,19 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
         # Stack all hidden states
         all_hidden_states = torch.stack(all_hidden_states, dim=1)  # [batch_size, num_frames, hidden_dim]
         
-        # Stack head outputs if they exist
+        # Stack predictions over the sequence dimension
+
         if self.target_heads:
             for target in self.target_heads:
-                all_head_outputs[target] = torch.stack(all_head_outputs[target], dim=1)
+                all_head_outputs[f"{target}_seq_hat"] = torch.stack(all_head_outputs[target], dim=1)
         
         # Return the full sequence including the input and generated frames
         result = {
             "z": input_embeddings,
             "_zs_hat": generated_embeddings[:, input_embeddings.size(1):],
-            "last_hidden_states": all_hidden_states
+            "last_hidden_states": all_hidden_states,
+            **all_head_outputs
         }
-        
-        # Add head outputs if they exist
-        if self.target_heads:
-            result["head_outputs"] = all_head_outputs
         
         return result
 

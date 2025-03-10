@@ -18,7 +18,7 @@ import os
 from datetime import datetime
 
 from model import CausalGPT2ForFrameEmbeddings, RewardPredictor
-from eval_world_model import run_evaluation_suite
+from eval_world_model import plot_evaluation_results
 
 # Set random seed for reproducibility
 np.random.seed(42)
@@ -243,6 +243,7 @@ class NextFramePredictionDataset(Dataset):
         context_length = cfg.get('context_length', 10)
         padding_value = cfg.get('padding_value', 0.0)
         train_shift = cfg.get('train_shift', 1)
+        max_horizon = cfg.get('max_horizon', 15)
 
         for video in data:
             embeddings = video['frame_embeddings']
@@ -258,6 +259,7 @@ class NextFramePredictionDataset(Dataset):
                 _z_seq = []
                 # a_seq: We already trained the vision backbone to recognise the actions
                 _a_seq = []
+                f_a_seq = [] # future actions from i+1 to i+max_horizon
                 
                 # Add previous frames, using padding if needed
                 for j in range(i - context_length + 1, i + 1):
@@ -282,12 +284,23 @@ class NextFramePredictionDataset(Dataset):
                     else:
                         _z_seq.append(embeddings[k])
                         _a_seq.append(actions[k])
+                
+                # Add future actions
+                for k in range(i + 1, min(i + 1 + max_horizon, len(embeddings))):
+                    f_a_seq.append(actions[k])
+
+                if len(f_a_seq) < max_horizon:
+                    # Padding for positions after the end of the video
+                    for _ in range(max_horizon - len(f_a_seq)):
+                        f_a_seq.append([0] * num_actions)
+                        print(f"Padding for future action position {k}/{len(embeddings)}")
 
                 # Add the sequence to the samples list
                 self.samples.append({
                     'z': z_seq,     # Sequence of frames from (i-context_length+1) to i
                     '_z': _z_seq,   # Sequence of frames from (i-context_length+2) to i+1
-                    '_a': _a_seq    # Sequence of actions from (i-context_length+2) to i+1
+                    '_a': _a_seq,    # Sequence of actions from (i-context_length+2) to i+1
+                    'f_a': f_a_seq
                 })
     
     def __len__(self):
@@ -299,36 +312,9 @@ class NextFramePredictionDataset(Dataset):
         z = torch.tensor(sample['z'], dtype=torch.float32)  # Shape: [context_length, embedding_dim]
         _z = torch.tensor(sample['_z'], dtype=torch.float32)
         _a = torch.tensor(sample['_a'], dtype=torch.float32)
+        f_a = torch.tensor(sample['f_a'], dtype=torch.float32)
 
-        return z, _z, _a
-
-# Custom dataset for frame prediction
-class FramePredictionDataset(Dataset):
-    def __init__(self, data):
-        self.samples = []
-
-        for video in data:
-            embeddings = video['frame_embeddings']
-            actions = video['actions_binaries']
-            
-            for i in range(len(embeddings) - 1):
-                self.samples.append({
-                    'z': embeddings[i],
-                    '_z': embeddings[i + 1],
-                    '_a': actions[i + 1]
-                })
-    
-    def __len__(self):
-        return len(self.samples)
-    
-    def __getitem__(self, idx):
-        sample = self.samples[idx]
-
-        z = torch.tensor(sample['z'], dtype=torch.float32)
-        _z = torch.tensor(sample['_z'], dtype=torch.float32)
-        _a = torch.tensor(sample['_a'], dtype=torch.float32)
-
-        return z, _z, _a
+        return z, _z, _a, f_a
 
 # Custom dataset for reward prediction
 class RewardPredictionDataset(Dataset):
@@ -383,14 +369,18 @@ def train_next_frame_model(cfg, model, train_loader, val_loader=None, device='cu
         model.train()
         train_loss = 0.0
 
-        for batch_idx, (z_seq, _z_seq, _a_seq) in enumerate(tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs} Training")):
+        for batch_idx, (z_seq, _z_seq, _a_seq, _) in enumerate(tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs} Training")):
             z_seq, _z_seq, _a_seq = z_seq.to(device), _z_seq.to(device), _a_seq.to(device)
 
             assert z_seq[:, -1, :].equal(_z_seq[:, -2, :]), "Last frame of z must equal second-to-last frame of _z"
             
             # Forward pass
             outputs = model(z_seq, next_frame=_z_seq, next_actions=_a_seq)
-            loss = outputs["_z_loss"]
+
+            # Get loss
+            _z_loss = outputs["_z_loss"]
+            _a_loss = outputs['_a_loss'] if '_a_loss' in outputs else 0.0
+            loss = _z_loss + _a_loss
             
             # Backward pass and optimize
             optimizer.zero_grad()
@@ -402,19 +392,30 @@ def train_next_frame_model(cfg, model, train_loader, val_loader=None, device='cu
             # Calculate global step using epoch and batch index
             global_step = epoch * len(train_loader) + batch_idx
             writer.add_scalar('Loss/World_Model_Train', loss.item(), global_step)
+            writer.add_scalar('Loss/World_Model_Train_Z', _z_loss.item(), global_step)
+            writer.add_scalar('Loss/World_Model_Train_A', _a_loss.item(), global_step)
                 
         train_loss /= len(train_loader.dataset)
         train_losses.append(train_loss)
         
-        # Validation
+        # Inference on validation set
+        print("Inference on validation set...")
         model.eval()
         val_loss = 0.0
+
+        # Initialize results dictionary
+        results = {}
+        eval_horizons = cfg['eval']['world_model']['eval_horizons']
+        top_ks = cfg['eval']['world_model']['top_ks']
+        for horizon in eval_horizons:
+            for k in top_ks:
+                results[f"horizon_{horizon}_top_{k}"] = []
         
         use_memory = cfg['eval']['world_model']['use_memory']
-        horizon = cfg['eval']['world_model']['horizon']
+        max_horizon = cfg['eval']['world_model']['max_horizon']
         action_accuracies = []
         with torch.no_grad():
-            for batch_idx, (z_seq, _z_seq, _a_seq) in enumerate(tqdm(val_loader, desc=f"Epoch {epoch+1}/{epochs} Validation")):
+            for batch_idx, (z_seq, _z_seq, _a_seq, f_a_seq) in enumerate(tqdm(val_loader, desc=f"Epoch {epoch+1}/{epochs} Validation")):
                 z_seq, _z_seq, _a_seq = z_seq.to(device), _z_seq.to(device), _a_seq.to(device)
 
                 # New frame observed
@@ -423,7 +424,7 @@ def train_next_frame_model(cfg, model, train_loader, val_loader=None, device='cu
                     z_seq = z_seq[:, -1:, :] # select current frame
                 
                 # Generate next frame predictions
-                outputs = model.generate(z_seq, horizon=horizon)
+                outputs = model.generate(z_seq, horizon=max_horizon, use_memory=use_memory)
                 
                 # Calculate loss between predictions and targets
                 # We didnt pass the future embeddings in out dataloader
@@ -431,21 +432,78 @@ def train_next_frame_model(cfg, model, train_loader, val_loader=None, device='cu
                 val_loss += _z_loss.item() * z_seq.size(0)
 
                 if '_a_seq_hat' in outputs:
-                    _a_loss = F.mse(outputs['_a_seq_hat'], _a_seq[:, :, :])
+                    _a_loss = F.binary_cross_entropy_with_logits(outputs['_a_seq_hat'], f_a_seq)
                     val_loss += _a_loss.item() * z_seq.size(0)
 
-                    # Calculate accuracy with top-k actions over short time horizon to relax a bit the exact timing
-                    topk = 5
-                    _, topk_actions = outputs['_a_seq_hat'].topk(topk, dim=2)
-                    topk_actions = topk_actions.squeeze(0)
-                    correct = topk_actions.eq(_a_seq[:, -1, :].argmax(dim=1).unsqueeze(1).expand_as(topk_actions))
-                    accuracy = correct.float().mean()
-                    writer.add_scalar('Accuracy/World_Model_Action_Prediction', accuracy.item(), epoch * len(val_loader) + len(val_loader))
+                    for h in [1, 5, 10]:
+                        # For each step in the prediction horizon
+                        for step in range(min(h, hidden_states.shape[1])):
+                            # Get target step (adjust if needed based on dataset structure)
+                            target_step = step
+                            
+                            # Ensure we have target data for this step
+                            if target_step < _a_seq.shape[1]:
+                                # Predict actions from hidden states
+                                action_logits = model.action_head(hidden_states[:, step, :])
+                                
+                                # Get target actions
+                                target_actions = _a_seq[:, target_step, :]
+                                
+                                # Convert one-hot encoded targets to indices
+                                target_indices = torch.argmax(target_actions, dim=1)
+                                
+                                # Calculate top-k accuracy
+                                for k in top_ks:
+                                    # Ensure k isn't larger than the number of classes
+                                    k = min(k, action_logits.shape[1])
+                                    
+                                    # Get top-k predictions
+                                    _, topk_indices = torch.topk(action_logits, k, dim=1)
+                                    
+                                    # Check if target is in top-k
+                                    correct = torch.any(topk_indices == target_indices.unsqueeze(1), dim=1)
+                                    
+                                    # Calculate and store accuracy
+                                    accuracy = correct.float().mean().item()
+                                    results[f"horizon_{h}_top_{k}"].append(accuracy)
+                        # Calculate accuracy with top-k actions over short time horizon to relax a bit the exact timing
+                        topk = 5
+                        _, topk_actions = outputs['_a_seq_hat'].topk(topk, dim=2)
+                        topk_actions = topk_actions.squeeze(0)
+                        correct = topk_actions.eq(_a_seq[:, -1, :].argmax(dim=1).unsqueeze(1).expand_as(topk_actions))
+                        accuracy = correct.float().mean()
+                        writer.add_scalar('Accuracy/World_Model_Action_Prediction', accuracy.item(), epoch * len(val_loader) + len(val_loader))
                 
                 # Calculate global step using epoch and batch index
                 global_step = epoch * len(val_loader) + batch_idx
                 writer.add_scalar('Loss/World_Model_Val', _z_loss.item(), global_step)
-                 
+
+
+            # Calculate average metrics
+            avg_results = {}
+            for key, values in results.items():
+                if values:
+                    avg_results[key] = sum(values) / len(values)
+                else:
+                    avg_results[key] = 0.0
+            
+            # Print results table
+            print("\nAction Prediction Accuracy:")
+            print("-" * 60)
+            print(f"{'Horizon':<10} {'Top-k':<10} {'Accuracy':<10} {'Num. Samples':<15}")
+            print("-" * 60)
+            for horizon in sorted(eval_horizons):
+                for k in sorted(top_ks):
+                    key = f"horizon_{horizon}_top_{k}"
+                    samples = len(results[key])
+                    print(f"{horizon:<10} {k:<10} {avg_results[key]:.4f} {samples:<15}")
+            print("-" * 60)
+            
+            # Visualize results
+            # plot_eval_metrics = False
+            # if plot_eval_metrics:
+            #     plot_evaluation_results(avg_results, eval_horizons, top_ks)
+            
         val_loss /= len(val_loader.dataset)
         val_losses.append(val_loss)
             
@@ -956,24 +1014,24 @@ def run_cholect50_experiment(cfg):
     train_data = load_cholect50_data(cfg['data'], split='train', max_videos=cfg['experiment']['max_videos'])
     test_data = load_cholect50_data(cfg['data'], split='test', max_videos=cfg['experiment']['max_videos'])
     
-    # Create datasets and dataloaders
+    # Create dataloaders
     train_dataset = NextFramePredictionDataset(cfg['data'], train_data)
-    val_dataset = NextFramePredictionDataset(cfg['data'], val_data)    
-    train_loader = DataLoader(train_dataset, batch_size=cfg['training']['batch_size'], shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=cfg['training']['batch_size'])
+    val_dataset = NextFramePredictionDataset(cfg['data'], test_data)    
+    train_data = DataLoader(train_dataset, batch_size=cfg['training']['batch_size'], shuffle=True)
+    test_data = DataLoader(val_dataset, batch_size=cfg['training']['batch_size'])
 
     # Step 2: Pre-train next frame prediction model
     if cfg_exp['pretrain_next_frame']:        
         print("\nTraining next frame prediction model...")
         world_model = CausalGPT2ForFrameEmbeddings(**cfg['models']['world_model']).to(device)
         best_model_path = train_next_frame_model(cfg, world_model, train_data, test_data, device=device)  # Reduced epochs for demonstration
-
-        # if model has a action prediction head:
-        if 'next_a' in model.heads:
-            checkpoint = torch.load(best_model_path, map_location=device)        
-            world_model.load_state_dict(checkpoint['model_state_dict'])
-            print(f"Loaded model from epoch {checkpoint['epoch']} with validation loss {checkpoint['val_loss']:.6f}")
-            results = run_evaluation_suite(world_model, train_data, test_data, cfg)
+        print(f"Best model saved at: {best_model_path}")
+        # # if model has a action prediction head:
+        # if 'next_a' in world_model.heads:
+        #     checkpoint = torch.load(best_model_path, map_location=device)        
+        #     world_model.load_state_dict(checkpoint['model_state_dict'])
+        #     print(f"Loaded model from epoch {checkpoint['epoch']} with validation loss {checkpoint['val_loss']:.6f}")
+        #     results = run_evaluation_suite(world_model, train_data, test_data, cfg)
 
     # Step 3: Train reward prediction model
     if cfg_exp['pretrain_reward_model']:

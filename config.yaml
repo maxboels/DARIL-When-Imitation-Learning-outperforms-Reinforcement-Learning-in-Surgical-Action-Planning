@@ -27,18 +27,16 @@ training:
 eval:
   world_model:
     use_memory: false
-    horizon: 15
-  action_prediction:
+    max_horizon: 15
+    eval_horizons: [1, 3, 5, 10, 15]
     top_ks: [1, 3, 5, 10]
-    horizons: [1, 3, 5, 10, 15]
-    evaluate_on_train: True       # Set to False to skip training data evaluation
 
 # Data paths configuration
 data:
   context_length: 5
   train_shift: 1
   padding_value: 0.0
-  horizon: 15
+  max_horizon: 15
   paths:
     data_dir: "/home/maxboels/datasets/CholecT50"
     fold: 0
@@ -57,12 +55,12 @@ models:
     n_layer: 6
     use_head: true
     targets_dims:
-      next_z: 512
-      next_a: 100
-      next_r: 1
-      next_q: 1
-      final_R: 1
-    target_heads: "next_a" # "next_r", "next_q", "final_R"]
+      _z: 512
+      _a: 100
+      _r: 1
+      _q: 1
+      _R: 1
+    target_heads: ['_a'] # "next_r", "next_q", "final_R"]
     # Loss weights
     loss_weights:
       w_z: 1.0  # Embedding prediction (default: 0.8)

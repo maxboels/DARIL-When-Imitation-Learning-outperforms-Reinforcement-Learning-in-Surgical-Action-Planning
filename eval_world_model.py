@@ -130,66 +130,6 @@ def evaluate_action_prediction(model, train_dataloader, test_dataloader, cfg, de
     
     return avg_results
 
-def train_action_classifier(model, dataloader, device, num_epochs=2):
-    """
-    Train an action classifier to predict actions from model's hidden states.
-    
-    Args:
-        model: Model with action_head attribute
-        dataloader: DataLoader with training data
-        device: Computation device
-        num_epochs: Number of training epochs
-    """
-    # Setup training
-    optimizer = optim.Adam(model.action_head.parameters(), lr=0.001)
-    criterion = nn.BCEWithLogitsLoss()
-    
-    # Training loop
-    for epoch in range(num_epochs):
-        total_loss = 0.0
-        batch_count = 0
-        
-        for z_seq, _z_seq, _a_seq in tqdm(dataloader, desc=f"Training classifier (epoch {epoch+1}/{num_epochs})"):
-            z_seq, _z_seq, _a_seq = z_seq.to(device), _z_seq.to(device), _a_seq.to(device)
-            
-            # Get hidden states from model
-            with torch.no_grad():
-                try:
-                    outputs = model(z_seq)
-                    
-                    # Extract hidden states
-                    if "last_hidden_states" in outputs:
-                        hidden_states = outputs["last_hidden_states"]
-                    else:
-                        # Try to get them from model output
-                        print("Warning: Could not find 'last_hidden_states' in model output")
-                        continue
-                except Exception as e:
-                    print(f"Error in model forward pass: {e}")
-                    continue
-            
-            # Predict actions
-            action_logits = model.action_head(hidden_states)
-            
-            # Calculate loss
-            loss = criterion(action_logits, _a_seq)
-            
-            # Update parameters
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            
-            total_loss += loss.item()
-            batch_count += 1
-        
-        # Print epoch statistics
-        avg_loss = total_loss / batch_count if batch_count > 0 else float('nan')
-        print(f"Epoch {epoch+1}/{num_epochs}, Average Loss: {avg_loss:.4f}")
-    
-    # Switch back to evaluation mode
-    model.action_head.eval()
-    print("Action classifier training completed")
-
 def plot_evaluation_results(results, horizons, top_ks):
     """
     Plot the evaluation results.
