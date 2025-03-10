@@ -61,10 +61,10 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
         self.model.lm_head = nn.Linear(self.hidden_dim, self.embedding_dim)
         # Head
         if self.target_heads:
-            self.head = nn.ModuleDict()
+            self.heads = nn.ModuleDict()
             for target in self.target_heads:
                 target_dim = self.targets_dims[target]
-                self.head[target] = nn.Linear(self.hidden_dim, target_dim)
+                self.heads[target] = nn.Linear(self.hidden_dim, target_dim)
 
     def _init_weights(self):
         """Initialize the weights for the custom layers."""
@@ -140,7 +140,7 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
         if self.target_heads:
             head_outputs = {}
             for target in self.target_heads:
-                head_outputs[target] = self.head[target](last_hidden_state)
+                head_outputs[target] = self.heads[target](last_hidden_state)
 
                 if target == '_a' and self.w_a is not None:
                     loss += self.w_a * F.binary_cross_entropy_with_logits(head_outputs[target], next_actions)
@@ -267,7 +267,7 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
             # Compute head outputs for the current frame
             if self.target_heads:
                 for target in self.target_heads:
-                    head_output = self.head[target](next_token_hidden)
+                    head_output = self.heads[target](next_token_hidden)
                     all_head_outputs[target].append(head_output)
             
             # Reshape for concatenation
@@ -710,6 +710,40 @@ class RewardPredictor(nn.Module):
         attn_weights = self.attention_pool(encoded)  # [batch_size, seq_len, 1]
         
         return attn_weights.squeeze(-1)  # [batch_size, seq_len]
+
+
+# Action Policy Model with reward weighting
+class ActionPolicyModel(nn.Module):
+    def __init__(self, input_dim, context_length=10, num_action_classes=100, hidden_dim=256):
+        super(ActionPolicyModel, self).__init__()
+        
+        # LSTM to process sequence of frame embeddings
+        self.lstm = nn.LSTM(
+            input_size=input_dim,
+            hidden_size=hidden_dim,
+            num_layers=2,
+            batch_first=True
+        )
+        
+        # Action prediction head
+        self.action_head = nn.Sequential(
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, num_action_classes)
+        )
+    
+    def forward(self, x):
+        # x shape: [batch_size, context_length, embedding_dim]
+        lstm_out, _ = self.lstm(x)
+        
+        # Take the last LSTM output
+        last_output = lstm_out[:, -1, :]
+        
+        # Predict action logits
+        action_logits = self.action_head(last_output)
+        
+        return action_logits
+
 
 # Example usage:
 if __name__ == "__main__":

@@ -18,6 +18,7 @@ import os
 from datetime import datetime
 
 from model import CausalGPT2ForFrameEmbeddings, RewardPredictor
+from eval_world_model import run_evaluation_suite
 
 # Set random seed for reproducibility
 np.random.seed(42)
@@ -25,7 +26,7 @@ torch.manual_seed(42)
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Step 1: Data Loading from CholecT50 Dataset
-def load_cholect50_data(cfg, split='train'):
+def load_cholect50_data(cfg, split='train', max_videos=None):
     """
     Load frame embeddings from the CholecT50 dataset for training or validation.
 
@@ -133,8 +134,8 @@ def load_cholect50_data(cfg, split='train'):
     # Find all videos in metadata csv file
     if metadata is not None:
         video_ids = metadata['video'].unique().tolist()
-    if cfg['max_videos']:
-        video_ids = video_ids[:cfg['max_videos']]
+    if max_videos:
+        video_ids = video_ids[:max_videos]
     
     print(f"Found {len(video_ids)} video directories")
     
@@ -353,63 +354,30 @@ class RewardPredictionDataset(Dataset):
         sample = self.samples[idx]
         return torch.tensor(sample['context'], dtype=torch.float32), torch.tensor(sample['target'], dtype=torch.float32)
 
-# Action Policy Model with reward weighting
-class ActionPolicyModel(nn.Module):
-    def __init__(self, input_dim, context_length=10, num_action_classes=100, hidden_dim=256):
-        super(ActionPolicyModel, self).__init__()
-        
-        # LSTM to process sequence of frame embeddings
-        self.lstm = nn.LSTM(
-            input_size=input_dim,
-            hidden_size=hidden_dim,
-            num_layers=2,
-            batch_first=True
-        )
-        
-        # Action prediction head
-        self.action_head = nn.Sequential(
-            nn.Linear(hidden_dim, hidden_dim),
-            nn.ReLU(),
-            nn.Linear(hidden_dim, num_action_classes)
-        )
-    
-    def forward(self, x):
-        # x shape: [batch_size, context_length, embedding_dim]
-        lstm_out, _ = self.lstm(x)
-        
-        # Take the last LSTM output
-        last_output = lstm_out[:, -1, :]
-        
-        # Predict action logits
-        action_logits = self.action_head(last_output)
-        
-        return action_logits
-
 # Training function for next frame predictor
-def train_next_frame_model(cfg, model, data, val_data=None, device='cuda'):
-    # Split data
-    if val_data is None:
-        train_data, val_data = train_test_split(data, test_size=0.2, random_state=42)
-    else:
-        train_data = data
-    
-    # Create datasets and dataloaders
-    train_dataset = NextFramePredictionDataset(cfg['data'], train_data)
-    val_dataset = NextFramePredictionDataset(cfg['data'], val_data)
-    
-    train_loader = DataLoader(train_dataset, batch_size=cfg['training']['batch_size'], shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=cfg['training']['batch_size'])
+def train_next_frame_model(cfg, model, train_loader, val_loader=None, device='cuda'):
 
     # Loss function and optimizer
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=cfg['training']['learning_rate'])
     
-    # Training loop
+    # For saving checkpoints
     today = datetime.now().strftime("%Y-%m-%d")
+    
+    # Create checkpoint directory if it doesn't exist
+    checkpoint_dir = os.path.join(cfg['training']['checkpoint_dir'], today)
+    os.makedirs(checkpoint_dir, exist_ok=True)
+    
+    # For tracking best model
+    best_val_loss = float('inf')
+    best_model_path = None
+    
+    # For logging
     writer = SummaryWriter(log_dir=cfg['training']['log_dir'] + f"/{today}")
     train_losses = []
     val_losses = []
     epochs = cfg['training']['epochs']
+
     for epoch in range(epochs):
         # Training
         model.train()
@@ -444,6 +412,7 @@ def train_next_frame_model(cfg, model, data, val_data=None, device='cuda'):
         
         use_memory = cfg['eval']['world_model']['use_memory']
         horizon = cfg['eval']['world_model']['horizon']
+        action_accuracies = []
         with torch.no_grad():
             for batch_idx, (z_seq, _z_seq, _a_seq) in enumerate(tqdm(val_loader, desc=f"Epoch {epoch+1}/{epochs} Validation")):
                 z_seq, _z_seq, _a_seq = z_seq.to(device), _z_seq.to(device), _a_seq.to(device)
@@ -479,10 +448,55 @@ def train_next_frame_model(cfg, model, data, val_data=None, device='cuda'):
                  
         val_loss /= len(val_loader.dataset)
         val_losses.append(val_loss)
+            
+        # Calculate average action prediction accuracy if available
+        if action_accuracies:
+            avg_action_accuracy = sum(action_accuracies) / len(action_accuracies)
+            writer.add_scalar('Accuracy/Epoch_Avg_Action_Prediction', avg_action_accuracy, epoch)
+            print(f'Epoch {epoch+1}/{epochs}, Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, Action Accuracy: {avg_action_accuracy:.4f}')
+        else:
+            print(f'Epoch {epoch+1}/{epochs}, Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}')
         
-        print(f'Epoch {epoch+1}/{epochs}, Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}')
+        # Save best model
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
+            
+            # Create a descriptive filename
+            checkpoint_filename = f"best_model_epoch{epoch+1}_valloss{val_loss:.6f}.pt"
+            checkpoint_path = os.path.join(checkpoint_dir, checkpoint_filename)
+            
+            # Save model state
+            torch.save({
+                'epoch': epoch,
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'val_loss': val_loss,
+                'train_loss': train_loss,
+                'config': cfg,
+            }, checkpoint_path)
+            
+            best_model_path = checkpoint_path
+            print(f"Saved new best model at epoch {epoch+1} with validation loss: {val_loss:.6f}")
+        
+        # Optionally save periodic checkpoints (every N epochs)
+        save_frequency = cfg.get('training', {}).get('save_checkpoint_every_n_epochs', 0)
+        if save_frequency > 0 and (epoch + 1) % save_frequency == 0:
+            checkpoint_filename = f"model_epoch{epoch+1}.pt"
+            checkpoint_path = os.path.join(checkpoint_dir, checkpoint_filename)
+            
+            torch.save({
+                'epoch': epoch,
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'val_loss': val_loss,
+                'train_loss': train_loss,
+                'config': cfg,
+            }, checkpoint_path)
+            
+            print(f"Saved periodic checkpoint at epoch {epoch+1}")
     
-    return train_losses, val_losses
+    # Return training statistics and best model path
+    return best_model_path
 
 # Training function for reward predictor
 def train_reward_model(cfg, model, data, device):
@@ -922,6 +936,7 @@ def run_cholect50_experiment(cfg):
     print("Starting CholecT50 experiment for surgical video analysis")
 
     # Set outputs to None
+    best_model_path = None
     next_frame_model = None
     reward_model = None
     policy_model = None
@@ -938,14 +953,27 @@ def run_cholect50_experiment(cfg):
     
     # Step 1: Load data
     print("\nLoading CholecT50 data...")
-    train_data = load_cholect50_data(cfg['data'], split='train')
-    test_data = load_cholect50_data(cfg['data'], split='test')
+    train_data = load_cholect50_data(cfg['data'], split='train', max_videos=cfg['experiment']['max_videos'])
+    test_data = load_cholect50_data(cfg['data'], split='test', max_videos=cfg['experiment']['max_videos'])
     
+    # Create datasets and dataloaders
+    train_dataset = NextFramePredictionDataset(cfg['data'], train_data)
+    val_dataset = NextFramePredictionDataset(cfg['data'], val_data)    
+    train_loader = DataLoader(train_dataset, batch_size=cfg['training']['batch_size'], shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=cfg['training']['batch_size'])
+
     # Step 2: Pre-train next frame prediction model
     if cfg_exp['pretrain_next_frame']:        
         print("\nTraining next frame prediction model...")
         world_model = CausalGPT2ForFrameEmbeddings(**cfg['models']['world_model']).to(device)
-        train_next_frame_model(cfg, world_model, train_data, test_data, device=device)  # Reduced epochs for demonstration
+        best_model_path = train_next_frame_model(cfg, world_model, train_data, test_data, device=device)  # Reduced epochs for demonstration
+
+        # if model has a action prediction head:
+        if 'next_a' in model.heads:
+            checkpoint = torch.load(best_model_path, map_location=device)        
+            world_model.load_state_dict(checkpoint['model_state_dict'])
+            print(f"Loaded model from epoch {checkpoint['epoch']} with validation loss {checkpoint['val_loss']:.6f}")
+            results = run_evaluation_suite(world_model, train_data, test_data, cfg)
 
     # Step 3: Train reward prediction model
     if cfg_exp['pretrain_reward_model']:
@@ -992,4 +1020,7 @@ if __name__ == "__main__":
     # Run the experiment
     next_frame_model, reward_model, policy_model, action_weights, results, analysis = run_cholect50_experiment(cfg)    
     print("\nExperiment completed!")
-    print(f"Model performance: {analysis['percent_improvement']:.2f}% improvement in action quality")
+    if analysis:
+        print(f"Model performance: {analysis['percent_improvement']:.2f}% improvement in action quality")
+    
+    print("Done!")
