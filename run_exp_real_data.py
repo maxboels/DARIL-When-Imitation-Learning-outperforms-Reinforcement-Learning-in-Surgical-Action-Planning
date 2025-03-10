@@ -79,7 +79,7 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
     # Add the risk score for each frame to the metadata correctly
     video_ids_cache = []
     all_risk_scores = []
-    risk_column_name = f'risk_score_{cfg['frame_risk_agg']}'
+    risk_column_name = f"risk_score_{cfg['frame_risk_agg']}"
     if metadata is not None:
         for i, row in metadata.iterrows():
             video_id = row['video']
