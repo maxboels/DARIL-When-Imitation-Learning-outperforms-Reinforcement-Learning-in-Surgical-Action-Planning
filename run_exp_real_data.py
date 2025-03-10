@@ -19,6 +19,7 @@ from datetime import datetime
 
 from model import CausalGPT2ForFrameEmbeddings, RewardPredictor
 from eval_world_model import plot_evaluation_results
+from visualization import plot_action_prediction_results
 
 # Set random seed for reproducibility
 np.random.seed(42)
@@ -348,10 +349,11 @@ def train_next_frame_model(cfg, model, train_loader, val_loader=None, device='cu
     optimizer = optim.Adam(model.parameters(), lr=cfg['training']['learning_rate'])
     
     # For saving checkpoints
-    today = datetime.now().strftime("%Y-%m-%d")
+    run_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S") 
+    save_logs_dir = cfg['training']['log_dir'] + f"/{run_time}"
     
     # Create checkpoint directory if it doesn't exist
-    checkpoint_dir = os.path.join(cfg['training']['checkpoint_dir'], today)
+    checkpoint_dir = os.path.join(save_logs_dir, 'checkpoints')
     os.makedirs(checkpoint_dir, exist_ok=True)
     
     # For tracking best model
@@ -359,7 +361,9 @@ def train_next_frame_model(cfg, model, train_loader, val_loader=None, device='cu
     best_model_path = None
     
     # For logging
-    writer = SummaryWriter(log_dir=cfg['training']['log_dir'] + f"/{today}")
+    tensorboard_dir = os.path.join(save_logs_dir, 'tensorboard')
+    os.makedirs(tensorboard_dir, exist_ok=True)
+    writer = SummaryWriter(log_dir=tensorboard_dir)
     train_losses = []
     val_losses = []
     epochs = cfg['training']['epochs']
@@ -514,6 +518,16 @@ def train_next_frame_model(cfg, model, train_loader, val_loader=None, device='cu
                     writer.add_scalar(f'Accuracy/Avg_Horizon_{horizon}_Top_{k}', avg_accuracy, epoch)
         print("-" * 50)
         
+
+        # Generate visualizations
+        plots_save_dir = os.path.join(save_logs_dir, 'plots')
+        os.makedirs(plots_save_dir, exist_ok=True)
+        plot_files = plot_action_prediction_results(
+            results, 
+            save_dir=plots_save_dir,
+            experiment_name=cfg.get('experiment', {}).get('name', 'World Model')
+        )
+
         # Save model if it's the best so far
         if val_loss < best_val_loss:
             best_val_loss = val_loss
