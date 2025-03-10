@@ -111,11 +111,11 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
             shifted_hidden_states = self.input_projection(shifted_inputs)
             
             # Use the original inputs as targets
-            target_embeddings = inputs
+            _z = inputs
         else:
             # Use provided inputs and next_frame (can predict any future frame embeddings)
             shifted_hidden_states = proj_inputs
-            target_embeddings = next_frame
+            _z = next_frame
         
         # Pass through GPT-2 model
         # We're using the model differently - we're providing hidden states directly
@@ -123,19 +123,20 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
         outputs = self.model(
             inputs_embeds=shifted_hidden_states,
             position_ids=position_ids,
-            attention_mask=attention_mask,
+            attention_mask=attention_mask, # None if not provided
             output_hidden_states=True
-        )
+        ) # ouputs: logits, past_key_values, hidden_states
         
         # Get the last hidden state
-        last_hidden_state = outputs.hidden_states[-1]
+        last_hidden_state = outputs.hidden_states[-1] # D=768
         
         # Project back to embedding dimension
-        predictions = self.model.lm_head(last_hidden_state)
+        _z_hat = self.model.lm_head(last_hidden_state) # D=1024
         
         # Calculate MSE loss between predictions and targets
-        loss = F.mse_loss(predictions, target_embeddings)
+        _z_loss = F.mse_loss(_z_hat, _z)
 
+        head_outputs = None
         if self.target_heads:
             head_outputs = {}
             for target in self.target_heads:
@@ -147,27 +148,27 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
                     pass 
         
         return {
-            "loss": loss,
-            "predictions": predictions,
+            "_z_loss": _z_loss,
+            "logits": outputs.logits,
             "head_outputs": head_outputs,
-            "hidden_states": outputs.hidden_states
+            "last_hidden_states": last_hidden_state
         }
-    
+
     def generate(self, 
-                 input_embeddings: torch.Tensor,
-                 num_frames_to_generate: int = 10,
-                 temperature: float = 1.0,
-                 top_k: Optional[int] = None,
-                 top_p: Optional[float] = None,
-                 repetition_penalty: float = 1.0,
-                 do_sample: bool = True,
-                 use_past: bool = True) -> torch.Tensor:
+                input_embeddings: torch.Tensor,
+                horizon: int = 10,
+                temperature: float = 1.0,
+                top_k: Optional[int] = None,
+                top_p: Optional[float] = None,
+                repetition_penalty: float = 1.0,
+                do_sample: bool = True,
+                use_past: bool = True) -> Dict[str, torch.Tensor]:
         """
         Generate future frame embeddings autoregressively.
         
         Args:
             input_embeddings: Initial frame embeddings of shape [batch_size, seq_length, embedding_dim]
-            num_frames_to_generate: Number of future frames to generate
+            horizon: Number of future frames to generate
             temperature: Sampling temperature for generation
             top_k: Number of highest probability tokens to keep for top-k sampling
             top_p: Cumulative probability for nucleus sampling
@@ -176,7 +177,7 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
             use_past: Whether to use past key values for faster generation
             
         Returns:
-            Generated sequence of frame embeddings
+            Dictionary containing generated embeddings and optional head outputs
         """
         self.eval()
         device = input_embeddings.device
@@ -194,8 +195,12 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
         # Create attention mask for the input sequence
         attention_mask = torch.ones(batch_size, seq_length, device=device)
         
+        # Initialize containers to store hidden states and head outputs
+        all_hidden_states = []
+        all_head_outputs = {target: [] for target in self.target_heads} if self.target_heads else None
+        
         # Generate new frames autoregressively
-        for i in range(num_frames_to_generate):
+        for i in range(horizon):
             # Create position IDs for the current sequence
             position_ids = torch.arange(
                 seq_length + i, 
@@ -234,10 +239,11 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
                 past = outputs.past_key_values
             
             # Get the next frame embedding representation
-            next_token_hidden = outputs.hidden_states[-1][:, -1, :]
+            next_token_hidden = outputs.hidden_states[-1][:, -1, :] # D=768
+            all_hidden_states.append(next_token_hidden)
             
             # Project hidden state to embedding dimension
-            next_frame_embedding = self.model.lm_head(next_token_hidden)
+            next_frame_embedding = self.model.lm_head(next_token_hidden) # D=1024
             
             # Apply temperature scaling and optional sampling techniques
             if do_sample:
@@ -258,6 +264,12 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
                     penalty = torch.pow(similarities.max(dim=1)[0], 1/repetition_penalty).unsqueeze(1)
                     next_frame_embedding = next_frame_embedding * penalty
             
+            # Compute head outputs for the current frame
+            if self.target_heads:
+                for target in self.target_heads:
+                    head_output = self.head[target](next_token_hidden)
+                    all_head_outputs[target].append(head_output)
+            
             # Reshape for concatenation
             next_frame_embedding = next_frame_embedding.unsqueeze(1)
             
@@ -274,12 +286,30 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
                 torch.ones(batch_size, 1, device=device)
             ], dim=1)
         
+        # Stack all hidden states
+        all_hidden_states = torch.stack(all_hidden_states, dim=1)  # [batch_size, num_frames, hidden_dim]
+        
+        # Stack head outputs if they exist
+        if self.target_heads:
+            for target in self.target_heads:
+                all_head_outputs[target] = torch.stack(all_head_outputs[target], dim=1)
+        
         # Return the full sequence including the input and generated frames
-        return generated_embeddings
-    
+        result = {
+            "z": input_embeddings,
+            "_zs_hat": generated_embeddings[:, input_embeddings.size(1):],
+            "last_hidden_states": all_hidden_states
+        }
+        
+        # Add head outputs if they exist
+        if self.target_heads:
+            result["head_outputs"] = all_head_outputs
+        
+        return result
+
     def generate_future(self, 
                         initial_embedding: torch.Tensor, 
-                        length: int = 10) -> torch.Tensor:
+                        length: int = 10) -> Dict[str, torch.Tensor]:
         """
         Simplified method to generate future frames from a single embedding.
         
@@ -288,7 +318,7 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
             length: Number of future frames to generate
             
         Returns:
-            Generated sequence of future frame embeddings
+            Dictionary containing generated sequence of future frame embeddings and head outputs
         """
         # Ensure the initial embedding has batch and sequence dimensions
         if initial_embedding.dim() == 2:
@@ -299,16 +329,211 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
             initial_embedding = initial_embedding.unsqueeze(0).unsqueeze(0)
         
         # Generate the sequence
-        generated_sequence = self.generate(
+        result = self.generate(
             input_embeddings=initial_embedding,
-            num_frames_to_generate=length,
+            horizon=length,
             do_sample=True,
             temperature=0.7,
             use_past=True
         )
         
-        # Return only the generated future frames (exclude the initial frame)
-        return generated_sequence[:, 1:, :]
+        # Modify the result to only include generated future frames (exclude the initial frame)
+        result["generated_embeddings"] = result["generated_embeddings"][:, 1:]
+        
+        return result
+
+    def update_memory(self,
+                      memory: Dict[str, torch.Tensor],
+                      next_frame: Optional[torch.Tensor] = None,
+                      next_actions: Optional[torch.Tensor] = None,
+                      attention_mask: Optional[torch.Tensor] = None) -> Dict[str, torch.Tensor]:
+        """
+        Update the memory with new observations and perform a forward pass.
+        
+        Args:
+            memory: Dictionary containing previous memory tensors
+            next_frame: Target frame embeddings tensor of shape [batch_size, seq_length, embedding_dim]
+            next_actions: Target action logits tensor of shape [batch_size, num_action_classes]
+            attention_mask: Attention mask of shape [batch_size, seq_length]
+        
+        Returns:
+            Dictionary with loss and predictions
+        """
+        # Extract previous memory tensors
+        inputs = memory["input_embeddings"]
+        
+        # Perform forward pass
+        outputs = self.forward(
+            inputs=inputs,
+            next_frame=next_frame,
+            next_actions=next_actions,
+            attention_mask=attention_mask
+        )
+        
+        return outputs
+
+
+    # def generate(self, 
+    #              input_embeddings: torch.Tensor,
+    #              horizon: int = 10,
+    #              temperature: float = 1.0,
+    #              top_k: Optional[int] = None,
+    #              top_p: Optional[float] = None,
+    #              repetition_penalty: float = 1.0,
+    #              do_sample: bool = True,
+    #              use_past: bool = True) -> torch.Tensor:
+    #     """
+    #     Generate future frame embeddings autoregressively.
+        
+    #     Args:
+    #         input_embeddings: Initial frame embeddings of shape [batch_size, seq_length, embedding_dim]
+    #         horizon: Number of future frames to generate
+    #         temperature: Sampling temperature for generation
+    #         top_k: Number of highest probability tokens to keep for top-k sampling
+    #         top_p: Cumulative probability for nucleus sampling
+    #         repetition_penalty: Penalty for repeating tokens
+    #         do_sample: Whether to use sampling or greedy decoding
+    #         use_past: Whether to use past key values for faster generation
+            
+    #     Returns:
+    #         Generated sequence of frame embeddings
+    #     """
+    #     self.eval()
+    #     device = input_embeddings.device
+    #     batch_size, seq_length, _ = input_embeddings.size()
+        
+    #     # Project input embeddings to GPT-2 hidden dimension
+    #     hidden_states = self.input_projection(input_embeddings)
+        
+    #     # Initialize past key values if using them
+    #     past = None
+        
+    #     # Initialize the generated sequence with the input embeddings
+    #     generated_embeddings = input_embeddings.clone()
+        
+    #     # Create attention mask for the input sequence
+    #     attention_mask = torch.ones(batch_size, seq_length, device=device)
+        
+    #     # Generate new frames autoregressively
+    #     for i in range(horizon):
+    #         # Create position IDs for the current sequence
+    #         position_ids = torch.arange(
+    #             seq_length + i, 
+    #             dtype=torch.long, 
+    #             device=device
+    #         ).unsqueeze(0).expand(batch_size, -1)
+            
+    #         # If using past key values, only the last token needs to be processed
+    #         if use_past and past is not None:
+    #             # Get only the last frame embedding
+    #             current_hidden = hidden_states[:, -1:, :]
+    #             current_position_ids = position_ids[:, -1:]
+    #             current_attention_mask = torch.cat([
+    #                 attention_mask,
+    #                 torch.ones(batch_size, i, device=device)
+    #             ], dim=1)
+    #         else:
+    #             # Process the entire sequence
+    #             current_hidden = hidden_states
+    #             current_position_ids = position_ids
+    #             current_attention_mask = attention_mask
+            
+    #         # Forward pass through GPT-2
+    #         with torch.no_grad():
+    #             outputs = self.model(
+    #                 inputs_embeds=current_hidden,
+    #                 position_ids=current_position_ids,
+    #                 attention_mask=current_attention_mask,
+    #                 past_key_values=past,
+    #                 use_cache=use_past,
+    #                 output_hidden_states=True
+    #             )
+            
+    #         # Update past for next iteration if using past key values
+    #         if use_past:
+    #             past = outputs.past_key_values
+            
+    #         # Get the next frame embedding representation
+    #         next_token_hidden = outputs.hidden_states[-1][:, -1, :]
+            
+    #         # Project hidden state to embedding dimension
+    #         next_frame_embedding = self.model.lm_head(next_token_hidden)
+            
+    #         # Apply temperature scaling and optional sampling techniques
+    #         if do_sample:
+    #             # For continuous generation, we add noise scaled by temperature
+    #             noise = torch.randn_like(next_frame_embedding) * temperature
+    #             next_frame_embedding = next_frame_embedding + noise
+                
+    #             # Apply repetition penalty by comparing with previous embeddings
+    #             if repetition_penalty != 1.0:
+    #                 # Calculate cosine similarity with previous frames
+    #                 # Higher similarity will lead to penalization
+    #                 similarities = F.cosine_similarity(
+    #                     next_frame_embedding.unsqueeze(1), 
+    #                     generated_embeddings, 
+    #                     dim=2
+    #                 )
+    #                 # Apply penalty by scaling down embeddings based on similarity
+    #                 penalty = torch.pow(similarities.max(dim=1)[0], 1/repetition_penalty).unsqueeze(1)
+    #                 next_frame_embedding = next_frame_embedding * penalty
+            
+    #         # Reshape for concatenation
+    #         next_frame_embedding = next_frame_embedding.unsqueeze(1)
+            
+    #         # Add the generated frame to the sequence
+    #         generated_embeddings = torch.cat([generated_embeddings, next_frame_embedding], dim=1)
+            
+    #         # Update hidden states for next iteration
+    #         next_hidden = self.input_projection(next_frame_embedding)
+    #         hidden_states = torch.cat([hidden_states, next_hidden], dim=1)
+            
+    #         # Extend attention mask
+    #         attention_mask = torch.cat([
+    #             attention_mask, 
+    #             torch.ones(batch_size, 1, device=device)
+    #         ], dim=1)
+        
+    #     # Return the full sequence including the input and generated frames
+    #     return {
+    #         "input_embeddings": input_embeddings,
+    #         "generated_embeddings": generated_embeddings
+    #     }
+    
+    # def generate_future(self, 
+    #                     initial_embedding: torch.Tensor, 
+    #                     length: int = 10) -> torch.Tensor:
+    #     """
+    #     Simplified method to generate future frames from a single embedding.
+        
+    #     Args:
+    #         initial_embedding: Starting frame embedding of shape [batch_size, embedding_dim]
+    #         length: Number of future frames to generate
+            
+    #     Returns:
+    #         Generated sequence of future frame embeddings
+    #     """
+    #     # Ensure the initial embedding has batch and sequence dimensions
+    #     if initial_embedding.dim() == 2:
+    #         # [batch_size, embedding_dim] -> [batch_size, 1, embedding_dim]
+    #         initial_embedding = initial_embedding.unsqueeze(1)
+    #     elif initial_embedding.dim() == 1:
+    #         # [embedding_dim] -> [1, 1, embedding_dim]
+    #         initial_embedding = initial_embedding.unsqueeze(0).unsqueeze(0)
+        
+    #     # Generate the sequence
+    #     generated_sequence = self.generate(
+    #         input_embeddings=initial_embedding,
+    #         horizon=length,
+    #         do_sample=True,
+    #         temperature=0.7,
+    #         use_past=True
+    #     )
+        
+    #     # Return only the generated future frames (exclude the initial frame)
+    #     return {
+    #         "generated_embeddings": generated_sequence["generated_embeddings"][:, 1:]
+    #     }
     
     def save(self, path: str) -> None:
         """Save the model to the specified path."""
@@ -504,7 +729,7 @@ if __name__ == "__main__":
     initial_embedding = torch.randn(batch_size, 1, 1024)  # [batch_size, seq_length=1, embedding_dim]
     
     # Generate 10 future frames
-    future_frames = model.generate(initial_embedding, num_frames_to_generate=10)
+    future_frames = model.generate(initial_embedding, horizon=10)
     
     print(f"Generated sequence shape: {future_frames.shape}")  # [batch_size, 11, embedding_dim]
     

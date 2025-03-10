@@ -14,9 +14,16 @@ training:
   log_dir: "logs"
   checkpoint_dir: "checkpoints"
 
+eval:
+  world_model:
+    use_memory: false
+    horizon: 15
+
 # Data paths configuration
 data:
   context_length: 5
+  train_shift: 1
+  padding_value: 0.0
   horizon: 15
   paths:
     data_dir: "/home/maxboels/datasets/CholecT50"
@@ -24,7 +31,7 @@ data:
     metadata_file: "embeddings_f0_swin_bas_129_with_enhanced.csv"
     video_global_outcome_file: null
   risk_score_path: null
-  max_videos: 5                     # Set to null to use all videos
+  max_videos: 2                     # Set to null to use all videos
   frame_risk_agg: 'max'
 
 # Model configurations
@@ -49,8 +56,6 @@ models:
       w_r: null  # Reward prediction (0.1)
       w_q: null  # Q-value prediction (0.1)
       w_R: null  # Final reward estimation (0.05)
-    eval:
-      horizon: 15
   
   # Reward model configuration
   reward:
@@ -62,4 +67,11 @@ models:
 
 # Experiment settings
 experiment:
-  max_videos: 5  # Set to null to use all videos
+  max_videos: 2  # Set to null to use all videos
+  pretrain_next_frame: true
+  pretrain_reward_model: false
+  calculate_action_rewards: false
+  train_action_policy: false
+  run_tdmpc: false
+  analyze_results: false
+  run_evaluation: false

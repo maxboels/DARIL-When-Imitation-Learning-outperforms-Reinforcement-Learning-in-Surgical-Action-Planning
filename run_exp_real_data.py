@@ -1,10 +1,12 @@
 import numpy as np
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
+from torch.utils.tensorboard import SummaryWriter
 import os
 import glob
 import json
@@ -13,6 +15,7 @@ import re
 from tqdm import tqdm
 import yaml
 import os
+from datetime import datetime
 
 from model import CausalGPT2ForFrameEmbeddings, RewardPredictor
 
@@ -238,11 +241,13 @@ class NextFramePredictionDataset(Dataset):
         
         context_length = cfg.get('context_length', 10)
         padding_value = cfg.get('padding_value', 0.0)
+        train_shift = cfg.get('train_shift', 1)
 
         for video in data:
             embeddings = video['frame_embeddings']
             actions = video['actions_binaries']
-                            
+            
+            num_actions = len(actions[0])
             embedding_dim = len(embeddings[0])
 
             for i in range(len(embeddings) - 1):
@@ -250,6 +255,7 @@ class NextFramePredictionDataset(Dataset):
                 # This means frames from (i-context_length+1) to i, inclusive
                 z_seq = []
                 _z_seq = []
+                # a_seq: We already trained the vision backbone to recognise the actions
                 _a_seq = []
                 
                 # Add previous frames, using padding if needed
@@ -259,15 +265,18 @@ class NextFramePredictionDataset(Dataset):
                         z_seq.append([padding_value] * embedding_dim)
                     else:
                         z_seq.append(embeddings[j])
-                    
-                for k in range(i - context_length + 2, i + 2):
+                
+                # Add the shifted next frame and action
+                for k in range(i - context_length + 1 + train_shift, i + 1 + train_shift):
                     if k < 0:
                         # Padding for positions before the start of the video
                         _z_seq.append([padding_value] * embedding_dim)
-                        print(f"Padding for position {k}/{len(embeddings)}")
+                        _a_seq.append([0] * num_actions)
+                        print(f"Padding for frame position {k}/{len(embeddings)}")
                     elif k >= len(embeddings):
                         # Padding for positions after the end of the video
                         _z_seq.append([padding_value] * embedding_dim)
+                        _a_seq.append([0] * num_actions)
                         print(f"Padding for position {k}/{len(embeddings)}")
                     else:
                         _z_seq.append(embeddings[k])
@@ -275,9 +284,9 @@ class NextFramePredictionDataset(Dataset):
 
                 # Add the sequence to the samples list
                 self.samples.append({
-                    'z': z_seq,  # Sequence of frames from (i-context_length+1) to i
-                    '_z': _z_seq,  # Sequence of frames from (i-context_length+2) to i+1
-                    '_a': _a_seq  # Sequence of actions from (i-context_length+2) to i+1
+                    'z': z_seq,     # Sequence of frames from (i-context_length+1) to i
+                    '_z': _z_seq,   # Sequence of frames from (i-context_length+2) to i+1
+                    '_a': _a_seq    # Sequence of actions from (i-context_length+2) to i+1
                 })
     
     def __len__(self):
@@ -396,6 +405,8 @@ def train_next_frame_model(cfg, model, data, val_data=None, device='cuda'):
     optimizer = optim.Adam(model.parameters(), lr=cfg['training']['learning_rate'])
     
     # Training loop
+    today = datetime.now().strftime("%Y-%m-%d")
+    writer = SummaryWriter(log_dir=cfg['training']['log_dir'] + f"/{today}")
     train_losses = []
     val_losses = []
     epochs = cfg['training']['epochs']
@@ -403,21 +414,27 @@ def train_next_frame_model(cfg, model, data, val_data=None, device='cuda'):
         # Training
         model.train()
         train_loss = 0.0
-        
-        for z, _z, _a in tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs} Training"):
-            z, _z, _a = z.to(device), _z.to(device), _a.to(device)
+
+        for batch_idx, (z_seq, _z_seq, _a_seq) in enumerate(tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs} Training")):
+            z_seq, _z_seq, _a_seq = z_seq.to(device), _z_seq.to(device), _a_seq.to(device)
+
+            assert z_seq[:, -1, :].equal(_z_seq[:, -2, :]), "Last frame of z must equal second-to-last frame of _z"
             
             # Forward pass
             outputs = model(z_seq, next_frame=_z_seq, next_actions=_a_seq)
-            loss = outputs["loss"]
+            loss = outputs["_z_loss"]
             
             # Backward pass and optimize
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
             
-            train_loss += loss.item() * z.size(0)
-        
+            train_loss += loss.item() * z_seq.size(0)
+
+            # Calculate global step using epoch and batch index
+            global_step = epoch * len(train_loader) + batch_idx
+            writer.add_scalar('Loss/World_Model_Train', loss.item(), global_step)
+                
         train_loss /= len(train_loader.dataset)
         train_losses.append(train_loss)
         
@@ -425,26 +442,41 @@ def train_next_frame_model(cfg, model, data, val_data=None, device='cuda'):
         model.eval()
         val_loss = 0.0
         
+        use_memory = cfg['eval']['world_model']['use_memory']
+        horizon = cfg['eval']['world_model']['horizon']
         with torch.no_grad():
-            for z, _z, _a in tqdm(val_loader, desc=f"Epoch {epoch+1}/{epochs} Validation"):
-                z, _z, _a = z.to(device), _z.to(device), _a.to(device)
-                
-                # Add sequence dimension for model input
-                inputs_seq = z.unsqueeze(1)  # [batch_size, 1, embedding_dim]
+            for batch_idx, (z_seq, _z_seq, _a_seq) in enumerate(tqdm(val_loader, desc=f"Epoch {epoch+1}/{epochs} Validation")):
+                z_seq, _z_seq, _a_seq = z_seq.to(device), _z_seq.to(device), _a_seq.to(device)
+
+                # New frame observed
+                # We should already have seen the previous frames and stored them memory
+                if use_memory:
+                    z_seq = z_seq[:, -1:, :] # select current frame
                 
                 # Generate next frame predictions
-                future_embeddings = model.generate_future(
-                    initial_embedding=inputs_seq,
-                    length=cfg['world_model']['eval']['horizon']
-                )
-                
-                # Extract predictions (remove sequence dim if necessary)
-                predictions = future_embeddings.squeeze(1)  # [batch_size, embedding_dim]
+                outputs = model.generate(z_seq, horizon=horizon)
                 
                 # Calculate loss between predictions and targets
-                loss = criterion(predictions, _z)
-                val_loss += loss.item() * z.size(0)
-        
+                # We didnt pass the future embeddings in out dataloader
+                _z_loss = F.mse_loss(outputs['_zs_hat'][:, 0, :], _z_seq[:, -1, :]) # Check if first frame isn't the input frame
+                val_loss += _z_loss.item() * z_seq.size(0)
+
+                if '_a_seq_hat' in outputs:
+                    _a_loss = F.mse(outputs['_a_seq_hat'], _a_seq[:, :, :])
+                    val_loss += _a_loss.item() * z_seq.size(0)
+
+                    # Calculate accuracy with top-k actions over short time horizon to relax a bit the exact timing
+                    topk = 5
+                    _, topk_actions = outputs['_a_seq_hat'].topk(topk, dim=2)
+                    topk_actions = topk_actions.squeeze(0)
+                    correct = topk_actions.eq(_a_seq[:, -1, :].argmax(dim=1).unsqueeze(1).expand_as(topk_actions))
+                    accuracy = correct.float().mean()
+                    writer.add_scalar('Accuracy/World_Model_Action_Prediction', accuracy.item(), epoch * len(val_loader) + len(val_loader))
+                
+                # Calculate global step using epoch and batch index
+                global_step = epoch * len(val_loader) + batch_idx
+                writer.add_scalar('Loss/World_Model_Val', _z_loss.item(), global_step)
+                 
         val_loss /= len(val_loader.dataset)
         val_losses.append(val_loss)
         
@@ -888,6 +920,14 @@ def analyze_results(results, action_weights):
 def run_cholect50_experiment(cfg):
     """Run the experiment with CholecT50 data."""
     print("Starting CholecT50 experiment for surgical video analysis")
+
+    # Set outputs to None
+    next_frame_model = None
+    reward_model = None
+    policy_model = None
+    action_weights = None
+    results = None
+    analysis = None
     
     # Set device (use GPU if available)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -899,30 +939,36 @@ def run_cholect50_experiment(cfg):
     test_data = load_cholect50_data(cfg['data'], split='test')
     
     # Step 2: Pre-train next frame prediction model
-    print("\nTraining next frame prediction model...")
-    world_model = CausalGPT2ForFrameEmbeddings(**cfg['models']['world_model']).to(device)
-    train_next_frame_model(cfg, world_model, train_data, test_data, device=device)  # Reduced epochs for demonstration
+    if cfg['pretrain_next_frame']:        
+        print("\nTraining next frame prediction model...")
+        world_model = CausalGPT2ForFrameEmbeddings(**cfg['models']['world_model']).to(device)
+        train_next_frame_model(cfg, world_model, train_data, test_data, device=device)  # Reduced epochs for demonstration
 
     # Step 3: Train reward prediction model
-    print("\nTraining reward prediction model...")
-    reward_model = RewardPredictor(**cfg['models']['reward']).to(device)
-    train_reward_model(cfg['reward_model'], train_data, device)  # Reduced epochs for demonstration
+    if cfg['pretrain_reward_model']:
+        print("\nTraining reward prediction model...")
+        reward_model = RewardPredictor(**cfg['models']['reward']).to(device)
+        train_reward_model(cfg['reward_model'], train_data, device)
     
     # Calculate action rewards
-    print("\nCalculating action rewards...")
-    avg_action_rewards = calculate_action_rewards(train_data, next_frame_model, reward_model, device)
+    if cfg['calculate_action_rewards']:
+        print("\nCalculating action rewards...")
+        avg_action_rewards = calculate_action_rewards(train_data, next_frame_model, reward_model, device)
     
     # Train action policy model with reward weighting
-    print("\nTraining action policy model...")
-    policy_model, action_weights = train_action_policy(cfg, train_data, avg_action_rewards, device)
+    if cfg['train_action_policy']:
+        print("\nTraining action policy model...")
+        policy_model, action_weights = train_action_policy(cfg, train_data, avg_action_rewards, device)
     
     # Run TD-MPC2 to evaluate the model
-    print("\nRunning TD-MPC2...")
-    results = run_tdmpc(data, next_frame_model, reward_model, policy_model, action_weights, device)
+    if cfg['run_tdmpc']:
+        print("\nRunning TD-MPC2...")
+        results = run_tdmpc(data, next_frame_model, reward_model, policy_model, action_weights, device)
     
     # Analyze and visualize results
-    print("\nAnalyzing results...")
-    analysis = analyze_results(results, action_weights)
+    if cfg['analyze_results']:
+        print("\nAnalyzing results...")
+        analysis = analyze_results(results, action_weights)
     
     return next_frame_model, reward_model, policy_model, action_weights, results, analysis
 
