@@ -444,9 +444,9 @@ def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
         results = {}
         eval_horizons = cfg['eval']['world_model']['eval_horizons']
         top_ks = cfg['eval']['world_model']['top_ks']
-        # for horizon in eval_horizons:
-        #     for k in top_ks:
-        #         results[f"horizon_{horizon}_top_{k}"] = []
+        for horizon in eval_horizons:
+            for k in top_ks:
+                results[f"horizon_{horizon}_top_{k}"] = []
         
         use_memory = cfg['eval']['world_model']['use_memory']
         max_horizon = cfg['eval']['world_model']['max_horizon']
@@ -489,7 +489,7 @@ def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
                             # Accuracy, Recall, Precision, F1 (top-k)
                             true_indices = torch.where(f_a_h_targets > 0.5)[0]
                             if len(true_indices) == 0:
-                                continue
+                                continue # we don't compute false positives and true negatives
 
                             horizon_metrics = evaluate_multi_label_predictions(f_a_h_probs, f_a_h_targets, top_ks)
                             

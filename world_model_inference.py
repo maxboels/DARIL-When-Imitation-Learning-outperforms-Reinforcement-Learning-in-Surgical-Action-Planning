@@ -14,7 +14,7 @@ import imageio
 from datetime import datetime
 
 
-def create_qualitative_demo(model, test_loader, cfg, device='cuda', output_dir=None, num_samples=3):
+def create_qualitative_demo(model, test_loader, cfg, device='cuda', output_dir=None, num_samples=4):
     """
     Create a qualitative demo of the model's action prediction capabilities.
     
@@ -54,6 +54,12 @@ def create_qualitative_demo(model, test_loader, cfg, device='cuda', output_dir=N
     
     with torch.no_grad():
         for batch_idx, (z_seq, _z_seq, _a_seq, f_a_seq) in enumerate(test_loader):
+
+            # Skip sample count if no valid actions are present in those samples
+            # We need to make sure we consider positive targets in our examples
+            if torch.sum(f_a_seq) == 0:
+                continue
+
             # Process only a few samples for the demo
             if samples_processed >= num_samples:
                 break

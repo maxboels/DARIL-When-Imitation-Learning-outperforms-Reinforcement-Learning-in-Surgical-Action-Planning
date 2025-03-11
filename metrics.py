@@ -179,6 +179,7 @@ def evaluate_action_prediction_map(model, val_loader, cfg, device='cuda'):
                                 true_action_indices = torch.where(f_a_h_targets[b, t] > 0.5)[0]
                                 
                                 # Skip frames with no active classes
+                                # TODO: Add option to skip or count as false positives
                                 if len(true_action_indices) == 0:
                                     continue
                                     
