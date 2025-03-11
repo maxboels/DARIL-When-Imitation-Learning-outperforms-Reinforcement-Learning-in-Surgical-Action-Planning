@@ -1,0 +1,14 @@
+2025-03-11 12:15:06,723 - INFO - Log file: logs/2025-03-11_12-15-06/my_application.log
+2025-03-11 12:15:06,724 - INFO - Starting CholecT50 experiment for Surgical Actions Prediction
+2025-03-11 12:15:06,724 - INFO - Experiment configuration: {'max_videos': 1, 'pretrain_next_frame': True, 'pretrain_reward_model': False, 'calculate_action_rewards': False, 'train_action_policy': False, 'run_tdmpc': False, 'analyze_results': False, 'run_evaluation': False}
+2025-03-11 12:15:06,724 - INFO - Using device: cuda
+2025-03-11 12:15:06,724 - INFO - Loading CholecT50 data...
+2025-03-11 12:15:14,201 - INFO - Epoch 1/2 Training
+2025-03-11 12:15:14,380 - INFO - Epoch 1/2, Batch 0/109, Loss: 2.4942
+2025-03-11 12:15:14,888 - INFO - Epoch 1/2, Batch 20/109, Loss: 0.7545
+2025-03-11 12:15:15,404 - INFO - Epoch 1/2, Batch 40/109, Loss: 0.4678
+2025-03-11 12:15:15,926 - INFO - Epoch 1/2, Batch 60/109, Loss: 0.3118
+2025-03-11 12:15:16,450 - INFO - Epoch 1/2, Batch 80/109, Loss: 0.2550
+2025-03-11 12:15:16,970 - INFO - Epoch 1/2, Batch 100/109, Loss: 0.2192
+2025-03-11 12:15:17,178 - INFO - Epoch 1/2, Train Loss: 0.5052
+2025-03-11 12:15:17,179 - INFO - Starting validation

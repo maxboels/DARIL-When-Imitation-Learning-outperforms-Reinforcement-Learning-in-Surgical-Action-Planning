@@ -509,11 +509,12 @@ def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
                                         total_count += 1
                                 
                                 # Calculate accuracy
-                                accuracy = correct_count / max(1, total_count)  # Avoid division by zero
-                                results[f"horizon_{h}_top_{k}"].append(accuracy)
+                                if total_count > 0:
+                                    accuracy = correct_count / max(1, total_count)  # Avoid division by zero
+                                    results[f"horizon_{h}_top_{k}"].append(accuracy)
                                 
-                                # Log accuracy
-                                writer.add_scalar(f'Accuracy/Horizon_{h}_Top_{k}', accuracy, global_step)
+                                    # Log accuracy
+                                    writer.add_scalar(f'Accuracy/Horizon_{h}_Top_{k}', accuracy, global_step)
                 
                 # Calculate global step using epoch and batch index
                 global_step = epoch * len(val_loader) + batch_idx
@@ -555,25 +556,27 @@ def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
         plots_save_dir = os.path.join(save_logs_dir, 'plots')
         os.makedirs(plots_save_dir, exist_ok=True)
 
-        # mAP plots
-        # Generate all plots at once using the comprehensive function
-        plot_files = generate_map_vs_accuracy_plots(
-            results, 
-            plots_save_dir,
-            cfg.get('experiment', {}).get('name', 'World_Model')
-        )
-
-        # Accuracy plots
-        plot_files = plot_action_prediction_results(
-            results, 
-            save_dir=plots_save_dir,
-            experiment_name=cfg.get('experiment', {}).get('name', 'World Model')
-        )
-
         # Save model if it's the best so far
         if val_loss < best_val_loss:
             best_val_loss = val_loss
+
+            plot_title = f"World Model Evaluation - Epoch {epoch+1}"
             
+            # mAP plots
+            # Generate all plots at once using the comprehensive function
+            plot_files = generate_map_vs_accuracy_plots(
+                results, 
+                plots_save_dir,
+                experiment_name=plot_title
+            )
+
+            # Accuracy plots
+            plot_files = plot_action_prediction_results(
+                results, 
+                save_dir=plots_save_dir,
+                experiment_name=plot_title
+            )
+
             # Create descriptive filename
             checkpoint_filename = f"best_model_epoch{epoch+1}_valloss{val_loss:.6f}.pt"
             checkpoint_path = os.path.join(checkpoint_dir, checkpoint_filename)

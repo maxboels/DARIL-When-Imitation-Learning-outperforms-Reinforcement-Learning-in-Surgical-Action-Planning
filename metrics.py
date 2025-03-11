@@ -4,14 +4,14 @@ from sklearn.metrics import average_precision_score, precision_recall_curve
 import matplotlib.pyplot as plt
 
 
-def calculate_map(predictions, targets, classes=None, skip_empty_frames=True, threshold=0.5, scale_factor=0.1):
+def calculate_map(predictions, targets, class_names=None, skip_empty_frames=True, threshold=0.5, scale_factor=0.1):
     """
     Calculate Mean Average Precision (mAP) for multi-label action prediction.
     
     Args:
         predictions: Tensor of prediction scores [batch_size, sequence_length, num_classes]
         targets: Tensor of binary target labels [batch_size, sequence_length, num_classes]
-        classes: Optional list of class names for detailed reporting
+        class_names: Optional list of class names for detailed reporting
         skip_empty_frames: Skip frames with no active classes (default: False), ignoring false positives
         threshold: Confidence threshold for considering a prediction as positive (default: 0.5)
         scale_factor: Penalty factor for false positives in empty frames (default
@@ -85,11 +85,11 @@ def calculate_map(predictions, targets, classes=None, skip_empty_frames=True, th
     }
     
     # Add per-class results if class names provided
-    if classes:
+    if class_names:
         per_class_map = {}
-        for c in range(min(num_classes, len(classes))):
+        for c in range(min(num_classes, len(class_names))):
             if class_ap_scores[c]:
-                per_class_map[classes[c]] = np.mean(class_ap_scores[c])
+                per_class_map[class_names[c]] = np.mean(class_ap_scores[c])
         results['per_class_mAP'] = per_class_map
     
     return results
