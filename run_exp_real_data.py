@@ -278,12 +278,12 @@ class NextFramePredictionDataset(Dataset):
                         # Padding for positions before the start of the video
                         _z_seq.append([padding_value] * embedding_dim)
                         _a_seq.append([0] * num_actions)
-                        print(f"Padding for frame position {k}/{len(embeddings)}")
+                        # print(f"Padding for frame position {k}/{len(embeddings)}")
                     elif k >= len(embeddings):
                         # Padding for positions after the end of the video
                         _z_seq.append([padding_value] * embedding_dim)
                         _a_seq.append([0] * num_actions)
-                        print(f"Padding for position {k}/{len(embeddings)}")
+                        # print(f"Padding for position {k}/{len(embeddings)}")
                     else:
                         _z_seq.append(embeddings[k])
                         _a_seq.append(actions[k])
@@ -296,7 +296,7 @@ class NextFramePredictionDataset(Dataset):
                     # Padding for positions after the end of the video
                     for _ in range(max_horizon - len(f_a_seq)):
                         f_a_seq.append([0] * num_actions)
-                        print(f"Padding for future action position {k}/{len(embeddings)}")
+                        # print(f"Padding for future action position {k}/{len(embeddings)}")
 
                 # Add the sequence to the samples list
                 self.samples.append({
@@ -312,10 +312,11 @@ class NextFramePredictionDataset(Dataset):
     def __getitem__(self, idx):
         sample = self.samples[idx]
 
-        z = torch.tensor(sample['z'], dtype=torch.float32)  # Shape: [context_length, embedding_dim]
-        _z = torch.tensor(sample['_z'], dtype=torch.float32)
-        _a = torch.tensor(sample['_a'], dtype=torch.float32)
-        f_a = torch.tensor(sample['f_a'], dtype=torch.float32)
+        # Convert lists to numpy arrays first, then to tensors
+        z = torch.tensor(np.array(sample['z']), dtype=torch.float32)  # Shape: [context_length, embedding_dim]
+        _z = torch.tensor(np.array(sample['_z']), dtype=torch.float32)
+        _a = torch.tensor(np.array(sample['_a']), dtype=torch.float32)
+        f_a = torch.tensor(np.array(sample['f_a']), dtype=torch.float32)
 
         return z, _z, _a, f_a
 
@@ -374,6 +375,7 @@ def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
         # Training
         model.train()
         train_loss = 0.0
+        logger.info(f"Epoch {epoch+1}/{epochs} Training")
 
         for batch_idx, (z_seq, _z_seq, _a_seq, _) in enumerate(tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs} Training")):
             z_seq, _z_seq, _a_seq = z_seq.to(device), _z_seq.to(device), _a_seq.to(device)
@@ -400,14 +402,20 @@ def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
             writer.add_scalar('Loss/World_Model_Train', loss.item(), global_step)
             writer.add_scalar('Loss/World_Model_Train_Z', _z_loss.item(), global_step)
             writer.add_scalar('Loss/World_Model_Train_A', _a_loss.item(), global_step)
+
+            # Logging every
+            if batch_idx % cfg['training']['log_every_n_steps'] == 0:
+                logger.info(f"Epoch {epoch+1}/{epochs}, Batch {batch_idx}/{len(train_loader)}, Loss: {loss.item():.4f}")
                 
         train_loss /= len(train_loader.dataset)
         train_losses.append(train_loss)
+        logger.info(f"Epoch {epoch+1}/{epochs}, Train Loss: {train_loss:.4f}")
         
         # Inference on validation set
-        print("Inference on validation set...")
+        logger
         model.eval()
         val_loss = 0.0
+        logger.info(f"Starting validation")
 
         # Initialize results dictionary
         results = {}
@@ -509,27 +517,35 @@ def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
                 writer.add_scalar('Loss/World_Model_Val_Z', _z_loss.item(), global_step)
                 writer.add_scalar('Loss/World_Model_Val_A', f_a_loss.item(), global_step)
 
+                # Logging every
+                if batch_idx % cfg['training']['log_every_n_steps'] == 0:
+                    logger.info(f"Epoch {epoch+1}/{epochs}, Batch {batch_idx}/{len(val_loader)}, Loss: {val_loss:.4f}")
+
         val_loss /= len(val_loader.dataset)
         val_losses.append(val_loss)
+        logger.info(f"Epoch {epoch+1}/{epochs}, Val Loss: {val_loss:.4f}")
 
         # Calculate and log average accuracies for each horizon and top-k
-        print("\nAction Prediction Accuracy:")
-        print("-" * 50)
-        print(f"{'Horizon':<10} {'Top-k':<10} {'Accuracy':<10}")
-        print("-" * 50)
+        logger.info("\nAction Prediction Accuracy:")
+        logger.info("-" * 50)
+        logger.info(f"{'Horizon':<10} {'Top-k':<10} {'Accuracy':<10}")
+        logger.info("-" * 50)
         
         for horizon in sorted(eval_horizons):
             map_key = f"horizon_{horizon}_mAP"
             if map_key in results:
-                print(f"{horizon:<10} {'mAP':<15} {results[map_key]:.4f}")
+                # print(f"{horizon:<10} {'mAP':<15} {results[map_key]:.4f}")
+                logger.info(f"{horizon:<10} {'mAP':<15} {results[map_key]:.4f}")
             
             for k in sorted(top_ks):
                 key = f"horizon_{horizon}_top_{k}"
                 if results[key]:
                     avg_accuracy = sum(results[key]) / len(results[key])
-                    print(f"{horizon:<10} {k:<10} {avg_accuracy:.4f}")
+                    # print(f"{horizon:<10} {k:<10} {avg_accuracy:.4f}")
+                    logger.info(f"{horizon:<10} {k:<10} {avg_accuracy:.4f}")
                     writer.add_scalar(f'Accuracy/Avg_Horizon_{horizon}_Top_{k}', avg_accuracy, epoch)
-        print("-" * 50)
+        # print("-" * 50)
+        logger.info("-" * 50)
 
         # Save plots
         plots_save_dir = os.path.join(save_logs_dir, 'plots')
@@ -569,9 +585,11 @@ def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
                 'action_accuracies': {key: sum(results[key]) / len(results[key]) if results[key] else 0.0 
                                      for key in results}
             }, checkpoint_path)
+
+            logger.info(f"Model saved to: {checkpoint_path}")
+            logger.info(f"Saved new best model at epoch {epoch+1} with validation loss: {val_loss:.6f}")
             
             best_model_path = checkpoint_path
-            print(f"Saved new best model at epoch {epoch+1} with validation loss: {val_loss:.6f}")
         
         # Optionally save periodic checkpoints (every N epochs)
         save_frequency = cfg.get('training', {}).get('save_checkpoint_every_n_epochs', 0)
@@ -588,7 +606,7 @@ def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
                 'config': cfg,
             }, checkpoint_path)
             
-            print(f"Saved periodic checkpoint at epoch {epoch+1}")
+            logger.info(f"Saved periodic checkpoint at epoch {epoch+1}")
     
     # Return training statistics and best model path
     return best_model_path
