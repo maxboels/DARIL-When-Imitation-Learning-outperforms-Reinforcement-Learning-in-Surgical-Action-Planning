@@ -1,8 +1,10 @@
 # Debug mode
 debug: false
 experiment:
-  max_videos: 1  # Set to null to use all videos
-  pretrain_next_frame: true
+  max_videos: null  # Set to null to use all videos
+  pretrain_next_frame:
+    train: true
+    inference: false
   pretrain_reward_model: false
   calculate_action_rewards: false
   train_action_policy: false
@@ -12,16 +14,19 @@ experiment:
 
 # Training parameters
 training:
-  epochs: 2
+  epochs: 10
   batch_size: 16
-  learning_rate: 0.0001 # 0.00003
-  weight_decay: 0.0
+  learning_rate: 0.00003 # 0.00003
+  scheduler:  # Add a learning rate scheduler
+    type: "cosine"
+    warmup_steps: 100
+  weight_decay: 0.1
   gradient_clip_val: 1.0
   num_workers: 4
   pin_memory: true
-  log_every_n_steps: 20
+  log_every_n_steps: 40
   log_dir: "logs"
-  save_checkpoint_every_n_epochs: 1
+  save_checkpoint_every_n_epochs: 2
   checkpoint_dir: "checkpoints"
 
 eval:
@@ -33,12 +38,12 @@ eval:
 
 # Data paths configuration
 data:
-  context_length: 5
+  context_length: 20
   train_shift: 1
   padding_value: 0.0
   max_horizon: 15
   paths:
-    data_dir: "/home/maxboels/datasets/CholecT50" # server: "/nfs/home/mboels/datasets/CholecT50"
+    data_dir: "/nfs/home/mboels/datasets/CholecT50" # server: "/nfs/home/mboels/datasets/CholecT50", "/home/maxboels/datasets/CholecT50"
     class_labels_file_path: "./data/labels.json"
     fold: 0
     metadata_file: "embeddings_f0_swin_bas_129_with_enhanced.csv"

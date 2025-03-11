@@ -681,59 +681,394 @@ def generate_precision_recall_curves(model, val_loader, cfg, device='cuda', num_
     
     return filepath
 
-
-# Example integration with training function
-def update_train_next_frame_model(cfg, model, train_loader, val_loader=None, device='cuda'):
+def evaluate_multi_label_predictions(predictions, targets, top_ks=[1, 3, 5, 10]):
     """
-    Updated training function to also calculate and log mAP.
+    Comprehensive evaluation of multi-label action predictions with various metrics.
     
-    This version adds Mean Average Precision evaluation alongside the existing accuracy metric.
-    """
-    # [Keep existing code...]
-    
-    # During validation in the epoch loop:
-    with torch.no_grad():
-        for batch_idx, (z_seq, _z_seq, _a_seq, f_a_seq) in enumerate(val_loader):
-            # [Keep existing processing...]
-            
-            # Calculate mAP for each horizon
-            for h in eval_horizons:
-                if h <= outputs['f_a_seq_hat'].shape[1]:
-                    f_a_h_hat = outputs['f_a_seq_hat'][:, :h, :]
-                    f_a_h_targets = f_a_seq[:, :h, :]
-                    
-                    # Convert logits to probabilities
-                    f_a_h_probs = torch.sigmoid(f_a_h_hat)
-                    
-                    # Calculate mAP
-                    map_score = calculate_map(f_a_h_probs, f_a_h_targets)
-                    results[f"horizon_{h}_mAP"] = map_score['mAP']
-                    
-                    # Log mAP
-                    writer.add_scalar(f'Metrics/mAP_Horizon_{h}', map_score['mAP'], global_step)
-                    
-                    # Continue with existing accuracy calculation...
-                    
-    # At the end of validation, print mAP scores alongside accuracy
-    print("\nAction Prediction Metrics:")
-    print("-" * 60)
-    print(f"{'Horizon':<10} {'Metric':<15} {'Value':<10}")
-    print("-" * 60)
-    
-    for horizon in sorted(eval_horizons):
-        # Print mAP
-        map_key = f"horizon_{horizon}_mAP"
-        if map_key in results:
-            print(f"{horizon:<10} {'mAP':<15} {results[map_key]:.4f}")
+    Args:
+        predictions: Prediction probabilities [batch_size, seq_length, num_classes]
+        targets: Binary ground truth [batch_size, seq_length, num_classes]
+        top_ks: List of k values for top-k metrics
         
-        # Print top-k accuracy
-        for k in sorted(top_ks):
-            acc_key = f"horizon_{horizon}_top_{k}"
-            if acc_key in results and results[acc_key]:
-                avg_accuracy = sum(results[acc_key]) / len(results[acc_key])
-                print(f"{horizon:<10} {'Top-'+str(k)+' Accuracy':<15} {avg_accuracy:.4f}")
+    Returns:
+        Dictionary with various evaluation metrics
+    """
+    import torch
+    import numpy as np
     
-    # Additional plots comparing mAP and accuracy
-    plot_map_vs_accuracy(results, plots_save_dir, experiment_name)
+    batch_size, seq_length, num_classes = predictions.shape
+    results = {}
     
-    # [Continue with existing code...]
+    # Initialize results dict
+    for k in top_ks:
+        results[f"top_{k}_any_match"] = []      # Any correct (current method)
+        results[f"top_{k}_recall"] = []         # % of true actions found
+        results[f"top_{k}_precision"] = []      # % of predicted actions that are correct
+        results[f"top_{k}_f1"] = []             # Harmonic mean of precision and recall
+        results[f"top_{k}_exact_match"] = []    # All true actions found (strict)
+    
+    # Get top-k predictions for each k
+    top_k_indices = {}
+    for k in top_ks:
+        _, indices = torch.topk(predictions, min(k, num_classes), dim=2)
+        top_k_indices[k] = indices
+    
+    # Calculate metrics for each frame
+    for b in range(batch_size):
+        for t in range(seq_length):
+            # Get ground truth actions for this frame
+            true_indices = torch.where(targets[b, t] > 0.5)[0]
+            
+            # Skip frames with no active classes if needed
+            if len(true_indices) == 0:
+                continue
+            
+            # Calculate metrics for each k
+            for k in top_ks:
+                pred_indices = top_k_indices[k][b, t]
+                
+                # 1. Any-match (original metric): frame is correct if ANY true action is found
+                any_match = any(idx in pred_indices for idx in true_indices)
+                results[f"top_{k}_any_match"].append(float(any_match))
+                
+                # 2. Recall: proportion of true actions found
+                true_positives = sum(1 for idx in true_indices if idx in pred_indices)
+                recall = true_positives / len(true_indices)
+                results[f"top_{k}_recall"].append(recall)
+                
+                # 3. Precision: proportion of predictions that are correct
+                precision = true_positives / len(pred_indices)
+                results[f"top_{k}_precision"].append(precision)
+                
+                # 4. F1 score: harmonic mean of precision and recall
+                f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
+                results[f"top_{k}_f1"].append(f1)
+                
+                # 5. Exact-match: frame is correct if ALL true actions are found
+                exact_match = all(idx in pred_indices for idx in true_indices)
+                results[f"top_{k}_exact_match"].append(float(exact_match))
+    
+    # Calculate averages
+    averages = {}
+    for key, values in results.items():
+        if values:
+            averages[key] = sum(values) / len(values)
+        else:
+            averages[key] = 0.0
+    
+    return averages
+
+
+def evaluate_with_comprehensive_metrics(model, val_loader, cfg, device='cuda'):
+    """
+    Run comprehensive evaluation on the validation data.
+    
+    Args:
+        model: Trained model
+        val_loader: Validation data loader
+        cfg: Configuration dictionary
+        device: Computation device
+        
+    Returns:
+        Dictionary with evaluation results
+    """
+    import torch
+    import torch.nn.functional as F
+    from tqdm import tqdm
+    import numpy as np
+    
+    # Ensure model is in evaluation mode
+    model.eval()
+    
+    # Get parameters from config
+    eval_horizons = cfg['eval']['world_model']['eval_horizons']
+    top_ks = cfg['eval']['world_model']['top_ks']
+    max_horizon = cfg['eval']['world_model']['max_horizon']
+    use_memory = cfg['eval']['world_model']['use_memory']
+    
+    # Initialize results dictionary
+    results = {}
+    
+    # Initialize validation loss
+    val_loss = 0.0
+    val_z_loss = 0.0
+    val_a_loss = 0.0
+    
+    # Run evaluation
+    with torch.no_grad():
+        for batch_idx, (z_seq, _z_seq, _a_seq, f_a_seq) in enumerate(tqdm(val_loader, desc="Comprehensive evaluation")):
+            z_seq, _z_seq, _a_seq, f_a_seq = z_seq.to(device), _z_seq.to(device), _a_seq.to(device), f_a_seq.to(device)
+            
+            # New frame observed
+            if use_memory:
+                z_seq = z_seq[:, -1:, :]  # select current frame
+            
+            # Generate next frame predictions
+            outputs = model.generate(z_seq, horizon=max_horizon, use_memory=use_memory)
+            
+            # Frame prediction loss
+            _z_loss = F.mse_loss(outputs['_zs_hat'][:, 0, :], _z_seq[:, -1, :])
+            val_z_loss += _z_loss.item() * z_seq.size(0)
+            
+            # Action prediction evaluation
+            if 'f_a_seq_hat' in outputs:
+                # Calculate action prediction loss
+                f_a_loss = F.binary_cross_entropy_with_logits(outputs['f_a_seq_hat'], f_a_seq)
+                val_a_loss += f_a_loss.item() * z_seq.size(0)
+                
+                # Convert logits to probabilities
+                f_a_probs = torch.sigmoid(outputs['f_a_seq_hat'])
+                
+                # Evaluate for each horizon
+                for h in eval_horizons:
+                    if h <= outputs['f_a_seq_hat'].shape[1]:
+                        # Get predictions and targets for this horizon
+                        predictions = f_a_probs[:, :h, :]
+                        targets = f_a_seq[:, :h, :]
+                        
+                        # Run comprehensive evaluation
+                        horizon_metrics = evaluate_multi_label_predictions(predictions, targets, top_ks)
+                        
+                        # Store results with horizon prefix
+                        for metric_name, value in horizon_metrics.items():
+                            results[f"horizon_{h}_{metric_name}"] = value
+                        
+                        # Also calculate mAP if needed
+                        map_score = calculate_map(predictions, targets)
+                        results[f"horizon_{h}_mAP"] = map_score['mAP']
+    
+    # Calculate average validation loss
+    val_loss = val_z_loss + val_a_loss
+    num_samples = len(val_loader.dataset)
+    results['val_loss'] = val_loss / num_samples
+    results['val_z_loss'] = val_z_loss / num_samples
+    results['val_a_loss'] = val_a_loss / num_samples
+    
+    return results
+
+
+def log_comprehensive_metrics(results, writer, epoch, logger):
+    """
+    Log comprehensive metrics to TensorBoard and console.
+    
+    Args:
+        results: Dictionary with evaluation results
+        writer: TensorBoard writer
+        epoch: Current epoch
+        logger: Logger for console output
+    """
+    # Extract horizons and metrics
+    horizons = set()
+    metrics = set()
+    
+    for key in results.keys():
+        if key.startswith('horizon_'):
+            parts = key.split('_')
+            if len(parts) >= 3:
+                horizons.add(int(parts[1]))
+                metric_name = '_'.join(parts[2:])
+                metrics.add(metric_name)
+    
+    # Sort horizons and metrics
+    horizons = sorted(list(horizons))
+    
+    # Group metrics by type for better organization
+    metric_groups = {
+        'Accuracy': ['top_1_any_match', 'top_3_any_match', 'top_5_any_match', 'top_10_any_match',
+                    'top_1_exact_match', 'top_3_exact_match', 'top_5_exact_match', 'top_10_exact_match'],
+        'Recall': ['top_1_recall', 'top_3_recall', 'top_5_recall', 'top_10_recall'],
+        'Precision': ['top_1_precision', 'top_3_precision', 'top_5_precision', 'top_10_precision'],
+        'F1-Score': ['top_1_f1', 'top_3_f1', 'top_5_f1', 'top_10_f1'],
+        'MAP': ['mAP']
+    }
+    
+    # Log to TensorBoard
+    for horizon in horizons:
+        for group_name, metric_list in metric_groups.items():
+            for metric in metric_list:
+                key = f'horizon_{horizon}_{metric}'
+                if key in results:
+                    writer.add_scalar(f'Metrics/{group_name}/H{horizon}_{metric}', results[key], epoch)
+    
+    # Log to console with nice formatting
+    logger.info("\nComprehensive Evaluation Results:")
+    
+    # Print loss values
+    if 'val_loss' in results:
+        logger.info(f"Validation Loss: {results['val_loss']:.4f}")
+    if 'val_z_loss' in results:
+        logger.info(f"Frame Prediction Loss: {results['val_z_loss']:.4f}")
+    if 'val_a_loss' in results:
+        logger.info(f"Action Prediction Loss: {results['val_a_loss']:.4f}")
+    
+    # Print metrics by horizon
+    for horizon in horizons:
+        logger.info(f"\n--- Prediction Horizon: {horizon} ---")
+        
+        # Print MAP if available
+        if f'horizon_{horizon}_mAP' in results:
+            logger.info(f"mAP: {results[f'horizon_{horizon}_mAP']:.4f}")
+        
+        # Print metrics by group
+        logger.info("\nAccuracy Metrics:")
+        logger.info(f"{'Metric':<20} {'Value':<10}")
+        logger.info("-" * 30)
+        
+        for group_name, metric_list in metric_groups.items():
+            if group_name != 'MAP':  # MAP already printed above
+                metrics_in_group = [m for m in metric_list if f'horizon_{horizon}_{m}' in results]
+                if metrics_in_group:
+                    logger.info(f"\n{group_name} Metrics:")
+                    logger.info(f"{'Metric':<20} {'Value':<10}")
+                    logger.info("-" * 30)
+                    
+                    for metric in metrics_in_group:
+                        key = f'horizon_{horizon}_{metric}'
+                        logger.info(f"{metric:<20} {results[key]:.4f}")
+
+
+def create_metrics_comparison_plot(results, save_path):
+    """
+    Create a comprehensive plot showing different metrics side by side.
+    
+    Args:
+        results: Dictionary with evaluation results
+        save_path: Path to save the plot
+        
+    Returns:
+        Path to saved plot
+    """
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import os
+    
+    # Extract horizons
+    horizons = set()
+    for key in results.keys():
+        if key.startswith('horizon_'):
+            parts = key.split('_')
+            if len(parts) >= 3:
+                horizons.add(int(parts[1]))
+    
+    horizons = sorted(list(horizons))
+    
+    # Define metrics to compare
+    metrics_to_compare = [
+        ('top_5_any_match', 'Any-Match (Top-5)', 'blue'),
+        ('top_5_recall', 'Recall (Top-5)', 'green'),
+        ('top_5_precision', 'Precision (Top-5)', 'orange'),
+        ('top_5_f1', 'F1 Score (Top-5)', 'red'),
+        ('top_5_exact_match', 'Exact-Match (Top-5)', 'purple'),
+        ('mAP', 'mAP', 'brown')
+    ]
+    
+    # Create plot
+    plt.figure(figsize=(12, 8))
+    
+    # Plot each metric
+    for metric_key, metric_name, color in metrics_to_compare:
+        values = []
+        for h in horizons:
+            key = f'horizon_{h}_{metric_key}'
+            if key in results:
+                values.append(results[key])
+            else:
+                values.append(0)
+        
+        plt.plot(horizons, values, 'o-', color=color, label=metric_name, linewidth=2)
+    
+    # Add labels and formatting
+    plt.xlabel('Prediction Horizon', fontsize=14)
+    plt.ylabel('Score', fontsize=14)
+    plt.title('Comparison of Evaluation Metrics Across Horizons', fontsize=16)
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.legend(fontsize=12)
+    plt.xticks(horizons)
+    plt.ylim(0, 1.05)
+    
+    # Save the plot
+    plt.tight_layout()
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    plt.close()
+    
+    return save_path
+
+
+def create_metric_breakdown_by_topk(results, save_path):
+    """
+    Create a plot showing how different k values affect performance.
+    
+    Args:
+        results: Dictionary with evaluation results
+        save_path: Path to save the plot
+        
+    Returns:
+        Path to saved plot
+    """
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import os
+    
+    # Extract horizons and top-k values
+    horizons = set()
+    top_ks = set()
+    
+    for key in results.keys():
+        if key.startswith('horizon_'):
+            parts = key.split('_')
+            if len(parts) >= 4 and parts[2] == 'top':
+                horizons.add(int(parts[1]))
+                top_ks.add(int(parts[3]))
+    
+    horizons = sorted(list(horizons))
+    top_ks = sorted(list(top_ks))
+    
+    # Create plot with subplots for each horizon
+    fig, axes = plt.subplots(1, len(horizons), figsize=(5*len(horizons), 6), sharey=True)
+    
+    if len(horizons) == 1:
+        axes = [axes]  # Ensure axes is iterable
+    
+    # Metrics to show
+    metrics = ['any_match', 'recall', 'f1']
+    colors = ['blue', 'green', 'red']
+    
+    # Plot data for each horizon
+    for i, horizon in enumerate(horizons):
+        ax = axes[i]
+        
+        # Plot each metric
+        for j, metric in enumerate(metrics):
+            values = []
+            for k in top_ks:
+                key = f'horizon_{horizon}_top_{k}_{metric}'
+                if key in results:
+                    values.append(results[key])
+                else:
+                    values.append(0)
+            
+            # Create line plot
+            ax.plot(top_ks, values, 'o-', color=colors[j], label=metric.replace('_', ' ').title())
+        
+        # Add labels and formatting
+        ax.set_title(f'Horizon {horizon}', fontsize=14)
+        ax.set_xlabel('Top-k', fontsize=12)
+        if i == 0:
+            ax.set_ylabel('Score', fontsize=12)
+        ax.grid(True, linestyle='--', alpha=0.7)
+        ax.set_xticks(top_ks)
+        ax.set_ylim(0, 1.05)
+    
+    # Add legend to the first subplot
+    axes[0].legend(fontsize=10)
+    
+    plt.suptitle('Effect of Top-k on Different Metrics', fontsize=16)
+    plt.tight_layout()
+    
+    # Save the plot
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    plt.close()
+    
+    return save_path
