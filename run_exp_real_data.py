@@ -1123,7 +1123,7 @@ def run_cholect50_experiment(cfg):
         world_model = CausalGPT2ForFrameEmbeddings(**cfg['models']['world_model']).to(device)
         world_model.load_state_dict(checkpoint['model_state_dict'])
         world_model.eval()
-        output_dir = create_qualitative_demo(world_model, test_loader, cfg, device, logger.log_dir, num_samples=3)
+        output_dir = create_qualitative_demo(world_model, test_loader, cfg, device, logger.log_dir, num_samples=6)
         print(f"Demo results saved to: {output_dir}")
 
     # Step 3: Train reward prediction model

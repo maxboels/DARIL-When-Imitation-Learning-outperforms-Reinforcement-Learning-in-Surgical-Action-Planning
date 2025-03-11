@@ -55,11 +55,6 @@ def create_qualitative_demo(model, test_loader, cfg, device='cuda', output_dir=N
     with torch.no_grad():
         for batch_idx, (z_seq, _z_seq, _a_seq, f_a_seq) in enumerate(test_loader):
 
-            # Skip sample count if no valid actions are present in those samples
-            # We need to make sure we consider positive targets in our examples
-            if torch.sum(f_a_seq) == 0:
-                continue
-
             # Process only a few samples for the demo
             if samples_processed >= num_samples:
                 break
@@ -82,6 +77,12 @@ def create_qualitative_demo(model, test_loader, cfg, device='cuda', output_dir=N
                         'predicted_actions': action_probs[i].cpu().numpy(),
                         'sequence_idx': f"{batch_idx}_{i}"
                     }
+
+                    # Skip sample count if no valid actions are present in those samples
+                    # We need to make sure we consider positive targets in our examples
+                    if torch.sum(f_a_seq[i]) == 0:
+                        continue
+                    
                     results.append(sample_result)
                     samples_processed += 1
                     
