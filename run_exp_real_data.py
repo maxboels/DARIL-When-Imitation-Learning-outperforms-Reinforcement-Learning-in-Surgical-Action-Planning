@@ -444,9 +444,9 @@ def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
         results = {}
         eval_horizons = cfg['eval']['world_model']['eval_horizons']
         top_ks = cfg['eval']['world_model']['top_ks']
-        for horizon in eval_horizons:
-            for k in top_ks:
-                results[f"horizon_{horizon}_top_{k}"] = []
+        # for horizon in eval_horizons:
+        #     for k in top_ks:
+        #         results[f"horizon_{horizon}_top_{k}"] = []
         
         use_memory = cfg['eval']['world_model']['use_memory']
         max_horizon = cfg['eval']['world_model']['max_horizon']
@@ -487,6 +487,10 @@ def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
                             f_a_h_targets = f_a_seq[:, :h, :]
                             
                             # Accuracy, Recall, Precision, F1 (top-k)
+                            true_indices = torch.where(f_a_h_targets > 0.5)[0]
+                            if len(true_indices) == 0:
+                                continue
+
                             horizon_metrics = evaluate_multi_label_predictions(f_a_h_probs, f_a_h_targets, top_ks)
                             
                             # Store results with horizon prefix
@@ -499,53 +503,8 @@ def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
 
                             # Log and visualize results
                             writer.add_scalar(f'Metrics/mAP_Horizon_{h}', map_scores['mAP'], global_step)
-
-                            # # Top-K Accuracy over horizon
-                            # for k in top_ks:
-                            #     # Ensure k isn't larger than the number of classes
-                            #     k = min(k, f_a_h_probs.shape[2])
-                                
-                            #     # Get top-k predictions for each frame
-                            #     _, topk_indices = torch.topk(f_a_h_probs, k, dim=2)  # [batch, h, k]
-                                
-                            #     # Calculate accuracy - correct multi-label handling
-                            #     batch_size, horizon_len = f_a_h_targets.shape[0], f_a_h_targets.shape[1]
-                            #     correct_count = 0
-                            #     total_count = 0
-                                
-                            #     # For each batch and time step
-                            #     for b in range(batch_size):
-                            #         for t in range(horizon_len):
-                            #             # Get active classes (indices where value is 1) for this frame
-                            #             true_action_indices = torch.where(f_a_h_targets[b, t] > 0.5)[0]
-                                        
-                            #             # Skip frames with no active classes
-                            #             # TODO: is in not supposed to be part of the performance evaluation?
-                            #             if len(true_action_indices) == 0:
-                            #                 continue
-                                            
-                            #             # Get predicted top-k indices for this frame
-                            #             pred_action_indices = topk_indices[b, t]
-                                        
-                            #             # Check if any true action is in the predicted top-k
-                            #             match_found = False
-                            #             for true_idx in true_action_indices:
-                            #                 if true_idx in pred_action_indices:
-                            #                     match_found = True
-                            #                     break
-                                                
-                            #             if match_found:
-                            #                 correct_count += 1
-                            #             total_count += 1
-                                
-                            #     # Calculate accuracy
-                            #     if total_count > 0:
-                            #         accuracy = correct_count / max(1, total_count)  # Avoid division by zero
-                            #         results[f"horizon_{h}_top_{k}"].append(accuracy)
-                                
-                            #         # Log accuracy
-                            #         writer.add_scalar(f'Accuracy/Horizon_{h}_Top_{k}', accuracy, global_step)
-
+                    
+                    
                     writer.add_scalar('Loss/World_Model_Val_A', f_a_loss.item(), global_step)
 
                 # Accumulate batch loss   

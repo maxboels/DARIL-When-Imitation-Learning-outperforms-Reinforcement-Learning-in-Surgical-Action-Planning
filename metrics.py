@@ -75,9 +75,9 @@ def calculate_map(predictions, targets, class_names=None, skip_empty_frames=True
     
     # Calculate overall mAP
     if all_ap_scores:
-        overall_map = np.mean(all_ap_scores)
+        overall_map = np.nanmean(all_ap_scores)
     else:
-        overall_map = 0.0
+        overall_map = np.nan # 0.0 # replace with None if needed or np.nan?
     
     # Prepare results
     results = {
@@ -89,7 +89,7 @@ def calculate_map(predictions, targets, class_names=None, skip_empty_frames=True
         per_class_map = {}
         for c in range(min(num_classes, len(class_names))):
             if class_ap_scores[c]:
-                per_class_map[class_names[c]] = np.mean(class_ap_scores[c])
+                per_class_map[class_names[c]] = np.nanmean(class_ap_scores[c])
         results['per_class_mAP'] = per_class_map
     
     return results
@@ -210,33 +210,14 @@ def evaluate_action_prediction_map(model, val_loader, cfg, device='cuda'):
         if values:
             avg_results['mAP'][key] = sum(values) / len(values)
         else:
-            avg_results['mAP'][key] = 0.0
+            avg_results['mAP'][key] = np.nan
     
     for key, values in accuracy_results.items():
         if values:
             avg_results['accuracy'][key] = sum(values) / len(values)
         else:
-            avg_results['accuracy'][key] = 0.0
-    
-    # Print results
-    print("\nAction Prediction Evaluation:")
-    print("-" * 60)
-    print(f"{'Horizon':<10} {'Metric':<15} {'Value':<10}")
-    print("-" * 60)
-    
-    for horizon in sorted(eval_horizons):
-        # Print mAP
-        map_key = f"horizon_{horizon}_mAP"
-        print(f"{horizon:<10} {'mAP':<15} {avg_results['mAP'].get(map_key, 0.0):.4f}")
+            avg_results['accuracy'][key] = np.nan
         
-        # Print top-k accuracy
-        for k in sorted(top_ks):
-            acc_key = f"horizon_{horizon}_top_{k}"
-            print(f"{horizon:<10} {'Top-'+str(k)+' Accuracy':<15} {avg_results['accuracy'].get(acc_key, 0.0):.4f}")
-        
-        # Add separator between horizons
-        print("-" * 60)
-    
     return avg_results
 
 import matplotlib.pyplot as plt
@@ -284,7 +265,7 @@ def plot_map_vs_accuracy(results, save_dir, experiment_name):
         if key == f"horizon_{horizon}_mAP":
             # Found mAP value
             if isinstance(value, list):
-                map_value = sum(value) / len(value) if value else 0.0
+                map_value = sum(value) / len(value) if value else np.nan
             else:
                 map_value = value
         elif key.startswith(f"horizon_{horizon}_top_"):
@@ -294,7 +275,7 @@ def plot_map_vs_accuracy(results, save_dir, experiment_name):
                 
                 # Get average if it's a list
                 if isinstance(value, list):
-                    accuracies.append(sum(value) / len(value) if value else 0.0)
+                    accuracies.append(sum(value) / len(value) if value else np.nan)
                 else:
                     accuracies.append(value)
             except (ValueError, IndexError):
@@ -393,7 +374,7 @@ def plot_all_horizons_comparison(results, save_dir, experiment_name):
         map_value = None
         if map_key in results:
             if isinstance(results[map_key], list):
-                map_value = sum(results[map_key]) / len(results[map_key]) if results[map_key] else 0.0
+                map_value = sum(results[map_key]) / len(results[map_key]) if results[map_key] else np.nan
             else:
                 map_value = results[map_key]
         
@@ -403,11 +384,11 @@ def plot_all_horizons_comparison(results, save_dir, experiment_name):
             key = f"horizon_{horizon}_top_{k}"
             if key in results:
                 if isinstance(results[key], list):
-                    acc_values.append(sum(results[key]) / len(results[key]) if results[key] else 0.0)
+                    acc_values.append(sum(results[key]) / len(results[key]) if results[key] else np.nan)
                 else:
                     acc_values.append(results[key])
             else:
-                acc_values.append(0.0)
+                acc_values.append(np.nan)
         
         # Plot accuracy bars
         bars = ax.bar(range(len(top_ks)), acc_values, width=0.6, color='skyblue')
@@ -480,7 +461,7 @@ def plot_metrics_by_horizon(results, save_dir, experiment_name):
                     # Store mAP values
                     if key.endswith("_mAP"):
                         if isinstance(results[key], list):
-                            map_values[horizon] = sum(results[key]) / len(results[key]) if results[key] else 0.0
+                            map_values[horizon] = sum(results[key]) / len(results[key]) if results[key] else np.nan
                         else:
                             map_values[horizon] = results[key]
                     
@@ -491,7 +472,7 @@ def plot_metrics_by_horizon(results, save_dir, experiment_name):
                             accuracy_values[k] = {}
                         
                         if isinstance(results[key], list):
-                            accuracy_values[k][horizon] = sum(results[key]) / len(results[key]) if results[key] else 0.0
+                            accuracy_values[k][horizon] = sum(results[key]) / len(results[key]) if results[key] else np.nan
                         else:
                             accuracy_values[k][horizon] = results[key]
                             
@@ -759,9 +740,56 @@ def evaluate_multi_label_predictions(predictions, targets, top_ks=[1, 3, 5, 10])
         if values:
             averages[key] = sum(values) / len(values)
         else:
-            averages[key] = 0.0
+            averages[key] = np.nan
     
     return averages
+
+
+                            # # Top-K Accuracy over horizon
+                            # for k in top_ks:
+                            #     # Ensure k isn't larger than the number of classes
+                            #     k = min(k, f_a_h_probs.shape[2])
+                                
+                            #     # Get top-k predictions for each frame
+                            #     _, topk_indices = torch.topk(f_a_h_probs, k, dim=2)  # [batch, h, k]
+                                
+                            #     # Calculate accuracy - correct multi-label handling
+                            #     batch_size, horizon_len = f_a_h_targets.shape[0], f_a_h_targets.shape[1]
+                            #     correct_count = 0
+                            #     total_count = 0
+                                
+                            #     # For each batch and time step
+                            #     for b in range(batch_size):
+                            #         for t in range(horizon_len):
+                            #             # Get active classes (indices where value is 1) for this frame
+                            #             true_action_indices = torch.where(f_a_h_targets[b, t] > 0.5)[0]
+                                        
+                            #             # Skip frames with no active classes
+                            #             # TODO: is in not supposed to be part of the performance evaluation?
+                            #             if len(true_action_indices) == 0:
+                            #                 continue
+                                            
+                            #             # Get predicted top-k indices for this frame
+                            #             pred_action_indices = topk_indices[b, t]
+                                        
+                            #             # Check if any true action is in the predicted top-k
+                            #             match_found = False
+                            #             for true_idx in true_action_indices:
+                            #                 if true_idx in pred_action_indices:
+                            #                     match_found = True
+                            #                     break
+                                                
+                            #             if match_found:
+                            #                 correct_count += 1
+                            #             total_count += 1
+                                
+                            #     # Calculate accuracy
+                            #     if total_count > 0:
+                            #         accuracy = correct_count / max(1, total_count)  # Avoid division by zero
+                            #         results[f"horizon_{h}_top_{k}"].append(accuracy)
+                                
+                            #         # Log accuracy
+                            #         writer.add_scalar(f'Accuracy/Horizon_{h}_Top_{k}', accuracy, global_step)
 
 def log_comprehensive_metrics(results, writer, epoch, logger):
     """

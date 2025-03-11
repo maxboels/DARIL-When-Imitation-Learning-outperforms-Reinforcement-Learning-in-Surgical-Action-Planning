@@ -1,0 +1,10 @@
+2025-03-11 19:00:14,948 - INFO - Log file: logs/2025-03-11_19-00-14/loggings.log
+2025-03-11 19:00:14,948 - INFO - Starting CholecT50 experiment for Surgical Actions Prediction
+2025-03-11 19:00:14,948 - INFO - Experiment configuration: {'max_videos': 1, 'pretrain_next_frame': {'train': True, 'inference': True}, 'pretrain_reward_model': False, 'calculate_action_rewards': False, 'train_action_policy': False, 'run_tdmpc': False, 'analyze_results': False, 'run_evaluation': False}
+2025-03-11 19:00:14,949 - INFO - Using device: cuda
+2025-03-11 19:00:14,949 - INFO - Loading CholecT50 data...
+2025-03-11 19:00:22,559 - INFO - Best model path: best_model_epoch1_valloss1.190734.pt
+2025-03-11 19:00:22,734 - INFO - Loaded best model from best_model_epoch1_valloss1.190734.pt
+2025-03-11 19:00:22,735 - INFO - Skip training and start validation
+2025-03-11 19:00:22,735 - INFO - Epoch 1/1 Validation
+2025-03-11 19:00:22,735 - INFO - Starting validation
