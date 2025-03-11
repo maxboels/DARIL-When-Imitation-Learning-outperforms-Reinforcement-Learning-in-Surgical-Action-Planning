@@ -21,6 +21,7 @@ from model import CausalGPT2ForFrameEmbeddings, RewardPredictor
 from eval_world_model import plot_evaluation_results
 from visualization import plot_action_prediction_results
 from metrics import calculate_map, generate_map_vs_accuracy_plots
+from logger import SimpleLogger
 
 # Set random seed for reproducibility
 np.random.seed(42)
@@ -343,15 +344,15 @@ class RewardPredictionDataset(Dataset):
         return torch.tensor(sample['context'], dtype=torch.float32), torch.tensor(sample['target'], dtype=torch.float32)
 
 # Training function for next frame predictor
-def train_next_frame_model(cfg, model, train_loader, val_loader=None, device='cuda'):
+def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
+                            device='cuda'):
 
     # Loss function and optimizer
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=cfg['training']['learning_rate'])
     
-    # For saving checkpoints
-    run_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S") 
-    save_logs_dir = cfg['training']['log_dir'] + f"/{run_time}"
+
+    save_logs_dir = logger.log_dir
     
     # Create checkpoint directory if it doesn't exist
     checkpoint_dir = os.path.join(save_logs_dir, 'checkpoints')
@@ -1038,15 +1039,19 @@ def run_cholect50_experiment(cfg):
     results = None
     analysis = None
 
+    # Init logger
+    logger = SimpleLogger(log_dir="logs", name="my_application")
+    logger.info("Starting CholecT50 experiment for Surgical Actions Prediction")
+
     cfg_exp = cfg['experiment']
-    print(f"Running experiment: {cfg_exp}")
+    logger.info(f"Experiment configuration: {cfg_exp}")
     
     # Set device (use GPU if available)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}")
+    logger.info(f"Using device: {device}")
     
     # Step 1: Load data
-    print("\nLoading CholecT50 data...")
+    logger.info("Loading CholecT50 data...")
     train_data = load_cholect50_data(cfg['data'], split='train', max_videos=cfg['experiment']['max_videos'])
     test_data = load_cholect50_data(cfg['data'], split='test', max_videos=cfg['experiment']['max_videos'])
     
@@ -1060,7 +1065,7 @@ def run_cholect50_experiment(cfg):
     if cfg_exp['pretrain_next_frame']:        
         print("\nTraining next frame prediction model...")
         world_model = CausalGPT2ForFrameEmbeddings(**cfg['models']['world_model']).to(device)
-        best_model_path = train_next_frame_model(cfg, world_model, train_data, test_data, device=device)  # Reduced epochs for demonstration
+        best_model_path = train_next_frame_model(cfg, logger, world_model, train_data, test_data, device=device)  # Reduced epochs for demonstration
         print(f"Best model saved at: {best_model_path}")
         # # if model has a action prediction head:
         # if 'next_a' in world_model.heads:
