@@ -1,7 +1,7 @@
 # Debug mode
 debug: false
 experiment:
-  max_videos: null  # Set to null to use all videos
+  max_videos: 1  # Set to null to use all videos
   pretrain_next_frame: true
   pretrain_reward_model: false
   calculate_action_rewards: false
@@ -12,14 +12,14 @@ experiment:
 
 # Training parameters
 training:
-  epochs: 5
+  epochs: 2
   batch_size: 16
-  learning_rate: 0.0001
+  learning_rate: 0.0001 # 0.00003
   weight_decay: 0.0
   gradient_clip_val: 1.0
   num_workers: 4
   pin_memory: true
-  log_every_n_steps: 100
+  log_every_n_steps: 20
   log_dir: "logs"
   save_checkpoint_every_n_epochs: 1
   checkpoint_dir: "checkpoints"
@@ -38,7 +38,8 @@ data:
   padding_value: 0.0
   max_horizon: 15
   paths:
-    data_dir: "/nfs/home/mboels/datasets/CholecT50"
+    data_dir: "/home/maxboels/datasets/CholecT50" # server: "/nfs/home/mboels/datasets/CholecT50"
+    class_labels_file_path: "./data/labels.json"
     fold: 0
     metadata_file: "embeddings_f0_swin_bas_129_with_enhanced.csv"
     video_global_outcome_file: null

@@ -4,7 +4,7 @@ from sklearn.metrics import average_precision_score, precision_recall_curve
 import matplotlib.pyplot as plt
 
 
-def calculate_map(predictions, targets, classes=None):
+def calculate_map(predictions, targets, classes=None, skip_empty_frames=True, threshold=0.5, scale_factor=0.1):
     """
     Calculate Mean Average Precision (mAP) for multi-label action prediction.
     
@@ -12,7 +12,10 @@ def calculate_map(predictions, targets, classes=None):
         predictions: Tensor of prediction scores [batch_size, sequence_length, num_classes]
         targets: Tensor of binary target labels [batch_size, sequence_length, num_classes]
         classes: Optional list of class names for detailed reporting
-        
+        skip_empty_frames: Skip frames with no active classes (default: False), ignoring false positives
+        threshold: Confidence threshold for considering a prediction as positive (default: 0.5)
+        scale_factor: Penalty factor for false positives in empty frames (default
+            0.1, meaning 1 false positive reduces AP by 0.1)        
     Returns:
         Dictionary containing mAP scores (overall and per-class if classes provided)
     """
@@ -35,18 +38,28 @@ def calculate_map(predictions, targets, classes=None):
             y_pred = predictions[b, t]
             y_true = targets[b, t]
             
-            # Skip frames with no active classes if needed
-            if np.sum(y_true) == 0:
-                continue
-            
+            # Do NOT skip frames with no active classes
             # Calculate AP for this frame (across all classes)
             try:
-                ap_score = average_precision_score(y_true, y_pred)
+                # For frames with no active classes, we expect all zeros in prediction
+                # If predictions contain positives, AP will be 0 (all false positives)
+                if np.sum(y_true) == 0 and skip_empty_frames:
+                    continue
+                elif np.sum(y_true) == 0:
+                    # Count false positives, but with reduced penalty
+                    false_positive_count = np.sum(y_pred > threshold)
+                    if false_positive_count > 0:
+                        # Apply a scaled penalty based on confidence and number
+                        ap_score = max(0, 1 - (false_positive_count * scale_factor))
+                    else:
+                        ap_score = 1.0  # Perfect score for correctly predicting no actions
+                else:
+                    ap_score = average_precision_score(y_true, y_pred)
+                # Store AP score
                 all_ap_scores.append(ap_score)
             except Exception as e:
-                # Handle potential issues with all-zero predictions/targets
-                pass
-            
+                print(f"Error calculating AP: {e}")
+                        
             # Calculate per-class AP scores
             for c in range(num_classes):
                 # Only calculate for classes that appear in the dataset

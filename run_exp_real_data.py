@@ -351,7 +351,11 @@ def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
     # Loss function and optimizer
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=cfg['training']['learning_rate'])
-    
+
+    with open(cfg['data']['paths']['class_labels_file_path'], 'r') as f:
+        class_labels_names = json.load(f)
+    action_labels_name = [class_name for class_id, class_name in class_labels_names['action'].items()]
+
 
     save_logs_dir = logger.log_dir
     
@@ -460,7 +464,7 @@ def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
                             f_a_h_probs = torch.sigmoid(f_a_h_hat)
 
                             # During validation
-                            map_scores = calculate_map(f_a_h_probs, f_a_h_targets)
+                            map_scores = calculate_map(f_a_h_probs, f_a_h_targets, class_names=action_labels_name)
                             results[f"horizon_{h}_mAP"] = map_scores['mAP']
 
                             # Log and visualize results
@@ -592,9 +596,9 @@ def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
             best_model_path = checkpoint_path
         
         # Optionally save periodic checkpoints (every N epochs)
-        save_frequency = cfg.get('training', {}).get('save_checkpoint_every_n_epochs', 0)
+        save_frequency = cfg.get('training', {}).get('save_checkpoint_every_n_epochs', 1)
         if save_frequency > 0 and (epoch + 1) % save_frequency == 0:
-            checkpoint_filename = f"model_epoch{epoch+1}.pt"
+            checkpoint_filename = f"model_epoch{epoch+1}_valloss{val_loss:.6f}.pt"
             checkpoint_path = os.path.join(checkpoint_dir, checkpoint_filename)
             
             torch.save({
