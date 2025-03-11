@@ -375,6 +375,10 @@ def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
     val_losses = []
     epochs = cfg['training']['epochs']
 
+    # Save results to text and json file
+    results_all_file_json = os.path.join(save_logs_dir, 'results_dict.json')
+    results_all_file_txt = os.path.join(save_logs_dir, 'results_text.txt')
+
     for epoch in range(epochs):
         # Training
         model.train()
@@ -539,27 +543,48 @@ def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
         for horizon in sorted(eval_horizons):
             map_key = f"horizon_{horizon}_mAP"
             if map_key in results:
-                # print(f"{horizon:<10} {'mAP':<15} {results[map_key]:.4f}")
                 logger.info(f"{horizon:<10} {'mAP':<15} {results[map_key]:.4f}")
             
             for k in sorted(top_ks):
                 key = f"horizon_{horizon}_top_{k}"
                 if results[key]:
                     avg_accuracy = sum(results[key]) / len(results[key])
-                    # print(f"{horizon:<10} {k:<10} {avg_accuracy:.4f}")
                     logger.info(f"{horizon:<10} {k:<10} {avg_accuracy:.4f}")
                     writer.add_scalar(f'Accuracy/Avg_Horizon_{horizon}_Top_{k}', avg_accuracy, epoch)
         # print("-" * 50)
         logger.info("-" * 50)
 
-        # Save plots
-        plots_save_dir = os.path.join(save_logs_dir, 'plots')
-        os.makedirs(plots_save_dir, exist_ok=True)
+
+        # Save the results both to json and text file format
+        # with open(results_all_file_json, 'w') as f:
+        #     json.dump(results, f, indent=4)
+        
+        # save results for each epoch to text file
+        with open(results_all_file_txt, 'a') as f:
+            f.write(f"Epoch {epoch+1}/{epochs}, Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}\n")
+            f.write(f"Action Prediction Accuracy:\n")
+            f.write("-" * 50 + "\n")
+            f.write(f"{'Horizon':<10} {'Top-k':<10} {'Accuracy':<10}\n")
+            f.write("-" * 50 + "\n")
+            for horizon in sorted(eval_horizons):
+                map_key = f"horizon_{horizon}_mAP"
+                if map_key in results:
+                    f.write(f"{horizon:<10} {'mAP':<15} {results[map_key]:.4f}\n")
+                
+                for k in sorted(top_ks):
+                    key = f"horizon_{horizon}_top_{k}"
+                    if results[key]:
+                        avg_accuracy = sum(results[key]) / len(results[key])
+                        f.write(f"{horizon:<10} {k:<10} {avg_accuracy:.4f}\n")
+            f.write("-" * 50 + "\n")
 
         # Save model if it's the best so far
         if val_loss < best_val_loss:
             best_val_loss = val_loss
 
+            # Save plots
+            plots_save_dir = os.path.join(save_logs_dir, 'plots')
+            os.makedirs(plots_save_dir, exist_ok=True)
             plot_title = f"World Model Evaluation - Epoch {epoch+1}"
             
             # mAP plots
@@ -589,7 +614,7 @@ def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
                 'val_loss': val_loss,
                 'train_loss': train_loss,
                 'config': cfg,
-                'action_accuracies': {key: sum(results[key]) / len(results[key]) if results[key] else 0.0 
+                'action_accuracies': {key: (sum(results[key]) / len(results[key]) if isinstance(results[key], list) else results[key]) 
                                      for key in results}
             }, checkpoint_path)
 
@@ -1065,7 +1090,7 @@ def run_cholect50_experiment(cfg):
     analysis = None
 
     # Init logger
-    logger = SimpleLogger(log_dir="logs", name="my_application")
+    logger = SimpleLogger(log_dir="logs", name="loggings")
     logger.info("Starting CholecT50 experiment for Surgical Actions Prediction")
 
     cfg_exp = cfg['experiment']
