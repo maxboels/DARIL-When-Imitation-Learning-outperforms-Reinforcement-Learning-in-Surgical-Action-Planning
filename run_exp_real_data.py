@@ -369,7 +369,9 @@ def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
     
     # For tracking best model
     best_val_loss = float('inf')
-    best_model_path = None
+
+    best_model_path = cfg['best_model_path']
+    logger.info(f"Best model path: {best_model_path}")
     
     # For logging
     tensorboard_dir = os.path.join(save_logs_dir, 'tensorboard')
@@ -384,44 +386,53 @@ def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
     results_all_file_txt = os.path.join(save_logs_dir, 'results_text.txt')
 
     for epoch in range(epochs):
-        # Training
-        model.train()
-        train_loss = 0.0
-        logger.info(f"Epoch {epoch+1}/{epochs} Training")
+        # Skip training if best model is given and exists
+        if best_model_path and os.path.exists(best_model_path):
+            checkpoint = torch.load(best_model_path)
+            model.load_state_dict(checkpoint['model_state_dict'])
+            optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+            best_val_loss = checkpoint['val_loss']
+            logger.info(f"Loaded best model from {best_model_path}")
+            logger.info(f"Skip training and start validation")
+        else:
+            # Training
+            model.train()
+            train_loss = 0.0
+            logger.info(f"Epoch {epoch+1}/{epochs} Training")
 
-        for batch_idx, (z_seq, _z_seq, _a_seq, _) in enumerate(tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs} Training")):
-            z_seq, _z_seq, _a_seq = z_seq.to(device), _z_seq.to(device), _a_seq.to(device)
+            for batch_idx, (z_seq, _z_seq, _a_seq, _) in enumerate(tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs} Training")):
+                z_seq, _z_seq, _a_seq = z_seq.to(device), _z_seq.to(device), _a_seq.to(device)
 
-            assert z_seq[:, -1, :].equal(_z_seq[:, -2, :]), "Last frame of z must equal second-to-last frame of _z"
-            
-            # Forward pass
-            outputs = model(z_seq, next_frame=_z_seq, next_actions=_a_seq)
-
-            # Get loss
-            _z_loss = outputs["_z_loss"]
-            _a_loss = outputs['_a_loss'] if '_a_loss' in outputs else 0.0
-            loss = _z_loss + _a_loss
-            
-            # Backward pass and optimize
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            
-            train_loss += loss.item() * z_seq.size(0)
-
-            # Calculate global step using epoch and batch index
-            global_step = epoch * len(train_loader) + batch_idx
-            writer.add_scalar('Loss/World_Model_Train', loss.item(), global_step)
-            writer.add_scalar('Loss/World_Model_Train_Z', _z_loss.item(), global_step)
-            writer.add_scalar('Loss/World_Model_Train_A', _a_loss.item(), global_step)
-
-            # Logging every
-            if batch_idx % cfg['training']['log_every_n_steps'] == 0:
-                logger.info(f"Epoch {epoch+1}/{epochs}, Batch {batch_idx}/{len(train_loader)}, Loss: {loss.item():.4f}")
+                assert z_seq[:, -1, :].equal(_z_seq[:, -2, :]), "Last frame of z must equal second-to-last frame of _z"
                 
-        train_loss /= len(train_loader.dataset)
-        train_losses.append(train_loss)
-        logger.info(f"Epoch {epoch+1}/{epochs}, Train Loss: {train_loss:.4f}")
+                # Forward pass
+                outputs = model(z_seq, next_frame=_z_seq, next_actions=_a_seq)
+
+                # Get loss
+                _z_loss = outputs["_z_loss"]
+                _a_loss = outputs['_a_loss'] if '_a_loss' in outputs else 0.0
+                loss = _z_loss + _a_loss
+                
+                # Backward pass and optimize
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+                
+                train_loss += loss.item() * z_seq.size(0)
+
+                # Calculate global step using epoch and batch index
+                global_step = epoch * len(train_loader) + batch_idx
+                writer.add_scalar('Loss/World_Model_Train', loss.item(), global_step)
+                writer.add_scalar('Loss/World_Model_Train_Z', _z_loss.item(), global_step)
+                writer.add_scalar('Loss/World_Model_Train_A', _a_loss.item(), global_step)
+
+                # Logging every
+                if batch_idx % cfg['training']['log_every_n_steps'] == 0:
+                    logger.info(f"Epoch {epoch+1}/{epochs}, Batch {batch_idx}/{len(train_loader)}, Loss: {loss.item():.4f}")
+                    
+            train_loss /= len(train_loader.dataset)
+            train_losses.append(train_loss)
+            logger.info(f"Epoch {epoch+1}/{epochs}, Train Loss: {train_loss:.4f}")
         
         # Inference on validation set
         logger.info(f"Epoch {epoch+1}/{epochs} Validation")
@@ -587,24 +598,24 @@ def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
         # print("-" * 50)
         logger.info("-" * 50)
         
-        # save results for each epoch to text file
-        with open(results_all_file_txt, 'a') as f:
-            f.write(f"Epoch {epoch+1}/{epochs}, Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}\n")
-            f.write(f"Action Prediction Accuracy:\n")
-            f.write("-" * 50 + "\n")
-            f.write(f"{'Horizon':<10} {'Top-k':<10} {'Accuracy':<10}\n")
-            f.write("-" * 50 + "\n")
-            for horizon in sorted(eval_horizons):
-                map_key = f"horizon_{horizon}_mAP"
-                if map_key in results:
-                    f.write(f"{horizon:<10} {'mAP':<15} {results[map_key]:.4f}\n")
+        # # save results for each epoch to text file
+        # with open(results_all_file_txt, 'a') as f:
+        #     f.write(f"Epoch {epoch+1}/{epochs}, Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}\n")
+        #     f.write(f"Action Prediction Accuracy:\n")
+        #     f.write("-" * 50 + "\n")
+        #     f.write(f"{'Horizon':<10} {'Top-k':<10} {'Accuracy':<10}\n")
+        #     f.write("-" * 50 + "\n")
+        #     for horizon in sorted(eval_horizons):
+        #         map_key = f"horizon_{horizon}_mAP"
+        #         if map_key in results:
+        #             f.write(f"{horizon:<10} {'mAP':<15} {results[map_key]:.4f}\n")
                 
-                for k in sorted(top_ks):
-                    key = f"horizon_{horizon}_top_{k}"
-                    if results[key]:
-                        avg_accuracy = sum(results[key]) / len(results[key])
-                        f.write(f"{horizon:<10} {k:<10} {avg_accuracy:.4f}\n")
-            f.write("-" * 50 + "\n")
+        #         for k in sorted(top_ks):
+        #             key = f"horizon_{horizon}_top_{k}"
+        #             if results[key]:
+        #                 avg_accuracy = sum(results[key]) / len(results[key])
+        #                 f.write(f"{horizon:<10} {k:<10} {avg_accuracy:.4f}\n")
+        #     f.write("-" * 50 + "\n")
 
         # Save model if it's the best so far
         if val_loss < best_val_loss:
@@ -1150,10 +1161,10 @@ def run_cholect50_experiment(cfg):
     if cfg_exp['pretrain_next_frame']['inference']:
         print("\nRunning qualitative demo...")
         checkpoint = torch.load(best_model_path)
-        next_frame_model = CausalGPT2ForFrameEmbeddings(**cfg['models']['world_model']).to(device)
-        next_frame_model.load_state_dict(checkpoint['model_state_dict'])
-        next_frame_model.eval()
-        output_dir = create_qualitative_demo(model, test_loader, cfg, device, logger.log_dir, num_samples=3)
+        world_model = CausalGPT2ForFrameEmbeddings(**cfg['models']['world_model']).to(device)
+        world_model.load_state_dict(checkpoint['model_state_dict'])
+        world_model.eval()
+        output_dir = create_qualitative_demo(world_model, test_loader, cfg, device, logger.log_dir, num_samples=3)
         print(f"Demo results saved to: {output_dir}")
 
     # Step 3: Train reward prediction model

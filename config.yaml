@@ -1,5 +1,7 @@
 # Debug mode
 debug: false
+best_model_path: "best_model_epoch1_valloss1.190734.pt"
+
 experiment:
   max_videos: 1  # Set to null to use all videos
   pretrain_next_frame:

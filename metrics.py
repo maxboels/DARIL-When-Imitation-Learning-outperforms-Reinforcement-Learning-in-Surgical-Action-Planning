@@ -707,6 +707,10 @@ def evaluate_multi_label_predictions(predictions, targets, top_ks=[1, 3, 5, 10])
         results[f"top_{k}_f1"] = []             # Harmonic mean of precision and recall
         results[f"top_{k}_exact_match"] = []    # All true actions found (strict)
     
+    # NOTE: Should we first select the predictions above 0.5 before using top-k?
+    # I think k should only consider the positive predictions.
+    # It would be strange to consider values that are close to zero as top-k predictions.
+
     # Get top-k predictions for each k
     top_k_indices = {}
     for k in top_ks:
@@ -720,6 +724,7 @@ def evaluate_multi_label_predictions(predictions, targets, top_ks=[1, 3, 5, 10])
             true_indices = torch.where(targets[b, t] > 0.5)[0]
             
             # Skip frames with no active classes if needed
+            # TODO: Add option to skip or count as false positives (like we did for mAP)
             if len(true_indices) == 0:
                 continue
             

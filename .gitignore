@@ -4,3 +4,5 @@ __pycache__/*.pyc
 __pycache__/*.pyc
 logs/*/*/*.pt
 logs/*/tensorboard/*
+
+best_model_*.pt
