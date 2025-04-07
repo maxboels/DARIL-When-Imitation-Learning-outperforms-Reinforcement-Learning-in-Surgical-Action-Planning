@@ -1116,9 +1116,13 @@ def run_cholect50_experiment(cfg):
         world_model = CausalGPT2ForFrameEmbeddings(**cfg['models']['world_model']).to(device)
         best_model_path = train_next_frame_model(cfg, logger, world_model, train_loader, test_loader, device=device)  # Reduced epochs for demonstration
         print(f"Best model saved at: {best_model_path}")
+    
     # 2. Run inference
     if cfg_exp['pretrain_next_frame']['inference']:
         print("\nRunning qualitative demo...")
+        if best_model_path is None:
+            best_model_path = cfg_exp['pretrain_next_frame']['best_model_path']
+            print(f"Using best model from pre existing path: {best_model_path}")
         checkpoint = torch.load(best_model_path)
         world_model = CausalGPT2ForFrameEmbeddings(**cfg['models']['world_model']).to(device)
         world_model.load_state_dict(checkpoint['model_state_dict'])
