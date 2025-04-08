@@ -64,7 +64,7 @@ def create_qualitative_demo(model, test_loader, cfg, device='cuda', output_dir=N
             # Generate predictions for this sequence
             outputs = model.generate(z_seq, horizon=max_horizon, use_memory=use_memory)
             
-            # Get action predictions
+            # Get future action predictions
             if 'f_a_seq_hat' in outputs:
                 # Get probabilities
                 action_probs = torch.sigmoid(outputs['f_a_seq_hat'])

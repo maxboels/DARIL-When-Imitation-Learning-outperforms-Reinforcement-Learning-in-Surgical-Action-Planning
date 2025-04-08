@@ -6,3 +6,4 @@ logs/*/*/*.pt
 logs/*/tensorboard/*
 
 best_model_*.pt
+saved_models/*.pt

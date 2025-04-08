@@ -17,13 +17,18 @@ import yaml
 import os
 from datetime import datetime
 
-from model import CausalGPT2ForFrameEmbeddings, RewardPredictor
+from model_recognition import RecognitionHead
+from model_generative import CausalGPT2ForFrameEmbeddings, RewardPredictor
+
+from run_recognition import train_recognition_head, run_recognition_inference
+
+
 from eval_world_model import plot_evaluation_results
 from visualization import plot_action_prediction_results
 from metrics import calculate_map, generate_map_vs_accuracy_plots
 from logger import SimpleLogger
 
-from world_model_inference import create_qualitative_demo
+# from world_model_inference import run_evaluation
 
 from metrics import evaluate_multi_label_predictions, log_comprehensive_metrics, create_metrics_comparison_plot, create_metric_breakdown_by_topk
 
@@ -183,6 +188,18 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
         action_columns = [f'tri{i}' for i in range(0, 100)]
         video_action_classes = video_metadata[action_columns].values
 
+        # indices from column 'inst0':'inst5'
+        instrument_columns = [f'inst{i}' for i in range(0, 6)]
+        video_instrument_classes = video_metadata[instrument_columns].values
+
+        # verb
+        verb_columns = [f'v{i}' for i in range(0, 9)]
+        video_verb_classes = video_metadata[verb_columns].values
+
+        # target
+        # target_columns = [f't{i}' for i in range(0, 14)]
+        # video_target_classes = video_metadata[target_columns].values
+
         # Take the mean of the 
         video_mean_risk_score = np.mean(video_risk_scores)
         all_videos_mean_risk_scores.append(video_mean_risk_score)
@@ -207,6 +224,9 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
             'video_dir': os.path.join(data_dir, split_folder, video_id),
             'frame_embeddings': video_frame_embeddings,
             'actions_binaries': video_action_classes,
+            'instruments_binaries': video_instrument_classes,
+            # 'verb_binaries': video_verb_classes,
+            # 'target_binaries': video_target_classes,
             'risk_scores': video_risk_scores,
             'video_mean_risk_score': video_mean_risk_score,
             'video_mean_risk_score_dur': video_mean_risk_score_dur,
@@ -239,6 +259,10 @@ class NextFramePredictionDataset(Dataset):
     def __init__(self, cfg, data):
         """
         Initialize the dataset with sequences of frame embeddings
+
+        Lexic:
+            "_" prefix indicates next frame
+            "f" prefix indicates future frame
         
         Args:
             data: List of video dictionaries containing frame_embeddings and actions_binaries
@@ -255,8 +279,10 @@ class NextFramePredictionDataset(Dataset):
         for video in data:
             embeddings = video['frame_embeddings']
             actions = video['actions_binaries']
+            instruments = video['instruments_binaries']
             
             num_actions = len(actions[0])
+            num_instruments = len(instruments[0])
             embedding_dim = len(embeddings[0])
 
             for i in range(len(embeddings) - 1):
@@ -264,9 +290,13 @@ class NextFramePredictionDataset(Dataset):
                 # This means frames from (i-context_length+1) to i, inclusive
                 z_seq = []
                 _z_seq = []
-                # a_seq: We already trained the vision backbone to recognise the actions
+                # a_seq: We already trained the vision backbone to recognise the actions but we need to evaluate it again
                 _a_seq = []
                 f_a_seq = [] # future actions from i+1 to i+max_horizon
+
+                # current
+                c_a = actions[i]
+                c_i = instruments[i]
                 
                 # Add previous frames, using padding if needed
                 for j in range(i - context_length + 1, i + 1):
@@ -307,7 +337,9 @@ class NextFramePredictionDataset(Dataset):
                     'z': z_seq,     # Sequence of frames from (i-context_length+1) to i
                     '_z': _z_seq,   # Sequence of frames from (i-context_length+2) to i+1
                     '_a': _a_seq,    # Sequence of actions from (i-context_length+2) to i+1
-                    'f_a': f_a_seq
+                    'f_a': f_a_seq,
+                    'c_a': c_a,     # Current Action at position i
+                    'c_i': c_i,     # Current Instrument at position i
                 })
     
     def __len__(self):
@@ -322,7 +354,11 @@ class NextFramePredictionDataset(Dataset):
         _a = torch.tensor(np.array(sample['_a']), dtype=torch.float32)
         f_a = torch.tensor(np.array(sample['f_a']), dtype=torch.float32)
 
-        return z, _z, _a, f_a
+        # current action and instrument
+        c_a = torch.tensor(sample['c_a'], dtype=torch.float32)
+        c_i = torch.tensor(sample['c_i'], dtype=torch.float32)
+
+        return z, _z, _a, f_a, c_a, c_i
 
 # Custom dataset for reward prediction
 class RewardPredictionDataset(Dataset):
@@ -1061,7 +1097,7 @@ def analyze_results(results, action_weights):
     plt.xlabel('Video ID')
     plt.ylabel('Avg. Reward Difference')
     plt.xticks(rotation=45)
-    
+    save_dir
     plt.tight_layout()
     plt.savefig('results_analysis.png')
     plt.show()
@@ -1109,7 +1145,55 @@ def run_cholect50_experiment(cfg):
     train_loader = DataLoader(train_dataset, batch_size=cfg['training']['batch_size'], shuffle=True)
     test_loader = DataLoader(val_dataset, batch_size=cfg['training']['batch_size'])
 
-    # Step II: World Model
+    if cfg['experiment']['recognition']['train'] or cfg['experiment']['recognition']['inference']:
+        # Step I: Recognition Head
+        # Check if we should include instrument classification
+        num_instrument_classes = 0
+        if 'num_instrument_classes' in cfg['models']['recognition']:
+            num_instrument_classes = cfg['models']['recognition']['num_instrument_classes']
+        
+        # Create model
+        embedding_dim = train_data[0]['frame_embeddings'].shape[1]
+        num_action_classes = train_data[0]['actions_binaries'].shape[1]
+
+        model = RecognitionHead(
+            embedding_dim=embedding_dim,
+            hidden_dim=cfg['models']['recognition']['hidden_dim'],
+            num_action_classes=num_action_classes,
+            num_instrument_classes=num_instrument_classes,
+            dropout=cfg['models']['recognition'].get('dropout', 0.1)
+        ).to(device)
+        
+        logger.info(f"Created Recognition Head model with:")
+        logger.info(f"  - Input dimension: {embedding_dim}")
+        logger.info(f"  - Hidden dimension: {cfg['models']['recognition']['hidden_dim']}")
+        logger.info(f"  - Action classes: {num_action_classes}")
+        logger.info(f"  - Instrument classes: {num_instrument_classes}")
+        
+        # Check if we should train or load a pre-trained model
+        if cfg['experiment']['recognition']['train']:
+            logger.info("Starting model training...")
+            model = train_recognition_head(cfg, logger, model, train_loader, test_loader, device)
+            
+            # Save the trained model
+            save_dir = cfg['models']['recognition'].get('save_dir', 'saved_models')
+            model_path = model.save_model(save_dir)
+            logger.info(f"Saved trained model to {model_path}")
+        elif 'best_model_path' in cfg['experiment']['recognition']:
+            # Load pre-trained model
+            model_path = cfg['experiment']['recognition']['best_model_path']
+            logger.info(f"Loading pre-trained model from {model_path}")
+            model.load_model(model_path)
+        
+        # Run inference and evaluation
+        if cfg['experiment']['recognition']['inference']:
+            logger.info("Running inference and evaluation...")
+            results = run_recognition_inference(cfg, logger, model, test_loader, device)
+            logger.info(f"Results saved to {output_dir}")
+    
+
+
+    # Step II: World Model - Next Frame Prediction
     # 1. Pre-train next frame prediction model
     if cfg_exp['pretrain_next_frame']['train']:       
         print("\nTraining next frame prediction model...")
@@ -1127,7 +1211,7 @@ def run_cholect50_experiment(cfg):
         world_model = CausalGPT2ForFrameEmbeddings(**cfg['models']['world_model']).to(device)
         world_model.load_state_dict(checkpoint['model_state_dict'])
         world_model.eval()
-        output_dir = create_qualitative_demo(world_model, test_loader, cfg, device, logger.log_dir, num_samples=6)
+        output_dir = run_eval(world_model, test_loader, cfg, device, logger.log_dir, num_samples=6)
         print(f"Demo results saved to: {output_dir}")
 
     # Step 3: Train reward prediction model

@@ -1,0 +1,11 @@
+2025-04-08 14:05:28,516 - INFO - Log file: logs/2025-04-08_14-05-28/loggings.log
+2025-04-08 14:05:28,516 - INFO - Starting CholecT50 experiment for Surgical Actions Prediction
+2025-04-08 14:05:28,516 - INFO - Experiment configuration: {'max_videos': 1, 'recognition': {'train': True, 'inference': False, 'best_model_path': 'best_model_epoch1_valloss1.190734.pt'}, 'pretrain_next_frame': {'train': False, 'inference': True, 'best_model_path': 'best_model_epoch1_valloss1.190734.pt'}, 'pretrain_reward_model': False, 'calculate_action_rewards': False, 'train_action_policy': False, 'run_tdmpc': False, 'analyze_results': False, 'run_evaluation': False}
+2025-04-08 14:05:28,516 - INFO - Using device: cuda
+2025-04-08 14:05:28,516 - INFO - Loading CholecT50 data...
+2025-04-08 14:05:35,909 - INFO - Created Recognition Head model with:
+2025-04-08 14:05:35,909 - INFO -   - Input dimension: 1024
+2025-04-08 14:05:35,909 - INFO -   - Hidden dimension: 512
+2025-04-08 14:05:35,909 - INFO -   - Action classes: 100
+2025-04-08 14:05:35,909 - INFO -   - Instrument classes: 6
+2025-04-08 14:05:35,909 - INFO - Starting model training...
