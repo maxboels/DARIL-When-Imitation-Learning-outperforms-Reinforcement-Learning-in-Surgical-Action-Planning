@@ -135,11 +135,11 @@ def train_recognition_head(cfg, logger, model, train_loader, val_loader=None, de
         # Calculate mAP for actions
         action_map_scores = calculate_map_recognition(all_targets_actions, all_preds_actions)
         action_overall_map = action_map_scores['mAP']
-        action_per_class_ap = action_map_scores['AP_scores']
+        # action_per_class_ap = action_map_scores['AP_scores']
         # Calculate mAP for instruments
         instrument_map_scores = calculate_map_recognition(all_targets_instruments, all_preds_instruments)
         instrument_overall_map = instrument_map_scores['mAP']
-        instrument_per_class_ap = instrument_map_scores['AP_scores']
+        # instrument_per_class_ap = instrument_map_scores['AP_scores']
         # Log mAP to tensorboard
         writer.add_scalar('Metrics/Validation_mAP_Action', action_overall_map, epoch)
         writer.add_scalar('Metrics/Validation_mAP_Instrument', instrument_overall_map, epoch)
@@ -168,6 +168,7 @@ def train_recognition_head(cfg, logger, model, train_loader, val_loader=None, de
         if val_loader is not None:
             model.eval()
 
+            # Eval loop
             eval_results = run_recognition_inference(cfg, logger, model, val_loader, device=device, epoch=epoch)
 
             # Main metric for model selection
@@ -176,7 +177,6 @@ def train_recognition_head(cfg, logger, model, train_loader, val_loader=None, de
             # Save best model
             if val_map > best_val_map:
                 best_val_map = val_map
-                
                 # Save model checkpoint
                 checkpoint_path = os.path.join(checkpoint_dir, f"best_model_epoch{epoch+1}_map{val_map:.4f}.pt")
                 torch.save({
@@ -213,9 +213,8 @@ def run_recognition_inference(cfg, logger, model, test_video_loaders, device='cu
     Returns:
         Output directory with results
     """
-
+    # Initialize recognition metrics
     recognize = ivtmetrics.Recognition(num_class=100)
-    # evaluation
     recognize.reset_global()
 
     # Log directory
@@ -233,20 +232,22 @@ def run_recognition_inference(cfg, logger, model, test_video_loaders, device='cu
     with open(cfg['data']['paths']['class_labels_file_path'], 'r') as f:
         class_labels = json.load(f)
     action_labels = [class_name for class_id, class_name in class_labels['action'].items()]
+    instrument_labels = [class_name for class_id, class_name in class_labels['instrument'].items()]
     
     # Set model to evaluation mode
     model.eval()
-    
-    metrics = ['ivt_mAP_i', 'ivt_mAP_a', 'sklearn_vids_mAP_i', 'sklearn_vids_mAP_a', 'sklearn_mAP_a', 'sklearn_mAP_i']
+    metrics = ['sklearn_vids_mAP_i', 'sklearn_vids_mAP_a']
     videos_scores = {metric: [] for metric in metrics}
-
-    overall_results = {}
-
-    # v_ids = []
-    
+    per_class_ap_scores = {}
+    per_video_sklearn_per_class_map_a = {}
+    per_video_sklearn_per_class_map_i = {}
+    overall_results = {} 
+    vids = []   
     # Run inference
     with torch.no_grad():
         for vid_id, video_loader in test_video_loaders.items():
+
+            vids.append(vid_id)
 
             # Initialize containers for predictions and targets
             video_preds_actions = []
@@ -281,6 +282,7 @@ def run_recognition_inference(cfg, logger, model, test_video_loaders, device='cu
                 if batch_idx % cfg['training']['log_every_n_steps'] == 0:
                     logger.info(f"[TEST] Video {vid_id} | Batch {batch_idx}/{len(video_loader)}")
 
+            # Add video and init new lists
             recognize.video_end()
         
             # Mean Average Precision (mAP) for actions
@@ -288,19 +290,25 @@ def run_recognition_inference(cfg, logger, model, test_video_loaders, device='cu
             video_preds_actions = np.concatenate(video_preds_actions, axis=0)
             # Calculate mAP using sklearn
             action_map_scores = calculate_map_recognition(video_targets_actions, video_preds_actions, action_labels)
-            action_overall_map = action_map_scores['mAP']            
+            action_overall_map = action_map_scores['mAP']
+            action_per_class_ap = action_map_scores['AP_scores']
             # Mean Average Precision (mAP) for instruments
             video_targets_instruments = np.concatenate(video_targets_instruments, axis=0)
             video_preds_instruments = np.concatenate(video_preds_instruments, axis=0)
             # Calculate mAP using sklearn
-            instrument_map_scores = calculate_map_recognition(video_targets_instruments, video_preds_instruments)
+            instrument_map_scores = calculate_map_recognition(video_targets_instruments, video_preds_instruments, instrument_labels)
             instrument_overall_map = instrument_map_scores['mAP']
+            instrument_per_class_ap = instrument_map_scores['AP_scores']
             # Log mAP to console
             logger.info(f"[TEST] Video {vid_id}: Test mAP (sklearn) Action: {action_overall_map:.4f}")
             logger.info(f"[TEST] Video {vid_id}: Test mAP (sklearn) Instrument: {instrument_overall_map:.4f}")
-
+            # Add to overall results
             videos_scores['sklearn_vids_mAP_a'].append(action_overall_map)
             videos_scores['sklearn_vids_mAP_i'].append(instrument_overall_map)
+
+            # Add the video mAP to the per class mAP
+            per_video_sklearn_per_class_map_a[f'video_{vid_id}_sklearn_vids_mAP_a'] = action_per_class_ap
+            per_video_sklearn_per_class_map_i[f'video_{vid_id}_sklearn_vids_mAP_i'] = instrument_per_class_ap
 
         # END VIDEO LOOP
 
@@ -308,25 +316,42 @@ def run_recognition_inference(cfg, logger, model, test_video_loaders, device='cu
         action_overall_map = np.mean(videos_scores['sklearn_vids_mAP_a'])
         instrument_overall_map = np.mean(videos_scores['sklearn_vids_mAP_i'])
 
+        # Aggregate all the map scores per class on all videos in per_video_sklearn_per_class_map
+        # for each video, add the per class map scores to the per class map scores
+        # add the per class map scores to the per class map scores (there are None values)
+        per_class_ap_scores['sklearn_vids_mAP_a'] = np.nanmean(np.array(list(per_video_sklearn_per_class_map_a.values())), axis=0).tolist()
+        per_class_ap_scores['sklearn_vids_mAP_i'] = np.nanmean(np.array(list(per_video_sklearn_per_class_map_i.values())), axis=0).tolist()
+
+        # Add the overall nan means to the per class map scores based on the intermediate results from the video AP
+        per_class_ap_scores['sklearn_mAP_a_from_vid_ap'] = np.nanmean(np.array(per_class_ap_scores['sklearn_vids_mAP_a']), axis=0).tolist()
+        per_class_ap_scores['sklearn_mAP_i_from_vid_ap'] = np.nanmean(np.array(per_class_ap_scores['sklearn_vids_mAP_i']), axis=0).tolist()
+
         # ivt metrics
-        results_ivt = recognize.compute_video_AP('ivt')
-        results_i = recognize.compute_video_AP('i') # try with ignore null
+        results_ivt = recognize.compute_video_AP('ivt', ignore_null=False) # try with ignore null classes
+        results_i = recognize.compute_video_AP('i', ignore_null=False) # try with ignore null classes
+
+        # Per class scores (all videos aggragated)
+        per_class_ap_scores['ivt_map_a'] = results_ivt['AP'].tolist()
+        per_class_ap_scores['ivt_map_i'] = results_i['AP'].tolist()
+        per_class_ap_scores['ivt_mAP_a_from_vid_ap'] = np.nanmean(np.array(per_class_ap_scores['ivt_map_a']), axis=0).tolist()
+        per_class_ap_scores['ivt_mAP_i_from_vid_ap'] = np.nanmean(np.array(per_class_ap_scores['ivt_map_i']), axis=0).tolist()
 
         # Save per video mAP results
+        overall_results['sklearn_mAP_a_from_vid_ap'] = per_class_ap_scores['sklearn_mAP_a_from_vid_ap']
         overall_results['sklearn_mAP_a'] = np.round(action_overall_map, 4)
         overall_results['sklearn_mAP_i'] = np.round(instrument_overall_map, 4)
+        overall_results['ivt_mAP_a_from_vid_ap'] = per_class_ap_scores['ivt_mAP_a_from_vid_ap']
         overall_results['ivt_mAP_a'] = np.round(results_ivt["mAP"], 4)
         overall_results['ivt_mAP_i'] = np.round(results_i["mAP"], 4)        
         logger.info(f"[TEST] Overall action mAP (sklearn): {overall_results['sklearn_mAP_a']:.4f}")
         logger.info(f"[TEST] Overall instrument mAP (sklearn): {overall_results['sklearn_mAP_i']:.4f}")
         logger.info(f"[TEST] Overall action mAP (ivt): {overall_results['ivt_mAP_a']:.4f}")
         logger.info(f"[TEST] Overall instrument mAP (ivt): {overall_results['ivt_mAP_i']:.4f}")
-    
 
     if epoch is not None:
         # Save mAP results to Tensorboard
-        writer.add_scalar('Metrics/Validation_mAP_Action', overall_results['sklearn_mAP_a'], epoch)
-        writer.add_scalar('Metrics/Validation_mAP_Instrument', overall_results['sklearn_mAP_i'], epoch)
+        writer.add_scalar('Metrics/Validation_mAP_Action_sklean', overall_results['sklearn_mAP_a'], epoch)
+        writer.add_scalar('Metrics/Validation_mAP_Instrument_sklean', overall_results['sklearn_mAP_i'], epoch)
         # Save mAP results to console
         logger.info(f"[TEST] Epoch {epoch+1}: Validation mAP Action (sklearn): {overall_results['sklearn_mAP_a']:.4f}")
         logger.info(f"[TEST] Epoch {epoch+1}: Validation mAP Instrument (sklearn): {overall_results['sklearn_mAP_i']:.4f}")
@@ -334,8 +359,8 @@ def run_recognition_inference(cfg, logger, model, test_video_loaders, device='cu
         logger.info(f"[TEST] Epoch {epoch+1}: Validation mAP Instrument (ivt): {overall_results['ivt_mAP_i']:.4f}")
     else:
         # Save mAP results to Tensorboard
-        writer.add_scalar('Metrics/Test_mAP_Action', overall_results['sklearn_mAP_a'], 0)
-        writer.add_scalar('Metrics/Test_mAP_Instrument', overall_results['sklearn_mAP_i'], 0)
+        writer.add_scalar('Metrics/Test_mAP_Action_sklean', overall_results['sklearn_mAP_a'], 0)
+        writer.add_scalar('Metrics/Test_mAP_Instrument_sklean', overall_results['sklearn_mAP_i'], 0)
         # Save mAP results to console
         logger.info(f"[TEST] Test mAP Action (sklearn): {overall_results['sklearn_mAP_a']:.4f}")
         logger.info(f"[TEST] Test mAP Instrument (sklearn): {overall_results['sklearn_mAP_i']:.4f}")
@@ -347,5 +372,9 @@ def run_recognition_inference(cfg, logger, model, test_video_loaders, device='cu
     # Save predictions to JSON
     with open(os.path.join(output_dir, 'predictions.json'), 'w') as f:
         json.dump(videos_scores, f, indent=4)
+    
+    # Save per_class_ap_scores 
+    with open(os.path.join(output_dir, 'per_class_ap_scores.json'), 'w') as f:
+        json.dump(per_class_ap_scores, f, indent=4)
     
     return overall_results

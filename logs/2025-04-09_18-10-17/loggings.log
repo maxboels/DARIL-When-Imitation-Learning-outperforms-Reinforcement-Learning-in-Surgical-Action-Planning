@@ -1,0 +1,66 @@
+2025-04-09 18:10:17,673 - INFO - Log file: logs/2025-04-09_18-10-17/loggings.log
+2025-04-09 18:10:17,673 - INFO - Starting CholecT50 experiment for Surgical Actions Prediction
+2025-04-09 18:10:17,673 - INFO - Experiment configuration: {'max_videos': None, 'recognition': {'train': False, 'inference': True, 'best_model_path': 'best_model_epoch2_map0.5008.pt'}, 'pretrain_next_frame': {'train': False, 'inference': False, 'best_model_path': 'best_model_epoch1_valloss1.190734.pt'}, 'pretrain_reward_model': False, 'calculate_action_rewards': False, 'train_action_policy': False, 'run_tdmpc': False, 'analyze_results': False, 'run_evaluation': False}
+2025-04-09 18:10:17,673 - INFO - Using device: cuda
+2025-04-09 18:10:17,673 - INFO - Loading CholecT50 data...
+2025-04-09 18:10:31,123 - INFO - Loading pre-trained model from best_model_epoch2_map0.5008.pt
+2025-04-09 18:10:31,196 - INFO - Running inference and evaluation...
+2025-04-09 18:10:32,046 - INFO - [TEST] Video VID02 | Batch 0/178
+2025-04-09 18:10:34,132 - INFO - [TEST] Video VID02 | Batch 40/178
+2025-04-09 18:10:34,310 - INFO - [TEST] Video VID02 | Batch 80/178
+2025-04-09 18:10:34,499 - INFO - [TEST] Video VID02 | Batch 120/178
+2025-04-09 18:10:34,710 - INFO - [TEST] Video VID02 | Batch 160/178
+2025-04-09 18:10:52,528 - INFO - [TEST] Video VID02: Test mAP (sklearn) Action: 0.4723
+2025-04-09 18:10:52,528 - INFO - [TEST] Video VID02: Test mAP (sklearn) Instrument: 0.9214
+2025-04-09 18:10:53,200 - INFO - [TEST] Video VID06 | Batch 0/135
+2025-04-09 18:10:55,202 - INFO - [TEST] Video VID06 | Batch 40/135
+2025-04-09 18:10:55,375 - INFO - [TEST] Video VID06 | Batch 80/135
+2025-04-09 18:10:55,535 - INFO - [TEST] Video VID06 | Batch 120/135
+2025-04-09 18:10:56,525 - INFO - [TEST] Video VID06: Test mAP (sklearn) Action: 0.5409
+2025-04-09 18:10:56,525 - INFO - [TEST] Video VID06: Test mAP (sklearn) Instrument: 0.9493
+2025-04-09 18:10:57,184 - INFO - [TEST] Video VID111 | Batch 0/135
+2025-04-09 18:10:59,192 - INFO - [TEST] Video VID111 | Batch 40/135
+2025-04-09 18:10:59,356 - INFO - [TEST] Video VID111 | Batch 80/135
+2025-04-09 18:10:59,526 - INFO - [TEST] Video VID111 | Batch 120/135
+2025-04-09 18:11:00,557 - INFO - [TEST] Video VID111: Test mAP (sklearn) Action: 0.5217
+2025-04-09 18:11:00,558 - INFO - [TEST] Video VID111: Test mAP (sklearn) Instrument: 0.9498
+2025-04-09 18:11:01,222 - INFO - [TEST] Video VID14 | Batch 0/107
+2025-04-09 18:11:03,234 - INFO - [TEST] Video VID14 | Batch 40/107
+2025-04-09 18:11:03,413 - INFO - [TEST] Video VID14 | Batch 80/107
+2025-04-09 18:11:04,401 - INFO - [TEST] Video VID14: Test mAP (sklearn) Action: 0.3740
+2025-04-09 18:11:04,402 - INFO - [TEST] Video VID14: Test mAP (sklearn) Instrument: 0.8406
+2025-04-09 18:11:05,075 - INFO - [TEST] Video VID23 | Batch 0/103
+2025-04-09 18:11:07,048 - INFO - [TEST] Video VID23 | Batch 40/103
+2025-04-09 18:11:07,224 - INFO - [TEST] Video VID23 | Batch 80/103
+2025-04-09 18:11:08,222 - INFO - [TEST] Video VID23: Test mAP (sklearn) Action: 0.4474
+2025-04-09 18:11:08,222 - INFO - [TEST] Video VID23: Test mAP (sklearn) Instrument: 0.8777
+2025-04-09 18:11:08,887 - INFO - [TEST] Video VID25 | Batch 0/134
+2025-04-09 18:11:10,923 - INFO - [TEST] Video VID25 | Batch 40/134
+2025-04-09 18:11:11,095 - INFO - [TEST] Video VID25 | Batch 80/134
+2025-04-09 18:11:11,256 - INFO - [TEST] Video VID25 | Batch 120/134
+2025-04-09 18:11:12,275 - INFO - [TEST] Video VID25: Test mAP (sklearn) Action: 0.5763
+2025-04-09 18:11:12,275 - INFO - [TEST] Video VID25: Test mAP (sklearn) Instrument: 0.9426
+2025-04-09 18:11:12,938 - INFO - [TEST] Video VID50 | Batch 0/69
+2025-04-09 18:11:14,947 - INFO - [TEST] Video VID50 | Batch 40/69
+2025-04-09 18:11:15,908 - INFO - [TEST] Video VID50: Test mAP (sklearn) Action: 0.5496
+2025-04-09 18:11:15,908 - INFO - [TEST] Video VID50: Test mAP (sklearn) Instrument: 0.9759
+2025-04-09 18:11:16,577 - INFO - [TEST] Video VID51 | Batch 0/184
+2025-04-09 18:11:18,613 - INFO - [TEST] Video VID51 | Batch 40/184
+2025-04-09 18:11:18,793 - INFO - [TEST] Video VID51 | Batch 80/184
+2025-04-09 18:11:18,953 - INFO - [TEST] Video VID51 | Batch 120/184
+2025-04-09 18:11:19,118 - INFO - [TEST] Video VID51 | Batch 160/184
+2025-04-09 18:11:20,160 - INFO - [TEST] Video VID51: Test mAP (sklearn) Action: 0.4941
+2025-04-09 18:11:20,160 - INFO - [TEST] Video VID51: Test mAP (sklearn) Instrument: 0.9628
+2025-04-09 18:11:20,827 - INFO - [TEST] Video VID66 | Batch 0/114
+2025-04-09 18:11:22,865 - INFO - [TEST] Video VID66 | Batch 40/114
+2025-04-09 18:11:23,042 - INFO - [TEST] Video VID66 | Batch 80/114
+2025-04-09 18:11:23,989 - INFO - [TEST] Video VID66: Test mAP (sklearn) Action: 0.6118
+2025-04-09 18:11:23,989 - INFO - [TEST] Video VID66: Test mAP (sklearn) Instrument: 0.9365
+2025-04-09 18:11:24,662 - INFO - [TEST] Video VID79 | Batch 0/214
+2025-04-09 18:11:26,758 - INFO - [TEST] Video VID79 | Batch 40/214
+2025-04-09 18:11:26,924 - INFO - [TEST] Video VID79 | Batch 80/214
+2025-04-09 18:11:27,085 - INFO - [TEST] Video VID79 | Batch 120/214
+2025-04-09 18:11:27,252 - INFO - [TEST] Video VID79 | Batch 160/214
+2025-04-09 18:11:27,434 - INFO - [TEST] Video VID79 | Batch 200/214
+2025-04-09 18:11:28,359 - INFO - [TEST] Video VID79: Test mAP (sklearn) Action: 0.4196
+2025-04-09 18:11:28,359 - INFO - [TEST] Video VID79: Test mAP (sklearn) Instrument: 0.9746

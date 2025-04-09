@@ -4,9 +4,9 @@ debug: false
 experiment:
   max_videos: null # null  # Set to null to use all videos
   recognition:
-    train: true
+    train: false
     inference: true
-    best_model_path: "best_model_epoch1_valloss1.190734.pt" # null #"best_model_epoch1_valloss1.190734.pt"
+    best_model_path: "best_model_epoch2_map0.5008.pt" # null #"best_model_epoch1_valloss1.190734.pt"
   pretrain_next_frame:
     train: false # 
     inference: false

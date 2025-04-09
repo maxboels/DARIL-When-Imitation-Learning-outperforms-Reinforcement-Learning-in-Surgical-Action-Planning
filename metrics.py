@@ -5,87 +5,6 @@ from torchmetrics import AveragePrecision as AP
 import ivtmetrics
 
 
-def mAP_per_video_torchmetrics(data, num_classes, average='none', device='cuda'):
-
-    # Empty list to stack the [100 predictions] of each video
-    all_classwise_stack = []
-
-    # Get the fold's corresponding videos
-    vids = fold_df.video.unique()
-
-    # Loop over the videos
-    for i, v in enumerate(vids):
-
-        # Filter the video
-        vid_df = fold_df[fold_df["video"] == v]
-
-        torch_ap = AP(task="multilabel", num_labels=num_classes, average="none").to(CFG.device)
-
-        # Metric
-        classwise = torch_ap(
-            vid_df.iloc[:, tri0_idx : tri0_idx + 100].values,
-            vid_df.iloc[:, pred0_idx : pred0_idx + 100].values,
-        )
-
-        # Append the [100 predictions] of each video
-        all_classwise_stack.append(classwise.cpu())
-
-    ### Calculate the mean of each category: [100 predictions]
-    all_scores_fold = []
-
-    # Loop over the Predictions of each video
-    # print(len(all_classwise_stack))
-    for j in range(len(all_classwise_stack[0])):  # (j: 0 -> 100)
-
-        # Filter the j element of the [100 predictions] of each video
-        xclass = [all_classwise_stack[vidx][j] for vidx in range(len(vids))]
-
-        # Convert -0.0 to NaN
-        xclass_NaN = [np.nan if x == -0.0 else x for x in xclass]
-
-        # Mean of the triplet in the videos
-        xclass_mean = np.nanmean(np.array(xclass_NaN))
-
-        # Append the triplet score to the list until we have all the 100 triplets
-        all_scores_fold.append(xclass_mean)
-
-    # print(f"Fold mAP score: {np.nanmean(xclass_mean)}")
-
-    # Mean of the 100 triplets
-    overall_mAP = np.nanmean(np.array(all_scores_fold))
-
-
-    return overall_mAP
-
-
-# This function is from the SwinSelf-Distillation paper and gives poor peformance
-# around 15% mAP
-def compute_mAP_score_sklearn(valid_folds):
-    """
-    Compute mean Average Precision (mAP) score with no aggregation.
-
-    Args:
-        valid_folds (DataFrame): DataFrame containing predictions.
-
-    Returns:
-        float: The mean Average Precision (mAP) score.
-    """
-
-    # Score metrics for the fold
-    tri0_idx = int(valid_folds.columns.get_loc("tri0"))
-    pred0_idx = int(valid_folds.columns.get_loc("0"))
-
-    # Compute the metric using sklearn
-    classwise = average_precision_score(
-        valid_folds.iloc[:, tri0_idx : tri0_idx + 100].values,
-        valid_folds.iloc[:, pred0_idx : pred0_idx + 100].values,
-        average=None,
-    )
-
-    # The mean mAP of all the (available) classes
-    mAP = np.nanmean(classwise)
-    return mAP
-
 def calculate_map_recognition(all_targets, all_preds, class_names=None):
     """
     Calculate Mean Average Precision (mAP) for surgical action recognition,
@@ -107,7 +26,7 @@ def calculate_map_recognition(all_targets, all_preds, class_names=None):
     AP_scores = np.full(all_targets.shape[1], np.nan)  # Use np.nan for missing
     
     # Only calculate AP for classes with positive samples
-    for i, has_pos in enumerate(has_positives):
+    for i, has_pos in enumerate(has_positives): # always start from 0 to num_classes
         if has_pos:
             try:
                 # Calculate AP for this class only
@@ -115,8 +34,10 @@ def calculate_map_recognition(all_targets, all_preds, class_names=None):
                     warnings.filterwarnings("ignore", message="No positive samples in y_true")
                     warnings.filterwarnings("ignore", message="No positive class found in y_true")
                     ap = average_precision_score(
-                        all_targets[:, i],  # Target for this class
-                        all_preds[:, i]     # Predictions for this class
+                        all_targets[:, i],
+                        all_preds[:, i],
+                        average=None, # ivt uses "None"
+
                     )
                 AP_scores[i] = ap
                 
@@ -126,11 +47,11 @@ def calculate_map_recognition(all_targets, all_preds, class_names=None):
                 print(f"Error calculating AP for class {i}: {e}")
                 AP_scores[i] = np.nan
                 if class_names and i < len(class_names):
-                    per_class_AP[class_names[i]] = None
+                    per_class_AP[class_names[i]] = np.nan
         else:
             # Skip classes with no positive samples
             if class_names and i < len(class_names):
-                per_class_AP[class_names[i]] = None
+                per_class_AP[class_names[i]] = np.nan
     
     # Calculate mean AP over only the classes that appear
     mAP = np.nanmean(AP_scores) if np.any(~np.isnan(AP_scores)) else np.nan
@@ -140,8 +61,8 @@ def calculate_map_recognition(all_targets, all_preds, class_names=None):
     
     # Return results
     results = {
-        'mAP': float(mAP) if not np.isnan(mAP) else None,
-        'AP_scores': [float(x) if not np.isnan(x) else None for x in AP_scores],
+        'mAP': float(mAP) if not np.isnan(mAP) else np.nan,
+        'AP_scores': [float(x) if not np.isnan(x) else np.nan for x in AP_scores],
         'class_coverage': float(class_coverage),
         'classes_present': int(np.sum(has_positives)),
         'total_classes': len(has_positives)
@@ -151,17 +72,17 @@ def calculate_map_recognition(all_targets, all_preds, class_names=None):
         # Fix: Safely handle different value types in per_class_AP
         results['per_class_AP'] = {}
         for k, v in per_class_AP.items():
-            if v is None:
-                results['per_class_AP'][k] = None
+            if np.isnan(v):
+                results['per_class_AP'][k] = np.nan
             else:
                 try:
                     # Check if it's a nan value
                     if isinstance(v, (float, np.float32, np.float64)) and np.isnan(v):
-                        results['per_class_AP'][k] = None
+                        results['per_class_AP'][k] = np.nan
                     else:
                         results['per_class_AP'][k] = float(v)
                 except (TypeError, ValueError):
-                    results['per_class_AP'][k] = None
+                    results['per_class_AP'][k] = np.nan
     
     return results
 
@@ -1187,3 +1108,85 @@ def create_metric_breakdown_by_topk(results, save_path):
     plt.close()
     
     return save_path
+
+
+def mAP_per_video_torchmetrics(data, num_classes, average='none', device='cuda'):
+
+    # Empty list to stack the [100 predictions] of each video
+    all_classwise_stack = []
+
+    # Get the fold's corresponding videos
+    vids = fold_df.video.unique()
+
+    # Loop over the videos
+    for i, v in enumerate(vids):
+
+        # Filter the video
+        vid_df = fold_df[fold_df["video"] == v]
+
+        torch_ap = AP(task="multilabel", num_labels=num_classes, average="none").to(CFG.device)
+
+        # Metric
+        classwise = torch_ap(
+            vid_df.iloc[:, tri0_idx : tri0_idx + 100].values,
+            vid_df.iloc[:, pred0_idx : pred0_idx + 100].values,
+        )
+
+        # Append the [100 predictions] of each video
+        all_classwise_stack.append(classwise.cpu())
+
+    ### Calculate the mean of each category: [100 predictions]
+    all_scores_fold = []
+
+    # Loop over the Predictions of each video
+    # print(len(all_classwise_stack))
+    for j in range(len(all_classwise_stack[0])):  # (j: 0 -> 100)
+
+        # Filter the j element of the [100 predictions] of each video
+        xclass = [all_classwise_stack[vidx][j] for vidx in range(len(vids))]
+
+        # Convert -0.0 to NaN
+        xclass_NaN = [np.nan if x == -0.0 else x for x in xclass]
+
+        # Mean of the triplet in the videos
+        xclass_mean = np.nanmean(np.array(xclass_NaN))
+
+        # Append the triplet score to the list until we have all the 100 triplets
+        all_scores_fold.append(xclass_mean)
+
+    # print(f"Fold mAP score: {np.nanmean(xclass_mean)}")
+
+    # Mean of the 100 triplets
+    overall_mAP = np.nanmean(np.array(all_scores_fold))
+
+
+    return overall_mAP
+
+
+# This function is from the SwinSelf-Distillation paper and gives poor peformance
+# around 15% mAP
+def compute_mAP_score_sklearn(valid_folds):
+    """
+    Compute mean Average Precision (mAP) score with no aggregation.
+
+    Args:
+        valid_folds (DataFrame): DataFrame containing predictions.
+
+    Returns:
+        float: The mean Average Precision (mAP) score.
+    """
+
+    # Score metrics for the fold
+    tri0_idx = int(valid_folds.columns.get_loc("tri0"))
+    pred0_idx = int(valid_folds.columns.get_loc("0"))
+
+    # Compute the metric using sklearn
+    classwise = average_precision_score(
+        valid_folds.iloc[:, tri0_idx : tri0_idx + 100].values,
+        valid_folds.iloc[:, pred0_idx : pred0_idx + 100].values,
+        average=None,
+    )
+
+    # The mean mAP of all the (available) classes
+    mAP = np.nanmean(classwise)
+    return mAP

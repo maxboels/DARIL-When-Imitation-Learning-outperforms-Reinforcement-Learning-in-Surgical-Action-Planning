@@ -1,0 +1,28 @@
+2025-04-09 16:14:15,128 - INFO - Log file: logs/2025-04-09_16-14-15/loggings.log
+2025-04-09 16:14:15,129 - INFO - Starting CholecT50 experiment for Surgical Actions Prediction
+2025-04-09 16:14:15,129 - INFO - Experiment configuration: {'max_videos': 2, 'recognition': {'train': False, 'inference': True, 'best_model_path': 'best_model_epoch2_map0.5008.pt'}, 'pretrain_next_frame': {'train': False, 'inference': False, 'best_model_path': 'best_model_epoch1_valloss1.190734.pt'}, 'pretrain_reward_model': False, 'calculate_action_rewards': False, 'train_action_policy': False, 'run_tdmpc': False, 'analyze_results': False, 'run_evaluation': False}
+2025-04-09 16:14:15,129 - INFO - Using device: cuda
+2025-04-09 16:14:15,129 - INFO - Loading CholecT50 data...
+2025-04-09 16:14:22,576 - INFO - Loading pre-trained model from best_model_epoch2_map0.5008.pt
+2025-04-09 16:14:22,643 - INFO - Running inference and evaluation...
+2025-04-09 16:14:23,424 - INFO - [TEST] Video VID02 | Batch 0/178
+2025-04-09 16:14:25,488 - INFO - [TEST] Video VID02 | Batch 40/178
+2025-04-09 16:14:25,656 - INFO - [TEST] Video VID02 | Batch 80/178
+2025-04-09 16:14:25,813 - INFO - [TEST] Video VID02 | Batch 120/178
+2025-04-09 16:14:25,978 - INFO - [TEST] Video VID02 | Batch 160/178
+2025-04-09 16:14:41,369 - INFO - [TEST] Video VID02: Test mAP (sklearn) Action: 0.4723
+2025-04-09 16:14:41,369 - INFO - [TEST] Video VID02: Test mAP (sklearn) Instrument: 0.9214
+2025-04-09 16:14:42,056 - INFO - [TEST] Video VID06 | Batch 0/135
+2025-04-09 16:14:44,213 - INFO - [TEST] Video VID06 | Batch 40/135
+2025-04-09 16:14:44,385 - INFO - [TEST] Video VID06 | Batch 80/135
+2025-04-09 16:14:44,549 - INFO - [TEST] Video VID06 | Batch 120/135
+2025-04-09 16:14:50,489 - INFO - [TEST] Video VID06: Test mAP (sklearn) Action: 0.5409
+2025-04-09 16:14:50,489 - INFO - [TEST] Video VID06: Test mAP (sklearn) Instrument: 0.9493
+2025-04-09 16:14:51,104 - INFO - [TEST] Overall action mAP (sklearn): 0.5066
+2025-04-09 16:14:51,104 - INFO - [TEST] Overall instrument mAP (sklearn): 0.9353
+2025-04-09 16:14:51,104 - INFO - [TEST] Overall action mAP (ivt): 0.4847
+2025-04-09 16:14:51,104 - INFO - [TEST] Overall instrument mAP (ivt): 0.8948
+2025-04-09 16:14:51,104 - INFO - [TEST] Test mAP Action (sklearn): 0.5066
+2025-04-09 16:14:51,104 - INFO - [TEST] Test mAP Instrument (sklearn): 0.9353
+2025-04-09 16:14:51,104 - INFO - [TEST] Test mAP Action (ivt): 0.4847
+2025-04-09 16:14:51,105 - INFO - [TEST] Test mAP Instrument (ivt): 0.8948

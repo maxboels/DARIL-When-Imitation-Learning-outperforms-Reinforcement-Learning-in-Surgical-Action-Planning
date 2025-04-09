@@ -1,0 +1,12 @@
+2025-04-09 17:19:48,286 - INFO - Log file: logs/2025-04-09_17-19-48/loggings.log
+2025-04-09 17:19:48,286 - INFO - Starting CholecT50 experiment for Surgical Actions Prediction
+2025-04-09 17:19:48,287 - INFO - Experiment configuration: {'max_videos': None, 'recognition': {'train': False, 'inference': True, 'best_model_path': 'best_model_epoch2_map0.5008.pt'}, 'pretrain_next_frame': {'train': False, 'inference': False, 'best_model_path': 'best_model_epoch1_valloss1.190734.pt'}, 'pretrain_reward_model': False, 'calculate_action_rewards': False, 'train_action_policy': False, 'run_tdmpc': False, 'analyze_results': False, 'run_evaluation': False}
+2025-04-09 17:19:48,287 - INFO - Using device: cuda
+2025-04-09 17:19:48,287 - INFO - Loading CholecT50 data...
+2025-04-09 17:20:01,734 - INFO - Loading pre-trained model from best_model_epoch2_map0.5008.pt
+2025-04-09 17:20:01,807 - INFO - Running inference and evaluation...
+2025-04-09 17:20:02,611 - INFO - [TEST] Video VID02 | Batch 0/178
+2025-04-09 17:20:04,712 - INFO - [TEST] Video VID02 | Batch 40/178
+2025-04-09 17:20:04,882 - INFO - [TEST] Video VID02 | Batch 80/178
+2025-04-09 17:20:05,032 - INFO - [TEST] Video VID02 | Batch 120/178
+2025-04-09 17:20:05,192 - INFO - [TEST] Video VID02 | Batch 160/178

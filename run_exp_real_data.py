@@ -1207,12 +1207,6 @@ def run_cholect50_experiment(cfg):
             dropout=cfg['models']['recognition'].get('dropout', 0.1)
         ).to(device)
         
-        logger.info(f"Created Recognition Head model with:")
-        logger.info(f"  - Input dimension: {embedding_dim}")
-        logger.info(f"  - Hidden dimension: {cfg['models']['recognition']['hidden_dim']}")
-        logger.info(f"  - Action classes: {num_action_classes}")
-        logger.info(f"  - Instrument classes: {num_instrument_classes}")
-        
         # Check if we should train or load a pre-trained model
         if cfg['experiment']['recognition']['train']:
             logger.info("Starting model training...")

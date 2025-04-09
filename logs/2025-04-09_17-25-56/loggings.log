@@ -1,0 +1,75 @@
+2025-04-09 17:25:56,157 - INFO - Log file: logs/2025-04-09_17-25-56/loggings.log
+2025-04-09 17:25:56,157 - INFO - Starting CholecT50 experiment for Surgical Actions Prediction
+2025-04-09 17:25:56,157 - INFO - Experiment configuration: {'max_videos': None, 'recognition': {'train': False, 'inference': True, 'best_model_path': 'best_model_epoch2_map0.5008.pt'}, 'pretrain_next_frame': {'train': False, 'inference': False, 'best_model_path': 'best_model_epoch1_valloss1.190734.pt'}, 'pretrain_reward_model': False, 'calculate_action_rewards': False, 'train_action_policy': False, 'run_tdmpc': False, 'analyze_results': False, 'run_evaluation': False}
+2025-04-09 17:25:56,157 - INFO - Using device: cuda
+2025-04-09 17:25:56,157 - INFO - Loading CholecT50 data...
+2025-04-09 17:26:07,686 - INFO - Loading pre-trained model from best_model_epoch2_map0.5008.pt
+2025-04-09 17:26:07,749 - INFO - Running inference and evaluation...
+2025-04-09 17:26:08,003 - INFO - [TEST] Video VID02 | Batch 0/178
+2025-04-09 17:26:08,165 - INFO - [TEST] Video VID02 | Batch 40/178
+2025-04-09 17:26:08,331 - INFO - [TEST] Video VID02 | Batch 80/178
+2025-04-09 17:26:08,483 - INFO - [TEST] Video VID02 | Batch 120/178
+2025-04-09 17:26:08,641 - INFO - [TEST] Video VID02 | Batch 160/178
+2025-04-09 17:26:08,780 - INFO - [TEST] Video VID02: Test mAP (sklearn) Action: 0.4723
+2025-04-09 17:26:08,780 - INFO - [TEST] Video VID02: Test mAP (sklearn) Instrument: 0.9214
+2025-04-09 17:26:08,948 - INFO - [TEST] Video VID06 | Batch 0/135
+2025-04-09 17:26:09,091 - INFO - [TEST] Video VID06 | Batch 40/135
+2025-04-09 17:26:09,241 - INFO - [TEST] Video VID06 | Batch 80/135
+2025-04-09 17:26:09,396 - INFO - [TEST] Video VID06 | Batch 120/135
+2025-04-09 17:26:09,516 - INFO - [TEST] Video VID06: Test mAP (sklearn) Action: 0.5409
+2025-04-09 17:26:09,516 - INFO - [TEST] Video VID06: Test mAP (sklearn) Instrument: 0.9493
+2025-04-09 17:26:09,683 - INFO - [TEST] Video VID111 | Batch 0/135
+2025-04-09 17:26:09,836 - INFO - [TEST] Video VID111 | Batch 40/135
+2025-04-09 17:26:09,997 - INFO - [TEST] Video VID111 | Batch 80/135
+2025-04-09 17:26:10,168 - INFO - [TEST] Video VID111 | Batch 120/135
+2025-04-09 17:26:10,305 - INFO - [TEST] Video VID111: Test mAP (sklearn) Action: 0.5217
+2025-04-09 17:26:10,305 - INFO - [TEST] Video VID111: Test mAP (sklearn) Instrument: 0.9498
+2025-04-09 17:26:10,512 - INFO - [TEST] Video VID14 | Batch 0/107
+2025-04-09 17:26:10,676 - INFO - [TEST] Video VID14 | Batch 40/107
+2025-04-09 17:26:10,847 - INFO - [TEST] Video VID14 | Batch 80/107
+2025-04-09 17:26:11,033 - INFO - [TEST] Video VID14: Test mAP (sklearn) Action: 0.3740
+2025-04-09 17:26:11,034 - INFO - [TEST] Video VID14: Test mAP (sklearn) Instrument: 0.8406
+2025-04-09 17:26:11,227 - INFO - [TEST] Video VID23 | Batch 0/103
+2025-04-09 17:26:11,375 - INFO - [TEST] Video VID23 | Batch 40/103
+2025-04-09 17:26:11,535 - INFO - [TEST] Video VID23 | Batch 80/103
+2025-04-09 17:26:11,694 - INFO - [TEST] Video VID23: Test mAP (sklearn) Action: 0.4474
+2025-04-09 17:26:11,694 - INFO - [TEST] Video VID23: Test mAP (sklearn) Instrument: 0.8777
+2025-04-09 17:26:11,889 - INFO - [TEST] Video VID25 | Batch 0/134
+2025-04-09 17:26:12,042 - INFO - [TEST] Video VID25 | Batch 40/134
+2025-04-09 17:26:12,196 - INFO - [TEST] Video VID25 | Batch 80/134
+2025-04-09 17:26:12,356 - INFO - [TEST] Video VID25 | Batch 120/134
+2025-04-09 17:26:12,472 - INFO - [TEST] Video VID25: Test mAP (sklearn) Action: 0.5763
+2025-04-09 17:26:12,472 - INFO - [TEST] Video VID25: Test mAP (sklearn) Instrument: 0.9426
+2025-04-09 17:26:12,647 - INFO - [TEST] Video VID50 | Batch 0/69
+2025-04-09 17:26:12,802 - INFO - [TEST] Video VID50 | Batch 40/69
+2025-04-09 17:26:12,962 - INFO - [TEST] Video VID50: Test mAP (sklearn) Action: 0.5496
+2025-04-09 17:26:12,962 - INFO - [TEST] Video VID50: Test mAP (sklearn) Instrument: 0.9759
+2025-04-09 17:26:13,132 - INFO - [TEST] Video VID51 | Batch 0/184
+2025-04-09 17:26:13,284 - INFO - [TEST] Video VID51 | Batch 40/184
+2025-04-09 17:26:13,433 - INFO - [TEST] Video VID51 | Batch 80/184
+2025-04-09 17:26:13,594 - INFO - [TEST] Video VID51 | Batch 120/184
+2025-04-09 17:26:13,753 - INFO - [TEST] Video VID51 | Batch 160/184
+2025-04-09 17:26:13,920 - INFO - [TEST] Video VID51: Test mAP (sklearn) Action: 0.4941
+2025-04-09 17:26:13,920 - INFO - [TEST] Video VID51: Test mAP (sklearn) Instrument: 0.9628
+2025-04-09 17:26:14,094 - INFO - [TEST] Video VID66 | Batch 0/114
+2025-04-09 17:26:14,238 - INFO - [TEST] Video VID66 | Batch 40/114
+2025-04-09 17:26:14,389 - INFO - [TEST] Video VID66 | Batch 80/114
+2025-04-09 17:26:14,578 - INFO - [TEST] Video VID66: Test mAP (sklearn) Action: 0.6118
+2025-04-09 17:26:14,578 - INFO - [TEST] Video VID66: Test mAP (sklearn) Instrument: 0.9365
+2025-04-09 17:26:14,752 - INFO - [TEST] Video VID79 | Batch 0/214
+2025-04-09 17:26:14,906 - INFO - [TEST] Video VID79 | Batch 40/214
+2025-04-09 17:26:15,055 - INFO - [TEST] Video VID79 | Batch 80/214
+2025-04-09 17:26:15,205 - INFO - [TEST] Video VID79 | Batch 120/214
+2025-04-09 17:26:15,365 - INFO - [TEST] Video VID79 | Batch 160/214
+2025-04-09 17:26:15,526 - INFO - [TEST] Video VID79 | Batch 200/214
+2025-04-09 17:26:15,659 - INFO - [TEST] Video VID79: Test mAP (sklearn) Action: 0.4196
+2025-04-09 17:26:15,659 - INFO - [TEST] Video VID79: Test mAP (sklearn) Instrument: 0.9746
+2025-04-09 17:26:18,318 - INFO - [TEST] Overall action mAP (sklearn): 0.5008
+2025-04-09 17:26:18,318 - INFO - [TEST] Overall instrument mAP (sklearn): 0.9331
+2025-04-09 17:26:18,318 - INFO - [TEST] Overall action mAP (ivt): 0.3886
+2025-04-09 17:26:18,318 - INFO - [TEST] Overall instrument mAP (ivt): 0.9215
+2025-04-09 17:26:18,318 - INFO - [TEST] Test mAP Action (sklearn): 0.5008
+2025-04-09 17:26:18,318 - INFO - [TEST] Test mAP Instrument (sklearn): 0.9331
+2025-04-09 17:26:18,319 - INFO - [TEST] Test mAP Action (ivt): 0.3886
+2025-04-09 17:26:18,319 - INFO - [TEST] Test mAP Instrument (ivt): 0.9215
+2025-04-09 17:26:18,320 - INFO - Results: {'sklearn_mAP_a': 0.5008, 'sklearn_mAP_i': 0.9331, 'ivt_mAP_a': 0.3886, 'ivt_mAP_i': 0.9215}
