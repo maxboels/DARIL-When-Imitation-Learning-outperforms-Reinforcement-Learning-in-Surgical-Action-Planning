@@ -2,14 +2,14 @@
 debug: false
 
 experiment:
-  max_videos: 1 # null  # Set to null to use all videos
+  max_videos: null # null  # Set to null to use all videos
   recognition:
     train: true
     inference: true
     best_model_path: "best_model_epoch1_valloss1.190734.pt" # null #"best_model_epoch1_valloss1.190734.pt"
   pretrain_next_frame:
     train: false # 
-    inference: true
+    inference: false
     best_model_path: "best_model_epoch1_valloss1.190734.pt" # null #"best_model_epoch1_valloss1.190734.pt"
   pretrain_reward_model: false
   calculate_action_rewards: false
@@ -64,12 +64,13 @@ data:
 models:
   # Recognition model configuration
   recognition:
+    sequence_model: "transformer" # "transformer", "lstm", "gru"
     embedding_dim: 1024
-    hidden_dim: 512     # Hidden dimension for recognition module
+    hidden_dim: 768     # Hidden dimension for recognition module
     num_action_classes: 100
     num_instrument_classes: 6
-    num_attention_heads: 8
-    num_attention_layers: 2
+    num_heads: 8
+    num_layers: 2
   # GPT-2 model configuration
   world_model:
     hidden_dim: 768

@@ -25,7 +25,8 @@ from run_recognition import train_recognition_head, run_recognition_inference
 
 from eval_world_model import plot_evaluation_results
 from visualization import plot_action_prediction_results
-from metrics import calculate_map, generate_map_vs_accuracy_plots
+from metrics import calculate_map_recognition, calculate_map_on_sequence
+# calculate_map, generate_map_vs_accuracy_plots
 from logger import SimpleLogger
 
 # from world_model_inference import run_evaluation
@@ -254,6 +255,43 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
     print(f"Successfully loaded {len(data)} ({split}ing) videos")
     return data
 
+from torch.utils.data import DataLoader
+
+def create_video_dataloaders(cfg, data, batch_size=32, shuffle=True, num_workers=4):
+    """
+    Create a separate dataloader for each video in the dataset.
+    
+    Args:
+        cfg: Configuration dictionary
+        data: List of video dictionaries from load_cholect50_data()
+        batch_size: Batch size for the dataloaders
+        shuffle: Whether to shuffle the samples
+        num_workers: Number of worker processes for data loading
+        
+    Returns:
+        Dictionary mapping video IDs to their respective DataLoaders
+    """
+    video_dataloaders = {}
+    
+    for video in data:
+        video_id = video['video_id']
+        
+        # Create a dataset with only this video's data
+        video_dataset = NextFramePredictionDataset(cfg['data'], [video])
+        
+        # Create a dataloader for this video
+        video_dataloader = DataLoader(
+            video_dataset,
+            batch_size=batch_size,
+            shuffle=shuffle,
+            num_workers=num_workers
+        )
+        
+        # Store the dataloader with the video ID as the key
+        video_dataloaders[video_id] = video_dataloader
+    
+    return video_dataloaders
+
 # Custom dataset for frame prediction with sequence inputs
 class NextFramePredictionDataset(Dataset):
     def __init__(self, cfg, data):
@@ -277,6 +315,7 @@ class NextFramePredictionDataset(Dataset):
         max_horizon = cfg.get('max_horizon', 15)
 
         for video in data:
+            video_id = video['video_id']
             embeddings = video['frame_embeddings']
             actions = video['actions_binaries']
             instruments = video['instruments_binaries']
@@ -334,6 +373,7 @@ class NextFramePredictionDataset(Dataset):
 
                 # Add the sequence to the samples list
                 self.samples.append({
+                    'v_id': video_id,
                     'z': z_seq,     # Sequence of frames from (i-context_length+1) to i
                     '_z': _z_seq,   # Sequence of frames from (i-context_length+2) to i+1
                     '_a': _a_seq,    # Sequence of actions from (i-context_length+2) to i+1
@@ -349,6 +389,7 @@ class NextFramePredictionDataset(Dataset):
         sample = self.samples[idx]
 
         # Convert lists to numpy arrays first, then to tensors
+        # v_id = torch.tensor(np.array(sample['v_id']), dtype=torch.float32)  # Shape: [context_length, embedding_dim]
         z = torch.tensor(np.array(sample['z']), dtype=torch.float32)  # Shape: [context_length, embedding_dim]
         _z = torch.tensor(np.array(sample['_z']), dtype=torch.float32)
         _a = torch.tensor(np.array(sample['_a']), dtype=torch.float32)
@@ -1139,11 +1180,12 @@ def run_cholect50_experiment(cfg):
     train_data = load_cholect50_data(cfg['data'], split='train', max_videos=cfg['experiment']['max_videos'])
     test_data = load_cholect50_data(cfg['data'], split='test', max_videos=cfg['experiment']['max_videos'])
     
+    # Create separate dataloaders for each video in test set
+
     # Create dataloaders
     train_dataset = NextFramePredictionDataset(cfg['data'], train_data)
-    val_dataset = NextFramePredictionDataset(cfg['data'], test_data)    
     train_loader = DataLoader(train_dataset, batch_size=cfg['training']['batch_size'], shuffle=True)
-    test_loader = DataLoader(val_dataset, batch_size=cfg['training']['batch_size'])
+    test_video_loaders = create_video_dataloaders(cfg, test_data, batch_size=16, shuffle=False)
 
     if cfg['experiment']['recognition']['train'] or cfg['experiment']['recognition']['inference']:
         # Step I: Recognition Head
@@ -1157,6 +1199,7 @@ def run_cholect50_experiment(cfg):
         num_action_classes = train_data[0]['actions_binaries'].shape[1]
 
         model = RecognitionHead(
+            cfg=cfg['models']['recognition'],
             embedding_dim=embedding_dim,
             hidden_dim=cfg['models']['recognition']['hidden_dim'],
             num_action_classes=num_action_classes,
@@ -1173,7 +1216,7 @@ def run_cholect50_experiment(cfg):
         # Check if we should train or load a pre-trained model
         if cfg['experiment']['recognition']['train']:
             logger.info("Starting model training...")
-            model = train_recognition_head(cfg, logger, model, train_loader, test_loader, device)
+            model = train_recognition_head(cfg, logger, model, train_loader, val_loader=test_video_loaders, device=device)
             
             # Save the trained model
             save_dir = cfg['models']['recognition'].get('save_dir', 'saved_models')
@@ -1188,17 +1231,15 @@ def run_cholect50_experiment(cfg):
         # Run inference and evaluation
         if cfg['experiment']['recognition']['inference']:
             logger.info("Running inference and evaluation...")
-            results = run_recognition_inference(cfg, logger, model, test_loader, device)
-            logger.info(f"Results saved to {output_dir}")
+            results = run_recognition_inference(cfg, logger, model, test_video_loaders, device)
+            logger.info(f"Results: {results}")
     
-
-
     # Step II: World Model - Next Frame Prediction
     # 1. Pre-train next frame prediction model
     if cfg_exp['pretrain_next_frame']['train']:       
         print("\nTraining next frame prediction model...")
         world_model = CausalGPT2ForFrameEmbeddings(**cfg['models']['world_model']).to(device)
-        best_model_path = train_next_frame_model(cfg, logger, world_model, train_loader, test_loader, device=device)  # Reduced epochs for demonstration
+        best_model_path = train_next_frame_model(cfg, logger, world_model, train_loader, test_video_loaders, device=device)  # Reduced epochs for demonstration
         print(f"Best model saved at: {best_model_path}")
     
     # 2. Run inference
@@ -1211,7 +1252,7 @@ def run_cholect50_experiment(cfg):
         world_model = CausalGPT2ForFrameEmbeddings(**cfg['models']['world_model']).to(device)
         world_model.load_state_dict(checkpoint['model_state_dict'])
         world_model.eval()
-        output_dir = run_eval(world_model, test_loader, cfg, device, logger.log_dir, num_samples=6)
+        output_dir = run_eval(world_model, test_video_loaders, cfg, device, logger.log_dir, num_samples=6)
         print(f"Demo results saved to: {output_dir}")
 
     # Step 3: Train reward prediction model

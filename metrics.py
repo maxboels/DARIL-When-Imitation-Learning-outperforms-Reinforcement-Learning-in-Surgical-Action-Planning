@@ -1,10 +1,171 @@
-import torch
+import warnings
 import numpy as np
-from sklearn.metrics import average_precision_score, precision_recall_curve
-import matplotlib.pyplot as plt
+from sklearn.metrics import average_precision_score
+from torchmetrics import AveragePrecision as AP
+import ivtmetrics
 
 
-def calculate_map(predictions, targets, class_names=None, skip_empty_frames=True, threshold=0.5, scale_factor=0.1):
+def mAP_per_video_torchmetrics(data, num_classes, average='none', device='cuda'):
+
+    # Empty list to stack the [100 predictions] of each video
+    all_classwise_stack = []
+
+    # Get the fold's corresponding videos
+    vids = fold_df.video.unique()
+
+    # Loop over the videos
+    for i, v in enumerate(vids):
+
+        # Filter the video
+        vid_df = fold_df[fold_df["video"] == v]
+
+        torch_ap = AP(task="multilabel", num_labels=num_classes, average="none").to(CFG.device)
+
+        # Metric
+        classwise = torch_ap(
+            vid_df.iloc[:, tri0_idx : tri0_idx + 100].values,
+            vid_df.iloc[:, pred0_idx : pred0_idx + 100].values,
+        )
+
+        # Append the [100 predictions] of each video
+        all_classwise_stack.append(classwise.cpu())
+
+    ### Calculate the mean of each category: [100 predictions]
+    all_scores_fold = []
+
+    # Loop over the Predictions of each video
+    # print(len(all_classwise_stack))
+    for j in range(len(all_classwise_stack[0])):  # (j: 0 -> 100)
+
+        # Filter the j element of the [100 predictions] of each video
+        xclass = [all_classwise_stack[vidx][j] for vidx in range(len(vids))]
+
+        # Convert -0.0 to NaN
+        xclass_NaN = [np.nan if x == -0.0 else x for x in xclass]
+
+        # Mean of the triplet in the videos
+        xclass_mean = np.nanmean(np.array(xclass_NaN))
+
+        # Append the triplet score to the list until we have all the 100 triplets
+        all_scores_fold.append(xclass_mean)
+
+    # print(f"Fold mAP score: {np.nanmean(xclass_mean)}")
+
+    # Mean of the 100 triplets
+    overall_mAP = np.nanmean(np.array(all_scores_fold))
+
+
+    return overall_mAP
+
+
+# This function is from the SwinSelf-Distillation paper and gives poor peformance
+# around 15% mAP
+def compute_mAP_score_sklearn(valid_folds):
+    """
+    Compute mean Average Precision (mAP) score with no aggregation.
+
+    Args:
+        valid_folds (DataFrame): DataFrame containing predictions.
+
+    Returns:
+        float: The mean Average Precision (mAP) score.
+    """
+
+    # Score metrics for the fold
+    tri0_idx = int(valid_folds.columns.get_loc("tri0"))
+    pred0_idx = int(valid_folds.columns.get_loc("0"))
+
+    # Compute the metric using sklearn
+    classwise = average_precision_score(
+        valid_folds.iloc[:, tri0_idx : tri0_idx + 100].values,
+        valid_folds.iloc[:, pred0_idx : pred0_idx + 100].values,
+        average=None,
+    )
+
+    # The mean mAP of all the (available) classes
+    mAP = np.nanmean(classwise)
+    return mAP
+
+def calculate_map_recognition(all_targets, all_preds, class_names=None):
+    """
+    Calculate Mean Average Precision (mAP) for surgical action recognition,
+    properly handling classes with no positive samples.
+    
+    Args:
+        all_targets: Binary target labels array [samples, classes]
+        all_preds: Prediction scores array [samples, classes]
+        class_names: Optional list of class names for per-class reporting
+        
+    Returns:
+        Dictionary with mAP results
+    """
+    # Check for classes with positive samples
+    has_positives = np.sum(all_targets, axis=0) > 0
+    
+    # Initialize results
+    per_class_AP = {}
+    AP_scores = np.full(all_targets.shape[1], np.nan)  # Use np.nan for missing
+    
+    # Only calculate AP for classes with positive samples
+    for i, has_pos in enumerate(has_positives):
+        if has_pos:
+            try:
+                # Calculate AP for this class only
+                with warnings.catch_warnings():
+                    warnings.filterwarnings("ignore", message="No positive samples in y_true")
+                    warnings.filterwarnings("ignore", message="No positive class found in y_true")
+                    ap = average_precision_score(
+                        all_targets[:, i],  # Target for this class
+                        all_preds[:, i]     # Predictions for this class
+                    )
+                AP_scores[i] = ap
+                
+                if class_names and i < len(class_names):
+                    per_class_AP[class_names[i]] = float(ap)
+            except Exception as e:
+                print(f"Error calculating AP for class {i}: {e}")
+                AP_scores[i] = np.nan
+                if class_names and i < len(class_names):
+                    per_class_AP[class_names[i]] = None
+        else:
+            # Skip classes with no positive samples
+            if class_names and i < len(class_names):
+                per_class_AP[class_names[i]] = None
+    
+    # Calculate mean AP over only the classes that appear
+    mAP = np.nanmean(AP_scores) if np.any(~np.isnan(AP_scores)) else np.nan
+    
+    # Also calculate class coverage
+    class_coverage = np.mean(has_positives) if len(has_positives) > 0 else 0.0
+    
+    # Return results
+    results = {
+        'mAP': float(mAP) if not np.isnan(mAP) else None,
+        'AP_scores': [float(x) if not np.isnan(x) else None for x in AP_scores],
+        'class_coverage': float(class_coverage),
+        'classes_present': int(np.sum(has_positives)),
+        'total_classes': len(has_positives)
+    }
+    
+    if class_names:
+        # Fix: Safely handle different value types in per_class_AP
+        results['per_class_AP'] = {}
+        for k, v in per_class_AP.items():
+            if v is None:
+                results['per_class_AP'][k] = None
+            else:
+                try:
+                    # Check if it's a nan value
+                    if isinstance(v, (float, np.float32, np.float64)) and np.isnan(v):
+                        results['per_class_AP'][k] = None
+                    else:
+                        results['per_class_AP'][k] = float(v)
+                except (TypeError, ValueError):
+                    results['per_class_AP'][k] = None
+    
+    return results
+
+def calculate_map_on_sequence(predictions, targets, class_names=None, skip_empty_frames=True, threshold=0.5, scale_factor=0.1):
     """
     Calculate Mean Average Precision (mAP) for multi-label action prediction.
     
@@ -12,17 +173,16 @@ def calculate_map(predictions, targets, class_names=None, skip_empty_frames=True
         predictions: Tensor of prediction scores [batch_size, sequence_length, num_classes]
         targets: Tensor of binary target labels [batch_size, sequence_length, num_classes]
         class_names: Optional list of class names for detailed reporting
-        skip_empty_frames: Skip frames with no active classes (default: False), ignoring false positives
+        skip_empty_frames: Skip frames with no active classes (default: True), ignoring false positives
         threshold: Confidence threshold for considering a prediction as positive (default: 0.5)
-        scale_factor: Penalty factor for false positives in empty frames (default
-            0.1, meaning 1 false positive reduces AP by 0.1)        
+        scale_factor: Penalty factor for false positives in empty frames (default: 0.1)
     Returns:
         Dictionary containing mAP scores (overall and per-class if classes provided)
     """
     # Convert tensors to numpy arrays if needed
-    if isinstance(predictions, torch.Tensor):
+    if hasattr(predictions, 'detach'):
         predictions = predictions.detach().cpu().numpy()
-    if isinstance(targets, torch.Tensor):
+    if hasattr(targets, 'detach'):
         targets = targets.detach().cpu().numpy()
     
     batch_size, seq_length, num_classes = predictions.shape
@@ -38,14 +198,11 @@ def calculate_map(predictions, targets, class_names=None, skip_empty_frames=True
             y_pred = predictions[b, t]
             y_true = targets[b, t]
             
-            # Do NOT skip frames with no active classes
-            # Calculate AP for this frame (across all classes)
-            try:
-                # For frames with no active classes, we expect all zeros in prediction
-                # If predictions contain positives, AP will be 0 (all false positives)
-                if np.sum(y_true) == 0 and skip_empty_frames:
+            # Handle empty frames
+            if np.sum(y_true) == 0:
+                if skip_empty_frames:
                     continue
-                elif np.sum(y_true) == 0:
+                else:
                     # Count false positives, but with reduced penalty
                     false_positive_count = np.sum(y_pred > threshold)
                     if false_positive_count > 0:
@@ -53,47 +210,60 @@ def calculate_map(predictions, targets, class_names=None, skip_empty_frames=True
                         ap_score = max(0, 1 - (false_positive_count * scale_factor))
                     else:
                         ap_score = 1.0  # Perfect score for correctly predicting no actions
-                else:
-                    ap_score = average_precision_score(y_true, y_pred)
-                # Store AP score
-                all_ap_scores.append(ap_score)
+                    all_ap_scores.append(ap_score)
+            else:
+                # Calculate AP for this frame (across all classes)
+                try:
+                    with warnings.catch_warnings():
+                        warnings.filterwarnings("ignore", message="No positive samples in y_true")
+                        warnings.filterwarnings("ignore", message="No positive class found in y_true")
+                        ap_score = average_precision_score(y_true, y_pred)
+                    all_ap_scores.append(ap_score)
+                except Exception as e:
+                    print(f"Error calculating AP for frame {t} in batch {b}: {e}")
+    
+    # Calculate per-class AP scores across all sequences
+    for c in range(num_classes):
+        # Check if this class has any positive examples
+        class_targets = targets[:, :, c].reshape(-1)
+        if np.any(class_targets > 0):
+            try:
+                with warnings.catch_warnings():
+                    warnings.filterwarnings("ignore", message="No positive samples in y_true")
+                    warnings.filterwarnings("ignore", message="No positive class found in y_true")
+                    class_ap = average_precision_score(
+                        class_targets, 
+                        predictions[:, :, c].reshape(-1)
+                    )
+                class_ap_scores[c] = class_ap
             except Exception as e:
-                print(f"Error calculating AP: {e}")
-                        
-            # Calculate per-class AP scores
-            for c in range(num_classes):
-                # Only calculate for classes that appear in the dataset
-                if np.any(targets[:, :, c] > 0):
-                    try:
-                        class_ap = average_precision_score(
-                            targets[:, :, c].reshape(-1), 
-                            predictions[:, :, c].reshape(-1)
-                        )
-                        class_ap_scores[c].append(class_ap)
-                    except Exception as e:
-                        pass
+                print(f"Error calculating AP for class {c}: {e}")
+                class_ap_scores[c] = np.nan
+        else:
+            class_ap_scores[c] = np.nan
     
     # Calculate overall mAP
     if all_ap_scores:
         overall_map = np.nanmean(all_ap_scores)
     else:
-        overall_map = np.nan # 0.0 # replace with None if needed or np.nan?
+        overall_map = np.nan
     
     # Prepare results
     results = {
-        'mAP': overall_map
+        'mAP': float(overall_map) if not np.isnan(overall_map) else None
     }
     
     # Add per-class results if class names provided
     if class_names:
         per_class_map = {}
         for c in range(min(num_classes, len(class_names))):
-            if class_ap_scores[c]:
-                per_class_map[class_names[c]] = np.nanmean(class_ap_scores[c])
+            if not np.isnan(class_ap_scores[c]):
+                per_class_map[class_names[c]] = float(class_ap_scores[c])
+            else:
+                per_class_map[class_names[c]] = None
         results['per_class_mAP'] = per_class_map
     
     return results
-
 
 def evaluate_action_prediction_map(model, val_loader, cfg, device='cuda'):
     """

@@ -1,5 +1,0 @@
-2025-04-07 11:07:28,282 - INFO - Log file: logs/2025-04-07_11-07-28/loggings.log
-2025-04-07 11:07:28,282 - INFO - Starting CholecT50 experiment for Surgical Actions Prediction
-2025-04-07 11:07:28,282 - INFO - Experiment configuration: {'max_videos': 1, 'pretrain_next_frame': {'train': False, 'inference': True}, 'pretrain_reward_model': False, 'calculate_action_rewards': False, 'train_action_policy': False, 'run_tdmpc': False, 'analyze_results': False, 'run_evaluation': False}
-2025-04-07 11:07:28,282 - INFO - Using device: cuda
-2025-04-07 11:07:28,282 - INFO - Loading CholecT50 data...
