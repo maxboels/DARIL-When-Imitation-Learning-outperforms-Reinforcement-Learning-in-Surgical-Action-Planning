@@ -1180,8 +1180,6 @@ def run_cholect50_experiment(cfg):
     train_data = load_cholect50_data(cfg['data'], split='train', max_videos=cfg['experiment']['max_videos'])
     test_data = load_cholect50_data(cfg['data'], split='test', max_videos=cfg['experiment']['max_videos'])
     
-    # Create separate dataloaders for each video in test set
-
     # Create dataloaders
     train_dataset = NextFramePredictionDataset(cfg['data'], train_data)
     train_loader = DataLoader(train_dataset, batch_size=cfg['training']['batch_size'], shuffle=True)
@@ -1211,7 +1209,6 @@ def run_cholect50_experiment(cfg):
         if cfg['experiment']['recognition']['train']:
             logger.info("Starting model training...")
             model = train_recognition_head(cfg, logger, model, train_loader, val_loader=test_video_loaders, device=device)
-            
             # Save the trained model
             save_dir = cfg['models']['recognition'].get('save_dir', 'saved_models')
             model_path = model.save_model(save_dir)
@@ -1221,7 +1218,7 @@ def run_cholect50_experiment(cfg):
             model_path = cfg['experiment']['recognition']['best_model_path']
             logger.info(f"Loading pre-trained model from {model_path}")
             model.load_model(model_path)
-        
+
         # Run inference and evaluation
         if cfg['experiment']['recognition']['inference']:
             logger.info("Running inference and evaluation...")

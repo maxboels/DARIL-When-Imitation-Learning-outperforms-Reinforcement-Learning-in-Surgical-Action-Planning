@@ -141,15 +141,15 @@ def train_recognition_head(cfg, logger, model, train_loader, val_loader=None, de
         instrument_overall_map = instrument_map_scores['mAP']
         # instrument_per_class_ap = instrument_map_scores['AP_scores']
         # Log mAP to tensorboard
-        writer.add_scalar('Metrics/Validation_mAP_Action', action_overall_map, epoch)
-        writer.add_scalar('Metrics/Validation_mAP_Instrument', instrument_overall_map, epoch)
+        writer.add_scalar('Metrics/Train_mAP_sklean_Action', action_overall_map, epoch)
+        writer.add_scalar('Metrics/Train_mAP_sklearn_Instrument', instrument_overall_map, epoch)
         # Log mAP to console
-        logger.info(f"Epoch {epoch+1}/{num_epochs}, Validation mAP Action (sklearn): {action_overall_map:.4f}")
-        logger.info(f"Epoch {epoch+1}/{num_epochs}, Validation mAP Instrument (sklearn): {instrument_overall_map:.4f}")
+        logger.info(f"[TRAIN] Epoch {epoch+1}/{num_epochs}, Train mAP Action (sklearn): {action_overall_map:.4f}")
+        logger.info(f"[TRAIN] Epoch {epoch+1}/{num_epochs}, Train mAP Instrument (sklearn): {instrument_overall_map:.4f}")
 
         # Calculate average training loss
         train_loss /= len(train_loader.dataset)
-        logger.info(f"Epoch {epoch+1}/{num_epochs}, Train Loss: {train_loss:.4f}")
+        logger.info(f"[TRAIN] Epoch {epoch+1}/{num_epochs}, Train Loss: {train_loss:.4f}")
         
         results_i = recognize.compute_AP('i')
         # logger.info(f"instrument per class AP {results_i["AP"]}")
@@ -158,8 +158,8 @@ def train_recognition_head(cfg, logger, model, train_loader, val_loader=None, de
         logger.info(f"[TRAIN] action mean AP (ivt_metrics): {results_ivt["mAP"]}")
 
         # Log mAP to tensorboard
-        writer.add_scalar('Metrics/Train_mAP_Action', results_i["mAP"], epoch)
-        writer.add_scalar('Metrics/Train_mAP_Instrument', results_ivt["mAP"], epoch)
+        writer.add_scalar('Metrics/Train_mAP_ivt_Action', results_i["mAP"], epoch)
+        writer.add_scalar('Metrics/Train_mAP_ivt_Instrument', results_ivt["mAP"], epoch)
         # Log mAP to console
         logger.info(f"[TRAIN] Epoch {epoch+1}/{num_epochs}, Train mAP Instrument (ivt metrics): {results_i['mAP']:.4f}")
         logger.info(f"[TRAIN] Epoch {epoch+1}/{num_epochs}, Train mAP Action (ivt metrics): {results_ivt['mAP']:.4f}")
@@ -169,10 +169,12 @@ def train_recognition_head(cfg, logger, model, train_loader, val_loader=None, de
             model.eval()
 
             # Eval loop
-            eval_results = run_recognition_inference(cfg, logger, model, val_loader, device=device, epoch=epoch)
+            eval_results = run_recognition_inference(cfg, logger, model, val_loader, 
+                device=device, epoch=epoch, tb_writer=writer, run_type='validation'
+            )
 
             # Main metric for model selection
-            val_map = eval_results['sklearn_mAP_a']
+            val_map = eval_results['sklearn_mAP_a_from_vid_ap']
 
             # Save best model
             if val_map > best_val_map:
@@ -199,7 +201,7 @@ def train_recognition_head(cfg, logger, model, train_loader, val_loader=None, de
     # returns the best model for inference
     return model
 
-def run_recognition_inference(cfg, logger, model, test_video_loaders, device='cuda', epoch=None):
+def run_recognition_inference(cfg, logger, model, test_video_loaders, device='cuda', epoch=None, tb_writer=None, run_type='inference'):
     """
     Run inference and evaluation on the test set.
     
@@ -213,20 +215,24 @@ def run_recognition_inference(cfg, logger, model, test_video_loaders, device='cu
     Returns:
         Output directory with results
     """
+    run_string = "[VALIDATION]" if epoch is not None else "[TEST]"
     # Initialize recognition metrics
     recognize = ivtmetrics.Recognition(num_class=100)
     recognize.reset_global()
 
     # Log directory
-    log_dir = os.path.join(logger.log_dir, 'inference')
+    log_dir = os.path.join(logger.log_dir, run_type)
     os.makedirs(log_dir, exist_ok=True)
     output_dir = os.path.join(log_dir, 'results')
     os.makedirs(output_dir, exist_ok=True)
 
     # Tensorboard for logging
-    tensorboard_dir = os.path.join(log_dir, 'tensorboard')
-    os.makedirs(tensorboard_dir, exist_ok=True)
-    writer = SummaryWriter(log_dir=tensorboard_dir)
+    if tb_writer is not None:
+        writer = tb_writer
+    else:
+        tensorboard_dir = os.path.join(log_dir, 'tensorboard')
+        os.makedirs(tensorboard_dir, exist_ok=True)
+        writer = SummaryWriter(log_dir=tensorboard_dir)
     
     # Load class labels
     with open(cfg['data']['paths']['class_labels_file_path'], 'r') as f:
@@ -280,7 +286,7 @@ def run_recognition_inference(cfg, logger, model, test_video_loaders, device='cu
 
                 # Log every N steps
                 if batch_idx % cfg['training']['log_every_n_steps'] == 0:
-                    logger.info(f"[TEST] Video {vid_id} | Batch {batch_idx}/{len(video_loader)}")
+                    logger.info(f"{run_string} Video {vid_id} | Batch {batch_idx}/{len(video_loader)}")
 
             # Add video and init new lists
             recognize.video_end()
@@ -300,8 +306,8 @@ def run_recognition_inference(cfg, logger, model, test_video_loaders, device='cu
             instrument_overall_map = instrument_map_scores['mAP']
             instrument_per_class_ap = instrument_map_scores['AP_scores']
             # Log mAP to console
-            logger.info(f"[TEST] Video {vid_id}: Test mAP (sklearn) Action: {action_overall_map:.4f}")
-            logger.info(f"[TEST] Video {vid_id}: Test mAP (sklearn) Instrument: {instrument_overall_map:.4f}")
+            logger.info(f"{run_string} Video {vid_id}: Test mAP (sklearn) Action: {action_overall_map:.4f}")
+            logger.info(f"{run_string} Video {vid_id}: Test mAP (sklearn) Instrument: {instrument_overall_map:.4f}")
             # Add to overall results
             videos_scores['sklearn_vids_mAP_a'].append(action_overall_map)
             videos_scores['sklearn_vids_mAP_i'].append(instrument_overall_map)
@@ -343,29 +349,29 @@ def run_recognition_inference(cfg, logger, model, test_video_loaders, device='cu
         overall_results['ivt_mAP_a_from_vid_ap'] = per_class_ap_scores['ivt_mAP_a_from_vid_ap']
         overall_results['ivt_mAP_a'] = np.round(results_ivt["mAP"], 4)
         overall_results['ivt_mAP_i'] = np.round(results_i["mAP"], 4)        
-        logger.info(f"[TEST] Overall action mAP (sklearn): {overall_results['sklearn_mAP_a']:.4f}")
-        logger.info(f"[TEST] Overall instrument mAP (sklearn): {overall_results['sklearn_mAP_i']:.4f}")
-        logger.info(f"[TEST] Overall action mAP (ivt): {overall_results['ivt_mAP_a']:.4f}")
-        logger.info(f"[TEST] Overall instrument mAP (ivt): {overall_results['ivt_mAP_i']:.4f}")
+        logger.info(f"{run_string} Overall action mAP (sklearn): {overall_results['sklearn_mAP_a']:.4f}")
+        logger.info(f"{run_string} Overall instrument mAP (sklearn): {overall_results['sklearn_mAP_i']:.4f}")
+        logger.info(f"{run_string} Overall action mAP (ivt): {overall_results['ivt_mAP_a']:.4f}")
+        logger.info(f"{run_string} Overall instrument mAP (ivt): {overall_results['ivt_mAP_i']:.4f}")
 
     if epoch is not None:
         # Save mAP results to Tensorboard
         writer.add_scalar('Metrics/Validation_mAP_Action_sklean', overall_results['sklearn_mAP_a'], epoch)
         writer.add_scalar('Metrics/Validation_mAP_Instrument_sklean', overall_results['sklearn_mAP_i'], epoch)
         # Save mAP results to console
-        logger.info(f"[TEST] Epoch {epoch+1}: Validation mAP Action (sklearn): {overall_results['sklearn_mAP_a']:.4f}")
-        logger.info(f"[TEST] Epoch {epoch+1}: Validation mAP Instrument (sklearn): {overall_results['sklearn_mAP_i']:.4f}")
-        logger.info(f"[TEST] Epoch {epoch+1}: Validation mAP Action (ivt): {overall_results['ivt_mAP_a']:.4f}")
-        logger.info(f"[TEST] Epoch {epoch+1}: Validation mAP Instrument (ivt): {overall_results['ivt_mAP_i']:.4f}")
+        logger.info(f"{run_string} Epoch {epoch+1}: mAP Action (sklearn): {overall_results['sklearn_mAP_a']:.4f}")
+        logger.info(f"{run_string} Epoch {epoch+1}: mAP Instrument (sklearn): {overall_results['sklearn_mAP_i']:.4f}")
+        logger.info(f"{run_string} Epoch {epoch+1}: mAP Action (ivt): {overall_results['ivt_mAP_a']:.4f}")
+        logger.info(f"{run_string} Epoch {epoch+1}: mAP Instrument (ivt): {overall_results['ivt_mAP_i']:.4f}")
     else:
         # Save mAP results to Tensorboard
         writer.add_scalar('Metrics/Test_mAP_Action_sklean', overall_results['sklearn_mAP_a'], 0)
         writer.add_scalar('Metrics/Test_mAP_Instrument_sklean', overall_results['sklearn_mAP_i'], 0)
         # Save mAP results to console
-        logger.info(f"[TEST] Test mAP Action (sklearn): {overall_results['sklearn_mAP_a']:.4f}")
-        logger.info(f"[TEST] Test mAP Instrument (sklearn): {overall_results['sklearn_mAP_i']:.4f}")
-        logger.info(f"[TEST] Test mAP Action (ivt): {overall_results['ivt_mAP_a']:.4f}")
-        logger.info(f"[TEST] Test mAP Instrument (ivt): {overall_results['ivt_mAP_i']:.4f}")
+        logger.info(f"{run_string} Test mAP Action (sklearn): {overall_results['sklearn_mAP_a']:.4f}")
+        logger.info(f"{run_string} Test mAP Instrument (sklearn): {overall_results['sklearn_mAP_i']:.4f}")
+        logger.info(f"{run_string} Test mAP Action (ivt): {overall_results['ivt_mAP_a']:.4f}")
+        logger.info(f"{run_string} Test mAP Instrument (ivt): {overall_results['ivt_mAP_i']:.4f}")
     # Save mAP results to JSON
     with open(os.path.join(output_dir, 'mAP_results.json'), 'w') as f:
         json.dump(overall_results, f, indent=4)
