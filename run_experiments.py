@@ -17,8 +17,7 @@ import yaml
 import os
 from datetime import datetime
 
-from model_recognition import RecognitionHead
-from model_generative import CausalGPT2ForFrameEmbeddings, RewardPredictor
+from models import RecognitionHead, CausalGPT2ForFrameEmbeddings, RewardPredictor
 from run_action_recognition import train_recognition_head, run_recognition_inference
 from eval_world_model import plot_evaluation_results
 from visualization import plot_action_prediction_results
@@ -71,23 +70,8 @@ def run_cholect50_experiment(cfg):
 
     if cfg['experiment']['recognition']['train'] or cfg['experiment']['recognition']['inference']:
         # Step I: Recognition Head
-        # Check if we should include instrument classification
-        num_instrument_classes = 0
-        if 'num_instrument_classes' in cfg['models']['recognition']:
-            num_instrument_classes = cfg['models']['recognition']['num_instrument_classes']
-        
         # Create model
-        embedding_dim = train_data[0]['frame_embeddings'].shape[1]
-        num_action_classes = train_data[0]['actions_binaries'].shape[1]
-
-        model = RecognitionHead(
-            cfg=cfg['models']['recognition'],
-            embedding_dim=embedding_dim,
-            hidden_dim=cfg['models']['recognition']['hidden_dim'],
-            num_action_classes=num_action_classes,
-            num_instrument_classes=num_instrument_classes,
-            dropout=cfg['models']['recognition'].get('dropout', 0.1)
-        ).to(device)
+        model = RecognitionHead(**cfg['models']['recognition']['transformer']).to(device)
         
         # Check if we should train or load a pre-trained model
         if cfg['experiment']['recognition']['train']:
@@ -169,13 +153,11 @@ if __name__ == "__main__":
     config_path = 'config.yaml'
     print(f"Loading configuration from {os.path.abspath(config_path)}")
     cfg = load_config(config_path)
-        
     print("\nConfiguration loaded successfully!")
-    
     # Run the experiment
     next_frame_model, reward_model, policy_model, action_weights, results, analysis = run_cholect50_experiment(cfg)    
     print("\nExperiment completed!")
     if analysis:
         print(f"Model performance: {analysis['percent_improvement']:.2f}% improvement in action quality")
-    
+
     print("Done!")

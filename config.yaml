@@ -4,9 +4,9 @@ debug: false
 experiment:
   max_videos: null # null  # Set to null to use all videos
   recognition:
-    train: true
+    train: false
     inference: true
-    best_model_path: "best_model_epoch2_map0.5008.pt" # null #"best_model_epoch1_valloss1.190734.pt"
+    best_model_path: "./best_checkpoints/best_model_epoch2_map0.5008.pt" # null #"best_model_epoch1_valloss1.190734.pt"
   pretrain_next_frame:
     train: false # 
     inference: false
@@ -20,7 +20,7 @@ experiment:
 
 # Training parameters
 training:
-  epochs: 5
+  epochs: 4
   batch_size: 16
   learning_rate: 0.00003 # 0.00003
   scheduler:
@@ -64,13 +64,14 @@ data:
 models:
   # Recognition model configuration
   recognition:
-    sequence_model: "transformer" # "transformer", "lstm", "gru"
-    embedding_dim: 1024
-    hidden_dim: 768     # Hidden dimension for recognition module
-    num_action_classes: 100
-    num_instrument_classes: 6
-    num_heads: 8
-    num_layers: 2
+    transformer:
+      embedding_dim: 1024
+      hidden_dim: 768     # Hidden dimension for recognition module
+      num_action_classes: 100
+      num_instrument_classes: 6
+      dropout: 0.1
+      num_heads: 8
+      num_layers: 2
   # GPT-2 model configuration
   world_model:
     hidden_dim: 768

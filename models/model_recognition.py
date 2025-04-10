@@ -7,11 +7,9 @@ class RecognitionHead(nn.Module):
     Simple recognition head with attention and linear classification layers.
     For instrument and action triplet recognition.
     """
-    def __init__(self, cfg, embedding_dim, hidden_dim, num_action_classes, num_instrument_classes=6, dropout=0.1):
+    def __init__(self, embedding_dim, hidden_dim, num_action_classes, 
+        num_instrument_classes=6, num_layers=2, num_heads=8, dropout=0.1):
         super(RecognitionHead, self).__init__()
-        self.cfg = cfg
-        self.sequence_model_name = cfg['sequence_model']  # 'transformer', 'lstm', 'gru'
-        self.sequence_model = None
         self.embedding_dim = embedding_dim
         self.hidden_dim = hidden_dim
         self.num_action_classes = num_action_classes
@@ -20,19 +18,11 @@ class RecognitionHead(nn.Module):
         # Input projection
         self.input_projection = nn.Linear(embedding_dim, hidden_dim)
         
-        # Sequence model (Transformer, LSTM, GRU, etc.)
-        if self.sequence_model_name=='transformer':
-            self.sequence_model = nn.TransformerEncoder(
-                nn.TransformerEncoderLayer(d_model=hidden_dim, nhead=cfg['num_heads'], dim_feedforward=hidden_dim*4, dropout=dropout),
-                num_layers=cfg['num_layers'],
-            )
-        elif self.sequence_model_name=='lstm':
-            self.sequence_model = nn.LSTM(hidden_dim, hidden_dim, batch_first=True)
-        elif self.sequence_model_name=='gru':
-            self.sequence_model = nn.GRU(hidden_dim, hidden_dim, batch_first=True)
-        else:
-            raise ValueError("Unsupported sequence model type. Choose 'transformer', 'lstm', or 'gru'.")
-        
+        self.sequence_model = nn.TransformerEncoder(
+            nn.TransformerEncoderLayer(d_model=hidden_dim, nhead=num_heads, dim_feedforward=hidden_dim*4, dropout=dropout),
+            num_layers=num_layers,
+        )
+
         # Classification layers
         self.action_classifier = nn.Sequential(
             nn.Linear(hidden_dim, hidden_dim),
@@ -62,20 +52,10 @@ class RecognitionHead(nn.Module):
         batch_size, seq_length, _ = x.shape
         
         # Project to hidden dimension
-        hidden = self.input_projection(x)
-        
- 
-        if self.sequence_model is not None:
-            if self.sequence_model_name == 'transformer':
-                hidden = hidden.permute(1, 0, 2)
-                hidden = self.sequence_model(hidden)
-                hidden = hidden.permute(1, 0, 2)
-            elif self.sequence_model_name == 'lstm':
-                hidden, _ = self.sequence_model(hidden)
-            elif self.sequence_model_name == 'gru':
-                hidden, _ = self.sequence_model(hidden)
-        else:
-            raise ValueError("Sequence model is not defined.")
+        hidden = self.input_projection(x) 
+        hidden = hidden.permute(1, 0, 2)
+        hidden = self.sequence_model(hidden)
+        hidden = hidden.permute(1, 0, 2)
 
         # Classification
         action_logits = self.action_classifier(hidden[:, -1, :])  # Use the last hidden state for classification
