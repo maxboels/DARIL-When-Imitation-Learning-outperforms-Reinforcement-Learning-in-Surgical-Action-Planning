@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
+from torch.optim.lr_scheduler import OneCycleLR
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
@@ -35,13 +36,29 @@ def train_recognition_head(cfg, logger, model, train_loader, val_loader=None, de
     # Extract configuration parameters
     learning_rate = cfg['training']['learning_rate']
     num_epochs = cfg['training']['epochs']
+    scheduler_cfg = cfg['training']['scheduler']
     
     # Initialize recognition metrics
     recognize = ivtmetrics.Recognition(num_class=100)
 
     # Loss function and optimizer
     criterion = nn.BCEWithLogitsLoss()
+    # Optimizer and scheduler
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    total_steps = len(train_loader) * num_epochs
+    warmup_steps = scheduler_cfg.get('warmup_steps', 0)
+    
+    # Using OneCycleLR for cosine with warmup
+    scheduler = OneCycleLR(
+        optimizer,
+        max_lr=learning_rate,
+        total_steps=total_steps,
+        pct_start=warmup_steps/total_steps if total_steps > 0 else 0.1,
+        anneal_strategy='cos',
+        div_factor=25.0,  # initial_lr = max_lr/div_factor
+        final_div_factor=10000.0,  # final_lr = initial_lr/final_div_factor
+    )
+    logger.info(f"Initialized OneCycleLR scheduler with warmup steps: {warmup_steps}")
     
     # Create checkpoint directory
     checkpoint_dir = os.path.join(logger.log_dir, 'checkpoints')
@@ -109,6 +126,7 @@ def train_recognition_head(cfg, logger, model, train_loader, val_loader=None, de
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+            scheduler.step()
             
             # Update statistics
             train_loss += loss.item() * z_seq.size(0)
@@ -121,8 +139,8 @@ def train_recognition_head(cfg, logger, model, train_loader, val_loader=None, de
             writer.add_scalar('Loss/Train', loss.item(), global_step)
             writer.add_scalar('Loss/Train_Action', loss_c_a.item(), global_step)
             writer.add_scalar('Loss/Train_Instrument', loss_c_i.item(), global_step)
-            writer.add_scalar('Learning_Rate', learning_rate, global_step)
-            
+            writer.add_scalar('Learning_Rate', optimizer.param_groups[0]['lr'], global_step)
+
             # Log every N steps
             if batch_idx % cfg['training']['log_every_n_steps'] == 0:
                 logger.info(f"[TRAIN] Epoch {epoch+1}/{num_epochs}, Batch {batch_idx}/{len(train_loader)}, Loss: {loss.item():.4f}")
@@ -144,25 +162,23 @@ def train_recognition_head(cfg, logger, model, train_loader, val_loader=None, de
         writer.add_scalar('Metrics/Train_mAP_sklean_Action', action_overall_map, epoch)
         writer.add_scalar('Metrics/Train_mAP_sklearn_Instrument', instrument_overall_map, epoch)
         # Log mAP to console
-        logger.info(f"[TRAIN] Epoch {epoch+1}/{num_epochs}, Train mAP Action (sklearn): {action_overall_map:.4f}")
-        logger.info(f"[TRAIN] Epoch {epoch+1}/{num_epochs}, Train mAP Instrument (sklearn): {instrument_overall_map:.4f}")
+        logger.info(f"[TRAIN] Epoch {epoch+1}/{num_epochs}, Train mAP: Instrument (sklearn): {instrument_overall_map:.4f}")
+        logger.info(f"[TRAIN] Epoch {epoch+1}/{num_epochs}, Train mAP: Action (sklearn): {action_overall_map:.4f}")
 
         # Calculate average training loss
         train_loss /= len(train_loader.dataset)
         logger.info(f"[TRAIN] Epoch {epoch+1}/{num_epochs}, Train Loss: {train_loss:.4f}")
         
+        # Calculate mAP using ivtmetrics
         results_i = recognize.compute_AP('i')
-        # logger.info(f"instrument per class AP {results_i["AP"]}")
-        logger.info(f"[TRAIN] instrument mean AP (ivt_metrics): {results_i["mAP"]}")
         results_ivt = recognize.compute_AP('ivt')
-        logger.info(f"[TRAIN] action mean AP (ivt_metrics): {results_ivt["mAP"]}")
 
         # Log mAP to tensorboard
         writer.add_scalar('Metrics/Train_mAP_ivt_Action', results_i["mAP"], epoch)
         writer.add_scalar('Metrics/Train_mAP_ivt_Instrument', results_ivt["mAP"], epoch)
         # Log mAP to console
-        logger.info(f"[TRAIN] Epoch {epoch+1}/{num_epochs}, Train mAP Instrument (ivt metrics): {results_i['mAP']:.4f}")
-        logger.info(f"[TRAIN] Epoch {epoch+1}/{num_epochs}, Train mAP Action (ivt metrics): {results_ivt['mAP']:.4f}")
+        logger.info(f"[TRAIN] Epoch {epoch+1}/{num_epochs}, Train mAP: Instrument (ivt metrics): {results_i['mAP']:.4f}")
+        logger.info(f"[TRAIN] Epoch {epoch+1}/{num_epochs}, Train mAP: Action (ivt metrics): {results_ivt['mAP']:.4f}")
 
         # Validation phase
         if val_loader is not None:
@@ -358,6 +374,8 @@ def run_recognition_inference(cfg, logger, model, test_video_loaders, device='cu
         # Save mAP results to Tensorboard
         writer.add_scalar('Metrics/Validation_mAP_Action_sklean', overall_results['sklearn_mAP_a'], epoch)
         writer.add_scalar('Metrics/Validation_mAP_Instrument_sklean', overall_results['sklearn_mAP_i'], epoch)
+        writer.add_scalar('Metrics/Validation_mAP_Action_ivt', overall_results['ivt_mAP_a'], epoch)
+        writer.add_scalar('Metrics/Validation_mAP_Instrument_ivt', overall_results['ivt_mAP_i'], epoch)
         # Save mAP results to console
         logger.info(f"{run_string} Epoch {epoch+1}: mAP Action (sklearn): {overall_results['sklearn_mAP_a']:.4f}")
         logger.info(f"{run_string} Epoch {epoch+1}: mAP Instrument (sklearn): {overall_results['sklearn_mAP_i']:.4f}")

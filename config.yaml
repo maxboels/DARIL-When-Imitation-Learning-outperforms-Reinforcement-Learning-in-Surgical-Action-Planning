@@ -23,9 +23,9 @@ training:
   epochs: 5
   batch_size: 16
   learning_rate: 0.00003 # 0.00003
-  scheduler:  # Add a learning rate scheduler
+  scheduler:
     type: "cosine"
-    warmup_steps: 100
+    warmup_steps: 1000
   weight_decay: 0.1
   gradient_clip_val: 1.0
   num_workers: 4
