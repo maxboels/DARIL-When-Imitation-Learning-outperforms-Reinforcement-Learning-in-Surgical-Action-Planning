@@ -1,0 +1,82 @@
+2025-04-14 17:51:53,759 - INFO - Log file: logs/2025-04-14_17-51-53/loggings.log
+2025-04-14 17:51:53,759 - INFO - Starting CholecT50 experiment for Surgical Actions Prediction
+2025-04-14 17:51:53,759 - INFO - Experiment configuration: {'max_videos': 2, 'recognition': {'train': True, 'inference': True, 'best_model_path': './best_checkpoints/best_model_epoch2_map0.5008.pt'}, 'pretrain_next_frame': {'train': False, 'inference': False, 'best_model_path': 'best_model_epoch1_valloss1.190734.pt'}, 'pretrain_reward_model': False, 'calculate_action_rewards': False, 'train_action_policy': False, 'run_tdmpc': False, 'analyze_results': False, 'run_evaluation': False}
+2025-04-14 17:51:53,760 - INFO - Using device: cuda
+2025-04-14 17:51:53,760 - INFO - Loading CholecT50 data...
+2025-04-14 17:51:59,897 - INFO - Starting model training...
+2025-04-14 17:51:59,897 - INFO - Clamping pct_start from 2.4510 to 1.0 (warmup_steps=1000, total_steps=408)
+2025-04-14 17:51:59,898 - INFO - Initialized OneCycleLR scheduler with pct_start=1.0000, warmup steps: 1000
+2025-04-14 17:52:00,017 - INFO - [TRAIN] Epoch 1/2, Batch 0/204, Loss: 1.4355
+2025-04-14 17:52:01,222 - INFO - [TRAIN] Epoch 1/2, Batch 80/204, Loss: 1.0801
+2025-04-14 17:52:02,426 - INFO - [TRAIN] Epoch 1/2, Batch 160/204, Loss: 0.6329
+2025-04-14 17:52:03,104 - INFO - [TRAIN] Epoch 1/2, Train mAP: Instrument (sklearn): 0.3529
+2025-04-14 17:52:03,104 - INFO - [TRAIN] Epoch 1/2, Train mAP: Action (sklearn): 0.0747
+2025-04-14 17:52:03,104 - INFO - [TRAIN] Epoch 1/2, Train Loss: 0.9481
+2025-04-14 17:52:03,489 - INFO - [TRAIN] Epoch 1/2, Train mAP: Instrument (ivt metrics): 0.2265
+2025-04-14 17:52:03,489 - INFO - [TRAIN] Epoch 1/2, Train mAP: Action (ivt metrics): 0.0747
+2025-04-14 17:52:03,573 - INFO - [VALIDATION] Video VID02 | Batch 0/178
+2025-04-14 17:52:03,872 - INFO - [VALIDATION] Video VID02 | Batch 80/178
+2025-04-14 17:52:04,181 - INFO - [VALIDATION] Video VID02 | Batch 160/178
+2025-04-14 17:52:04,295 - INFO - [VALIDATION] Video VID02: Test mAP (sklearn) Action: 0.0976
+2025-04-14 17:52:04,295 - INFO - [VALIDATION] Video VID02: Test mAP (sklearn) Instrument: 0.8118
+2025-04-14 17:52:04,375 - INFO - [VALIDATION] Video VID06 | Batch 0/135
+2025-04-14 17:52:04,675 - INFO - [VALIDATION] Video VID06 | Batch 80/135
+2025-04-14 17:52:04,920 - INFO - [VALIDATION] Video VID06: Test mAP (sklearn) Action: 0.1002
+2025-04-14 17:52:04,920 - INFO - [VALIDATION] Video VID06: Test mAP (sklearn) Instrument: 0.7740
+2025-04-14 17:52:05,506 - INFO - [VALIDATION] Overall action mAP (sklearn): 0.0989
+2025-04-14 17:52:05,506 - INFO - [VALIDATION] Overall instrument mAP (sklearn): 0.7929
+2025-04-14 17:52:05,506 - INFO - [VALIDATION] Overall action mAP (ivt): 0.0859
+2025-04-14 17:52:05,506 - INFO - [VALIDATION] Overall instrument mAP (ivt): 0.3975
+2025-04-14 17:52:05,507 - INFO - [VALIDATION] Epoch 1: mAP Action (sklearn): 0.0989
+2025-04-14 17:52:05,507 - INFO - [VALIDATION] Epoch 1: mAP Instrument (sklearn): 0.7929
+2025-04-14 17:52:05,507 - INFO - [VALIDATION] Epoch 1: mAP Action (ivt): 0.0859
+2025-04-14 17:52:05,507 - INFO - [VALIDATION] Epoch 1: mAP Instrument (ivt): 0.3975
+2025-04-14 17:52:05,619 - INFO - Saved new best model with mAP: 0.0859
+2025-04-14 17:52:05,635 - INFO - [TRAIN] Epoch 2/2, Batch 0/204, Loss: 0.3854
+2025-04-14 17:52:06,836 - INFO - [TRAIN] Epoch 2/2, Batch 80/204, Loss: 0.1601
+2025-04-14 17:52:08,065 - INFO - [TRAIN] Epoch 2/2, Batch 160/204, Loss: 0.0874
+2025-04-14 17:52:08,723 - INFO - Skipping scheduler step as we've reached the total steps: 407 >= 407
+2025-04-14 17:52:08,756 - INFO - [TRAIN] Epoch 2/2, Train mAP: Instrument (sklearn): 0.9327
+2025-04-14 17:52:08,756 - INFO - [TRAIN] Epoch 2/2, Train mAP: Action (sklearn): 0.1430
+2025-04-14 17:52:08,756 - INFO - [TRAIN] Epoch 2/2, Train Loss: 0.1674
+2025-04-14 17:52:09,150 - INFO - [TRAIN] Epoch 2/2, Train mAP: Instrument (ivt metrics): 0.3766
+2025-04-14 17:52:09,150 - INFO - [TRAIN] Epoch 2/2, Train mAP: Action (ivt metrics): 0.1430
+2025-04-14 17:52:09,231 - INFO - [VALIDATION] Video VID02 | Batch 0/178
+2025-04-14 17:52:09,521 - INFO - [VALIDATION] Video VID02 | Batch 80/178
+2025-04-14 17:52:09,835 - INFO - [VALIDATION] Video VID02 | Batch 160/178
+2025-04-14 17:52:09,945 - INFO - [VALIDATION] Video VID02: Test mAP (sklearn) Action: 0.1534
+2025-04-14 17:52:09,945 - INFO - [VALIDATION] Video VID02: Test mAP (sklearn) Instrument: 0.8898
+2025-04-14 17:52:10,025 - INFO - [VALIDATION] Video VID06 | Batch 0/135
+2025-04-14 17:52:10,323 - INFO - [VALIDATION] Video VID06 | Batch 80/135
+2025-04-14 17:52:10,564 - INFO - [VALIDATION] Video VID06: Test mAP (sklearn) Action: 0.1602
+2025-04-14 17:52:10,564 - INFO - [VALIDATION] Video VID06: Test mAP (sklearn) Instrument: 0.9267
+2025-04-14 17:52:11,155 - INFO - [VALIDATION] Overall action mAP (sklearn): 0.1568
+2025-04-14 17:52:11,155 - INFO - [VALIDATION] Overall instrument mAP (sklearn): 0.9083
+2025-04-14 17:52:11,155 - INFO - [VALIDATION] Overall action mAP (ivt): 0.1341
+2025-04-14 17:52:11,155 - INFO - [VALIDATION] Overall instrument mAP (ivt): 0.7666
+2025-04-14 17:52:11,156 - INFO - [VALIDATION] Epoch 2: mAP Action (sklearn): 0.1568
+2025-04-14 17:52:11,156 - INFO - [VALIDATION] Epoch 2: mAP Instrument (sklearn): 0.9083
+2025-04-14 17:52:11,156 - INFO - [VALIDATION] Epoch 2: mAP Action (ivt): 0.1341
+2025-04-14 17:52:11,156 - INFO - [VALIDATION] Epoch 2: mAP Instrument (ivt): 0.7666
+2025-04-14 17:52:11,276 - INFO - Saved new best model with mAP: 0.1341
+2025-04-14 17:52:11,332 - INFO - Loaded best model with mAP: 0.1341
+2025-04-14 17:52:11,372 - INFO - Saved trained model to saved_models/recognition_head_20250414_175211.pt
+2025-04-14 17:52:11,372 - INFO - Running inference and evaluation...
+2025-04-14 17:52:11,450 - INFO - [TEST] Video VID02 | Batch 0/178
+2025-04-14 17:52:11,749 - INFO - [TEST] Video VID02 | Batch 80/178
+2025-04-14 17:52:12,061 - INFO - [TEST] Video VID02 | Batch 160/178
+2025-04-14 17:52:12,172 - INFO - [TEST] Video VID02: Test mAP (sklearn) Action: 0.1534
+2025-04-14 17:52:12,172 - INFO - [TEST] Video VID02: Test mAP (sklearn) Instrument: 0.8898
+2025-04-14 17:52:12,254 - INFO - [TEST] Video VID06 | Batch 0/135
+2025-04-14 17:52:12,549 - INFO - [TEST] Video VID06 | Batch 80/135
+2025-04-14 17:52:12,809 - INFO - [TEST] Video VID06: Test mAP (sklearn) Action: 0.1602
+2025-04-14 17:52:12,809 - INFO - [TEST] Video VID06: Test mAP (sklearn) Instrument: 0.9267
+2025-04-14 17:52:13,411 - INFO - [TEST] Overall action mAP (sklearn): 0.1568
+2025-04-14 17:52:13,411 - INFO - [TEST] Overall instrument mAP (sklearn): 0.9083
+2025-04-14 17:52:13,412 - INFO - [TEST] Overall action mAP (ivt): 0.1341
+2025-04-14 17:52:13,412 - INFO - [TEST] Overall instrument mAP (ivt): 0.7666
+2025-04-14 17:52:13,412 - INFO - [TEST] Test mAP Action (sklearn): 0.1568
+2025-04-14 17:52:13,412 - INFO - [TEST] Test mAP Instrument (sklearn): 0.9083
+2025-04-14 17:52:13,412 - INFO - [TEST] Test mAP Action (ivt): 0.1341
+2025-04-14 17:52:13,412 - INFO - [TEST] Test mAP Instrument (ivt): 0.7666
+2025-04-14 17:52:13,413 - INFO - Results: {'sklearn_mAP_a_from_vid_ap': 0.13408128815308817, 'sklearn_mAP_a': 0.1568, 'sklearn_mAP_i': 0.9083, 'ivt_mAP_a_from_vid_ap': 0.13408128815308817, 'ivt_mAP_a': 0.1341, 'ivt_mAP_i': 0.7666}

@@ -2,13 +2,13 @@
 debug: false
 
 experiment:
-  max_videos: null # null  # Set to null to use all videos
+  max_videos: 2 # null  # Set to null to use all videos
   recognition:
-    train: false
+    train: true
     inference: true
     best_model_path: "./best_checkpoints/best_model_epoch2_map0.5008.pt" # null #"best_model_epoch1_valloss1.190734.pt"
   pretrain_next_frame:
-    train: false # 
+    train: false
     inference: false
     best_model_path: "best_model_epoch1_valloss1.190734.pt" # null #"best_model_epoch1_valloss1.190734.pt"
   pretrain_reward_model: false
@@ -20,12 +20,12 @@ experiment:
 
 # Training parameters
 training:
-  epochs: 4
+  epochs: 2
   batch_size: 16
   learning_rate: 0.00003 # 0.00003
   scheduler:
     type: "cosine"
-    warmup_steps: 1000
+    warmup_steps: 1000  # ~10% of total steps (204 batches * 4 epochs)
   weight_decay: 0.1
   gradient_clip_val: 1.0
   num_workers: 4

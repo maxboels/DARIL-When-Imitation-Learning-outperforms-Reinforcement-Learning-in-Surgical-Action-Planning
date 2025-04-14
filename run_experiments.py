@@ -19,7 +19,7 @@ from datetime import datetime
 
 # Import custom packages
 from models import *
-from run_action_recognition import *
+from train import *
 from utils import *
 from datasets import *
 

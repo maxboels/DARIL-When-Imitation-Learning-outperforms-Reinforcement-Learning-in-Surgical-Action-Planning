@@ -8,6 +8,7 @@ from torch.utils.tensorboard import SummaryWriter
 from torch.optim.lr_scheduler import OneCycleLR
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+import ivtmetrics
 
 # sklearn mean average precision
 from sklearn.metrics import average_precision_score
@@ -15,8 +16,8 @@ from sklearn.metrics import precision_recall_curve
 from sklearn.metrics import precision_score, recall_score, f1_score
 from sklearn.metrics import accuracy_score
 
-from metrics import calculate_map_recognition
-import ivtmetrics
+# Custom imports
+from utils import calculate_map_recognition
 
 def train_recognition_head(cfg, logger, model, train_loader, val_loader=None, device='cuda'):
     """
@@ -49,16 +50,24 @@ def train_recognition_head(cfg, logger, model, train_loader, val_loader=None, de
     warmup_steps = scheduler_cfg.get('warmup_steps', 0)
     
     # Using OneCycleLR for cosine with warmup
+    pct_start_value = warmup_steps/total_steps if total_steps > 0 else 0.1
+    if pct_start_value > 1.0:
+        logger.info(f"Clamping pct_start from {pct_start_value:.4f} to 1.0 (warmup_steps={warmup_steps}, total_steps={total_steps})")
+        pct_start_value = 1.0
+    
     scheduler = OneCycleLR(
         optimizer,
         max_lr=learning_rate,
         total_steps=total_steps,
-        pct_start=warmup_steps/total_steps if total_steps > 0 else 0.1,
+        pct_start=pct_start_value,
         anneal_strategy='cos',
         div_factor=25.0,  # initial_lr = max_lr/div_factor
         final_div_factor=10000.0,  # final_lr = initial_lr/final_div_factor
     )
-    logger.info(f"Initialized OneCycleLR scheduler with warmup steps: {warmup_steps}")
+    logger.info(f"Initialized OneCycleLR scheduler with pct_start={pct_start_value:.4f}, warmup steps: {warmup_steps}")
+    
+    # Track current step globally to avoid exceeding total steps
+    current_step = 0
     
     # Create checkpoint directory
     checkpoint_dir = os.path.join(logger.log_dir, 'checkpoints')
@@ -126,7 +135,13 @@ def train_recognition_head(cfg, logger, model, train_loader, val_loader=None, de
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            scheduler.step()
+            
+            # Only step the scheduler if we haven't reached total_steps
+            if current_step < total_steps - 1:
+                scheduler.step()
+                current_step += 1
+            else:
+                logger.info(f"Skipping scheduler step as we've reached the total steps: {current_step} >= {total_steps-1}")
             
             # Update statistics
             train_loss += loss.item() * z_seq.size(0)
