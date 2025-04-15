@@ -35,6 +35,7 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
         self.w_r = loss_weights.get('_r', 1.0) if loss_weights else 1.0
         self.w_q = loss_weights.get('_q', 1.0) if loss_weights else 1.0
         self.w_R = loss_weights.get('_R', 1.0) if loss_weights else 1.0
+        self.w_a_temporal_consist = loss_weights.get('_a_temporal_consist', 0.1) if loss_weights else 0.0
         self.num_action_classes = num_action_classes
         self.num_outcomes = num_outcomes
         # Configuration for GPT-2 model
@@ -167,7 +168,7 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
                         )
                         
                         # Combine losses
-                        other_losses['_a_loss'] = self.w_a * (action_loss + 0.1 * temporal_loss)
+                        other_losses['_a_loss'] = self.w_a * (action_loss + self.w_a_temporal_consist * temporal_loss)
                     else:
                         other_losses['_a_loss'] = self.w_a * action_loss
                         

@@ -39,8 +39,7 @@ def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
     
     # For tracking best model
     best_val_loss = float('inf')
-
-    best_model_path = cfg['best_model_path']
+    best_model_path = cfg['experiment']['pretrain_next_frame']['best_model_path']
     logger.info(f"Best model path: {best_model_path}")
     
     # For logging
@@ -70,7 +69,8 @@ def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
             train_loss = 0.0
             logger.info(f"Epoch {epoch+1}/{epochs} Training")
 
-            for batch_idx, (z_seq, _z_seq, _a_seq, _) in enumerate(tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs} Training")):
+            # Iterate over training batches
+            for batch_idx, (z_seq, _z_seq, _a_seq, f_a, c_a, c_i) in enumerate(tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs} Training")):
                 z_seq, _z_seq, _a_seq = z_seq.to(device), _z_seq.to(device), _a_seq.to(device)
 
                 assert z_seq[:, -1, :].equal(_z_seq[:, -2, :]), "Last frame of z must equal second-to-last frame of _z"
@@ -121,9 +121,114 @@ def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
         use_memory = cfg['eval']['world_model']['use_memory']
         max_horizon = cfg['eval']['world_model']['max_horizon']
         action_accuracies = []
-        with torch.no_grad():
-            for batch_idx, (z_seq, _z_seq, _a_seq, f_a_seq) in enumerate(tqdm(val_loader, desc=f"Epoch {epoch+1}/{epochs} Validation")):
-                z_seq, _z_seq, _a_seq, f_a_seq = z_seq.to(device), _z_seq.to(device), _a_seq.to(device), f_a_seq.to(device)
+
+
+        # Validation phase
+        if val_loader is not None:
+            model.eval()
+
+            # Eval loop
+            eval_results = run_world_model_inference(cfg, logger, model, val_loader, 
+                device=device, epoch=epoch, tb_writer=writer, run_type='validation'
+            )
+
+            # Main metric for model selection
+            val_map = eval_results['sklearn_mAP_a_from_vid_ap']
+
+            # Save best model
+            if val_map > best_val_map:
+                best_val_map = val_map
+                # Save model checkpoint
+                checkpoint_path = os.path.join(checkpoint_dir, f"best_model_epoch{epoch+1}_map{val_map:.4f}.pt")
+                torch.save({
+                    'epoch': epoch,
+                    'model_state_dict': model.state_dict(),
+                    'optimizer_state_dict': optimizer.state_dict(),
+                    'val_map': val_map,
+                    'config': cfg
+                }, checkpoint_path)
+                
+                best_model_path = checkpoint_path
+                logger.info(f"Saved new best model with mAP: {val_map:.4f}")
+    
+        # Load best model
+        if best_model_path is not None and os.path.exists(best_model_path):
+            checkpoint = torch.load(best_model_path)
+            model.load_state_dict(checkpoint['model_state_dict'])
+            logger.info(f"Loaded best model with mAP: {best_val_map:.4f}")
+        
+        # returns the best model for inference
+        return model
+
+def run_world_model_inference(cfg, logger, model, test_video_loaders, device='cuda', epoch=None, tb_writer=None, run_type='inference'):
+    """
+    Run inference and evaluation on the test set.
+    
+    Args:
+        model: Trained recognition head model
+        test_video_loaders: DataLoaders for test videos
+        cfg: Configuration dictionary
+        device: Device to run inference on
+        log_dir: Directory to save outputs
+        
+    Returns:
+        Output directory with results
+    """
+    run_string = "[VALIDATION]" if epoch is not None else "[TEST]"
+    # Initialize recognition metrics
+    horizons = [1, 2, 3, 5, 10]  # Time horizons in seconds
+    max_horizon = cfg['eval']['world_model']['max_horizon']
+    recognize = {}
+
+    for h in range(1, max_horizon + 1):
+        # Initialize recognition metrics
+        recognize[f"{h}"] = ivtmetrics.Recognition(num_class=100)
+        recognize[f"{h}"].reset_global()
+
+    # Log directory
+    log_dir = os.path.join(logger.log_dir, run_type)
+    os.makedirs(log_dir, exist_ok=True)
+    output_dir = os.path.join(log_dir, 'results')
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Tensorboard for logging
+    if tb_writer is not None:
+        writer = tb_writer
+    else:
+        tensorboard_dir = os.path.join(log_dir, 'tensorboard')
+        os.makedirs(tensorboard_dir, exist_ok=True)
+        writer = SummaryWriter(log_dir=tensorboard_dir)
+    
+    # Load class labels
+    with open(cfg['data']['paths']['class_labels_file_path'], 'r') as f:
+        class_labels = json.load(f)
+    action_labels = [class_name for class_id, class_name in class_labels['action'].items()]
+    instrument_labels = [class_name for class_id, class_name in class_labels['instrument'].items()]
+    
+    # Set model to evaluation mode
+    model.eval()
+    metrics = ['sklearn_vids_mAP_i', 'sklearn_vids_mAP_a']
+    videos_scores = {metric: [] for metric in metrics}
+    per_class_ap_scores = {}
+    per_video_sklearn_per_class_map_a = {}
+    per_video_sklearn_per_class_map_i = {}
+    overall_results = {} 
+    vids = []   
+    # Run inference
+    with torch.no_grad():
+        for vid_id, video_loader in test_video_loaders.items():
+
+            vids.append(vid_id)
+
+            # Initialize containers for predictions and targets
+            video_preds_actions = []
+            video_targets_actions = []
+            video_preds_instruments = []
+            video_targets_instruments = []
+
+            for batch_idx, (z_seq, _, _, f_a_seq, c_a, c_i) in enumerate(tqdm(video_loader, desc="Running inference")):
+                z_seq, f_a_seq, c_a, c_i = z_seq.to(device), f_a_seq.to(device), c_a.to(device), c_i.to(device)                
+
                 global_step = epoch * len(val_loader) + batch_idx
 
                 # Reset batch loss
@@ -149,31 +254,20 @@ def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
                     # Convert logits to probabilities
                     f_a_probs = torch.sigmoid(outputs['f_a_seq_hat'])
 
-                    # Select intervals for evaluation
-                    for h in eval_horizons:
-                        if h <= outputs['f_a_seq_hat'].shape[1]:  # Make sure horizon is within prediction range
-                            
-                            f_a_h_probs = f_a_probs[:, :h, :]
-                            f_a_h_targets = f_a_seq[:, :h, :]
-                            
-                            # Accuracy, Recall, Precision, F1 (top-k)
-                            true_indices = torch.where(f_a_h_targets > 0.5)[0]
-                            if len(true_indices) == 0:
-                                continue # we don't compute false positives and true negatives
+                    # add max horizon to f_a_seq
+                    f_a_targets = f_a_seq[:, :, :]
 
-                            horizon_metrics = evaluate_multi_label_predictions(f_a_h_probs, f_a_h_targets, top_ks)
-                            
-                            # Store results with horizon prefix
-                            for metric_name, value in horizon_metrics.items():
-                                results[f"horizon_{h}_{metric_name}"] = value
+                    # Store predictions and targets
+                    video_preds_actions.append(f_a_probs.cpu().numpy())
+                    video_targets_actions.append(f_a_targets.cpu().numpy())
+                    # video_preds_instruments.append(instrument_probs.cpu().numpy())
+                    # video_targets_instruments.append(target_instruments.cpu().numpy())
 
-                            # mean Average Precision (mAP) for each horizon
-                            map_scores = calculate_map(f_a_h_probs, f_a_h_targets, class_names=action_labels_name)
-                            results[f"horizon_{h}_mAP"] = map_scores['mAP']
-
-                            # Log and visualize results
-                            writer.add_scalar(f'Metrics/mAP_Horizon_{h}', map_scores['mAP'], global_step)
-                    
+                    for h in range(1, max_horizon + 1):
+                        # Update recognition metrics
+                        f_a_h_probs = f_a_probs[:, h-1, :].unsqueeze(1)
+                        f_a_h_targets = f_a_seq[:, h-1, :].unsqueeze(1)
+                        recognize[f"{h}"].update(f_a_h_targets.cpu().numpy(), f_a_h_probs.cpu().numpy())
                     
                     writer.add_scalar('Loss/World_Model_Val_A', f_a_loss.item(), global_step)
 
@@ -184,8 +278,106 @@ def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
                     
                 # Evaluation loop logging
                 if batch_idx % cfg['training']['log_every_n_steps'] == 0:
-                    logger.info(f"Epoch {epoch+1}/{epochs}, Batch {batch_idx}/{len(val_loader)}, Loss: {val_batch_loss:.4f}")
+                    logger.info(f"{run_string} Video {vid_id} | Batch {batch_idx}/{len(video_loader)}, Loss: {val_batch_loss:.4f}")
 
+            # End video and add video and init new lists
+            for h in range(1, max_horizon + 1):
+                recognize[f"{h}"].video_end()
+
+            # Mean Average Precision (mAP) for actions
+            video_targets_actions = np.concatenate(video_targets_actions, axis=0)
+            video_preds_actions = np.concatenate(video_preds_actions, axis=0)
+            
+            for h in range(1, max_horizon + 1):
+                # Select intervals for evaluation
+                video_targets_actions_h = video_targets_actions[:, h-1, :]
+                video_preds_actions_h = video_preds_actions[:, h-1, :]
+                # Calculate mAP using sklearn
+                action_map_scores = calculate_map_recognition(video_targets_actions_h, video_preds_actions_h, action_labels)
+                action_overall_map = action_map_scores['mAP']
+                action_per_class_ap = action_map_scores['AP_scores']
+                # Log mAP to console
+                logger.info(f"{run_string} h={h} | Video {vid_id}: Test mAP (sklearn) Action: {action_overall_map:.4f}")
+                # Add to overall results
+                videos_scores[f'sklearn_vids_mAP_a_{h}'].append(action_overall_map)
+                # Add the video mAP to the per class mAP
+                per_video_sklearn_per_class_map_a[f'video_{vid_id}_sklearn_vids_mAP_a_{h}'] = action_per_class_ap
+
+        # END ALL VIDEOS LOOP
+        results_ivt = {}
+        for h in range(1, max_horizon + 1):
+
+            # sklearn metrics
+            action_overall_map = np.mean(videos_scores[f'sklearn_vids_mAP_a_{h}'])
+            # instrument_overall_map = np.mean(videos_scores[f'sklearn_vids_mAP_i'])
+
+            # Aggregate all the map scores per class on all videos in per_video_sklearn_per_class_map
+            # for each video, add the per class map scores to the per class map scores
+            # add the per class map scores to the per class map scores (there are None values)
+            vals_h = np.array(list(per_video_sklearn_per_class_map_a[f'video_{vid_id}_sklearn_vids_mAP_a_{h}']))[:, h-1, :]
+            per_class_ap_scores[f'sklearn_vids_mAP_a_{h}'] = np.nanmean(vals_h, axis=0).tolist()
+            # per_class_ap_scores['sklearn_vids_mAP_i'] = np.nanmean(np.array(list(per_video_sklearn_per_class_map_i.values())), axis=0).tolist()
+
+            # Add the overall nan means to the per class map scores based on the intermediate results from the video AP
+            per_class_ap_scores['sklearn_mAP_a_from_vid_ap'] = np.nanmean(np.array(per_class_ap_scores[f'sklearn_vids_mAP_a_{h}']), axis=0).tolist()
+            # per_class_ap_scores['sklearn_mAP_i_from_vid_ap'] = np.nanmean(np.array(per_class_ap_scores['sklearn_vids_mAP_i']), axis=0).tolist()
+
+            # ivt metrics
+            results_ivt[f"{h}"] = recognize[f"{h}"].compute_video_AP('ivt', ignore_null=False) # try with ignore null classes
+            # results_i = recognize.compute_video_AP('i', ignore_null=False) # try with ignore null classes
+
+            # Per class scores (all videos aggragated)
+            per_class_ap_scores[f'ivt_map_a_{h}'] = results_ivt[f"{h}"]['AP'].tolist()
+            # per_class_ap_scores['ivt_map_i'] = results_i['AP'].tolist()
+            per_class_ap_scores[f'ivt_mAP_a_from_vid_ap_{h}'] = np.nanmean(np.array(per_class_ap_scores[f'ivt_map_a_{h}']), axis=0).tolist()
+            # per_class_ap_scores['ivt_mAP_i_from_vid_ap'] = np.nanmean(np.array(per_class_ap_scores['ivt_map_i']), axis=0).tolist()
+
+            overall_results[f'ivt_mAP_a_from_vid_ap_{h}'] = per_class_ap_scores[f'ivt_mAP_a_from_vid_ap_{h}']
+            overall_results[f'ivt_mAP_a_{h}'] = np.round(results_ivt[f"{h}"]["mAP"], 4)
+            # overall_results['ivt_mAP_i'] = np.round(results_i["mAP"], 4)   
+
+            # Save per video mAP results
+            overall_results['sklearn_mAP_a_from_vid_ap'] = per_class_ap_scores[f'sklearn_mAP_a_from_vid_ap_{h}']
+            overall_results['sklearn_mAP_a'] = np.round(action_overall_map, 4)
+            # overall_results['sklearn_mAP_i'] = np.round(instrument_overall_map, 4)
+        
+            logger.info(f"{run_string} h={h}  Overall action mAP (sklearn): {overall_results['sklearn_mAP_a']:.4f}")
+            logger.info(f"{run_string} h={h}  Overall instrument mAP (sklearn): {overall_results['sklearn_mAP_i']:.4f}")
+            logger.info(f"{run_string} h={h}  Overall action mAP (ivt): {overall_results['ivt_mAP_a']:.4f}")
+            logger.info(f"{run_string} h={h}  Overall instrument mAP (ivt): {overall_results['ivt_mAP_i']:.4f}")
+
+    if epoch is not None:
+        # Save mAP results to Tensorboard
+        writer.add_scalar('Metrics/Validation_mAP_Action_sklean', overall_results['sklearn_mAP_a'], epoch)
+        writer.add_scalar('Metrics/Validation_mAP_Instrument_sklean', overall_results['sklearn_mAP_i'], epoch)
+        writer.add_scalar('Metrics/Validation_mAP_Action_ivt', overall_results['ivt_mAP_a'], epoch)
+        writer.add_scalar('Metrics/Validation_mAP_Instrument_ivt', overall_results['ivt_mAP_i'], epoch)
+        # Save mAP results to console
+        logger.info(f"{run_string} Epoch {epoch+1}: mAP Action (sklearn): {overall_results['sklearn_mAP_a']:.4f}")
+        logger.info(f"{run_string} Epoch {epoch+1}: mAP Instrument (sklearn): {overall_results['sklearn_mAP_i']:.4f}")
+        logger.info(f"{run_string} Epoch {epoch+1}: mAP Action (ivt): {overall_results['ivt_mAP_a']:.4f}")
+        logger.info(f"{run_string} Epoch {epoch+1}: mAP Instrument (ivt): {overall_results['ivt_mAP_i']:.4f}")
+    else:
+        # Save mAP results to Tensorboard
+        writer.add_scalar('Metrics/Test_mAP_Action_sklean', overall_results['sklearn_mAP_a'], 0)
+        writer.add_scalar('Metrics/Test_mAP_Instrument_sklean', overall_results['sklearn_mAP_i'], 0)
+        # Save mAP results to console
+        logger.info(f"{run_string} Test mAP Action (sklearn): {overall_results['sklearn_mAP_a']:.4f}")
+        logger.info(f"{run_string} Test mAP Instrument (sklearn): {overall_results['sklearn_mAP_i']:.4f}")
+        logger.info(f"{run_string} Test mAP Action (ivt): {overall_results['ivt_mAP_a']:.4f}")
+        logger.info(f"{run_string} Test mAP Instrument (ivt): {overall_results['ivt_mAP_i']:.4f}")
+    # Save mAP results to JSON
+    with open(os.path.join(output_dir, 'mAP_results.json'), 'w') as f:
+        json.dump(overall_results, f, indent=4)
+    # Save predictions to JSON
+    with open(os.path.join(output_dir, 'predictions.json'), 'w') as f:
+        json.dump(videos_scores, f, indent=4)
+    
+    # Save per_class_ap_scores 
+    with open(os.path.join(output_dir, 'per_class_ap_scores.json'), 'w') as f:
+        json.dump(per_class_ap_scores, f, indent=4)
+    
+    return overall_results
         val_loss /= len(val_loader.dataset)
         val_losses.append(val_loss)
         logger.info(f"Epoch {epoch+1}/{epochs}, Val Loss: {val_loss:.4f}")

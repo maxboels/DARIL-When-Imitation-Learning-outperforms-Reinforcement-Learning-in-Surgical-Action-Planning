@@ -12,7 +12,7 @@ experiment:
   pretrain_next_frame:
     train: true
     inference: true
-    best_model_path: "best_model_epoch1_valloss1.190734.pt" # null #"best_model_epoch1_valloss1.190734.pt"
+    best_model_path: null # "best_model_epoch1_valloss1.190734.pt" # null #"best_model_epoch1_valloss1.190734.pt"
   pretrain_reward_model: false
   calculate_action_rewards: false
   train_action_policy: false

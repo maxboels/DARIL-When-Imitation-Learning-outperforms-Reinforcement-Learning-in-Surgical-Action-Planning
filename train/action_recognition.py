@@ -347,7 +347,7 @@ def run_recognition_inference(cfg, logger, model, test_video_loaders, device='cu
             per_video_sklearn_per_class_map_a[f'video_{vid_id}_sklearn_vids_mAP_a'] = action_per_class_ap
             per_video_sklearn_per_class_map_i[f'video_{vid_id}_sklearn_vids_mAP_i'] = instrument_per_class_ap
 
-        # END VIDEO LOOP
+        # END ALL VIDEOS LOOP
 
         # sklearn metrics
         action_overall_map = np.mean(videos_scores['sklearn_vids_mAP_a'])
