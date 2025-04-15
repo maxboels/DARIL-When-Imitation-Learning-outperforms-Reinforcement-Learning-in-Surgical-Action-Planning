@@ -138,20 +138,42 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
 
         # Heads
         head_outputs = None
+        other_losses = {}
         if self.target_heads:
             head_outputs = {}
-            other_losses = {}
             for target in self.target_heads:
-
                 # Forward pass through the heads
                 head_outputs[target] = self.heads[target](last_hidden_state)
-
+                
                 # Calculate loss for the heads
                 if target == '_a' and self.w_a is not None:
-                    other_losses['_a_loss'] = self.w_a * F.binary_cross_entropy_with_logits(head_outputs[target], next_actions)
+                    action_logits = head_outputs[target]
+                    
+                    # Standard BCE loss
+                    action_loss = F.binary_cross_entropy_with_logits(action_logits, next_actions)
+                    
+                    # Add temporal consistency within the sequence
+                    # Skip first frame as it has no previous frame
+                    if seq_length > 1:
+                        # Compute logits for each frame except the last one
+                        prev_logits = action_logits[:, :-1, :]
+                        # Compute logits for each frame except the first one
+                        curr_logits = action_logits[:, 1:, :]
+                        
+                        # Calculate temporal consistency loss
+                        temporal_loss = F.mse_loss(
+                            torch.sigmoid(curr_logits),
+                            torch.sigmoid(prev_logits)
+                        )
+                        
+                        # Combine losses
+                        other_losses['_a_loss'] = self.w_a * (action_loss + 0.1 * temporal_loss)
+                    else:
+                        other_losses['_a_loss'] = self.w_a * action_loss
+                        
                 elif target == '_R':
-                    pass 
-        
+                    pass
+                
         return {
             "_z_loss": _z_loss,
             **other_losses,

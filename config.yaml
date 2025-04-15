@@ -3,13 +3,15 @@ debug: false
 
 experiment:
   max_videos: 2 # null  # Set to null to use all videos
+  # Recognition model
   recognition:
-    train: true
-    inference: true
-    best_model_path: "./best_checkpoints/best_model_epoch2_map0.5008.pt" # null #"best_model_epoch1_valloss1.190734.pt"
-  pretrain_next_frame:
     train: false
     inference: false
+    best_model_path: "./best_checkpoints/best_model_epoch2_map0.5008.pt" # null #"best_model_epoch1_valloss1.190734.pt"
+  # World model
+  pretrain_next_frame:
+    train: true
+    inference: true
     best_model_path: "best_model_epoch1_valloss1.190734.pt" # null #"best_model_epoch1_valloss1.190734.pt"
   pretrain_reward_model: false
   calculate_action_rewards: false
