@@ -98,7 +98,7 @@ def run_cholect50_experiment(cfg):
     
     # 2. Run inference
     if cfg_exp['pretrain_next_frame']['inference']:
-        print("\nRunning qualitative demo...")
+        print("\nRunning inference...")
         if best_model_path is None:
             best_model_path = cfg_exp['pretrain_next_frame']['best_model_path']
             print(f"Using best model from pre existing path: {best_model_path}")
@@ -106,8 +106,8 @@ def run_cholect50_experiment(cfg):
         world_model = CausalGPT2ForFrameEmbeddings(**cfg['models']['world_model']).to(device)
         world_model.load_state_dict(checkpoint['model_state_dict'])
         world_model.eval()
-        output_dir = run_eval(world_model, test_video_loaders, cfg, device, logger.log_dir, num_samples=6)
-        print(f"Demo results saved to: {output_dir}")
+        results = run_generation_inference(cfg, logger, world_model, test_video_loaders, device)
+        logger.info(f"Results: {results}")
 
     # Step 3: Train reward prediction model
     if cfg_exp['pretrain_reward_model']:

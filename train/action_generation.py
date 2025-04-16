@@ -284,7 +284,7 @@ def run_world_model_inference(cfg, logger, model, test_video_loaders, device='cu
             for h in range(1, max_horizon + 1):
                 recognize[f"{h}"].video_end()
 
-            # Mean Average Precision (mAP) for actions
+            # Mean Average Precision (mAP) for actions (keep temporal dimension)
             video_targets_actions = np.concatenate(video_targets_actions, axis=0)
             video_preds_actions = np.concatenate(video_preds_actions, axis=0)
             
