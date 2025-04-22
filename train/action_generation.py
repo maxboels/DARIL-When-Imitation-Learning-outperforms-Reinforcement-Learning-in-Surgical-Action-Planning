@@ -16,10 +16,12 @@ from tqdm import tqdm
 import yaml
 import os
 from datetime import datetime
+import ivtmetrics
+
 
 
 # Training function for next frame predictor
-def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
+def train_world_model(cfg, logger, model, train_loader, val_loader=None,
                             device='cuda'):
 
     # Loss function and optimizer
@@ -39,7 +41,7 @@ def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
     
     # For tracking best model
     best_val_loss = float('inf')
-    best_model_path = cfg['experiment']['pretrain_next_frame']['best_model_path']
+    best_model_path = cfg['experiment']['pretrain_world_model']['best_model_path']
     logger.info(f"Best model path: {best_model_path}")
     
     # For logging
@@ -76,11 +78,11 @@ def train_next_frame_model(cfg, logger, model, train_loader, val_loader=None,
                 assert z_seq[:, -1, :].equal(_z_seq[:, -2, :]), "Last frame of z must equal second-to-last frame of _z"
                 
                 # Forward pass
-                outputs = model(z_seq, next_frame=_z_seq, next_actions=_a_seq)
+                outputs = model(z_seq, next_state=_z_seq, next_actions=_a_seq)
 
                 # Get loss
                 _z_loss = outputs["_z_loss"]
-                _a_loss = outputs['_a_loss'] if '_a_loss' in outputs else 0.0
+                _a_loss = outputs['_a_loss'] if '_a_loss' in outputs else torch.tensor(0.0).to(device)
                 loss = _z_loss + _a_loss
                 
                 # Backward pass and optimize
@@ -378,108 +380,111 @@ def run_world_model_inference(cfg, logger, model, test_video_loaders, device='cu
         json.dump(per_class_ap_scores, f, indent=4)
     
     return overall_results
-        val_loss /= len(val_loader.dataset)
-        val_losses.append(val_loss)
-        logger.info(f"Epoch {epoch+1}/{epochs}, Val Loss: {val_loss:.4f}")
+
+
+    # TODO: Add validation loop code bellow to main code
+    #     val_loss /= len(val_loader.dataset)
+    #     val_losses.append(val_loss)
+    #     logger.info(f"Epoch {epoch+1}/{epochs}, Val Loss: {val_loss:.4f}")
         
-        # Log metrics
-        log_comprehensive_metrics(results, writer, epoch, logger)
+    #     # Log metrics
+    #     log_comprehensive_metrics(results, writer, epoch, logger)
 
-        # Create comparison plots
-        plots_dir = os.path.join(save_logs_dir, 'plots')
-        os.makedirs(plots_dir, exist_ok=True)
+    #     # Create comparison plots
+    #     plots_dir = os.path.join(save_logs_dir, 'plots')
+    #     os.makedirs(plots_dir, exist_ok=True)
 
-        metrics_plot = create_metrics_comparison_plot(
-            results, 
-            os.path.join(plots_dir, f'metrics_comparison_epoch{epoch}.png')
-        )
+    #     metrics_plot = create_metrics_comparison_plot(
+    #         results, 
+    #         os.path.join(plots_dir, f'metrics_comparison_epoch{epoch}.png')
+    #     )
 
-        topk_plot = create_metric_breakdown_by_topk(
-            results,
-            os.path.join(plots_dir, f'topk_breakdown_epoch{epoch}.png')
-        )
+    #     topk_plot = create_metric_breakdown_by_topk(
+    #         results,
+    #         os.path.join(plots_dir, f'topk_breakdown_epoch{epoch}.png')
+    #     )
 
-        # Calculate and log average accuracies for each horizon and top-k
-        logger.info("\nAction Prediction Accuracy:")
-        logger.info("-" * 50)
-        logger.info(f"{'Horizon':<10} {'Top-k':<10} {'Accuracy':<10}")
-        logger.info("-" * 50)
+    #     # Calculate and log average accuracies for each horizon and top-k
+    #     logger.info("\nAction Prediction Accuracy:")
+    #     logger.info("-" * 50)
+    #     logger.info(f"{'Horizon':<10} {'Top-k':<10} {'Accuracy':<10}")
+    #     logger.info("-" * 50)
         
-        for horizon in sorted(eval_horizons):
-            map_key = f"horizon_{horizon}_mAP"
-            if map_key in results:
-                logger.info(f"{horizon:<10} {'mAP':<15} {results[map_key]:.4f}")
+    #     for horizon in sorted(eval_horizons):
+    #         map_key = f"horizon_{horizon}_mAP"
+    #         if map_key in results:
+    #             logger.info(f"{horizon:<10} {'mAP':<15} {results[map_key]:.4f}")
             
-            for k in sorted(top_ks):
-                key = f"horizon_{horizon}_top_{k}"
-                if results[key]:
-                    avg_accuracy = sum(results[key]) / len(results[key])
-                    logger.info(f"{horizon:<10} {k:<10} {avg_accuracy:.4f}")
-                    writer.add_scalar(f'Accuracy/Avg_Horizon_{horizon}_Top_{k}', avg_accuracy, epoch)
-        # print("-" * 50)
-        logger.info("-" * 50)
+    #         for k in sorted(top_ks):
+    #             key = f"horizon_{horizon}_top_{k}"
+    #             if results[key]:
+    #                 avg_accuracy = sum(results[key]) / len(results[key])
+    #                 logger.info(f"{horizon:<10} {k:<10} {avg_accuracy:.4f}")
+    #                 writer.add_scalar(f'Accuracy/Avg_Horizon_{horizon}_Top_{k}', avg_accuracy, epoch)
+    #     # print("-" * 50)
+    #     logger.info("-" * 50)
         
-        # Save model if it's the best so far
-        if val_loss < best_val_loss:
-            best_val_loss = val_loss
+    #     # Save model if it's the best so far
+    #     if val_loss < best_val_loss:
+    #         best_val_loss = val_loss
 
-            # Save plots
-            plots_save_dir = os.path.join(save_logs_dir, 'plots')
-            os.makedirs(plots_save_dir, exist_ok=True)
-            plot_title = f"World Model Evaluation - Epoch {epoch+1}"
+    #         # Save plots
+    #         plots_save_dir = os.path.join(save_logs_dir, 'plots')
+    #         os.makedirs(plots_save_dir, exist_ok=True)
+    #         plot_title = f"World Model Evaluation - Epoch {epoch+1}"
             
-            # mAP plots
-            # Generate all plots at once using the comprehensive function
-            plot_files = generate_map_vs_accuracy_plots(
-                results, 
-                plots_save_dir,
-                experiment_name=plot_title
-            )
+    #         # mAP plots
+    #         # Generate all plots at once using the comprehensive function
+    #         plot_files = generate_map_vs_accuracy_plots(
+    #             results, 
+    #             plots_save_dir,
+    #             experiment_name=plot_title
+    #         )
 
-            # Accuracy plots
-            plot_files = plot_action_prediction_results(
-                results, 
-                save_dir=plots_save_dir,
-                experiment_name=plot_title
-            )
+    #         # Accuracy plots
+    #         plot_files = plot_action_prediction_results(
+    #             results, 
+    #             save_dir=plots_save_dir,
+    #             experiment_name=plot_title
+    #         )
 
-            # Create descriptive filename
-            checkpoint_filename = f"best_model_epoch{epoch+1}_valloss{val_loss:.6f}.pt"
-            checkpoint_path = os.path.join(checkpoint_dir, checkpoint_filename)
+    #         # Create descriptive filename
+    #         checkpoint_filename = f"best_model_epoch{epoch+1}_valloss{val_loss:.6f}.pt"
+    #         checkpoint_path = os.path.join(checkpoint_dir, checkpoint_filename)
             
-            # Save model state
-            torch.save({
-                'epoch': epoch,
-                'model_state_dict': model.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict(),
-                'val_loss': val_loss,
-                'train_loss': train_loss,
-                'config': cfg,
-                'action_accuracies': {key: (sum(results[key]) / len(results[key]) if isinstance(results[key], list) else results[key]) 
-                                     for key in results}
-            }, checkpoint_path)
+    #         # Save model state
+    #         torch.save({
+    #             'epoch': epoch,
+    #             'model_state_dict': model.state_dict(),
+    #             'optimizer_state_dict': optimizer.state_dict(),
+    #             'val_loss': val_loss,
+    #             'train_loss': train_loss,
+    #             'config': cfg,
+    #             'action_accuracies': {key: (sum(results[key]) / len(results[key]) if isinstance(results[key], list) else results[key]) 
+    #                                  for key in results}
+    #         }, checkpoint_path)
 
-            logger.info(f"Model saved to: {checkpoint_path}")
-            logger.info(f"Saved new best model at epoch {epoch+1} with validation loss: {val_loss:.6f}")
+    #         logger.info(f"Model saved to: {checkpoint_path}")
+    #         logger.info(f"Saved new best model at epoch {epoch+1} with validation loss: {val_loss:.6f}")
             
-            best_model_path = checkpoint_path
+    #         best_model_path = checkpoint_path
         
-        # Optionally save periodic checkpoints (every N epochs)
-        save_frequency = cfg.get('training', {}).get('save_checkpoint_every_n_epochs', 1)
-        if save_frequency > 0 and (epoch + 1) % save_frequency == 0:
-            checkpoint_filename = f"model_epoch{epoch+1}_valloss{val_loss:.6f}.pt"
-            checkpoint_path = os.path.join(checkpoint_dir, checkpoint_filename)
+    #     # Optionally save periodic checkpoints (every N epochs)
+    #     save_frequency = cfg.get('training', {}).get('save_checkpoint_every_n_epochs', 1)
+    #     if save_frequency > 0 and (epoch + 1) % save_frequency == 0:
+    #         checkpoint_filename = f"model_epoch{epoch+1}_valloss{val_loss:.6f}.pt"
+    #         checkpoint_path = os.path.join(checkpoint_dir, checkpoint_filename)
             
-            torch.save({
-                'epoch': epoch,
-                'model_state_dict': model.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict(),
-                'val_loss': val_loss,
-                'train_loss': train_loss,
-                'config': cfg,
-            }, checkpoint_path)
+    #         torch.save({
+    #             'epoch': epoch,
+    #             'model_state_dict': model.state_dict(),
+    #             'optimizer_state_dict': optimizer.state_dict(),
+    #             'val_loss': val_loss,
+    #             'train_loss': train_loss,
+    #             'config': cfg,
+    #         }, checkpoint_path)
             
-            logger.info(f"Saved periodic checkpoint at epoch {epoch+1}")
+    #         logger.info(f"Saved periodic checkpoint at epoch {epoch+1}")
     
-    # Return training statistics and best model path
-    return best_model_path
+    # # Return training statistics and best model path
+    # return best_model_path

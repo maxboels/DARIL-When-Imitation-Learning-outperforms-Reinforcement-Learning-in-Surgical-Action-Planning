@@ -9,7 +9,7 @@ experiment:
     inference: false
     best_model_path: "./best_checkpoints/best_model_epoch2_map0.5008.pt" # null #"best_model_epoch1_valloss1.190734.pt"
   # World model
-  pretrain_next_frame:
+  pretrain_world_model:
     train: true
     inference: true
     best_model_path: null # "best_model_epoch1_valloss1.190734.pt" # null #"best_model_epoch1_valloss1.190734.pt"
@@ -78,6 +78,7 @@ models:
   world_model:
     hidden_dim: 768
     embedding_dim: 1024
+    action_embedding_dim: 100
     n_layer: 6
     use_head: true
     targets_dims:

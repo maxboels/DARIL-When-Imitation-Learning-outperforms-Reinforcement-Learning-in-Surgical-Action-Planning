@@ -10,20 +10,23 @@ class WorldModel(nn.Module):
     """
     WORLD MODEL: GPT-2 based model for predicting future frame embeddings.
     """
-    def __init__(self, hidden_dim: int, embedding_dim: int, n_layer: int, max_length: int = 1024,
+    def __init__(self, hidden_dim: int, embedding_dim: int, action_embedding_dim: int,
+                    n_layer: int, max_length: int = 1024,
                     use_head: bool = False,
                     targets_dims: Dict[str, int] = None,
                     target_heads: List[str] = None,
                     loss_weights: Dict[str, float] = None,
                     num_action_classes: int = 100,
                     num_outcomes: int = 1,
-                    eval: Dict[str, Any] = None):
+                    eval: Dict[str, Any] = None,
+                    imitation_learning: bool = False) -> None:
         """
         Initialize the generative model.
         """
         super(WorldModel, self).__init__()
         self.hidden_dim = hidden_dim
         self.embedding_dim = embedding_dim
+        self.action_embedding_dim = action_embedding_dim
         self.n_layer = n_layer
         self.max_length = max_length
         self.use_head = use_head
@@ -48,26 +51,31 @@ class WorldModel(nn.Module):
         self.config.n_layer = self.n_layer
         self.config.n_embd = self.hidden_dim
         self.config.vocab_size = 1  # Not using vocab embeddings in traditional sense
+
+        # Options for imitation learning
+        self.imitation_learning = imitation_learning
         
         # Initialize the world model
         self._init_world_model()
         self._init_weights()
 
+    # Fix variable definitions in _init_world_model()
     def _init_world_model(self):
         # GPT-2 model
         self.model = GPT2LMHeadModel(self.config)        
-        self.input_projection = nn.Linear(self.embedding_dim, self.hidden_dim)
-        self.action_embedding = nn.Linear(self.embedding_dim, self.hidden_dim)
+                
+        # For binary multi-label actions
+        self.action_embedding = nn.Linear(self.num_action_classes, self.action_embedding_dim)
 
         # Combined frame and action embedding dimensions
-        self.combined_dim = frame_embedding_dim + action_embedding_dim
+        self.combined_dim = self.embedding_dim + self.action_embedding_dim
 
         # Projection to GPT2 input dimension
         self.input_projection = nn.Linear(self.combined_dim, self.hidden_dim)
 
         # Output projection: from GPT-2 hidden dimension back to frame embedding dimension
-        # Replacing the standard language model head with our custom output projection
         self.model.lm_head = nn.Linear(self.hidden_dim, self.embedding_dim)
+        
         # Head
         if self.target_heads:
             self.heads = nn.ModuleDict()
@@ -84,7 +92,7 @@ class WorldModel(nn.Module):
     
     def forward(self, 
                 current_state: torch.Tensor, 
-                next_frame: Optional[torch.Tensor] = None,
+                next_state: Optional[torch.Tensor] = None,
                 next_actions: Optional[torch.Tensor] = None,
                 attention_mask: Optional[torch.Tensor] = None) -> Dict[str, torch.Tensor]:
         """
@@ -92,7 +100,7 @@ class WorldModel(nn.Module):
         
         Args:
             current_state: Frame embeddings tensor of shape [batch_size, seq_length, embedding_dim]
-            next_frame: Target frame embeddings tensor of shape [batch_size, seq_length, embedding_dim]
+            next_state: Target frame embeddings tensor of shape [batch_size, seq_length, embedding_dim]
                    If None, will use current_state shifted to the right for teacher forcing
             next_actions: We pass the next actions as input to the model for conditional generation of the next state,
                      we want to learn the effect of future actions on the next state.
@@ -103,7 +111,7 @@ class WorldModel(nn.Module):
         """
         batch_size, seq_length, _ = current_state.size()
         
-        # Get action embeddings
+        # Get action embeddings from next_actions shape: [batch_size, seq_len, num_action_classes]
         next_action_embeddings = self.action_embedding(next_actions)  # [batch_size, seq_len, action_embedding_dim]
         
         # Concatenate current frame and next action embeddings along the feature dimension
@@ -116,8 +124,8 @@ class WorldModel(nn.Module):
         position_ids = torch.arange(seq_length, dtype=torch.long, device=current_state.device)
         position_ids = position_ids.unsqueeze(0).expand(batch_size, -1)
 
-        # If no next_frame provided, use current_state shifted right for teacher forcing
-        if next_frame is None:
+        # If no next_state provided, use current_state shifted right for teacher forcing
+        if next_state is None:
             # Shift current_state to the right, prepend with zeros as first token
             shifted_inputs = torch.cat([
                 torch.zeros(batch_size, 1, self.embedding_dim, device=current_state.device),
@@ -130,9 +138,9 @@ class WorldModel(nn.Module):
             # Use the original current_state as targets
             _z = current_state
         else:
-            # Use provided current_state and next_frame (can predict any future frame embeddings)
+            # Use provided current_state and next_state (can predict any future frame embeddings)
             shifted_hidden_states = proj_inputs
-            _z = next_frame
+            _z = next_state
         
         # Pass through GPT-2 model
         # We're using the model differently - we're providing hidden states directly
@@ -153,51 +161,114 @@ class WorldModel(nn.Module):
         # Calculate MSE loss between predictions and targets
         _z_loss = F.mse_loss(_z_hat, _z)
 
-        # Heads
+        # If we want to use imitation learning - predict the next action to mimic expert behavior, we just need
+        # to predict the next actions based on the current state.
+        other_losses = None
         head_outputs = None
-        other_losses = {}
-        if self.target_heads:
-            head_outputs = {}
-            for target in self.target_heads:
-                # Forward pass through the heads
-                head_outputs[target] = self.heads[target](last_hidden_state)
-                
-                # Calculate loss for the heads
-                if target == '_a' and self.w_a is not None:
-                    action_logits = head_outputs[target]
+        if self.imitation_learning:
+            other_losses = {}
+            if self.target_heads:
+                head_outputs = {}
+                for target in self.target_heads:
+                    # Forward pass through the heads
+                    head_outputs[target] = self.heads[target](last_hidden_state)
                     
-                    # Standard BCE loss
-                    action_loss = F.binary_cross_entropy_with_logits(action_logits, next_actions)
-                    
-                    # Add temporal consistency within the sequence
-                    # Skip first frame as it has no previous frame
-                    if seq_length > 1:
-                        # Compute logits for each frame except the last one
-                        prev_logits = action_logits[:, :-1, :]
-                        # Compute logits for each frame except the first one
-                        curr_logits = action_logits[:, 1:, :]
+                    # Calculate loss for the heads
+                    if target == '_a' and self.w_a is not None:
+                        action_logits = head_outputs[target]
                         
-                        # Calculate temporal consistency loss
-                        temporal_loss = F.mse_loss(
-                            torch.sigmoid(curr_logits),
-                            torch.sigmoid(prev_logits)
-                        )
+                        # Standard BCE loss
+                        action_loss = F.binary_cross_entropy_with_logits(action_logits, next_actions)
                         
-                        # Combine losses
-                        other_losses['_a_loss'] = self.w_a * (action_loss + self.w_a_temporal_consist * temporal_loss)
-                    else:
-                        other_losses['_a_loss'] = self.w_a * action_loss
-                        
-                elif target == '_R':
-                    pass
-                
-        return {
+                        # Add temporal consistency within the sequence
+                        # Skip first frame as it has no previous frame
+                        if seq_length > 1:
+                            # Compute logits for each frame except the last one
+                            prev_logits = action_logits[:, :-1, :]
+                            # Compute logits for each frame except the first one
+                            curr_logits = action_logits[:, 1:, :]
+                            
+                            # Calculate temporal consistency loss
+                            temporal_loss = F.mse_loss(
+                                torch.sigmoid(curr_logits),
+                                torch.sigmoid(prev_logits)
+                            )
+                            
+                            # Combine losses
+                            other_losses['_a_loss'] = self.w_a * (action_loss + self.w_a_temporal_consist * temporal_loss)
+                        else:
+                            other_losses['_a_loss'] = self.w_a * action_loss
+                            
+                    elif target == '_R':
+                        pass
+        
+        outputs = {
             "_z_loss": _z_loss,
-            **other_losses,
+            "_z_hat": _z_hat,
             "logits": outputs.logits,
             "head_outputs": head_outputs,
             "last_hidden_states": last_hidden_state
         }
+        # Add other losses if they exist
+        if other_losses:
+            for key, value in other_losses.items():
+                outputs[key] = value
+        
+        return outputs
+    
+    def predict_next_action(self, state):
+        """Predict the next action based on the current state"""
+        # If you have an action head, use it
+        if '_a' in self.heads:
+            with torch.no_grad():
+                # Project to hidden dimension first
+                hidden = self.input_projection(state)
+                action_logits = self.heads['_a'](hidden)
+                # Return most likely action
+                return torch.argmax(action_logits, dim=-1)
+        else:
+            # Fallback: return random actions
+            batch_size = state.shape[0]
+            return torch.randint(0, self.num_action_classes, (batch_size,), device=state.device)
+
+    def generate_trajectory(self, initial_state, initial_action, num_steps):
+        """Generate a trajectory starting from initial state and action"""
+        batch_size = initial_state.shape[0]
+        device = initial_state.device
+        
+        # Initialize containers
+        states = [initial_state]
+        actions = [initial_action]
+        
+        current_state = initial_state
+        
+        for t in range(num_steps):
+            # Decide on next action (could be from a policy, random, or provided)
+            next_action = predict_next_action(current_state)  # Custom function
+            actions.append(next_action)
+            
+            # Prepare inputs (add sequence dimension if needed)
+            if current_state.dim() == 2:  # [batch_size, embedding_dim]
+                current_state = current_state.unsqueeze(1)  # [batch_size, 1, embedding_dim]
+                next_action = next_action.unsqueeze(1)  # [batch_size, 1]
+            
+            # Predict next state
+            with torch.no_grad():
+                next_state = self.forward(current_state, next_action)
+                
+                # If we used sequence dimension, remove it
+                if next_state.shape[1] == 1:
+                    next_state = next_state.squeeze(1)
+            
+            # Store and update
+            states.append(next_state)
+            current_state = next_state
+        
+        # Stack results
+        states = torch.stack(states, dim=1)  # [batch_size, num_steps+1, embedding_dim]
+        actions = torch.stack(actions, dim=1)  # [batch_size, num_steps+1]
+        
+        return states, actions
 
     def generate(self, 
                 input_embeddings: torch.Tensor,
@@ -343,7 +414,8 @@ class WorldModel(nn.Module):
         # Return the full sequence including the input and generated frames
         result = {
             "z": input_embeddings,
-            "_zs_hat": generated_embeddings[:, input_embeddings.size(1):],
+            "generated_embeddings": generated_embeddings[:, input_embeddings.size(1):],  # Rename for consistency
+            "_zs_hat": generated_embeddings[:, input_embeddings.size(1):],  # Keep this if needed for backward compatibility
             "last_hidden_states": all_hidden_states,
             **all_head_outputs
         }
@@ -387,7 +459,7 @@ class WorldModel(nn.Module):
 
     def update_memory(self,
                       memory: Dict[str, torch.Tensor],
-                      next_frame: Optional[torch.Tensor] = None,
+                      next_state: Optional[torch.Tensor] = None,
                       next_actions: Optional[torch.Tensor] = None,
                       attention_mask: Optional[torch.Tensor] = None) -> Dict[str, torch.Tensor]:
         """
@@ -395,7 +467,7 @@ class WorldModel(nn.Module):
         
         Args:
             memory: Dictionary containing previous memory tensors
-            next_frame: Target frame embeddings tensor of shape [batch_size, seq_length, embedding_dim]
+            next_state: Target frame embeddings tensor of shape [batch_size, seq_length, embedding_dim]
             next_actions: Target action logits tensor of shape [batch_size, num_action_classes]
             attention_mask: Attention mask of shape [batch_size, seq_length]
         
@@ -408,7 +480,7 @@ class WorldModel(nn.Module):
         # Perform forward pass
         outputs = self.forward(
             current_state=current_state,
-            next_frame=next_frame,
+            next_state=next_state,
             next_actions=next_actions,
             attention_mask=attention_mask
         )
@@ -441,189 +513,6 @@ class WorldModel(nn.Module):
         model.to(device)
         
         return model
-
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import math
-
-# Positional Encoding for Transformer
-class PositionalEncoding(nn.Module):
-    def __init__(self, d_model, max_len=5000):
-        super(PositionalEncoding, self).__init__()
-        
-        # Create positional encoding matrix
-        pe = torch.zeros(max_len, d_model)
-        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
-        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
-        
-        # Apply sin/cos positional encoding
-        pe[:, 0::2] = torch.sin(position * div_term)
-        pe[:, 1::2] = torch.cos(position * div_term)
-        pe = pe.unsqueeze(0)
-        
-        # Register buffer (persistent state)
-        self.register_buffer('pe', pe)
-        
-    def forward(self, x):
-        # Add positional encoding to input
-        # x shape: [batch_size, seq_len, embedding_dim]
-        x = x + self.pe[:, :x.size(1), :]
-        return x
-
-# Bidirectional Attention Reward Prediction Model
-class RewardPredictor(nn.Module):
-    def __init__(self, input_dim, context_length=5, hidden_dim=256, num_heads=4, num_layers=2, dropout=0.1):
-        super(RewardPredictor, self).__init__()
-        self.input_dim = input_dim
-        self.hidden_dim = hidden_dim
-        self.context_length = context_length
-        
-        # Input projection (if input_dim != hidden_dim)
-        self.input_projection = nn.Linear(input_dim, hidden_dim) if input_dim != hidden_dim else nn.Identity()
-        
-        # Positional encoding
-        self.positional_encoding = PositionalEncoding(hidden_dim)
-        
-        # Layer normalization before transformer
-        self.norm = nn.LayerNorm(hidden_dim)
-        
-        # Transformer encoder layer
-        encoder_layer = nn.TransformerEncoderLayer(
-            d_model=hidden_dim,
-            nhead=num_heads,
-            dim_feedforward=hidden_dim * 4,
-            dropout=dropout,
-            activation='gelu',
-            batch_first=True
-        )
-        
-        # Transformer encoder
-        self.transformer_encoder = nn.TransformerEncoder(
-            encoder_layer=encoder_layer,
-            num_layers=num_layers
-        )
-        
-        # Attention pooling layer to combine transformer outputs
-        self.attention_pool = nn.Sequential(
-            nn.Linear(hidden_dim, 1),
-            nn.Softmax(dim=1)
-        )
-        
-        # Output layers
-        self.fc = nn.Sequential(
-            nn.Linear(hidden_dim, hidden_dim // 2),
-            nn.LayerNorm(hidden_dim // 2),
-            nn.GELU(),
-            nn.Dropout(dropout),
-            nn.Linear(hidden_dim // 2, 1)
-        )
-    
-    def forward(self, x):
-        """
-        Forward pass through the bidirectional attention model.
-        
-        Args:
-            x: Input tensor of shape [batch_size, context_length, embedding_dim]
-            
-        Returns:
-            Predicted survival time
-        """
-        batch_size, seq_len, _ = x.size()
-        
-        # Project input to hidden dimension if needed
-        x = self.input_projection(x)
-        
-        # Add positional encoding
-        x = self.positional_encoding(x)
-        
-        # Layer normalization
-        x = self.norm(x)
-        
-        # Transformer encoder (bidirectional attention)
-        # No mask is applied, allowing bidirectional attention
-        encoded = self.transformer_encoder(x)
-        
-        # Attention pooling over sequence dimension
-        # Calculate attention weights
-        attn_weights = self.attention_pool(encoded)  # [batch_size, seq_len, 1]
-        
-        # Apply attention weights to get context vector
-        context = torch.bmm(encoded.transpose(1, 2), attn_weights)  # [batch_size, hidden_dim, 1]
-        context = context.squeeze(2)  # [batch_size, hidden_dim]
-        
-        # Alternative simplified approach: Use CLS token or mean pooling
-        # context = encoded[:, 0, :]  # CLS token approach
-        # or
-        # context = encoded.mean(dim=1)  # Mean pooling
-        
-        # Predict survival time
-        out = self.fc(context)
-        
-        return out.squeeze()  # Remove singleton dimension
-    
-    def get_attention_weights(self, x):
-        """
-        Get attention weights for visualization/analysis.
-        
-        Args:
-            x: Input tensor of shape [batch_size, context_length, embedding_dim]
-            
-        Returns:
-            Attention weights over the sequence
-        """
-        batch_size, seq_len, _ = x.size()
-        
-        # Project input to hidden dimension if needed
-        x = self.input_projection(x)
-        
-        # Add positional encoding
-        x = self.positional_encoding(x)
-        
-        # Layer normalization
-        x = self.norm(x)
-        
-        # Transformer encoder
-        encoded = self.transformer_encoder(x)
-        
-        # Get attention weights
-        attn_weights = self.attention_pool(encoded)  # [batch_size, seq_len, 1]
-        
-        return attn_weights.squeeze(-1)  # [batch_size, seq_len]
-
-
-# Action Policy Model with reward weighting
-class ActionPolicyModel(nn.Module):
-    def __init__(self, input_dim, context_length=10, num_action_classes=100, hidden_dim=256):
-        super(ActionPolicyModel, self).__init__()
-        
-        # LSTM to process sequence of frame embeddings
-        self.lstm = nn.LSTM(
-            input_size=input_dim,
-            hidden_size=hidden_dim,
-            num_layers=2,
-            batch_first=True
-        )
-        
-        # Action prediction head
-        self.action_head = nn.Sequential(
-            nn.Linear(hidden_dim, hidden_dim),
-            nn.ReLU(),
-            nn.Linear(hidden_dim, num_action_classes)
-        )
-    
-    def forward(self, x):
-        # x shape: [batch_size, context_length, embedding_dim]
-        lstm_out, _ = self.lstm(x)
-        
-        # Take the last LSTM output
-        last_output = lstm_out[:, -1, :]
-        
-        # Predict action logits
-        action_logits = self.action_head(last_output)
-        
-        return action_logits
-
 
 # Example usage:
 if __name__ == "__main__":

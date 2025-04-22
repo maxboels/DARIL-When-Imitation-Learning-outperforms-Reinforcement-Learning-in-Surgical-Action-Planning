@@ -90,17 +90,17 @@ def run_cholect50_experiment(cfg):
     
     # Step II: World Model - Next Frame Prediction
     # 1. Pre-train next frame prediction model
-    if cfg_exp['pretrain_next_frame']['train']:       
+    if cfg_exp['pretrain_world_model']['train']:       
         print("\nTraining next frame prediction model...")
         world_model = WorldModel(**cfg['models']['world_model']).to(device)
-        best_model_path = train_next_frame_model(cfg, logger, world_model, train_loader, test_video_loaders, device=device)  # Reduced epochs for demonstration
+        best_model_path = train_world_model(cfg, logger, world_model, train_loader, test_video_loaders, device=device)  # Reduced epochs for demonstration
         print(f"Best model saved at: {best_model_path}")
     
     # 2. Run inference
-    if cfg_exp['pretrain_next_frame']['inference']:
+    if cfg_exp['pretrain_world_model']['inference']:
         print("\nRunning inference...")
         if best_model_path is None:
-            best_model_path = cfg_exp['pretrain_next_frame']['best_model_path']
+            best_model_path = cfg_exp['pretrain_world_model']['best_model_path']
             print(f"Using best model from pre existing path: {best_model_path}")
         checkpoint = torch.load(best_model_path)
         world_model = WorldModel(**cfg['models']['world_model']).to(device)
