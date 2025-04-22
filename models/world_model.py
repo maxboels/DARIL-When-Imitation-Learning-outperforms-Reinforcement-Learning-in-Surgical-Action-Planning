@@ -6,9 +6,9 @@ import transformers
 from transformers import GPT2Config, GPT2LMHeadModel
 from typing import Dict, Any, Optional, List, Tuple, Union
 
-class CausalGPT2ForFrameEmbeddings(nn.Module):
+class WorldModel(nn.Module):
     """
-    GPT-2 based model for predicting future frame embeddings.
+    WORLD MODEL: GPT-2 based model for predicting future frame embeddings.
     """
     def __init__(self, hidden_dim: int, embedding_dim: int, n_layer: int, max_length: int = 1024,
                     use_head: bool = False,
@@ -21,7 +21,7 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
         """
         Initialize the generative model.
         """
-        super(CausalGPT2ForFrameEmbeddings, self).__init__()
+        super(WorldModel, self).__init__()
         self.hidden_dim = hidden_dim
         self.embedding_dim = embedding_dim
         self.n_layer = n_layer
@@ -57,6 +57,14 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
         # GPT-2 model
         self.model = GPT2LMHeadModel(self.config)        
         self.input_projection = nn.Linear(self.embedding_dim, self.hidden_dim)
+        self.action_embedding = nn.Linear(self.embedding_dim, self.hidden_dim)
+
+        # Combined frame and action embedding dimensions
+        self.combined_dim = frame_embedding_dim + action_embedding_dim
+
+        # Projection to GPT2 input dimension
+        self.input_projection = nn.Linear(self.combined_dim, self.hidden_dim)
+
         # Output projection: from GPT-2 hidden dimension back to frame embedding dimension
         # Replacing the standard language model head with our custom output projection
         self.model.lm_head = nn.Linear(self.hidden_dim, self.embedding_dim)
@@ -75,7 +83,7 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
         nn.init.zeros_(self.model.lm_head.bias)
     
     def forward(self, 
-                inputs: torch.Tensor, 
+                current_state: torch.Tensor, 
                 next_frame: Optional[torch.Tensor] = None,
                 next_actions: Optional[torch.Tensor] = None,
                 attention_mask: Optional[torch.Tensor] = None) -> Dict[str, torch.Tensor]:
@@ -83,38 +91,46 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
         Forward pass for training the model.
         
         Args:
-            inputs: Frame embeddings tensor of shape [batch_size, seq_length, embedding_dim]
+            current_state: Frame embeddings tensor of shape [batch_size, seq_length, embedding_dim]
             next_frame: Target frame embeddings tensor of shape [batch_size, seq_length, embedding_dim]
-                   If None, will use inputs shifted to the right for teacher forcing
+                   If None, will use current_state shifted to the right for teacher forcing
+            next_actions: We pass the next actions as input to the model for conditional generation of the next state,
+                     we want to learn the effect of future actions on the next state.
             attention_mask: Attention mask of shape [batch_size, seq_length]
         
         Returns:
             Dictionary with loss and predictions
         """
-        batch_size, seq_length, _ = inputs.size()
+        batch_size, seq_length, _ = current_state.size()
         
-        # Project input embeddings to GPT-2 hidden dimension
-        proj_inputs = self.input_projection(inputs)
+        # Get action embeddings
+        next_action_embeddings = self.action_embedding(next_actions)  # [batch_size, seq_len, action_embedding_dim]
+        
+        # Concatenate current frame and next action embeddings along the feature dimension
+        conditinal_state = torch.cat([current_state, next_action_embeddings], dim=-1)
+        
+        # Project to GPT2 input dimension
+        proj_inputs = self.input_projection(conditinal_state)  # [batch_size, seq_len, gpt2_input_dim]
         
         # Create position IDs
-        position_ids = torch.arange(seq_length, dtype=torch.long, device=inputs.device)
+        position_ids = torch.arange(seq_length, dtype=torch.long, device=current_state.device)
         position_ids = position_ids.unsqueeze(0).expand(batch_size, -1)
-        
-        # If no next_frame provided, use inputs shifted right for teacher forcing
+
+        # If no next_frame provided, use current_state shifted right for teacher forcing
         if next_frame is None:
-            # Shift inputs to the right, prepend with zeros as first token
+            # Shift current_state to the right, prepend with zeros as first token
             shifted_inputs = torch.cat([
-                torch.zeros(batch_size, 1, self.embedding_dim, device=inputs.device),
-                inputs[:, :-1]
+                torch.zeros(batch_size, 1, self.embedding_dim, device=current_state.device),
+                current_state[:, :-1]
             ], dim=1)
             
-            # Project the shifted inputs
+            # Project the shifted current_state
             shifted_hidden_states = self.input_projection(shifted_inputs)
             
-            # Use the original inputs as targets
-            _z = inputs
+            # Use the original current_state as targets
+            _z = current_state
         else:
-            # Use provided inputs and next_frame (can predict any future frame embeddings)
+            # Use provided current_state and next_frame (can predict any future frame embeddings)
             shifted_hidden_states = proj_inputs
             _z = next_frame
         
@@ -387,11 +403,11 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
             Dictionary with loss and predictions
         """
         # Extract previous memory tensors
-        inputs = memory["input_embeddings"]
+        current_state = memory["input_embeddings"]
         
         # Perform forward pass
         outputs = self.forward(
-            inputs=inputs,
+            current_state=current_state,
             next_frame=next_frame,
             next_actions=next_actions,
             attention_mask=attention_mask
@@ -412,7 +428,7 @@ class CausalGPT2ForFrameEmbeddings(nn.Module):
         }, path)
     
     @classmethod
-    def load(cls, path: str, device: Optional[torch.device] = None) -> 'CausalGPT2ForFrameEmbeddings':
+    def load(cls, path: str, device: Optional[torch.device] = None) -> 'WorldModel':
         """Load the model from the specified path."""
         if device is None:
             device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -620,7 +636,7 @@ if __name__ == "__main__":
     }
     
     # Initialize the model
-    model = CausalGPT2ForFrameEmbeddings(config)
+    model = WorldModel(config)
     
     # Example: Generate future frames from an initial frame embedding
     batch_size = 2

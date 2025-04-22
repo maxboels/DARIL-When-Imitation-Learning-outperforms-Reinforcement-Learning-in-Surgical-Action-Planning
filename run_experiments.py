@@ -92,7 +92,7 @@ def run_cholect50_experiment(cfg):
     # 1. Pre-train next frame prediction model
     if cfg_exp['pretrain_next_frame']['train']:       
         print("\nTraining next frame prediction model...")
-        world_model = CausalGPT2ForFrameEmbeddings(**cfg['models']['world_model']).to(device)
+        world_model = WorldModel(**cfg['models']['world_model']).to(device)
         best_model_path = train_next_frame_model(cfg, logger, world_model, train_loader, test_video_loaders, device=device)  # Reduced epochs for demonstration
         print(f"Best model saved at: {best_model_path}")
     
@@ -103,7 +103,7 @@ def run_cholect50_experiment(cfg):
             best_model_path = cfg_exp['pretrain_next_frame']['best_model_path']
             print(f"Using best model from pre existing path: {best_model_path}")
         checkpoint = torch.load(best_model_path)
-        world_model = CausalGPT2ForFrameEmbeddings(**cfg['models']['world_model']).to(device)
+        world_model = WorldModel(**cfg['models']['world_model']).to(device)
         world_model.load_state_dict(checkpoint['model_state_dict'])
         world_model.eval()
         results = run_generation_inference(cfg, logger, world_model, test_video_loaders, device)
