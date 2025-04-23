@@ -2,7 +2,7 @@
 debug: false
 
 experiment:
-  max_videos: 2 # null  # Set to null to use all videos
+  max_videos: 10 # null  # Set to null to use all videos
   # Recognition model
   recognition:
     train: false
@@ -11,7 +11,7 @@ experiment:
   # World model
   pretrain_world_model:
     train: true
-    inference: true
+    inference: false
     best_model_path: null # "best_model_epoch1_valloss1.190734.pt" # null #"best_model_epoch1_valloss1.190734.pt"
   pretrain_reward_model: false
   calculate_action_rewards: false
@@ -22,7 +22,7 @@ experiment:
 
 # Training parameters
 training:
-  epochs: 2
+  epochs: 3
   batch_size: 16
   learning_rate: 0.00003 # 0.00003
   scheduler:
@@ -37,10 +37,12 @@ training:
   save_checkpoint_every_n_epochs: 2
   checkpoint_dir: "checkpoints"
   log_every_n_steps: 80
+  eval_epoch_interval: 1
   save_model: true
 
-eval:
+evaluation:
   world_model:
+    rollout_horizon: 15
     use_memory: false
     max_horizon: 15
     eval_horizons: [1, 3, 5, 10, 15]

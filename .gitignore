@@ -7,3 +7,5 @@ logs/*/tensorboard/*
 
 best_model_*.pt
 saved_models/*.pt
+logs/*/*.pt
+logs/*/*.pt

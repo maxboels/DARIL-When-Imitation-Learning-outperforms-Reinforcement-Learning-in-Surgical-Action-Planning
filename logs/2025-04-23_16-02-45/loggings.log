@@ -1,0 +1,17 @@
+2025-04-23 16:02:45,672 - INFO - Log file: logs/2025-04-23_16-02-45/loggings.log
+2025-04-23 16:02:45,672 - INFO - Starting CholecT50 experiment for Surgical Actions Prediction
+2025-04-23 16:02:45,672 - INFO - Experiment configuration: {'max_videos': 2, 'recognition': {'train': False, 'inference': False, 'best_model_path': './best_checkpoints/best_model_epoch2_map0.5008.pt'}, 'pretrain_world_model': {'train': True, 'inference': True, 'best_model_path': None}, 'pretrain_reward_model': False, 'calculate_action_rewards': False, 'train_action_policy': False, 'run_tdmpc': False, 'analyze_results': False, 'run_evaluation': False}
+2025-04-23 16:02:45,672 - INFO - Using device: cuda
+2025-04-23 16:02:45,672 - INFO - Loading CholecT50 data...
+2025-04-23 16:02:53,498 - INFO - Starting world model training for 2 epochs
+2025-04-23 16:03:02,523 - INFO - Epoch 1/2 completed in 9.02s | Train loss: 1.0877
+2025-04-23 16:03:02,523 - INFO - [EVAL] Evaluating world model on 2 test videos
+2025-04-23 16:03:02,523 - INFO - [EVAL] Video IDs: ['VID02', 'VID06']
+2025-04-23 16:04:13,622 - INFO - Validation | Loss: 0.6842 | State Pred Error: 0.6842 | Action Pred Accuracy: 0.0000
+2025-04-23 16:04:13,752 - INFO - New best model saved at saved_models/world_model_best_epoch_1.pt
+2025-04-23 16:04:22,751 - INFO - Epoch 2/2 completed in 8.90s | Train loss: 0.4436
+2025-04-23 16:04:22,752 - INFO - [EVAL] Evaluating world model on 2 test videos
+2025-04-23 16:04:22,752 - INFO - [EVAL] Video IDs: ['VID02', 'VID06']
+2025-04-23 16:05:34,440 - INFO - Validation | Loss: 0.4781 | State Pred Error: 0.4781 | Action Pred Accuracy: 0.0000
+2025-04-23 16:05:34,566 - INFO - New best model saved at saved_models/world_model_best_epoch_2.pt
+2025-04-23 16:05:35,451 - INFO - Training completed. Best model saved at saved_models/world_model_best_epoch_2.pt

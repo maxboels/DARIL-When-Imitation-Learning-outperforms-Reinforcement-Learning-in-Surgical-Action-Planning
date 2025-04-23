@@ -307,6 +307,7 @@ class NextFramePredictionDataset(Dataset):
                 # This means frames from (i-context_length+1) to i, inclusive
                 z_seq = []
                 _z_seq = []
+                f_z_seq = [] # future states from i+1 to i+max_horizon
                 # a_seq: We already trained the vision backbone to recognise the actions but we need to evaluate it again
                 _a_seq = []
                 f_a_seq = [] # future actions from i+1 to i+max_horizon
@@ -339,21 +340,23 @@ class NextFramePredictionDataset(Dataset):
                         _z_seq.append(embeddings[k])
                         _a_seq.append(actions[k])
                 
-                # Add future actions
+                # Add future actions and states
                 for k in range(i + 1, min(i + 1 + max_horizon, len(embeddings))):
+                    f_z_seq.append(embeddings[k])
                     f_a_seq.append(actions[k])
 
                 if len(f_a_seq) < max_horizon:
                     # Padding for positions after the end of the video
                     for _ in range(max_horizon - len(f_a_seq)):
                         f_a_seq.append([0] * num_actions)
-                        # print(f"Padding for future action position {k}/{len(embeddings)}")
+                        f_z_seq.append([padding_value] * embedding_dim)
 
                 # Add the sequence to the samples list
                 self.samples.append({
                     'v_id': video_id,
                     'z': z_seq,     # Sequence of frames from (i-context_length+1) to i
                     '_z': _z_seq,   # Sequence of frames from (i-context_length+2) to i+1
+                    'f_z': f_z_seq,   # Future states from (i+1) to (i+max_horizon)
                     '_a': _a_seq,    # Sequence of actions from (i-context_length+2) to i+1
                     'f_a': f_a_seq,
                     'c_a': c_a,     # Current Action at position i
@@ -370,6 +373,7 @@ class NextFramePredictionDataset(Dataset):
         # v_id = torch.tensor(np.array(sample['v_id']), dtype=torch.float32)  # Shape: [context_length, embedding_dim]
         z = torch.tensor(np.array(sample['z']), dtype=torch.float32)  # Shape: [context_length, embedding_dim]
         _z = torch.tensor(np.array(sample['_z']), dtype=torch.float32)
+        f_z = torch.tensor(np.array(sample['f_z']), dtype=torch.float32)  # Shape: [max_horizon, embedding_dim]
         _a = torch.tensor(np.array(sample['_a']), dtype=torch.float32)
         f_a = torch.tensor(np.array(sample['f_a']), dtype=torch.float32)
 
@@ -377,7 +381,17 @@ class NextFramePredictionDataset(Dataset):
         c_a = torch.tensor(sample['c_a'], dtype=torch.float32)
         c_i = torch.tensor(sample['c_i'], dtype=torch.float32)
 
-        return z, _z, _a, f_a, c_a, c_i
+        # create dictiornary for batch
+        data = {
+            'current_states': z,
+            'next_states': _z,
+            'future_states': f_z,
+            'next_actions': _a,
+            'future_actions': f_a,
+            'current_actions': c_a,
+            'current_instruments': c_i,
+        }
+        return data
 
 # Custom dataset for reward prediction
 class RewardPredictionDataset(Dataset):

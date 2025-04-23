@@ -9,12 +9,6 @@ from typing import Dict, Any, Optional, List, Tuple, Union
 class WorldModel(nn.Module):
     """
     WORLD MODEL: GPT-2 based model for predicting future frame embeddings.
-    
-    This model implements the core functionality for surgical robotics world modeling:
-    1. Predicts future states based on current states and actions
-    2. Learns from streams of experience rather than isolated examples
-    3. Supports auto-regressive generation for planning multiple steps ahead
-    4. Optionally learns action prediction for imitation learning
     """
     def __init__(self, hidden_dim: int, embedding_dim: int, action_embedding_dim: int,
                     n_layer: int, max_length: int = 1024,
@@ -36,18 +30,17 @@ class WorldModel(nn.Module):
         self.n_layer = n_layer
         self.max_length = max_length
         self.use_head = use_head
-        self.targets_dims = targets_dims if targets_dims else {}
-        self.target_heads = target_heads if target_heads else []
-        self.loss_weights = loss_weights if loss_weights else {}
-        self.w_z = self.loss_weights.get('_z', 1.0)
-        self.w_a = self.loss_weights.get('_a', 1.0)
-        self.w_r = self.loss_weights.get('_r', 1.0)
-        self.w_q = self.loss_weights.get('_q', 1.0)
-        self.w_R = self.loss_weights.get('_R', 1.0)
-        self.w_a_temporal_consist = self.loss_weights.get('_a_temporal_consist', 0.1)
+        self.targets_dims = targets_dims
+        self.target_heads = target_heads
+        self.loss_weights = loss_weights
+        self.w_z = loss_weights.get('_z', 1.0) if loss_weights else 1.0
+        self.w_a = loss_weights.get('_a', 1.0) if loss_weights else 1.0
+        self.w_r = loss_weights.get('_r', 1.0) if loss_weights else 1.0
+        self.w_q = loss_weights.get('_q', 1.0) if loss_weights else 1.0
+        self.w_R = loss_weights.get('_R', 1.0) if loss_weights else 1.0
+        self.w_a_temporal_consist = loss_weights.get('_a_temporal_consist', 0.1) if loss_weights else 0.0
         self.num_action_classes = num_action_classes
         self.num_outcomes = num_outcomes
-        
         # Configuration for GPT-2 model
         self.config = GPT2Config.from_pretrained('gpt2')
         self.config.hidden_size = self.hidden_dim
@@ -66,6 +59,7 @@ class WorldModel(nn.Module):
         self._init_world_model()
         self._init_weights()
 
+    # Fix variable definitions in _init_world_model()
     def _init_world_model(self):
         # GPT-2 model
         self.model = GPT2LMHeadModel(self.config)        
@@ -102,8 +96,7 @@ class WorldModel(nn.Module):
                 next_actions: Optional[torch.Tensor] = None,
                 attention_mask: Optional[torch.Tensor] = None) -> Dict[str, torch.Tensor]:
         """
-        Forward pass for training the model with the correct temporal relationship:
-        current_state + next_actions -> next_state
+        Forward pass for training the model.
         
         Args:
             current_state: Frame embeddings tensor of shape [batch_size, seq_length, embedding_dim]
@@ -118,18 +111,14 @@ class WorldModel(nn.Module):
         """
         batch_size, seq_length, _ = current_state.size()
         
-        # Ensure next_actions is provided
-        if next_actions is None:
-            raise ValueError("next_actions must be provided for the forward pass to capture the correct temporal relationship")
-        
         # Get action embeddings from next_actions shape: [batch_size, seq_len, num_action_classes]
         next_action_embeddings = self.action_embedding(next_actions)  # [batch_size, seq_len, action_embedding_dim]
         
         # Concatenate current frame and next action embeddings along the feature dimension
-        conditional_state = torch.cat([current_state, next_action_embeddings], dim=-1)
+        conditinal_state = torch.cat([current_state, next_action_embeddings], dim=-1)
         
         # Project to GPT2 input dimension
-        proj_inputs = self.input_projection(conditional_state)  # [batch_size, seq_len, gpt2_input_dim]
+        proj_inputs = self.input_projection(conditinal_state)  # [batch_size, seq_len, gpt2_input_dim]
         
         # Create position IDs
         position_ids = torch.arange(seq_length, dtype=torch.long, device=current_state.device)
@@ -143,19 +132,25 @@ class WorldModel(nn.Module):
                 current_state[:, :-1]
             ], dim=1)
             
+            # Project the shifted current_state
+            shifted_hidden_states = self.input_projection(shifted_inputs)
+            
             # Use the original current_state as targets
             _z = current_state
         else:
-            # Use provided current_state and next_state
+            # Use provided current_state and next_state (can predict any future frame embeddings)
+            shifted_hidden_states = proj_inputs
             _z = next_state
         
         # Pass through GPT-2 model
+        # We're using the model differently - we're providing hidden states directly
+        # and treating the output as continuous values rather than categorical logits
         outputs = self.model(
-            inputs_embeds=proj_inputs,
+            inputs_embeds=shifted_hidden_states,
             position_ids=position_ids,
             attention_mask=attention_mask, # None if not provided
             output_hidden_states=True
-        ) # outputs: logits, past_key_values, hidden_states
+        ) # ouputs: logits, past_key_values, hidden_states
         
         # Get the last hidden state
         last_hidden_state = outputs.hidden_states[-1] # D=768
@@ -166,11 +161,14 @@ class WorldModel(nn.Module):
         # Calculate MSE loss between predictions and targets
         _z_loss = F.mse_loss(_z_hat, _z)
 
-        # If we want to use imitation learning - predict the next action
-        other_losses = {}
-        head_outputs = {}
+        # If we want to use imitation learning - predict the next action to mimic expert behavior, we just need
+        # to predict the next actions based on the current state.
+        other_losses = None
+        head_outputs = None
         if self.imitation_learning:
+            other_losses = {}
             if self.target_heads:
+                head_outputs = {}
                 for target in self.target_heads:
                     # Forward pass through the heads
                     head_outputs[target] = self.heads[target](last_hidden_state)
@@ -200,6 +198,9 @@ class WorldModel(nn.Module):
                             other_losses['_a_loss'] = self.w_a * (action_loss + self.w_a_temporal_consist * temporal_loss)
                         else:
                             other_losses['_a_loss'] = self.w_a * action_loss
+                            
+                    elif target == '_R':
+                        pass
         
         outputs = {
             "_z_loss": _z_loss,
@@ -209,101 +210,81 @@ class WorldModel(nn.Module):
             "last_hidden_states": last_hidden_state
         }
         # Add other losses if they exist
-        for key, value in other_losses.items():
-            outputs[key] = value
-        
-        # Calculate total loss
-        total_loss = self.w_z * _z_loss
-        for loss_name, loss_value in other_losses.items():
-            total_loss = total_loss + loss_value
-        
-        outputs["loss"] = total_loss
+        if other_losses:
+            for key, value in other_losses.items():
+                outputs[key] = value
         
         return outputs
     
-    def predict_next_action(self, state: torch.Tensor) -> torch.Tensor:
-        """
-        Predict the next action based on the current state.
-        
-        Args:
-            state: Current state embeddings of shape [batch_size, embedding_dim] or [batch_size, 1, embedding_dim]
-            
-        Returns:
-            Predicted next action probabilities
-        """
-        # Ensure state has the right shape [batch_size, seq_len, embedding_dim]
-        if state.dim() == 2:
-            state = state.unsqueeze(1)  # Add sequence dimension
-        
-        with torch.no_grad():
-            # Project to hidden dimension
-            # For action prediction, we don't need to provide action embeddings
-            # We're just using the current state to predict what action should come next
-            state_proj = self.input_projection(
-                torch.cat([
-                    state, 
-                    torch.zeros(state.shape[0], state.shape[1], self.action_embedding_dim, device=state.device)
-                ], dim=-1)
-            )
-            
-            # Get hidden states
-            outputs = self.model(
-                inputs_embeds=state_proj,
-                output_hidden_states=True
-            )
-            
-            last_hidden_state = outputs.hidden_states[-1]
-            
-            # If we have an action head, use it
-            if self.imitation_learning and '_a' in self.heads:
-                action_logits = self.heads['_a'](last_hidden_state)
-                # Return action probabilities
-                return torch.sigmoid(action_logits)
-            else:
-                # Fallback: return random probabilities
-                batch_size = state.shape[0]
-                seq_len = state.shape[1]
-                return torch.rand(batch_size, seq_len, self.num_action_classes, device=state.device)
+    def predict_next_action(self, state):
+        """Predict the next action based on the current state"""
+        # If you have an action head, use it
+        if '_a' in self.heads:
+            with torch.no_grad():
+                # Project to hidden dimension first
+                hidden = self.input_projection(state)
+                action_logits = self.heads['_a'](hidden)
+                # Return most likely action
+                return torch.argmax(action_logits, dim=-1)
+        else:
+            # Fallback: return random actions
+            batch_size = state.shape[0]
+            return torch.randint(0, self.num_action_classes, (batch_size,), device=state.device)
 
-    def sample_next_action(self, state: torch.Tensor, temperature: float = 1.0) -> torch.Tensor:
-        """
-        Sample the next action based on predicted probabilities.
+    def generate_trajectory(self, initial_state, initial_action, num_steps):
+        """Generate a trajectory starting from initial state and action"""
+        batch_size = initial_state.shape[0]
+        device = initial_state.device
         
-        Args:
-            state: Current state embeddings
-            temperature: Sampling temperature (higher = more random)
+        # Initialize containers
+        states = [initial_state]
+        actions = [initial_action]
+        
+        current_state = initial_state
+        
+        for t in range(num_steps):
+            # Decide on next action (could be from a policy, random, or provided)
+            next_action = predict_next_action(current_state)  # Custom function
+            actions.append(next_action)
             
-        Returns:
-            One-hot encoded sampled actions
-        """
-        action_probs = self.predict_next_action(state)
+            # Prepare inputs (add sequence dimension if needed)
+            if current_state.dim() == 2:  # [batch_size, embedding_dim]
+                current_state = current_state.unsqueeze(1)  # [batch_size, 1, embedding_dim]
+                next_action = next_action.unsqueeze(1)  # [batch_size, 1]
+            
+            # Predict next state
+            with torch.no_grad():
+                next_state = self.forward(current_state, next_action)
+                
+                # If we used sequence dimension, remove it
+                if next_state.shape[1] == 1:
+                    next_state = next_state.squeeze(1)
+            
+            # Store and update
+            states.append(next_state)
+            current_state = next_state
         
-        # Apply temperature
-        if temperature != 1.0:
-            logits = torch.log(action_probs + 1e-8) / temperature
-            action_probs = torch.softmax(logits, dim=-1)
+        # Stack results
+        states = torch.stack(states, dim=1)  # [batch_size, num_steps+1, embedding_dim]
+        actions = torch.stack(actions, dim=1)  # [batch_size, num_steps+1]
         
-        # Sample actions (binary multi-label)
-        sampled_actions = torch.bernoulli(action_probs)
-        
-        return sampled_actions
+        return states, actions
 
-    def generate_conditional_future_states(self, 
+    def generate(self, 
                 input_embeddings: torch.Tensor,
-                input_actions: Optional[torch.Tensor] = None,
                 horizon: int = 10,
                 temperature: float = 1.0,
                 top_k: Optional[int] = None,
                 top_p: Optional[float] = None,
                 repetition_penalty: float = 1.0,
                 do_sample: bool = True,
-                use_past: bool = True) -> Dict[str, torch.Tensor]:
+                use_past: bool = True,
+                use_memory: bool = False) -> Dict[str, torch.Tensor]:
         """
-        Generate future frame embeddings (states) autoregressively.
+        Generate future frame embeddings autoregressively.
         
         Args:
             input_embeddings: Initial frame embeddings of shape [batch_size, seq_length, embedding_dim]
-            input_actions: Initial actions for the first step (optional)
             horizon: Number of future frames to generate
             temperature: Sampling temperature for generation
             top_k: Number of highest probability tokens to keep for top-k sampling
@@ -319,33 +300,21 @@ class WorldModel(nn.Module):
         device = input_embeddings.device
         batch_size, seq_length, _ = input_embeddings.size()
         
-        # Initialize actions if not provided
-        if input_actions is None and self.imitation_learning:
-            # Sample initial actions from the current state
-            input_actions = self.sample_next_action(input_embeddings)
-        elif input_actions is None:
-            # Create random actions if we don't have imitation learning
-            input_actions = torch.zeros(batch_size, seq_length, self.num_action_classes, device=device)
-            input_actions = input_actions.bernoulli(0.5)  # Random binary actions
-        
-        # Project input embeddings and actions to GPT-2 hidden dimension
-        action_embeddings = self.action_embedding(input_actions)
-        combined_inputs = torch.cat([input_embeddings, action_embeddings], dim=-1)
-        hidden_states = self.input_projection(combined_inputs)
+        # Project input embeddings to GPT-2 hidden dimension
+        hidden_states = self.input_projection(input_embeddings)
         
         # Initialize past key values if using them
         past = None
         
         # Initialize the generated sequence with the input embeddings
         generated_embeddings = input_embeddings.clone()
-        generated_actions = input_actions.clone()
         
         # Create attention mask for the input sequence
         attention_mask = torch.ones(batch_size, seq_length, device=device)
         
         # Initialize containers to store hidden states and head outputs
         all_hidden_states = []
-        all_head_outputs = {target: [] for target in self.target_heads} if self.target_heads else {}
+        all_head_outputs = {target: [] for target in self.target_heads} if self.target_heads else None
         
         # Generate new frames autoregressively
         for i in range(horizon):
@@ -387,11 +356,11 @@ class WorldModel(nn.Module):
                 past = outputs.past_key_values
             
             # Get the next frame embedding representation
-            next_token_hidden = outputs.hidden_states[-1][:, -1, :]  # [batch_size, hidden_dim]
+            next_token_hidden = outputs.hidden_states[-1][:, -1, :] # D=768
             all_hidden_states.append(next_token_hidden)
             
             # Project hidden state to embedding dimension
-            next_frame_embedding = self.model.lm_head(next_token_hidden)  # [batch_size, embedding_dim]
+            next_frame_embedding = self.model.lm_head(next_token_hidden) # D=1024
             
             # Apply temperature scaling and optional sampling techniques
             if do_sample:
@@ -412,34 +381,20 @@ class WorldModel(nn.Module):
                     penalty = torch.pow(similarities.max(dim=1)[0], 1/repetition_penalty).unsqueeze(1)
                     next_frame_embedding = next_frame_embedding * penalty
             
-            # Compute head outputs for the current frame and predict next action
-            next_action = None
-            if self.imitation_learning and self.target_heads:
+            # Compute head outputs for the current frame
+            if self.target_heads:
                 for target in self.target_heads:
                     head_output = self.heads[target](next_token_hidden)
-                    all_head_outputs[target] = all_head_outputs.get(target, []) + [head_output]
-                    
-                    # If we have an action head, use it to predict the next action
-                    if target == '_a':
-                        action_logits = head_output
-                        next_action = torch.bernoulli(torch.sigmoid(action_logits))
-            
-            # If we don't have a predicted action yet, sample one
-            if next_action is None:
-                next_action = self.sample_next_action(next_frame_embedding.unsqueeze(1)).squeeze(1)
+                    all_head_outputs[target].append(head_output)
             
             # Reshape for concatenation
-            next_frame_embedding = next_frame_embedding.unsqueeze(1)  # [batch_size, 1, embedding_dim]
-            next_action = next_action.unsqueeze(1)  # [batch_size, 1, num_action_classes]
+            next_frame_embedding = next_frame_embedding.unsqueeze(1)
             
-            # Add the generated frame and action to the sequences
+            # Add the generated frame to the sequence
             generated_embeddings = torch.cat([generated_embeddings, next_frame_embedding], dim=1)
-            generated_actions = torch.cat([generated_actions, next_action], dim=1)
             
             # Update hidden states for next iteration
-            next_action_embedding = self.action_embedding(next_action)
-            next_combined = torch.cat([next_frame_embedding, next_action_embedding], dim=-1)
-            next_hidden = self.input_projection(next_combined)
+            next_hidden = self.input_projection(next_frame_embedding)
             hidden_states = torch.cat([hidden_states, next_hidden], dim=1)
             
             # Extend attention mask
@@ -449,133 +404,89 @@ class WorldModel(nn.Module):
             ], dim=1)
         
         # Stack all hidden states
-        all_hidden_states = torch.stack(all_hidden_states, dim=1)  # [batch_size, horizon, hidden_dim]
+        all_hidden_states = torch.stack(all_hidden_states, dim=1)  # [batch_size, num_frames, hidden_dim]
         
-        # Stack all head outputs
-        stacked_head_outputs = {}
-        for target, outputs_list in all_head_outputs.items():
-            if outputs_list:
-                stacked_head_outputs[target] = torch.stack(outputs_list, dim=1)
+        # Stack future predictions over the sequence dimension
+        if self.target_heads:
+            for target in self.target_heads:
+                all_head_outputs[f"f{target}_seq_hat"] = torch.stack(all_head_outputs[target], dim=1)
         
-        # Return the full sequence including the input and generated atates and actions
+        # Return the full sequence including the input and generated frames
         result = {
-            "input_embeddings": input_embeddings,
-            "input_actions": input_actions,
-            "generated_embeddings": generated_embeddings[:, input_embeddings.size(1):],
-            "generated_actions": generated_actions[:, input_actions.size(1):],
-            "full_embeddings": generated_embeddings,
-            "full_actions": generated_actions,
+            "z": input_embeddings,
+            "generated_embeddings": generated_embeddings[:, input_embeddings.size(1):],  # Rename for consistency
+            "_zs_hat": generated_embeddings[:, input_embeddings.size(1):],  # Keep this if needed for backward compatibility
             "last_hidden_states": all_hidden_states,
-            "head_outputs": stacked_head_outputs
+            **all_head_outputs
         }
         
         return result
 
-    # def generate_trajectory(self, initial_state: torch.Tensor, initial_action: torch.Tensor, num_steps: int):
-    #     """
-    #     Generate a trajectory starting from initial state and action.
+    def generate_future(self, 
+                        initial_embedding: torch.Tensor, 
+                        length: int = 10) -> Dict[str, torch.Tensor]:
+        """
+        Simplified method to generate future frames from a single embedding.
         
-    #     Args:
-    #         initial_state: Starting state of shape [batch_size, embedding_dim]
-    #         initial_action: Starting action of shape [batch_size, num_action_classes]
-    #         num_steps: Number of steps to generate
+        Args:
+            initial_embedding: Starting frame embedding of shape [batch_size, embedding_dim]
+            length: Number of future frames to generate
             
-    #     Returns:
-    #         Tuple of (states, actions) where:
-    #         - states: Tensor of shape [batch_size, num_steps+1, embedding_dim]
-    #         - actions: Tensor of shape [batch_size, num_steps+1, num_action_classes]
-    #     """
-    #     batch_size = initial_state.shape[0]
-    #     device = initial_state.device
+        Returns:
+            Dictionary containing generated sequence of future frame embeddings and head outputs
+        """
+        # Ensure the initial embedding has batch and sequence dimensions
+        if initial_embedding.dim() == 2:
+            # [batch_size, embedding_dim] -> [batch_size, 1, embedding_dim]
+            initial_embedding = initial_embedding.unsqueeze(1)
+        elif initial_embedding.dim() == 1:
+            # [embedding_dim] -> [1, 1, embedding_dim]
+            initial_embedding = initial_embedding.unsqueeze(0).unsqueeze(0)
         
-    #     # Initialize containers
-    #     states = [initial_state]
-    #     actions = [initial_action]
+        # Generate the sequence
+        result = self.generate(
+            input_embeddings=initial_embedding,
+            horizon=length,
+            do_sample=True,
+            temperature=0.7,
+            use_past=True
+        )
         
-    #     current_state = initial_state
-    #     current_action = initial_action
+        # Modify the result to only include generated future frames (exclude the initial frame)
+        result["generated_embeddings"] = result["generated_embeddings"][:, 1:]
         
-    #     for t in range(num_steps):
-    #         # Ensure shapes are correct
-    #         if current_state.dim() == 2:  # [batch_size, embedding_dim]
-    #             current_state = current_state.unsqueeze(1)  # [batch_size, 1, embedding_dim]
-            
-    #         if current_action.dim() == 2:  # [batch_size, num_action_classes]
-    #             current_action = current_action.unsqueeze(1)  # [batch_size, 1, num_action_classes]
-            
-    #         # Predict next state based on current state and action
-    #         with torch.no_grad():
-    #             outputs = self.forward(current_state, next_actions=current_action)
-    #             next_state = outputs["_z_hat"]
-                
-    #             # Sample next action based on the predicted next state
-    #             next_action = self.sample_next_action(next_state)
-            
-    #         # If we used sequence dimension and it's 1, remove it
-    #         if next_state.shape[1] == 1:
-    #             next_state = next_state.squeeze(1)
-            
-    #         if next_action.shape[1] == 1:
-    #             next_action = next_action.squeeze(1)
-            
-    #         # Store and update
-    #         states.append(next_state)
-    #         actions.append(next_action)
-            
-    #         # Update for next iteration
-    #         current_state = next_state
-    #         current_action = next_action
-        
-    #     # Stack results
-    #     states = torch.stack(states, dim=1)  # [batch_size, num_steps+1, embedding_dim]
-    #     actions = torch.stack(actions, dim=1)  # [batch_size, num_steps+1, num_action_classes]
-        
-    #     return states, actions
+        return result
 
-    # def generate_future(self, 
-    #                   initial_embedding: torch.Tensor, 
-    #                   initial_action: Optional[torch.Tensor] = None,
-    #                   length: int = 10,
-    #                   temperature: float = 0.7) -> Dict[str, torch.Tensor]:
-    #     """
-    #     Simplified method to generate future frames from a single embedding.
+    def update_memory(self,
+                      memory: Dict[str, torch.Tensor],
+                      next_state: Optional[torch.Tensor] = None,
+                      next_actions: Optional[torch.Tensor] = None,
+                      attention_mask: Optional[torch.Tensor] = None) -> Dict[str, torch.Tensor]:
+        """
+        Update the memory with new observations and perform a forward pass.
         
-    #     Args:
-    #         initial_embedding: Starting frame embedding of shape [batch_size, embedding_dim]
-    #         initial_action: Starting action (optional)
-    #         length: Number of future frames to generate
-    #         temperature: Sampling temperature
-            
-    #     Returns:
-    #         Dictionary containing generated sequence of future frame embeddings and head outputs
-    #     """
-    #     # Ensure the initial embedding has batch and sequence dimensions
-    #     if initial_embedding.dim() == 2:
-    #         # [batch_size, embedding_dim] -> [batch_size, 1, embedding_dim]
-    #         initial_embedding = initial_embedding.unsqueeze(1)
-    #     elif initial_embedding.dim() == 1:
-    #         # [embedding_dim] -> [1, 1, embedding_dim]
-    #         initial_embedding = initial_embedding.unsqueeze(0).unsqueeze(0)
+        Args:
+            memory: Dictionary containing previous memory tensors
+            next_state: Target frame embeddings tensor of shape [batch_size, seq_length, embedding_dim]
+            next_actions: Target action logits tensor of shape [batch_size, num_action_classes]
+            attention_mask: Attention mask of shape [batch_size, seq_length]
         
-    #     # Handle initial action if provided
-    #     if initial_action is not None:
-    #         if initial_action.dim() == 2:
-    #             initial_action = initial_action.unsqueeze(1)
-    #         elif initial_action.dim() == 1:
-    #             initial_action = initial_action.unsqueeze(0).unsqueeze(0)
+        Returns:
+            Dictionary with loss and predictions
+        """
+        # Extract previous memory tensors
+        current_state = memory["input_embeddings"]
         
-    #     # Generate the sequence
-    #     result = self.generate(
-    #         input_embeddings=initial_embedding,
-    #         input_actions=initial_action,
-    #         horizon=length,
-    #         do_sample=True,
-    #         temperature=temperature,
-    #         use_past=True
-    #     )
+        # Perform forward pass
+        outputs = self.forward(
+            current_state=current_state,
+            next_state=next_state,
+            next_actions=next_actions,
+            attention_mask=attention_mask
+        )
         
-    #     return result
-
+        return outputs
+    
     def save(self, path: str) -> None:
         """Save the model to the specified path."""
         torch.save({
@@ -583,16 +494,8 @@ class WorldModel(nn.Module):
             'config': {
                 'hidden_dim': self.hidden_dim,
                 'embedding_dim': self.embedding_dim,
-                'action_embedding_dim': self.action_embedding_dim,
                 'n_layer': self.n_layer,
-                'max_length': self.max_length,
-                'use_head': self.use_head,
-                'targets_dims': self.targets_dims,
-                'target_heads': self.target_heads,
-                'loss_weights': self.loss_weights,
-                'num_action_classes': self.num_action_classes,
-                'num_outcomes': self.num_outcomes,
-                'imitation_learning': self.imitation_learning
+                'max_length': self.max_length
             }
         }, path)
     
@@ -605,8 +508,37 @@ class WorldModel(nn.Module):
         checkpoint = torch.load(path, map_location=device)
         config = checkpoint['config']
         
-        model = cls(**config)
+        model = cls(config)
         model.load_state_dict(checkpoint['model_state_dict'])
         model.to(device)
         
         return model
+
+# Example usage:
+if __name__ == "__main__":
+    # Configuration for a small GPT-2 model
+    config = {
+        'hidden_dim': 768,      # GPT-2 hidden dimension
+        'embedding_dim': 1024,  # Frame embedding dimension
+        'n_layer': 6,           # Number of transformer layers
+        'max_length': 512       # Maximum sequence length
+    }
+    
+    # Initialize the model
+    model = WorldModel(config)
+    
+    # Example: Generate future frames from an initial frame embedding
+    batch_size = 2
+    initial_embedding = torch.randn(batch_size, 1, 1024)  # [batch_size, seq_length=1, embedding_dim]
+    
+    # Generate 10 future frames
+    future_frames = model.generate(initial_embedding, horizon=10)
+    
+    print(f"Generated sequence shape: {future_frames.shape}")  # [batch_size, 11, embedding_dim]
+    
+    # Training example
+    input_seq = torch.randn(batch_size, 5, 1024)  # 5 frames
+    outputs = model.forward(input_seq)
+    loss = outputs["loss"]
+    
+    print(f"Training loss: {loss.item()}")
