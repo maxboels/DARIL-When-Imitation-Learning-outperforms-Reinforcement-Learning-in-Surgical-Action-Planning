@@ -44,7 +44,7 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
         metadata = pd.read_csv(metadata_path)
         print(f"Metadata loaded with shape: {metadata.shape}")
 
-    # Load video global outcomes if available
+    # Load video global outcomes per video if available
     video_global_outcomes = None
     if video_global_outcome_file:
         video_global_outcome_path = os.path.join(metadata_dir, video_global_outcome_file)
@@ -63,9 +63,9 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
             for column in columns_to_add:
                 metadata.loc[metadata['video'] == video_id, column] = video_global_outcome[column].values[0]
         print(f"Added video global outcomes to metadata")
-        
+    
+    # Add risk scores to metadata if not already there
     risk_score_root = "/home/maxboels/datasets/CholecT50/instructions/anticipation_5s_with_goals/"
-    # Add the risk score for each frame to the metadata correctly
     video_ids_cache = []
     all_risk_scores = []
     risk_column_name = f"risk_score_{cfg['frame_risk_agg']}"
@@ -121,6 +121,11 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
         # save new version of metadata
         metadata.to_csv(metadata_path, index=False)
         print(f"Saved metadata with risk scores to {metadata_path}")
+    
+
+    # 
+    if cfg['data_preprocessing']['compute_action_phase_distribution']:
+
 
     # Find all videos in metadata csv file
     if metadata is not None:

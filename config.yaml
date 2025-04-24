@@ -1,6 +1,19 @@
 # Debug mode
 debug: false
 
+preprocess:
+  reward_shaping:
+    imitation_learning:
+      action_probability_distribution: true # KL divergence between action distributions (precomputed on all videos)
+    prior_expert_knowledge:
+      risk_score: true        # risk score associated with each actions triplets
+    grounded_signals:
+      blood_loss: false       # blood loss signal (not available)
+      phase_progression: true # percentage of the phase completed
+      instrument_usage: true  # percentage of the instrument usage
+      global_duration: true   # absolute time in seconds
+    global_score: true
+
 experiment:
   max_videos: 10 # null  # Set to null to use all videos
   # Recognition model
