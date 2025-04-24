@@ -16,6 +16,8 @@ import yaml
 import os
 from datetime import datetime
 
+from .preprocess_rewards import compute_action_phase_distribution, add_progression_scores
+
 # Step 1: Data Loading from CholecT50 Dataset
 def load_cholect50_data(cfg, split='train', max_videos=None):
     """
@@ -24,8 +26,10 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
     Returns:
         List of dictionaries containing video data
     """
+    cfg_data = cfg['data']
+    cfg_rewards = cfg['preprocess']['rewards']
     # extract paths from config
-    paths_config = cfg['paths']
+    paths_config = cfg_data['paths']
     data_dir = paths_config['data_dir']
     metadata_file = paths_config['metadata_file']
     video_global_outcome_file = paths_config['video_global_outcome_file'] # embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv
@@ -43,6 +47,11 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
     if metadata_path and os.path.exists(metadata_path):
         metadata = pd.read_csv(metadata_path)
         print(f"Metadata loaded with shape: {metadata.shape}")
+        print(f"Metadata columns: {metadata.columns.tolist()}")
+
+        # print all columns that ends with "rew" (reward)
+        reward_columns = [col for col in metadata.columns if col.endswith("_rew")]
+        print(f"Reward columns(endswith('_rew')): {reward_columns}")
 
     # Load video global outcomes per video if available
     video_global_outcomes = None
@@ -68,13 +77,14 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
     risk_score_root = "/home/maxboels/datasets/CholecT50/instructions/anticipation_5s_with_goals/"
     video_ids_cache = []
     all_risk_scores = []
-    risk_column_name = f"risk_score_{cfg['frame_risk_agg']}"
+    risk_column_name = f"risk_score_{cfg_data['frame_risk_agg']}"
     if metadata is not None:
+        # For each frame in metadata, add risk score
         for i, row in metadata.iterrows():
             video_id = row['video']
             frame_id = row['frame']
 
-            # Add risk score to metadata if not already there or column has nan value
+            # Add risk score per frame to metadata if not already there or column has nan value
             if risk_column_name not in metadata.columns:
                 if video_id not in video_ids_cache:
                     print(f"Loading risk scores for video {video_id}")
@@ -88,17 +98,17 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
                     else:
                         print(f"Risk score path not found, skipping")
                 
-                # Get risk score for this frame
+                # Get risk score for each frame
                 current_actions = risk_scores[str(frame_id)]['current_actions']
                 frame_risk_scores = []
                 for action in current_actions: # it's a list of dictionaries
                     frame_risk_scores.append(action['expert_risk_score'])
-                if cfg['frame_risk_agg'] == 'mean':
+                if cfg_data['frame_risk_agg'] == 'mean':
                     risk_score = np.mean(frame_risk_scores)
-                elif cfg['frame_risk_agg'] == 'max':
+                elif cfg_data['frame_risk_agg'] == 'max':
                     risk_score = np.max(frame_risk_scores)
                 else:
-                    print(f"Frame risk aggregation method {cfg['frame_risk_agg']} not supported, skipping")
+                    print(f"Frame risk aggregation method {cfg_data['frame_risk_agg']} not supported, skipping")
                 risk_score = float(risk_score)
                 all_risk_scores.append(risk_score)
 
@@ -122,10 +132,32 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
         metadata.to_csv(metadata_path, index=False)
         print(f"Saved metadata with risk scores to {metadata_path}")
     
+    # preprocess:
+    # reward_shaping:
+    #     imitation_learning:
+    #     action_probability_distribution: true # KL divergence between action distributions (precomputed on all videos)
+    #     prior_expert_knowledge:
+    #     risk_score: true        # risk score associated with each actions triplets
+    #     grounded_signals:
+    #     blood_loss: false       # blood loss signal (not available)
+    #     phase_progression: true # percentage of the phase completed
+    #     instrument_usage: true  # percentage of the instrument usage
+    #     global_duration: true   # absolute time in seconds
+    #     global_score: true
 
-    # 
-    if cfg['data_preprocessing']['compute_action_phase_distribution']:
+    # imitation learning - the reward function is a KL divergence between the predicted action distribution and the expert action distribution
+    if cfg_rewards['imitation_learning']['action_probability_distribution']:
+        dist_df = compute_action_phase_distribution(metadata)
+        print("Phase 2's actions probs:", dist_df.loc['p2'].sort_values(ascending=False).head(10))
+    
+    if cfg_rewards['grounded_signals']['phase_progression']:
+        metadata_with_progress = add_progression_scores(metadata)
+        print("Phase 2's progression scores:", metadata_with_progress.loc[metadata_with_progress['video'] == 'video_2'].sort_values(by='phase_progression', ascending=False).head(10))
 
+        # save new version of metadata
+        metadata_with_progress.to_csv(metadata_path, index=False)
+        # replace metadata with new version
+        metadata = metadata_with_progress
 
     # Find all videos in metadata csv file
     if metadata is not None:

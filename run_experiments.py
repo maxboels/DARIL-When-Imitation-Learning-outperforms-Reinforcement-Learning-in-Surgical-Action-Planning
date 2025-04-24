@@ -55,8 +55,8 @@ def run_cholect50_experiment(cfg):
     
     # Step 1: Load data
     logger.info("Loading CholecT50 data...")
-    train_data = load_cholect50_data(cfg['data'], split='train', max_videos=cfg['experiment']['max_videos'])
-    test_data = load_cholect50_data(cfg['data'], split='test', max_videos=cfg['experiment']['max_videos'])
+    train_data = load_cholect50_data(cfg, split='train', max_videos=cfg['experiment']['max_videos'])
+    test_data = load_cholect50_data(cfg, split='test', max_videos=cfg['experiment']['max_videos'])
     
     # Create dataloaders
     train_dataset = NextFramePredictionDataset(cfg['data'], train_data)

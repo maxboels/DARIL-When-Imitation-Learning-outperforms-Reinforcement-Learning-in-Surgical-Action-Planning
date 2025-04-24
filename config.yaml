@@ -2,7 +2,7 @@
 debug: false
 
 preprocess:
-  reward_shaping:
+  rewards:
     imitation_learning:
       action_probability_distribution: true # KL divergence between action distributions (precomputed on all videos)
     prior_expert_knowledge:
@@ -15,7 +15,7 @@ preprocess:
     global_score: true
 
 experiment:
-  max_videos: 10 # null  # Set to null to use all videos
+  max_videos: 5 # null  # Set to null to use all videos
   # Recognition model
   recognition:
     train: false

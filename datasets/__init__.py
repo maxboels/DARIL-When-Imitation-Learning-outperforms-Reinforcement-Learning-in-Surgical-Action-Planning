@@ -5,6 +5,7 @@ from .cholect50 import (
     RewardPredictionDataset,
     ActionPolicyDataset
 )
+from .preprocess_rewards import compute_action_phase_distribution, add_progression_scores
 
 # Export the classes and functions for external use
 __all__ = [
@@ -12,5 +13,7 @@ __all__ = [
     "create_video_dataloaders",
     "NextFramePredictionDataset",
     "RewardPredictionDataset",
-    "ActionPolicyDataset"
+    "ActionPolicyDataset",
+    "compute_action_phase_distribution",
+    "add_progression_scores"
 ]

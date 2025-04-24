@@ -16,8 +16,9 @@ class WorldModel(nn.Module):
     3. Supports auto-regressive generation for planning multiple steps ahead
     4. Optionally learns action prediction for imitation learning
     """
-    def __init__(self, hidden_dim: int, embedding_dim: int, action_embedding_dim: int,
-                    n_layer: int, max_length: int = 1024,
+    def __init__(self, hidden_dim: int, embedding_dim: int, action_embedding_dim: int, n_layer: int, 
+                    reward_head: bool = False,
+                    max_length: int = 1024,
                     use_head: bool = False,
                     targets_dims: Dict[str, int] = None,
                     target_heads: List[str] = None,
@@ -34,6 +35,7 @@ class WorldModel(nn.Module):
         self.embedding_dim = embedding_dim
         self.action_embedding_dim = action_embedding_dim
         self.n_layer = n_layer
+        self.reward_head = reward_head
         self.max_length = max_length
         self.use_head = use_head
         self.targets_dims = targets_dims if targets_dims else {}
@@ -47,6 +49,10 @@ class WorldModel(nn.Module):
         self.w_a_temporal_consist = self.loss_weights.get('_a_temporal_consist', 0.1)
         self.num_action_classes = num_action_classes
         self.num_outcomes = num_outcomes
+
+        # Options for reward prediction
+        self.state_reward_dim = 1
+        self.outcome_reward_dim = 1
         
         # Configuration for GPT-2 model
         self.config = GPT2Config.from_pretrained('gpt2')
@@ -81,6 +87,11 @@ class WorldModel(nn.Module):
 
         # Output projection: from GPT-2 hidden dimension back to frame embedding dimension
         self.model.lm_head = nn.Linear(self.hidden_dim, self.embedding_dim)
+
+        if self.reward_head:
+            # Reward head for predicting rewards
+            self.state_reward_head = nn.Linear(self.hidden_dim, self.state_reward_dim)
+            self.outcome_reward_head = nn.Linear(self.hidden_dim, self.outcome_reward_dim)
         
         # Head
         if self.target_heads:
@@ -165,6 +176,17 @@ class WorldModel(nn.Module):
         
         # Calculate MSE loss between predictions and targets
         _z_loss = F.mse_loss(_z_hat, _z)
+
+
+        # If predicting rewards associated with the next state
+        if self.reward_head:
+            pass
+            # TODO: get the ground truth rewards scores
+            # the goal is for the model to learn to pick actions that lead to higher rewards in short and long term
+            # Also, we want to learn the reward function itself that uses weights for each signal
+            # and knows when to focus on which grounded signals or human preferences like safety
+            # Ideally, we want to focus more on discovering new pathways/trajectories from raw data and final outcomes, leaving
+            # space for the model to come up with better strategies humans might not have thought of.
 
         # If we want to use imitation learning - predict the next action
         other_losses = {}
