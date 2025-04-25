@@ -17,6 +17,9 @@ import os
 from datetime import datetime
 
 from .preprocess_rewards import compute_action_phase_distribution, add_progression_scores
+from reward_system.data_driven_statistics import precompute_action_based_rewards
+from reward_system.preprocess_rewards import add_progression_scores
+
 
 # Step 1: Data Loading from CholecT50 Dataset
 def load_cholect50_data(cfg, split='train', max_videos=None):
@@ -28,11 +31,11 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
     """
     cfg_data = cfg['data']
     cfg_rewards = cfg['preprocess']['rewards']
-    # extract paths from config
     paths_config = cfg_data['paths']
     data_dir = paths_config['data_dir']
     metadata_file = paths_config['metadata_file']
     video_global_outcome_file = paths_config['video_global_outcome_file'] # embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv
+    video_global_outcome_path = os.path.join(metadata_dir, video_global_outcome_file)
     fold = paths_config['fold']
     print(f"Loading CholecT50 data from {data_dir}")
 
@@ -43,23 +46,39 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
     print(f"Metadata path: {metadata_path}")
     
     # Load metadata if available
-    metadata = None
-    if metadata_path and os.path.exists(metadata_path):
-        metadata = pd.read_csv(metadata_path)
-        print(f"Metadata loaded with shape: {metadata.shape}")
-        print(f"Metadata columns: {metadata.columns.tolist()}")
+    metadata_df = pd.read_csv(metadata_path)
+    print(f"Metadata columns (before adding rewards): {metadata_df.columns.tolist()}")
 
-        # print all columns that ends with "rew" (reward)
-        reward_columns = [col for col in metadata.columns if col.endswith("_rew")]
-        print(f"Reward columns(endswith('_rew')): {reward_columns}")
-
-    # Load video global outcomes per video if available
-    video_global_outcomes = None
-    if video_global_outcome_file:
-        video_global_outcome_path = os.path.join(metadata_dir, video_global_outcome_file)
-        video_global_outcomes = pd.read_csv(video_global_outcome_path)
-        print(f"Video global outcomes loaded with shape: {video_global_outcomes.shape}")
+    # Compute reward signals for each frame (state)
+    if cfg_rewards['grounded_signals']['phase_progression']:
+        metadata_df = add_phase_progression_scores(metadata_df, "phase_progress")
+        print(f"Added phase progress to metadata...")
     
+    if cfg_rewards['grounded_signals']['global_progression']:
+        metadata_df = add_progression_scores(metadata_df, "video_progress")
+        print(f"Added video progress to metadata...")
+
+    if cfg_rewards['grounded_signals']['action_based_rewards']:
+        metadata_df = precompute_action_based_rewards(metadata_df, "action_probs")
+        print(f"Added action based rewards to metadata...")
+    
+    if cfg_rewards['grounded_signals']['video_global_outcome']:
+        video_global_outcomes = pd.read_csv(video_global_outcome_path)
+        print(f"Video global outcomes columns: {video_global_outcomes.columns.tolist()}")
+        
+    if cfg_rewards['prior_expert_knowledge']['risk_score']:
+        metadata = add_risk_scores_to_metadata(metadata_df, cfg_data, split, fold)
+        print(f"Added risk scores to metadata")
+
+    # imitation learning - the reward function is a KL divergence between the predicted action distribution and the expert action distribution
+    if cfg_rewards['imitation_learning']['action_probability_distribution']:
+        dist_df = compute_action_phase_distribution(metadata)
+        print("Phase 2's actions probs:", dist_df.loc['p2'].sort_values(ascending=False).head(10))
+    
+    if cfg_rewards['grounded_signals']['phase_progression']:
+        metadata_with_progress = add_progression_scores(metadata)
+        print("Phase 2's progression scores:", metadata_with_progress.loc[metadata_with_progress['video'] == 'video_2'].sort_values(by='phase_progression', ascending=False).head(10))
+
     # Add correct video_global_outcomes row and with all columns to the metadata file using the video id as unique identifier
     # Here we need to add the video global outcomes to the metadata
     # however, we only have x rows for each video, so we need to find the video id for each frame and then
@@ -72,92 +91,6 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
             for column in columns_to_add:
                 metadata.loc[metadata['video'] == video_id, column] = video_global_outcome[column].values[0]
         print(f"Added video global outcomes to metadata")
-    
-    # Add risk scores to metadata if not already there
-    risk_score_root = "/home/maxboels/datasets/CholecT50/instructions/anticipation_5s_with_goals/"
-    video_ids_cache = []
-    all_risk_scores = []
-    risk_column_name = f"risk_score_{cfg_data['frame_risk_agg']}"
-    if metadata is not None:
-        # For each frame in metadata, add risk score
-        for i, row in metadata.iterrows():
-            video_id = row['video']
-            frame_id = row['frame']
-
-            # Add risk score per frame to metadata if not already there or column has nan value
-            if risk_column_name not in metadata.columns:
-                if video_id not in video_ids_cache:
-                    print(f"Loading risk scores for video {video_id}")
-                    video_ids_cache.append(video_id)
-                    risk_scores = None
-                    risk_score_path = risk_score_root + f"{video_id}_sorted_with_risk_scores_instructions_with_goals.json" 
-                    if risk_score_path and os.path.exists(risk_score_path):
-                        print(f"Loading risk scores from {risk_score_path}")
-                        with open(risk_score_path, 'r') as f:
-                            risk_scores = json.load(f)
-                    else:
-                        print(f"Risk score path not found, skipping")
-                
-                # Get risk score for each frame
-                current_actions = risk_scores[str(frame_id)]['current_actions']
-                frame_risk_scores = []
-                for action in current_actions: # it's a list of dictionaries
-                    frame_risk_scores.append(action['expert_risk_score'])
-                if cfg_data['frame_risk_agg'] == 'mean':
-                    risk_score = np.mean(frame_risk_scores)
-                elif cfg_data['frame_risk_agg'] == 'max':
-                    risk_score = np.max(frame_risk_scores)
-                else:
-                    print(f"Frame risk aggregation method {cfg_data['frame_risk_agg']} not supported, skipping")
-                risk_score = float(risk_score)
-                all_risk_scores.append(risk_score)
-
-                # if last frame, add risk score to metadata
-                if i == len(metadata) - 1:
-                    metadata[risk_column_name] = all_risk_scores
-                    print(f"Added risk scores to metadata")
-
-        # remove root from embedding path
-        remove_root_1 = f'/nfs/home/mboels/projects/self-distilled-swin/outputs/embeddings_{split}_set/fold0/'
-        remove_root_2 = f'/nfs/home/mboels/projects/self-distilled-swin/outputs/embeddings_{split}_setfold0/'
-        if remove_root_1 in metadata['embedding_path'][0]:
-            metadata['embedding_path'] = metadata['embedding_path'].apply(lambda x: x.replace(remove_root_1, f'fold{fold}/'))
-        elif remove_root_2 in metadata['embedding_path'][0]:
-            metadata['embedding_path'] = metadata['embedding_path'].apply(lambda x: x.replace(remove_root_2, f'fold{fold}/'))
-        elif f'/fold{fold}/' in metadata['embedding_path'][0]:
-            metadata['embedding_path'] = metadata['embedding_path'].apply(lambda x: x.replace('/fold0/', 'fold0/'))
-        else:
-            print(f"Root not found in embedding path, skipping")
-        # save new version of metadata
-        metadata.to_csv(metadata_path, index=False)
-        print(f"Saved metadata with risk scores to {metadata_path}")
-    
-    # preprocess:
-    # reward_shaping:
-    #     imitation_learning:
-    #     action_probability_distribution: true # KL divergence between action distributions (precomputed on all videos)
-    #     prior_expert_knowledge:
-    #     risk_score: true        # risk score associated with each actions triplets
-    #     grounded_signals:
-    #     blood_loss: false       # blood loss signal (not available)
-    #     phase_progression: true # percentage of the phase completed
-    #     instrument_usage: true  # percentage of the instrument usage
-    #     global_duration: true   # absolute time in seconds
-    #     global_score: true
-
-    # imitation learning - the reward function is a KL divergence between the predicted action distribution and the expert action distribution
-    if cfg_rewards['imitation_learning']['action_probability_distribution']:
-        dist_df = compute_action_phase_distribution(metadata)
-        print("Phase 2's actions probs:", dist_df.loc['p2'].sort_values(ascending=False).head(10))
-    
-    if cfg_rewards['grounded_signals']['phase_progression']:
-        metadata_with_progress = add_progression_scores(metadata)
-        print("Phase 2's progression scores:", metadata_with_progress.loc[metadata_with_progress['video'] == 'video_2'].sort_values(by='phase_progression', ascending=False).head(10))
-
-        # save new version of metadata
-        metadata_with_progress.to_csv(metadata_path, index=False)
-        # replace metadata with new version
-        metadata = metadata_with_progress
 
     # Find all videos in metadata csv file
     if metadata is not None:
@@ -228,7 +161,7 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
         m = 100 / 5 # 5 is the max risk score
         video_mean_survival_time = 100 - (video_mean_risk_score * m)
 
-        # global outcome score
+        # global outcome score (value score not directly related to the states)
         columns_to_add = ["avg_risk", "max_risk", "risk_std", "critical_risk_events", "critical_risk_percentage", "global_outcome_score"]
         video_outcome_data = {}
         for column in columns_to_add:

@@ -6,6 +6,7 @@ from .cholect50 import (
     ActionPolicyDataset
 )
 from .preprocess_rewards import compute_action_phase_distribution, add_progression_scores
+from .preprocess_add_risk_scores import add_risk_scores_to_metadata
 
 # Export the classes and functions for external use
 __all__ = [
@@ -15,5 +16,6 @@ __all__ = [
     "RewardPredictionDataset",
     "ActionPolicyDataset",
     "compute_action_phase_distribution",
-    "add_progression_scores"
+    "add_progression_scores",
+    "add_risk_scores_to_metadata"
 ]

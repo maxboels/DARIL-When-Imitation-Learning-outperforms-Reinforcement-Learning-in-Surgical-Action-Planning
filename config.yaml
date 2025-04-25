@@ -2,17 +2,18 @@
 debug: false
 
 preprocess:
-  rewards:
-    imitation_learning:
-      action_probability_distribution: true # KL divergence between action distributions (precomputed on all videos)
+  rewards: # per frame reward (can be derived relative to the phase)
+    imitation_learning: # Imitation-Learning (Distribution-Alignment) Reward
+      action_probability_distribution: true # KL divergence between action distributions (precomputed on all videos per phase)
     prior_expert_knowledge:
       risk_score: true        # risk score associated with each actions triplets
     grounded_signals:
       blood_loss: false       # blood loss signal (not available)
       phase_progression: true # percentage of the phase completed
+      global_progression: true   # absolute time in seconds
       instrument_usage: true  # percentage of the instrument usage
-      global_duration: true   # absolute time in seconds
-    global_score: true
+  value: # long-term value prediction per video (= final outcome value)
+    global_outcome: true
 
 experiment:
   max_videos: 5 # null  # Set to null to use all videos
