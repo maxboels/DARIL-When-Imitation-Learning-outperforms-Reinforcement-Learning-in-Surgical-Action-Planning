@@ -16,9 +16,13 @@ import yaml
 import os
 from datetime import datetime
 
-from .preprocess_rewards import compute_action_phase_distribution, add_progression_scores
-from reward_system.data_driven_statistics import precompute_action_based_rewards
-from reward_system.preprocess_rewards import add_progression_scores
+from .preprocess_progression import add_progression_scores
+from .preprocess_risk_scores import add_risk_scores
+# from .preprocess_action_rewards import precompute_action_based_rewards
+# from .preprocess_rewards import compute_action_phase_distribution
+# from 
+# from reward_system.data_driven_statistics import precompute_action_based_rewards
+# from reward_system.preprocess_rewards import add_progression_scores
 
 
 # Step 1: Data Loading from CholecT50 Dataset
@@ -34,8 +38,6 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
     paths_config = cfg_data['paths']
     data_dir = paths_config['data_dir']
     metadata_file = paths_config['metadata_file']
-    video_global_outcome_file = paths_config['video_global_outcome_file'] # embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv
-    video_global_outcome_path = os.path.join(metadata_dir, video_global_outcome_file)
     fold = paths_config['fold']
     print(f"Loading CholecT50 data from {data_dir}")
 
@@ -44,40 +46,47 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
     metadata_dir = os.path.join(data_dir, split_folder, f"fold{fold}")
     metadata_path = os.path.join(metadata_dir, metadata_file)
     print(f"Metadata path: {metadata_path}")
-    
+
+    # Global outcome file
+    video_global_outcome_file = paths_config['video_global_outcome_file'] # embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv
+    video_global_outcome_path = os.path.join(metadata_dir, video_global_outcome_file)
+
     # Load metadata if available
     metadata_df = pd.read_csv(metadata_path)
     print(f"Metadata columns (before adding rewards): {metadata_df.columns.tolist()}")
 
     # Compute reward signals for each frame (state)
-    if cfg_rewards['grounded_signals']['phase_progression']:
-        metadata_df = add_phase_progression_scores(metadata_df, "phase_progress")
+    metadata_df_aug = None
+    if cfg_rewards['grounded']['phase_progression'] or cfg_rewards['grounded']['global_progression']:
+        metadata_df = add_progression_scores(metadata_df,
+                        add_phase_progression=cfg_rewards['grounded']['phase_progression'],
+                        add_global_progression=cfg_rewards['grounded']['global_progression'],
+        )
         print(f"Added phase progress to metadata...")
-    
-    if cfg_rewards['grounded_signals']['global_progression']:
-        metadata_df = add_progression_scores(metadata_df, "video_progress")
-        print(f"Added video progress to metadata...")
 
-    if cfg_rewards['grounded_signals']['action_based_rewards']:
-        metadata_df = precompute_action_based_rewards(metadata_df, "action_probs")
-        print(f"Added action based rewards to metadata...")
-    
-    if cfg_rewards['grounded_signals']['video_global_outcome']:
-        video_global_outcomes = pd.read_csv(video_global_outcome_path)
-        print(f"Video global outcomes columns: {video_global_outcomes.columns.tolist()}")
+    if cfg_rewards['grounded']['phase_transition']:
+        # The phase_progression values already gives a +1 reward when reaching the phase transitions
+        # and gradually increases rewards until the next phase transition (smooth rewards)
+        pass 
         
-    if cfg_rewards['prior_expert_knowledge']['risk_score']:
-        metadata = add_risk_scores_to_metadata(metadata_df, cfg_data, split, fold)
-        print(f"Added risk scores to metadata")
 
+    if cfg_rewards['expert_knowledge']['risk_score']:
+        metadata_df = add_risk_scores(metadata_df, split, fold, 
+                        frame_risk_agg=cfg_rewards['expert_knowledge']['frame_risk_agg'])
+        print(f"Added risk scores to metadata")
+    
     # imitation learning - the reward function is a KL divergence between the predicted action distribution and the expert action distribution
-    if cfg_rewards['imitation_learning']['action_probability_distribution']:
+    if cfg_rewards['imitation']['actions_distribution']:
         dist_df = compute_action_phase_distribution(metadata)
         print("Phase 2's actions probs:", dist_df.loc['p2'].sort_values(ascending=False).head(10))
     
-    if cfg_rewards['grounded_signals']['phase_progression']:
-        metadata_with_progress = add_progression_scores(metadata)
-        print("Phase 2's progression scores:", metadata_with_progress.loc[metadata_with_progress['video'] == 'video_2'].sort_values(by='phase_progression', ascending=False).head(10))
+    # if cfg_rewards['grounded']['phase_progression']:
+    #     metadata_with_progress = add_progression_scores(metadata)
+    #     print("Phase 2's progression scores:", metadata_with_progress.loc[metadata_with_progress['video'] == 'video_2'].sort_values(by='phase_progression', ascending=False).head(10))
+
+    # if cfg_rewards['grounded']['video_global_outcome']:
+    #     video_global_outcomes = pd.read_csv(video_global_outcome_path)
+    #     print(f"Video global outcomes columns: {video_global_outcomes.columns.tolist()}")
 
     # Add correct video_global_outcomes row and with all columns to the metadata file using the video id as unique identifier
     # Here we need to add the video global outcomes to the metadata

@@ -3,15 +3,15 @@ debug: false
 
 preprocess:
   rewards: # per frame reward (can be derived relative to the phase)
-    imitation_learning: # Imitation-Learning (Distribution-Alignment) Reward
-      action_probability_distribution: true # KL divergence between action distributions (precomputed on all videos per phase)
-    prior_expert_knowledge:
+    imitation: # Imitation-Learning (Distribution-Alignment) Reward
+      actions_distribution: false # KL divergence between action distributions (precomputed on all videos per phase)
+    expert_knowledge: # Expert-Knowledge Reward
       risk_score: true        # risk score associated with each actions triplets
-    grounded_signals:
-      blood_loss: false       # blood loss signal (not available)
-      phase_progression: true # percentage of the phase completed
-      global_progression: true   # absolute time in seconds
-      instrument_usage: true  # percentage of the instrument usage
+      frame_risk_agg: 'max' # default is max
+    grounded:
+      phase_progression: false # percentage of the phase completed
+      global_progression: false   # absolute time in seconds
+      phase_transition: false # phase transition (e.g. from phase 1 to phase 2)
   value: # long-term value prediction per video (= final outcome value)
     global_outcome: true
 
@@ -72,11 +72,11 @@ data:
     data_dir: "/home/maxboels/datasets/CholecT50" # server: "/nfs/home/mboels/datasets/CholecT50", "/home/maxboels/datasets/CholecT50"
     class_labels_file_path: "./data/labels.json"
     fold: 0
-    metadata_file: "embeddings_f0_swin_bas_129_with_enhanced.csv"
-    video_global_outcome_file: null
+    metadata_file: "embeddings_f0_swin_bas_129.csv" # embeddings_f0_swin_bas_129_with_enhanced
+    video_global_outcome_file: embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv
   risk_score_path: null
   max_videos: null                     # Set to null to use all videos
-  frame_risk_agg: 'max'
+  frame_risk_agg: 'max' # default is max
 
 # Model configurations
 models:
