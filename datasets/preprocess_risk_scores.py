@@ -25,6 +25,8 @@ def add_risk_scores(metadata, split, fold, frame_risk_agg='max'):
         if video_id not in video_ids_cache:
             print(f"Loading risk scores for video {video_id}")
             video_ids_cache.append(video_id)
+
+            # Load risk scores from json file
             risk_scores = None
             risk_score_path = risk_score_root + f"{video_id}_sorted_with_risk_scores_instructions_with_goals.json" 
             if risk_score_path and os.path.exists(risk_score_path):

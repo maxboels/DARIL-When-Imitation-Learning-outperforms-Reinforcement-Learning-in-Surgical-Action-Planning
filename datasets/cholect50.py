@@ -18,11 +18,9 @@ from datetime import datetime
 
 from .preprocess_progression import add_progression_scores
 from .preprocess_risk_scores import add_risk_scores
-# from .preprocess_action_rewards import precompute_action_based_rewards
+from .preprocess_action_scores import precompute_action_based_rewards
 # from .preprocess_rewards import compute_action_phase_distribution
-# from 
-# from reward_system.data_driven_statistics import precompute_action_based_rewards
-# from reward_system.preprocess_rewards import add_progression_scores
+
 
 
 # Step 1: Data Loading from CholecT50 Dataset
@@ -56,29 +54,42 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
     print(f"Metadata columns (before adding rewards): {metadata_df.columns.tolist()}")
 
     # Compute reward signals for each frame (state)
-    metadata_df_aug = None
     if cfg_rewards['grounded']['phase_progression'] or cfg_rewards['grounded']['global_progression']:
         metadata_df = add_progression_scores(metadata_df,
                         add_phase_progression=cfg_rewards['grounded']['phase_progression'],
-                        add_global_progression=cfg_rewards['grounded']['global_progression'],
-        )
-        print(f"Added phase progress to metadata...")
-
-    if cfg_rewards['grounded']['phase_transition']:
+                        add_global_progression=cfg_rewards['grounded']['global_progression'])
+        metadata_file = metadata_file.replace('.csv', '_prog.csv')
+        metadata_df.to_csv(os.path.join(metadata_dir, metadata_file), index=False)
+        print(f"Added progression scores to metadata")
+    
+    # Progressive +1 reward near phase transitions
+    if cfg_rewards['grounded']['phase_completion']:
+        pass
+    
+    # Compute action-based rewards for each frame (state) conditioned on phases
+    if cfg_rewards['imitation']['action_distribution_1']:
+        metadata_df = precompute_action_based_rewards(metadata_df, n_phases=7, n_actions=100, epsilon=1e-10):
         # The phase_progression values already gives a +1 reward when reaching the phase transitions
         # and gradually increases rewards until the next phase transition (smooth rewards)
-        pass 
-        
+        metadata_file = metadata_file.replace('.csv', '_action_dist1.csv')
+        metadata_df.to_csv(os.path.join(metadata_dir, metadata_file), index=False)
+        print(f"Added action-based rewards to metadata")
+    
+    # imitation learning - the reward function is a KL divergence between the predicted action distribution and the expert action distribution
+    if cfg_rewards['imitation']['action_distribution_2']:
+        metadata_df = compute_action_phase_distribution(metadata)
+        metadata_file = metadata_file.replace('.csv', '_action_dist2.csv')
+        metadata_df.to_csv(os.path.join(metadata_dir, metadata_file), index=False)
+        print(f"Added action-based rewards to metadata")
+
 
     if cfg_rewards['expert_knowledge']['risk_score']:
         metadata_df = add_risk_scores(metadata_df, split, fold, 
                         frame_risk_agg=cfg_rewards['expert_knowledge']['frame_risk_agg'])
+        # save metadata with risk scores (keep same name as augmented metadata)
+        metadata_file = metadata_file.replace('.csv', '_risk.csv')
+        metadata_df.to_csv(os.path.join(metadata_dir, metadata_file), index=False)
         print(f"Added risk scores to metadata")
-    
-    # imitation learning - the reward function is a KL divergence between the predicted action distribution and the expert action distribution
-    if cfg_rewards['imitation']['actions_distribution']:
-        dist_df = compute_action_phase_distribution(metadata)
-        print("Phase 2's actions probs:", dist_df.loc['p2'].sort_values(ascending=False).head(10))
     
     # if cfg_rewards['grounded']['phase_progression']:
     #     metadata_with_progress = add_progression_scores(metadata)

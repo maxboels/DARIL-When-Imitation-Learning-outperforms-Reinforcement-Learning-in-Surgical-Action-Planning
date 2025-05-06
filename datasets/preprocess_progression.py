@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from tqdm import tqdm
 
-def load_data_from_metadata(metadata_df, video_id, num_phases=7):
+def extract_phase_metadata(metadata_df, video_id, num_phases=7):
     """
     Load phase information from metadata DataFrame for a specific video.
     
@@ -189,7 +189,7 @@ def add_progression_scores(metadata_df, num_phases=7, phase_column_name="phase_p
         # Get phase segments for this video if needed
         phase_segments = frame_phases = None
         if add_phase_progression:
-            phase_segments, frame_phases = load_data_from_metadata(result_df, video_id, num_phases)
+            phase_segments, frame_phases = extract_phase_metadata(result_df, video_id, num_phases)
             if phase_segments is None:
                 continue
         
