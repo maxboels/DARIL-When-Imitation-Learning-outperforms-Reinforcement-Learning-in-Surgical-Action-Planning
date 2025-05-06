@@ -17,9 +17,10 @@ import os
 from datetime import datetime
 
 from .preprocess_progression import add_progression_scores
+from .preprocess_phase_completion import compute_phase_transition_rewards
 from .preprocess_risk_scores import add_risk_scores
 from .preprocess_action_scores import precompute_action_based_rewards
-# from .preprocess_rewards import compute_action_phase_distribution
+from .preprocess_action_scores import compute_action_phase_distribution
 
 
 
@@ -53,6 +54,18 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
     metadata_df = pd.read_csv(metadata_path)
     print(f"Metadata columns (before adding rewards): {metadata_df.columns.tolist()}")
 
+    # Progressive +1 reward near phase transitions
+    if cfg_rewards['grounded']['phase_completion']:
+        metadata_df = compute_phase_transition_rewards(metadata_df, video_id_col='video_id', n_phases=7, 
+                                    transition_window=30,
+                                    phase_importance=None,
+                                    max_reward=1.0,
+                                    reward_function='exponential',
+                                    reward_distribution='left_sided')
+        metadata_file = metadata_file.replace('.csv', '_phase_complet.csv')
+        metadata_df.to_csv(os.path.join(metadata_dir, metadata_file), index=False)
+        print(f"Added phase completion rewards to metadata")
+
     # Compute reward signals for each frame (state)
     if cfg_rewards['grounded']['phase_progression'] or cfg_rewards['grounded']['global_progression']:
         metadata_df = add_progression_scores(metadata_df,
@@ -61,44 +74,23 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
         metadata_file = metadata_file.replace('.csv', '_prog.csv')
         metadata_df.to_csv(os.path.join(metadata_dir, metadata_file), index=False)
         print(f"Added progression scores to metadata")
-    
-    # Progressive +1 reward near phase transitions
-    if cfg_rewards['grounded']['phase_completion']:
-        pass
-    
+        
     # Compute action-based rewards for each frame (state) conditioned on phases
-    if cfg_rewards['imitation']['action_distribution_1']:
-        metadata_df = precompute_action_based_rewards(metadata_df, n_phases=7, n_actions=100, epsilon=1e-10):
+    if cfg_rewards['imitation']['action_distribution']:
+        metadata_df = precompute_action_based_rewards(metadata_df, n_phases=7, n_actions=100, epsilon=1e-10)
         # The phase_progression values already gives a +1 reward when reaching the phase transitions
         # and gradually increases rewards until the next phase transition (smooth rewards)
-        metadata_file = metadata_file.replace('.csv', '_action_dist1.csv')
+        metadata_file = metadata_file.replace('.csv', '_action_dist.csv')
         metadata_df.to_csv(os.path.join(metadata_dir, metadata_file), index=False)
         print(f"Added action-based rewards to metadata")
-    
-    # imitation learning - the reward function is a KL divergence between the predicted action distribution and the expert action distribution
-    if cfg_rewards['imitation']['action_distribution_2']:
-        metadata_df = compute_action_phase_distribution(metadata)
-        metadata_file = metadata_file.replace('.csv', '_action_dist2.csv')
-        metadata_df.to_csv(os.path.join(metadata_dir, metadata_file), index=False)
-        print(f"Added action-based rewards to metadata")
-
 
     if cfg_rewards['expert_knowledge']['risk_score']:
         metadata_df = add_risk_scores(metadata_df, split, fold, 
                         frame_risk_agg=cfg_rewards['expert_knowledge']['frame_risk_agg'])
-        # save metadata with risk scores (keep same name as augmented metadata)
         metadata_file = metadata_file.replace('.csv', '_risk.csv')
         metadata_df.to_csv(os.path.join(metadata_dir, metadata_file), index=False)
         print(f"Added risk scores to metadata")
     
-    # if cfg_rewards['grounded']['phase_progression']:
-    #     metadata_with_progress = add_progression_scores(metadata)
-    #     print("Phase 2's progression scores:", metadata_with_progress.loc[metadata_with_progress['video'] == 'video_2'].sort_values(by='phase_progression', ascending=False).head(10))
-
-    # if cfg_rewards['grounded']['video_global_outcome']:
-    #     video_global_outcomes = pd.read_csv(video_global_outcome_path)
-    #     print(f"Video global outcomes columns: {video_global_outcomes.columns.tolist()}")
-
     # Add correct video_global_outcomes row and with all columns to the metadata file using the video id as unique identifier
     # Here we need to add the video global outcomes to the metadata
     # however, we only have x rows for each video, so we need to find the video id for each frame and then

@@ -1,4 +1,6 @@
 
+import pandas as pd
+
 
 
 def add_video_progression_scores(metadata_df, n_phases=7):
