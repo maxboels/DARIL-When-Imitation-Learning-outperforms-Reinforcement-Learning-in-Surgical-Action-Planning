@@ -9,10 +9,10 @@ preprocess:
       risk_score: true        # risk score associated with each actions triplets
       frame_risk_agg: 'max' # default is max
     grounded:
-      phase_progression: false # percentage of the phase completed
-      global_progression: false   # absolute time in seconds
+      phase_progression: true # percentage of the phase completed
+      global_progression: true   # absolute time in seconds
       phase_completion: true # progressive +1 reward near the end of the phase
-      phase_transition: false # phase transition (e.g. from phase 1 to phase 2)
+      phase_transition: true # +1 reward at the end of the phase
   value: # long-term value prediction per video (= final outcome value)
     global_outcome: true
 

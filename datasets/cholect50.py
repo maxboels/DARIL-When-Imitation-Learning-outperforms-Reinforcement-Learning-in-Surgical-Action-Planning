@@ -17,7 +17,8 @@ import os
 from datetime import datetime
 
 from .preprocess_progression import add_progression_scores
-from .preprocess_phase_completion import compute_phase_transition_rewards
+from .preprocess_phase_completion import compute_phase_completion_rewards
+from .preprocess_phase_transition import compute_phase_transition_rewards
 from .preprocess_risk_scores import add_risk_scores
 from .preprocess_action_scores import precompute_action_based_rewards
 from .preprocess_action_scores import compute_action_phase_distribution
@@ -56,7 +57,7 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
 
     # Progressive +1 reward near phase transitions
     if cfg_rewards['grounded']['phase_completion']:
-        metadata_df = compute_phase_transition_rewards(metadata_df, video_id_col='video_id', n_phases=7, 
+        metadata_df = compute_phase_completion_rewards(metadata_df, video_id_col='video_id', n_phases=7, 
                                     transition_window=30,
                                     phase_importance=None,
                                     max_reward=1.0,
@@ -65,6 +66,15 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
         metadata_file = metadata_file.replace('.csv', '_phase_complet.csv')
         metadata_df.to_csv(os.path.join(metadata_dir, metadata_file), index=False)
         print(f"Added phase completion rewards to metadata")
+    
+    if cfg_rewards['grounded']['phase_transition']:
+        metadata_df = compute_phase_transition_rewards(metadata_df, video_id_col='video_id', n_phases=7, 
+                                    reward_window=5, 
+                                    phase_importance=None,
+                                    reward_value=1.0)
+        metadata_file = metadata_file.replace('.csv', '_phase_transit.csv')
+        metadata_df.to_csv(os.path.join(metadata_dir, metadata_file), index=False)
+        print(f"Added phase transition rewards to metadata")
 
     # Compute reward signals for each frame (state)
     if cfg_rewards['grounded']['phase_progression'] or cfg_rewards['grounded']['global_progression']:
