@@ -120,7 +120,7 @@ def train_world_model(cfg, logger, model, train_loader, test_video_loaders, devi
                     train_losses[key] += value.item()
                     tb_writer.add_scalar(f"train/{key}_per_batch", value.item(), epoch * len(train_loader) + batch_idx)
 
-                    if batch_idx % eval_batch_interval == 0 and key == 'loss':
+                    if batch_idx % eval_batch_interval == 0 and key == 'total_loss':
                         logger.info(f"[TRAINING] Batch {batch_idx}/{len(train_loader)} | "
                                     f"{key}: {value.item():.4f}")
         
@@ -133,7 +133,7 @@ def train_world_model(cfg, logger, model, train_loader, test_video_loaders, devi
         # Log training progress
         epoch_time = time.time() - start_time
         logger.info(f"[TRAINING] Epoch {epoch+1}/{epochs} completed in {epoch_time:.2f}s | "
-                   f"Train loss: {train_losses['loss']:.4f}")
+                   f"Train loss: {train_losses['total_loss']:.4f}")
         
         # Evaluation
         if (epoch + 1) % eval_epoch_interval == 0 or epoch == epochs - 1:
@@ -144,15 +144,15 @@ def train_world_model(cfg, logger, model, train_loader, test_video_loaders, devi
                 metrics_history[f"val_{key}"].append(value)
                 tb_writer.add_scalar(f"val/{key}_per_epoch", value, epoch)
             
-            logger.info(f"[EVAL] Validation | Loss: {val_metrics['loss']:.4f} | "
+            logger.info(f"[EVAL] Validation | Loss: {val_metrics['total_loss']:.4f} | "
                        f"State Pred MSE: {val_metrics['state_pred_error']:.4f} | "
                        f"Rollout MSE Mean: {val_metrics['rollout_error_mean']:.4f} | "
                        f"Rollout MSE Growth: {val_metrics['rollout_error_growth']:.4f} | "
                        f"Action Pred Accuracy: {val_metrics['action_pred_accuracy']:.4f}")
             
             # Save best model
-            if val_metrics['loss'] < best_val_loss:
-                best_val_loss = val_metrics['loss']
+            if val_metrics['total_loss'] < best_val_loss:
+                best_val_loss = val_metrics['total_loss']
                 model_path = os.path.join(checkpoint_dir, f"world_model_best_epoch_{epoch+1}.pt")
                 model.save(model_path)
                 best_model_path = model_path
