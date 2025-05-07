@@ -2,7 +2,7 @@
 debug: false
 
 preprocess:
-  extract_rewards: false
+  extract_rewards: true # Extract rewards from the dataset
   rewards: # per frame reward (can be derived relative to the phase)
     imitation: # Imitation-Learning (Distribution-Alignment) Reward
       action_distribution: true # KL divergence between action distributions (precomputed on all videos per phase)
@@ -19,7 +19,7 @@ preprocess:
 
 experiment:
   max_videos: 5 # null  # Set to null to use all videos
-  # Recognition model
+  # Recognition model for the 
   recognition:
     train: false
     inference: false
@@ -74,7 +74,7 @@ data:
     data_dir: "/home/maxboels/datasets/CholecT50" # server: "/nfs/home/mboels/datasets/CholecT50", "/home/maxboels/datasets/CholecT50"
     class_labels_file_path: "./data/labels.json"
     fold: 0
-    metadata_file: "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv" # "embeddings_f0_swin_bas_129.csv" # "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv" # "embeddings_f0_swin_bas_129.csv" # embeddings_f0_swin_bas_129_with_enhanced
+    metadata_file: "embeddings_f0_swin_bas_129.csv" # "embeddings_f0_swin_bas_129.csv" # "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv" # "embeddings_f0_swin_bas_129.csv" # embeddings_f0_swin_bas_129_with_enhanced
     video_global_outcome_file: embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv
   risk_score_path: null
   max_videos: null                     # Set to null to use all videos

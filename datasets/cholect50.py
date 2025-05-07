@@ -125,8 +125,8 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
         print(f"Metadata file {metadata_path} has already been processed, skipping reward extraction")
 
     # Find all videos in metadata csv file
-    if metadata is not None:
-        video_ids = metadata['video'].unique().tolist()
+    if metadata_df is not None:
+        video_ids = metadata_df['video'].unique().tolist()
     if max_videos:
         video_ids = video_ids[:max_videos]
     
@@ -135,15 +135,11 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
     # Initialize data list
     data = []
     video_durations = []
-    all_videos_mean_risk_scores = []
-    all_videos_mean_risk_score_durs = []
     
     # Load frame embeddings for each video from the metadata
     for video_id in tqdm(video_ids, desc="Loading videos"):
         # Filter metadata for this video
-        video_metadata = metadata[metadata['video'] == video_id]
-        print(f"Found {len(video_metadata)} frames for video {video_id}")
-
+        video_metadata = metadata_df[metadata_df['video'] == video_id]
         frame_files = video_metadata['embedding_path'].tolist()
 
         # Load frame embeddings
@@ -151,19 +147,15 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
         for frame_file in tqdm(frame_files, desc=f"Frames for {video_id}"):
             embedding = np.load(os.path.join(data_dir, split_folder, frame_file))
             video_frame_embeddings.append(embedding)
-        
-        video_frame_embeddings = np.array(video_frame_embeddings)
-        
-        # Check embedding dimension
+        video_frame_embeddings = np.array(video_frame_embeddings)        
         embedding_dim = video_frame_embeddings.shape[1]
-        print(f"Embedding dimension: {embedding_dim}")
         
-        # For demonstration: Generate random action classes and survival time if metadata not available
-        # In a real scenario, you would extract these from metadata
+        # For demonstration: Generate random action classes and survival time if metadata_df not available
+        # In a real scenario, you would extract these from metadata_df
         num_frames = len(video_frame_embeddings)
         video_durations.append(num_frames)
         
-        # Get reward values from metadata per video
+        # Get reward values from metadata_df per video
         rewards = {}
         rewards['risk_scores'] = video_metadata['risk_score_max'].values
         rewards['phase_completion'] = video_metadata['phase_completion_reward'].values
@@ -204,23 +196,9 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
             **rewards        # unpack video_outcome_data
         })
 
-    
-    avg_video_duration = np.mean(video_durations)
-    print(f"Average video duration: {avg_video_duration:.2f} frames")
-    
     if not data:
         raise ValueError("No valid videos loaded!")
     
-    # Normalize by average video duration
-    all_videos_mean_risk_score_durs = np.array(all_videos_mean_risk_score_durs) / avg_video_duration
-    
-    print(f"All Videos Mean Risk Score: {np.mean(all_videos_mean_risk_scores):.2f}")
-    print(f"Standard Deviation of All Videos Mean Risk Score: {np.std(all_videos_mean_risk_scores):.2f}")
-    print(f"All Videos Risk Scores: {all_videos_mean_risk_scores}")
-    print(f"All Videos Mean Risk Score Dur: {np.mean(all_videos_mean_risk_score_durs):.2f}")
-    print(f"Standard Deviation of All Videos Mean Risk Score Dur: {np.std(all_videos_mean_risk_score_durs):.2f}")
-    print(f"All Videos Risk Score Dur: {all_videos_mean_risk_score_durs}")
-    print(f"Successfully loaded {len(data)} ({split}ing) videos")
     return data
 
 from torch.utils.data import DataLoader
@@ -383,61 +361,61 @@ class NextFramePredictionDataset(Dataset):
         }
         return data
 
-# Custom dataset for reward prediction
-class RewardPredictionDataset(Dataset):
-    def __init__(self, data, context_length=10):
-        self.samples = []
-        self.context_length = context_length
+# # Custom dataset for reward prediction
+# class RewardPredictionDataset(Dataset):
+#     def __init__(self, data, context_length=10):
+#         self.samples = []
+#         self.context_length = context_length
         
-        for video in data:
-            embeddings = video['frame_embeddings']
-            survival_time = video['survival_time']
+#         for video in data:
+#             embeddings = video['frame_embeddings']
+#             survival_time = video['survival_time']
             
-            for i in range(context_length - 1, len(embeddings)):
-                context = embeddings[i - (context_length - 1):i + 1]
-                self.samples.append({
-                    'context': np.array(context),
-                    'target': survival_time
-                })
+#             for i in range(context_length - 1, len(embeddings)):
+#                 context = embeddings[i - (context_length - 1):i + 1]
+#                 self.samples.append({
+#                     'context': np.array(context),
+#                     'target': survival_time
+#                 })
     
-    def __len__(self):
-        return len(self.samples)
+#     def __len__(self):
+#         return len(self.samples)
     
-    def __getitem__(self, idx):
-        sample = self.samples[idx]
-        return torch.tensor(sample['context'], dtype=torch.float32), torch.tensor(sample['target'], dtype=torch.float32)
+#     def __getitem__(self, idx):
+#         sample = self.samples[idx]
+#         return torch.tensor(sample['context'], dtype=torch.float32), torch.tensor(sample['target'], dtype=torch.float32)
 
-# Create a dataset for action policy training with weighted actions
-class ActionPolicyDataset(Dataset):
-    def __init__(self, data, action_weights, context_length=10):
-        self.samples = []
-        self.context_length = context_length
+# # Create a dataset for action policy training with weighted actions
+# class ActionPolicyDataset(Dataset):
+#     def __init__(self, data, action_weights, context_length=10):
+#         self.samples = []
+#         self.context_length = context_length
         
-        for video in data:
-            embeddings = video['frame_embeddings']
-            actions = video['actions_binaries']
+#         for video in data:
+#             embeddings = video['frame_embeddings']
+#             actions = video['actions_binaries']
             
-            for i in range(context_length - 1, len(embeddings)):
-                context = embeddings[i - (context_length - 1):i + 1]
-                action = actions[i]
+#             for i in range(context_length - 1, len(embeddings)):
+#                 context = embeddings[i - (context_length - 1):i + 1]
+#                 action = actions[i]
                 
-                # Get weight for this action (default to 1.0 if not found)
-                weight = action_weights.get(int(action), 1.0)
+#                 # Get weight for this action (default to 1.0 if not found)
+#                 weight = action_weights.get(int(action), 1.0)
                 
-                self.samples.append({
-                    'context': np.array(context),
-                    'action': int(action),
-                    'weight': weight
-                })
+#                 self.samples.append({
+#                     'context': np.array(context),
+#                     'action': int(action),
+#                     'weight': weight
+#                 })
     
-    def __len__(self):
-        return len(self.samples)
+#     def __len__(self):
+#         return len(self.samples)
     
-    def __getitem__(self, idx):
-        sample = self.samples[idx]
-        return (
-            torch.tensor(sample['context'], dtype=torch.float32),
-            torch.tensor(sample['action'], dtype=torch.long),
-            torch.tensor(sample['weight'], dtype=torch.float32)
-        )
+#     def __getitem__(self, idx):
+#         sample = self.samples[idx]
+#         return (
+#             torch.tensor(sample['context'], dtype=torch.float32),
+#             torch.tensor(sample['action'], dtype=torch.long),
+#             torch.tensor(sample['weight'], dtype=torch.float32)
+#         )
 

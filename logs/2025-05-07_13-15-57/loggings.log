@@ -1,0 +1,58 @@
+2025-05-07 13:15:57,998 - INFO - Log file: logs/2025-05-07_13-15-57/loggings.log
+2025-05-07 13:15:57,999 - INFO - Starting CholecT50 experiment for Surgical Actions Prediction
+2025-05-07 13:15:57,999 - INFO - Experiment configuration: {'max_videos': 5, 'recognition': {'train': False, 'inference': False, 'best_model_path': './best_checkpoints/best_model_epoch2_map0.5008.pt'}, 'pretrain_world_model': {'train': True, 'inference': False, 'best_model_path': None}, 'pretrain_reward_model': False, 'calculate_action_rewards': False, 'train_action_policy': False, 'run_tdmpc': False, 'analyze_results': False, 'run_evaluation': False}
+2025-05-07 13:15:57,999 - INFO - Using device: cuda
+2025-05-07 13:15:57,999 - INFO - Loading CholecT50 data...
+2025-05-07 13:21:10,655 - INFO - [TRAINING] Starting world model training for 3 epochs
+2025-05-07 13:21:10,927 - INFO - [TRAINING] Batch 0/555 | loss: 1.6690
+2025-05-07 13:21:14,441 - INFO - [TRAINING] Batch 80/555 | loss: 1.2197
+2025-05-07 13:21:17,950 - INFO - [TRAINING] Batch 160/555 | loss: 0.8101
+2025-05-07 13:21:21,457 - INFO - [TRAINING] Batch 240/555 | loss: 0.5521
+2025-05-07 13:21:24,982 - INFO - [TRAINING] Batch 320/555 | loss: 0.4117
+2025-05-07 13:21:28,498 - INFO - [TRAINING] Batch 400/555 | loss: 0.4741
+2025-05-07 13:21:32,032 - INFO - [TRAINING] Batch 480/555 | loss: 0.3172
+2025-05-07 13:21:35,289 - INFO - [TRAINING] Epoch 1/3 completed in 24.63s | Train loss: 0.6563
+2025-05-07 13:21:35,289 - INFO - [EVAL] Evaluating world model on 5 test videos
+2025-05-07 13:21:35,289 - INFO - [EVAL] Video IDs: ['VID02', 'VID06', 'VID111', 'VID14', 'VID23']
+2025-05-07 13:21:51,865 - INFO - [EVAL] Video VID02 | State Pred MSE: 0.2558 | Rollout MSE Mean: 1.2401 | Rollout MSE Growth: 2.5062
+2025-05-07 13:22:05,282 - INFO - [EVAL] Video VID06 | State Pred MSE: 0.2708 | Rollout MSE Mean: 1.1900 | Rollout MSE Growth: 2.2419
+2025-05-07 13:22:18,494 - INFO - [EVAL] Video VID111 | State Pred MSE: 0.2520 | Rollout MSE Mean: 1.3774 | Rollout MSE Growth: 2.5937
+2025-05-07 13:22:29,857 - INFO - [EVAL] Video VID14 | State Pred MSE: 0.2906 | Rollout MSE Mean: 1.1464 | Rollout MSE Growth: 2.0547
+2025-05-07 13:22:40,851 - INFO - [EVAL] Video VID23 | State Pred MSE: 0.3126 | Rollout MSE Mean: 1.3176 | Rollout MSE Growth: 2.5046
+2025-05-07 13:22:49,631 - INFO - [EVAL] Validation | Loss: 0.2764 | State Pred MSE: 0.2764 | Rollout MSE Mean: 1.2543 | Rollout MSE Growth: 2.3802 | Action Pred Accuracy: 0.0000
+2025-05-07 13:22:49,762 - INFO - New best model saved at logs/2025-05-07_13-15-57/world_model_best_epoch_1.pt
+2025-05-07 13:22:49,910 - INFO - [TRAINING] Batch 0/555 | loss: 0.2501
+2025-05-07 13:22:53,453 - INFO - [TRAINING] Batch 80/555 | loss: 0.1582
+2025-05-07 13:22:57,004 - INFO - [TRAINING] Batch 160/555 | loss: 0.1920
+2025-05-07 13:23:00,559 - INFO - [TRAINING] Batch 240/555 | loss: 0.1552
+2025-05-07 13:23:04,118 - INFO - [TRAINING] Batch 320/555 | loss: 0.1574
+2025-05-07 13:23:07,688 - INFO - [TRAINING] Batch 400/555 | loss: 0.1414
+2025-05-07 13:23:11,259 - INFO - [TRAINING] Batch 480/555 | loss: 0.1348
+2025-05-07 13:23:14,541 - INFO - [TRAINING] Epoch 2/3 completed in 24.68s | Train loss: 0.1732
+2025-05-07 13:23:14,542 - INFO - [EVAL] Evaluating world model on 5 test videos
+2025-05-07 13:23:14,542 - INFO - [EVAL] Video IDs: ['VID02', 'VID06', 'VID111', 'VID14', 'VID23']
+2025-05-07 13:23:31,373 - INFO - [EVAL] Video VID02 | State Pred MSE: 0.1934 | Rollout MSE Mean: 1.3286 | Rollout MSE Growth: 2.9813
+2025-05-07 13:23:44,791 - INFO - [EVAL] Video VID06 | State Pred MSE: 0.2094 | Rollout MSE Mean: 1.3532 | Rollout MSE Growth: 2.6189
+2025-05-07 13:23:58,189 - INFO - [EVAL] Video VID111 | State Pred MSE: 0.1921 | Rollout MSE Mean: 1.4187 | Rollout MSE Growth: 2.5198
+2025-05-07 13:24:09,333 - INFO - [EVAL] Video VID14 | State Pred MSE: 0.2158 | Rollout MSE Mean: 1.3414 | Rollout MSE Growth: 2.1521
+2025-05-07 13:24:20,352 - INFO - [EVAL] Video VID23 | State Pred MSE: 0.2203 | Rollout MSE Mean: 1.3449 | Rollout MSE Growth: 2.6621
+2025-05-07 13:24:29,134 - INFO - [EVAL] Validation | Loss: 0.2062 | State Pred MSE: 0.2062 | Rollout MSE Mean: 1.3573 | Rollout MSE Growth: 2.5868 | Action Pred Accuracy: 0.0000
+2025-05-07 13:24:29,251 - INFO - New best model saved at logs/2025-05-07_13-15-57/world_model_best_epoch_2.pt
+2025-05-07 13:24:29,435 - INFO - [TRAINING] Batch 0/555 | loss: 0.1155
+2025-05-07 13:24:32,991 - INFO - [TRAINING] Batch 80/555 | loss: 0.1359
+2025-05-07 13:24:36,547 - INFO - [TRAINING] Batch 160/555 | loss: 0.1162
+2025-05-07 13:24:40,102 - INFO - [TRAINING] Batch 240/555 | loss: 0.0941
+2025-05-07 13:24:43,665 - INFO - [TRAINING] Batch 320/555 | loss: 0.1277
+2025-05-07 13:24:47,215 - INFO - [TRAINING] Batch 400/555 | loss: 0.1056
+2025-05-07 13:24:50,771 - INFO - [TRAINING] Batch 480/555 | loss: 0.1335
+2025-05-07 13:24:54,048 - INFO - [TRAINING] Epoch 3/3 completed in 24.66s | Train loss: 0.1168
+2025-05-07 13:24:54,049 - INFO - [EVAL] Evaluating world model on 5 test videos
+2025-05-07 13:24:54,049 - INFO - [EVAL] Video IDs: ['VID02', 'VID06', 'VID111', 'VID14', 'VID23']
+2025-05-07 13:25:10,680 - INFO - [EVAL] Video VID02 | State Pred MSE: 0.1870 | Rollout MSE Mean: 1.2701 | Rollout MSE Growth: 2.9678
+2025-05-07 13:25:24,069 - INFO - [EVAL] Video VID06 | State Pred MSE: 0.2085 | Rollout MSE Mean: 1.2543 | Rollout MSE Growth: 2.3984
+2025-05-07 13:25:37,626 - INFO - [EVAL] Video VID111 | State Pred MSE: 0.1864 | Rollout MSE Mean: 1.5329 | Rollout MSE Growth: 3.8083
+2025-05-07 13:25:48,993 - INFO - [EVAL] Video VID14 | State Pred MSE: 0.2067 | Rollout MSE Mean: 1.3049 | Rollout MSE Growth: 2.1391
+2025-05-07 13:25:59,948 - INFO - [EVAL] Video VID23 | State Pred MSE: 0.2131 | Rollout MSE Mean: 1.1801 | Rollout MSE Growth: 2.5405
+2025-05-07 13:26:03,639 - INFO - [EVAL] Validation | Loss: 0.2003 | State Pred MSE: 0.2003 | Rollout MSE Mean: 1.3084 | Rollout MSE Growth: 2.7708 | Action Pred Accuracy: 0.0000
+2025-05-07 13:26:03,756 - INFO - New best model saved at logs/2025-05-07_13-15-57/world_model_best_epoch_3.pt
+2025-05-07 13:26:04,438 - INFO - Training completed. Best model saved at logs/2025-05-07_13-15-57/world_model_best_epoch_3.pt
