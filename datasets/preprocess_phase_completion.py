@@ -37,7 +37,7 @@ def compute_phase_completion_rewards(metadata_df, video_id_col='video_id', n_pha
         phase_importance = [1.0] * n_phases
     
     # Initialize the reward column
-    df['transition_reward'] = 0.0
+    df['phase_completion_reward'] = 0.0
     
     # Get phase indicators
     phase_cols = [f'p{i}' for i in range(n_phases)]
@@ -115,7 +115,7 @@ def compute_phase_completion_rewards(metadata_df, video_id_col='video_id', n_pha
                         else:  # Default to linear
                             reward = max_reward * progress * phase_scale
                         
-                        df.loc[idx, 'transition_reward'] = max(df.loc[idx, 'transition_reward'], reward)
+                        df.loc[idx, 'phase_completion_reward'] = max(df.loc[idx, 'phase_completion_reward'], reward)
                     
                     # Right side of the distribution (after transition) - only for bell_curve
                     if reward_distribution == 'bell_curve':
@@ -148,7 +148,7 @@ def compute_phase_completion_rewards(metadata_df, video_id_col='video_id', n_pha
                             else:  # Default to linear
                                 reward = max_reward * (1 - distance) * phase_scale
                             
-                            df.loc[idx, 'transition_reward'] = max(df.loc[idx, 'transition_reward'], reward)
+                            df.loc[idx, 'phase_completion_reward'] = max(df.loc[idx, 'phase_completion_reward'], reward)
                 
             except ValueError:
                 # This shouldn't happen, but just in case
@@ -181,7 +181,7 @@ def compute_phase_completion_rewards(metadata_df, video_id_col='video_id', n_pha
                     else:
                         reward = max_reward * progress * phase_scale
                     
-                    df.loc[idx, 'transition_reward'] = max(df.loc[idx, 'transition_reward'], reward)
+                    df.loc[idx, 'phase_completion_reward'] = max(df.loc[idx, 'phase_completion_reward'], reward)
     
     # Clean up temporary columns
     if 'current_phase' in df.columns:
@@ -224,7 +224,7 @@ def visualize_transition_rewards(df, video_id_col='video_id', video_id=None, tra
     # If no transition specified, try to find one
     if transition_idx is None:
         # Look for a significant change in rewards
-        reward_diff = df_video['transition_reward'].diff().abs()
+        reward_diff = df_video['phase_completion_reward'].diff().abs()
         if reward_diff.max() > 0:
             transition_idx = reward_diff.idxmax()
         else:
@@ -250,13 +250,13 @@ def visualize_transition_rewards(df, video_id_col='video_id', video_id=None, tra
             ax.fill_between(
                 range(start_idx, end_idx + 1),
                 0, 
-                phase_data, 
+                phase_data,
                 alpha=0.2,
                 label=f"Phase {i}"
             )
     
     # Plot transition rewards
-    rewards = df_video.loc[start_idx:end_idx, 'transition_reward']
+    rewards = df_video.loc[start_idx:end_idx, 'phase_completion_reward']
     ax.plot(
         range(start_idx, end_idx + 1),
         rewards,
