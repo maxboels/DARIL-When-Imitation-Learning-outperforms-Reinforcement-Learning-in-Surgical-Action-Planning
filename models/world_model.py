@@ -200,17 +200,6 @@ class WorldModel(nn.Module):
         # Calculate MSE loss between predictions and targets
         _z_loss = F.mse_loss(_z_hat, _z)
 
-
-        # If predicting rewards associated with the next state
-        if self.reward_learning:
-            pass
-            # TODO: get the ground truth rewards scores
-            # the goal is for the model to learn to pick actions that lead to higher rewards in short and long term
-            # Also, we want to learn the reward function itself that uses weights for each signal
-            # and knows when to focus on which grounded signals or human preferences like safety
-            # Ideally, we want to focus more on discovering new pathways/trajectories from raw data and final outcomes, leaving
-            # space for the model to come up with better strategies humans might not have thought of.
-
         # If we want to use imitation learning - predict the next action
         other_losses = {}
         head_outputs = {}
@@ -220,20 +209,45 @@ class WorldModel(nn.Module):
                 action_logits = self.heads['_a'](last_hidden_state)
                 # Calculate loss for the action head
                 action_loss = F.binary_cross_entropy_with_logits(action_logits, next_actions)
-            
+                other_losses['_a'] = action_loss * self.w_a
 
             if self.phase_learning:
                 phase_logits = self.heads['_p'](last_hidden_state)
                 # Calculate loss for the phase head (cross-entropy with a softmax output)
                 phase_loss = F.cross_entropy(phase_logits, next_phase)
+                other_losses['_p'] = phase_loss * self.w_p
 
+
+        # If predicting rewards associated with the next state
+        # TODO: get the ground truth rewards scores: Done
+        # the goal is for the model to learn to pick actions that lead to higher rewards in short and long term
+        # Also, we want to learn the reward function itself that uses weights for each signal
+        # and knows when to focus on which grounded signals or human preferences like safety
+        # Ideally, we want to focus more on discovering new pathways/trajectories from raw data and final outcomes, leaving
+        # space for the model to come up with better strategies humans might not have thought of.
         if self.reward_learning:
             # Calculate loss for the reward head
-            reward_logits = self.heads['_r_pcompletion'](last_hidden_state)
-            # Assuming we have ground truth rewards for the next state
-            reward_loss = F.mse_loss(reward_logits, next_rewards)
+            reward_phase_completion = self.heads['_r_phase_completion'](last_hidden_state)
+            reward_phase_initiation = self.heads['_r_phase_initiation'](last_hidden_state)
+            reward_phase_progression = self.heads['_r_phase_progression'](last_hidden_state)
+            reward_action_probability = self.heads['_r_action_probability'](last_hidden_state)
+            reward_risk_penalty = self.heads['_r_risk_penalty'](last_hidden_state)
+            reward_global_progression = self.heads['_r_global_progression'](last_hidden_state)
+            # Calculate loss for the reward head
+            reward_loss_phase_completion = F.mse_loss(reward_phase_completion, next_rewards['_r_phase_completion'])
+            reward_loss_phase_initiation = F.mse_loss(reward_phase_initiation, next_rewards['_r_phase_initiation'])
+            reward_loss_phase_progression = F.mse_loss(reward_phase_progression, next_rewards['_r_phase_progression'])
+            reward_loss_action_probability = F.mse_loss(reward_action_probability, next_rewards['_r_action_probability'])
+            reward_loss_risk_penalty = F.mse_loss(reward_risk_penalty, next_rewards['_r_risk_penalty'])
+            reward_loss_global_progression = F.mse_loss(reward_global_progression, next_rewards['_r_global_progression'])
+            # Store losses
+            other_losses['_r_phase_completion'] = reward_loss_phase_completion * self.w_r * 1.0
+            other_losses['_r_phase_initiation'] = reward_loss_phase_initiation * self.w_r * 1.0
+            other_losses['_r_phase_progression'] = reward_loss_phase_progression * self.w_r * 1.0
+            other_losses['_r_action_probability'] = reward_loss_action_probability * self.w_r * 1.0
+            other_losses['_r_risk_penalty'] = reward_loss_risk_penalty * self.w_r * 0.1
+            other_losses['_r_global_progression'] = reward_loss_global_progression * self.w_r * 0.1
 
-          
         outputs = {
             "_z_loss": _z_loss,
             "_z_hat": _z_hat,
