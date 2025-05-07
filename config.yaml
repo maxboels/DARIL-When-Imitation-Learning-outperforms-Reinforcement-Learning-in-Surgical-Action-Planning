@@ -99,6 +99,13 @@ models:
     action_embedding_dim: 100
     n_layer: 6
     use_head: true
+    # I/O
+    action_conditioning: true
+    imitation_learning: true
+    reward_learning: false
+    action_learning: false
+    phase_learning: false
+    # Dimensions
     targets_dims:
       _z: 512
       _a: 100

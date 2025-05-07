@@ -146,17 +146,17 @@ def train_world_model(cfg, logger, model, train_loader, test_video_loaders, devi
             # Save best model
             if val_metrics['loss'] < best_val_loss:
                 best_val_loss = val_metrics['loss']
-                model_path = os.path.join(log_dir, f"world_model_best_epoch_{epoch+1}.pt")
+                model_path = os.path.join(checkpoint_dir, f"world_model_best_epoch_{epoch+1}.pt")
                 model.save(model_path)
                 best_model_path = model_path
                 logger.info(f"New best model saved at {model_path}")
         
         # Always save the latest model
-        latest_path = os.path.join(log_dir, "world_model_latest.pt")
+        latest_path = os.path.join(checkpoint_dir, "world_model_latest.pt")
         model.save(latest_path)
     
     # Save training history
-    history_path = os.path.join(log_dir, "training_history.pt")
+    history_path = os.path.join(checkpoint_dir, "training_history.pt")
     torch.save(metrics_history, history_path)
     
     # Plot training curves
