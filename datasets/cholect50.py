@@ -157,15 +157,18 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
         
         # Get reward values from metadata_df per video
         rewards = {}
-        rewards['risk_scores'] = video_metadata['risk_score_max'].values
-        rewards['phase_completion'] = video_metadata['phase_completion_reward'].values
-        rewards['phase_initiation'] = video_metadata['phase_initiation_reward'].values
-        rewards['phase_progression'] = video_metadata['phase_prog'].values
-        rewards['global_progression'] = video_metadata['global_prog'].values
-        rewards['action_reward'] = video_metadata['action_reward'].values
-        rewards['global_avg_risk'] = video_metadata['glob_avg_risk'].values
-        rewards['global_critical_risk'] = video_metadata['glob_critical_risk_events'].values
-        rewards['global_outcome_score'] = video_metadata['glob_global_outcome_score'].values
+        rewards['_r_risk_penalty'] = video_metadata['risk_score_max'].values
+        rewards['_r_phase_completion'] = video_metadata['phase_completion_reward'].values
+        rewards['_r_phase_initiation'] = video_metadata['phase_initiation_reward'].values
+        rewards['_r_phase_progression'] = video_metadata['phase_prog'].values
+        rewards['_r_global_progression'] = video_metadata['global_prog'].values
+        rewards['_r_action_probability'] = video_metadata['action_reward'].values
+
+        # Get global outcome scores
+        outcomes = {}
+        outcomes['q_global_avg_risk'] = video_metadata['glob_avg_risk'].values
+        outcomes['q_global_critical_risk'] = video_metadata['glob_critical_risk_events'].values
+        outcomes['q_global_outcome_score'] = video_metadata['glob_global_outcome_score'].values
 
         # indices from column 'tri0':'tri199'
         action_columns = [f'tri{i}' for i in range(0, 100)]
@@ -183,6 +186,9 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
         # target_columns = [f't{i}' for i in range(0, 14)]
         # video_target_classes = video_metadata[target_columns].values
 
+        phase_columns = [f'p{i}' for i in range(0, 7)]
+        video_phase_classes = video_metadata[phase_columns].values
+
         # Store video data
         data.append({
             'video_id': video_id,
@@ -192,8 +198,10 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
             'instruments_binaries': video_instrument_classes,
             # 'verb_binaries': video_verb_classes,
             # 'target_binaries': video_target_classes,
+            'phase_binaries': video_phase_classes,
             'num_frames': num_frames,
-            **rewards        # unpack video_outcome_data
+            'next_rewards': rewards,
+            'outcomes': outcomes,
         })
 
     if not data:
@@ -265,9 +273,24 @@ class NextFramePredictionDataset(Dataset):
             embeddings = video['frame_embeddings']
             actions = video['actions_binaries']
             instruments = video['instruments_binaries']
+            phases = video['phase_binaries']
+
+            # rewards and outcomes
+            rewards = video['next_rewards']
+            phase_completion = rewards['_r_phase_completion']
+            phase_initiation = rewards['_r_phase_initiation']
+            phase_progression = rewards['_r_phase_progression']
+            global_progression = rewards['_r_global_progression']
+            action_probability = rewards['_r_action_probability']
+            _r_risk_penalty = rewards['_r_risk_penalty']
+
+            # outcomes
+            q = video['outcomes']
             
             num_actions = len(actions[0])
             num_instruments = len(instruments[0])
+            num_phases = len(phases[0])
+            reward_dim = 1
             embedding_dim = len(embeddings[0])
 
             for i in range(len(embeddings) - 1):
@@ -278,7 +301,19 @@ class NextFramePredictionDataset(Dataset):
                 f_z_seq = [] # future states from i+1 to i+max_horizon
                 # a_seq: We already trained the vision backbone to recognise the actions but we need to evaluate it again
                 _a_seq = []
+                _p_seq = [] # next phases from i+1 to i+max_horizon
                 f_a_seq = [] # future actions from i+1 to i+max_horizon
+
+                # rewards
+                _r_p_comp_seq = []
+                _r_p_init_seq = []
+                _r_p_prog_seq = []
+                _r_g_prog_seq = []
+                _r_a_prob_seq = []
+                _r_risk_seq = [] # we need to subtract the risk penalty from the rewards
+                
+                # outcomes
+                q_seq = []
 
                 # current
                 c_a = actions[i]
@@ -292,21 +327,46 @@ class NextFramePredictionDataset(Dataset):
                     else:
                         z_seq.append(embeddings[j])
                 
-                # Add the shifted next frame and action
+                # Add the shifted next frame and action, using padding if needed
                 for k in range(i - context_length + 1 + train_shift, i + 1 + train_shift):
                     if k < 0:
                         # Padding for positions before the start of the video
                         _z_seq.append([padding_value] * embedding_dim)
                         _a_seq.append([0] * num_actions)
+                        _p_seq.append([0] * num_phases)
+                        # rewards
+                        _r_p_comp_seq.append([0.0] * reward_dim)
+                        _r_p_init_seq.append([0.0] * reward_dim)
+                        _r_p_prog_seq.append([0.0] * reward_dim)
+                        _r_g_prog_seq.append([0.0] * reward_dim)
+                        _r_a_prob_seq.append([0.0] * reward_dim)
+                        _r_risk_seq.append([1.0] * reward_dim)
+
                         # print(f"Padding for frame position {k}/{len(embeddings)}")
                     elif k >= len(embeddings):
                         # Padding for positions after the end of the video
                         _z_seq.append([padding_value] * embedding_dim)
                         _a_seq.append([0] * num_actions)
-                        # print(f"Padding for position {k}/{len(embeddings)}")
+                        _p_seq.append([0] * num_phases)
+                        # rewards
+                        _r_p_comp_seq.append([0.0] * reward_dim)
+                        _r_p_init_seq.append([0.0] * reward_dim)
+                        _r_p_prog_seq.append([0.0] * reward_dim)
+                        _r_g_prog_seq.append([0.0] * reward_dim)
+                        _r_a_prob_seq.append([0.0] * reward_dim)
+                        _r_risk_seq.append([1.0] * reward_dim) # 1.0 is the minimum risk score
                     else:
                         _z_seq.append(embeddings[k])
                         _a_seq.append(actions[k])
+                        _p_seq.append(phases[k])
+                        # rewards (make sure it is a list of lists)
+                        _r_p_comp_seq.append([phase_completion[k]])
+                        _r_p_init_seq.append([phase_initiation[k]])
+                        _r_p_prog_seq.append([phase_progression[k]])
+                        _r_g_prog_seq.append([global_progression[k]])
+                        _r_a_prob_seq.append([action_probability[k]])
+                        _r_risk_seq.append([_r_risk_penalty[k]])
+                        # outcomes
                 
                 # Add future actions and states
                 for k in range(i + 1, min(i + 1 + max_horizon, len(embeddings))):
@@ -327,8 +387,19 @@ class NextFramePredictionDataset(Dataset):
                     'f_z': f_z_seq,   # Future states from (i+1) to (i+max_horizon)
                     '_a': _a_seq,    # Sequence of actions from (i-context_length+2) to i+1
                     'f_a': f_a_seq,
+                    '_p': _p_seq,    # Sequence of phases from (i-context_length+2) to i+1
                     'c_a': c_a,     # Current Action at position i
                     'c_i': c_i,     # Current Instrument at position i
+                    # rewards
+                    '_r': {
+                        '_r_phase_completion': _r_p_comp_seq,
+                        '_r_phase_initiation': _r_p_init_seq,
+                        '_r_phase_progression': _r_p_prog_seq,
+                        '_r_global_progression': _r_g_prog_seq,
+                        '_r_action_probability': _r_a_prob_seq,
+                        '_r_risk': _r_risk_seq,
+                    },
+                    # outcomes
                 })
     
     def __len__(self):
@@ -344,10 +415,33 @@ class NextFramePredictionDataset(Dataset):
         f_z = torch.tensor(np.array(sample['f_z']), dtype=torch.float32)  # Shape: [max_horizon, embedding_dim]
         _a = torch.tensor(np.array(sample['_a']), dtype=torch.float32)
         f_a = torch.tensor(np.array(sample['f_a']), dtype=torch.float32)
+        _p = torch.tensor(np.array(sample['_p']), dtype=torch.float32)  # Shape: [max_horizon, num_phases]
+
+        # rewards
+        _r = sample['_r']
+        _r_p_comp = torch.tensor(np.array(_r['_r_phase_completion']), dtype=torch.float32)
+        _r_p_init = torch.tensor(np.array(_r['_r_phase_initiation']), dtype=torch.float32)
+        _r_p_prog = torch.tensor(np.array(_r['_r_phase_progression']), dtype=torch.float32)
+        _r_g_prog = torch.tensor(np.array(_r['_r_global_progression']), dtype=torch.float32)
+        _r_a_prob = torch.tensor(np.array(_r['_r_action_probability']), dtype=torch.float32)
+        _r_risk = torch.tensor(np.array(_r['_r_risk']), dtype=torch.float32)
+        _r_dict = {
+            '_r_phase_completion': _r_p_comp,
+            '_r_phase_initiation': _r_p_init,
+            '_r_phase_progression': _r_p_prog,
+            '_r_global_progression': _r_g_prog,
+            '_r_action_probability': _r_a_prob,
+            '_r_risk': _r_risk,
+        }
+        q_dict = {}
+
 
         # current action and instrument
         c_a = torch.tensor(sample['c_a'], dtype=torch.float32)
         c_i = torch.tensor(sample['c_i'], dtype=torch.float32)
+
+        # convert the binary phase to single integer class
+        _p = torch.argmax(_p, dim=1)  # Convert to class integer
 
         # create dictiornary for batch
         data = {
@@ -356,6 +450,9 @@ class NextFramePredictionDataset(Dataset):
             'future_states': f_z,
             'next_actions': _a,
             'future_actions': f_a,
+            'next_phases': _p,
+            'next_rewards': _r_dict,
+            'outcomes': q_dict,
             'current_actions': c_a,
             'current_instruments': c_i,
         }

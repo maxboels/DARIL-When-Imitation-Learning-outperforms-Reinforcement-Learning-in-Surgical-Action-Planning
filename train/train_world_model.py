@@ -80,6 +80,11 @@ def train_world_model(cfg, logger, model, train_loader, test_video_loaders, devi
             current_states = batch['current_states'].to(device)
             next_states = batch['next_states'].to(device)
             next_actions = batch['next_actions'].to(device)
+            next_phases = batch['next_phases'].to(device)
+            next_rewards = batch['next_rewards']
+            next_rewards = {k: v.to(device) for k, v in next_rewards.items()}
+
+            # Check if batch contains attention mask
             attention_mask = batch.get('attention_mask', None)
             if attention_mask is not None:
                 attention_mask = attention_mask.to(device)
@@ -88,12 +93,14 @@ def train_world_model(cfg, logger, model, train_loader, test_video_loaders, devi
             outputs = model(
                 current_state=current_states,
                 next_state=next_states,
+                next_rewards=next_rewards,
                 next_actions=next_actions,
+                next_phases=next_phases,
                 attention_mask=attention_mask
             )
             
             # Get losses
-            loss = outputs['loss']
+            loss = outputs['total_loss']
             
             # Backward pass
             optimizer.zero_grad()
@@ -205,21 +212,27 @@ def evaluate_world_model(cfg, logger, model, test_video_loaders, device='cuda', 
                 
                 # Move batch to device
                 current_states = batch['current_states'].to(device)
+                future_states = batch['future_states'].to(device)
                 next_states = batch['next_states'].to(device)
                 next_actions = batch['next_actions'].to(device)
-                future_states = batch['future_states'].to(device) # [batch_size, max_horizon, embedding_dim]
+                next_phases = batch['next_phases'].to(device)
+                next_rewards = batch['next_rewards']
+                next_rewards = {k: v.to(device) for k, v in next_rewards.items()}
+                # Check if batch contains attention mask
                 attention_mask = batch.get('attention_mask', None)
                 if attention_mask is not None:
                     attention_mask = attention_mask.to(device)
                 
-                # Single-step next state prediction for evaluation
+                # Single-step next state prediction for evaluation                
                 outputs = model(
                     current_state=current_states,
                     next_state=next_states,
+                    next_rewards=next_rewards,
                     next_actions=next_actions,
+                    next_phases=next_phases,
                     attention_mask=attention_mask
                 )
-                
+
                 # Calculate metrics for this batch
                 # State prediction error (MSE)
                 state_pred_error = ((outputs['_z_hat'] - next_states) ** 2).mean().item()
@@ -233,9 +246,9 @@ def evaluate_world_model(cfg, logger, model, test_video_loaders, device='cuda', 
                         action_accuracy = (pred_actions == next_actions).float().mean().item()
                         video_metrics['action_pred_accuracy'] += action_accuracy
                 
-                # Add loss
-                if 'loss' in outputs:
-                    video_metrics['loss'] += outputs['loss'].item()
+                # Add total loss
+                if 'total_loss' in outputs:
+                    video_metrics['total_loss'] += outputs['total_loss'].item()
                 
                 # Generate rollout trajectory
                 rollout = model.generate_conditional_future_states(
