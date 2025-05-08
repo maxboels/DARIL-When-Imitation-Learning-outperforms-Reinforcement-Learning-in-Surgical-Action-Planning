@@ -8,7 +8,8 @@ def add_risk_scores_to_metadata(metadata, cfg_data, split, fold):
     Add risk scores to metadata if not already there
     """
     # Check if risk scores are already in metadata
-    risk_score_root = "/home/maxboels/datasets/CholecT50/instructions/anticipation_5s_with_goals/"
+    data_dir = cfg_data['paths']['data_dir']
+    risk_score_root = f"{data_dir}/CholecT50/instructions/anticipation_5s_with_goals/"
     video_ids_cache = []
     all_risk_scores = []
     risk_column_name = f"risk_score_{cfg_data['frame_risk_agg']}"
@@ -48,7 +49,6 @@ def add_risk_scores_to_metadata(metadata, cfg_data, split, fold):
             # if last frame, add risk score to metadata
             if i == len(metadata) - 1:
                 metadata[risk_column_name] = all_risk_scores
-                print(f"Added risk scores to metadata")
 
         # remove root from embedding path
         remove_root_1 = f'/nfs/home/mboels/projects/self-distilled-swin/outputs/embeddings_{split}_set/fold0/'

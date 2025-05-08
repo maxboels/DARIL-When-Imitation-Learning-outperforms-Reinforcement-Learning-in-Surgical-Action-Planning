@@ -6,12 +6,13 @@ import pandas as pd
 from collections import defaultdict
 from typing import Dict, Any
 
-def add_risk_scores(metadata, split, fold, frame_risk_agg='max'):
+def add_risk_scores(metadata, cfg_data, split, fold, frame_risk_agg='max'):
     """
     Add risk scores to metadata if not already there
     """
     # Check if risk scores are already in metadata
-    risk_score_root = "/home/maxboels/datasets/CholecT50/instructions/anticipation_5s_with_goals/"
+    data_dir = cfg_data['paths']['data_dir']
+    risk_score_root = f"{data_dir}/instructions/anticipation_5s_with_goals/"
     video_ids_cache = []
     all_risk_scores = []
     risk_column_name = f"risk_score_{frame_risk_agg}"
@@ -28,12 +29,10 @@ def add_risk_scores(metadata, split, fold, frame_risk_agg='max'):
             if video_id not in video_ids_cache:
                 print(f"Loading risk scores for video {video_id}")
                 video_ids_cache.append(video_id)
-
-                # Load risk scores from json file
                 risk_scores = None
                 risk_score_path = risk_score_root + f"{video_id}_sorted_with_risk_scores_instructions_with_goals.json" 
                 if risk_score_path and os.path.exists(risk_score_path):
-                    print(f"Loading risk scores from {risk_score_path}")
+                    print(f"Loading risk score file {risk_score_path}")
                     with open(risk_score_path, 'r') as f:
                         risk_scores = json.load(f)
                 else:
@@ -56,6 +55,5 @@ def add_risk_scores(metadata, split, fold, frame_risk_agg='max'):
             # if last frame, add risk score to metadata
             if i == len(metadata) - 1:
                 metadata[risk_column_name] = all_risk_scores
-            print(f"Added risk scores to metadata")
-
+    
     return metadata

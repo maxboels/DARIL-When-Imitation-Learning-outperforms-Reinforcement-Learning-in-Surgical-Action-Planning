@@ -1,9 +1,9 @@
-e#!/bin/bash
+#!/bin/bash
 
 # Define variables
 CONFIG_NAME=$1
 JOB_NAME=$(echo $CONFIG_NAME | cut -f 1 -d '.' | tr '_' '-' | tr '/' '-')
-DOCKER_IMAGE="aicregistry:5000/mboels:surl"
+DOCKER_IMAGE="aicregistry:5000/mboels:sworld"
 PROJECT_NAME="mboels"
 NUM_GPUS=1
 NUM_CPUS=2
@@ -23,8 +23,8 @@ runai submit $JOB_NAME \
        --cpu $NUM_CPUS \
        --project $PROJECT_NAME \
        -v $VOLUME_MOUNT \
-       --command -- $COMMAND \
-       --backoff-limit 0
+       --backoff-limit 0 \
+       --command -- $COMMAND
 
 # Wait for 3 seconds and list the jobs
 sleep 3

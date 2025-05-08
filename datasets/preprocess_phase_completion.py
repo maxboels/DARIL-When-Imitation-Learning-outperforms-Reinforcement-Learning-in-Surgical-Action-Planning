@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from tqdm import tqdm
 
-def compute_phase_completion_rewards(metadata_df, video_id_col='video_id', n_phases=7, 
+def compute_phase_completion_rewards(metadata_df, video_id_col='video', n_phases=7, 
                                     transition_window=30,
                                     phase_importance=None,
                                     max_reward=1.0,

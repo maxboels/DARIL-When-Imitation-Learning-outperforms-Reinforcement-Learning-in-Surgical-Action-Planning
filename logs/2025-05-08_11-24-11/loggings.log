@@ -1,0 +1,18 @@
+2025-05-08 11:24:11,252 - INFO - Log file: logs/2025-05-08_11-24-11/loggings.log
+2025-05-08 11:24:11,252 - INFO - Starting CholecT50 experiment for Surgical Actions Prediction
+2025-05-08 11:24:11,252 - INFO - Experiment configuration: {'max_videos': None, 'recognition': {'train': False, 'inference': False, 'best_model_path': './best_checkpoints/best_model_epoch2_map0.5008.pt'}, 'pretrain_world_model': {'train': True, 'inference': False, 'best_model_path': None}, 'pretrain_reward_model': False, 'calculate_action_rewards': False, 'train_action_policy': False, 'run_tdmpc': False, 'analyze_results': False, 'run_evaluation': False}
+2025-05-08 11:24:11,252 - INFO - Using device: cuda
+2025-05-08 11:24:11,252 - INFO - Loading CholecT50 data...
+2025-05-08 11:24:11,252 - INFO - Loading train data from /nfs/home/mboels/datasets/CholecT50 with fold 0
+2025-05-08 11:24:31,896 - INFO - Added phase completion rewards to metadata
+2025-05-08 11:24:37,556 - INFO - Added phase transition rewards to metadata
+2025-05-08 11:33:06,013 - INFO - Added phase and global progression rewards to metadata
+2025-05-08 11:33:35,811 - INFO - Added action distribution rewards to metadata
+2025-05-08 11:33:44,778 - INFO - Added risk scores to metadata
+2025-05-08 11:33:51,938 - INFO - Added global outcome scores to metadata
+2025-05-08 11:33:51,940 - INFO - Found 40 videos in metadata file
+2025-05-08 11:34:28,031 - INFO - Loading test data from /nfs/home/mboels/datasets/CholecT50 with fold 0
+2025-05-08 11:34:30,252 - INFO - Added phase completion rewards to metadata
+2025-05-08 11:34:31,856 - INFO - Added phase transition rewards to metadata
+2025-05-08 11:35:30,380 - INFO - Added phase and global progression rewards to metadata
+2025-05-08 11:35:38,929 - INFO - Added action distribution rewards to metadata

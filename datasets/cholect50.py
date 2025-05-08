@@ -26,7 +26,7 @@ from .preprocess_action_scores import compute_action_phase_distribution
 
 
 # Step 1: Data Loading from CholecT50 Dataset
-def load_cholect50_data(cfg, split='train', max_videos=None):
+def load_cholect50_data(cfg, logger, split='train', max_videos=None):
     """
     Load frame embeddings from the CholecT50 dataset for training or validation.
 
@@ -39,13 +39,12 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
     data_dir = paths_config['data_dir']
     metadata_file = paths_config['metadata_file']
     fold = paths_config['fold']
-    print(f"Loading CholecT50 data from {data_dir}")
+    logger.info(f"Loading {split} data from {data_dir} with fold {fold}")
 
     # Create metadata path
     split_folder = f"embeddings_{split}_set"    
     metadata_dir = os.path.join(data_dir, split_folder, f"fold{fold}")
     metadata_path = os.path.join(metadata_dir, metadata_file)
-    print(f"Metadata path: {metadata_path}")
 
     # Global outcome file
     video_global_outcome_file = paths_config['video_global_outcome_file'] # embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv
@@ -53,12 +52,12 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
 
     # Load metadata if available
     metadata_df = pd.read_csv(metadata_path)
-    print(f"Metadata columns (before adding rewards): {metadata_df.columns.tolist()}")
-
+    
+    logger.info(f"[{split}] Start processing metadata file {metadata_path}")
     if cfg['preprocess']['extract_rewards']:
         # Progressive +1 reward near phase transitions
         if cfg_rewards['grounded']['phase_completion']:
-            metadata_df = compute_phase_completion_rewards(metadata_df, video_id_col='video_id', n_phases=7, 
+            metadata_df = compute_phase_completion_rewards(metadata_df, video_id_col='video', n_phases=7, 
                                         transition_window=30,
                                         phase_importance=None,
                                         max_reward=1.0,
@@ -66,16 +65,16 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
                                         reward_distribution='left_sided')
             metadata_file = metadata_file.replace('.csv', '_phase_complet.csv')
             metadata_df.to_csv(os.path.join(metadata_dir, metadata_file), index=False)
-            print(f"Added phase completion rewards to metadata")
-        
+            logger.info(f"[{split}] Added phase completion rewards to {metadata_file}") 
+
         if cfg_rewards['grounded']['phase_transition']:
-            metadata_df = compute_phase_transition_rewards(metadata_df, video_id_col='video_id', n_phases=7, 
+            metadata_df = compute_phase_transition_rewards(metadata_df, video_id_col='video', n_phases=7, 
                                         reward_window=5, 
                                         phase_importance=None,
                                         reward_value=1.0)
             metadata_file = metadata_file.replace('.csv', '_phase_transit.csv')
             metadata_df.to_csv(os.path.join(metadata_dir, metadata_file), index=False)
-            print(f"Added phase transition rewards to metadata")
+            logger.info(f"[{split}] Added phase transition rewards to {metadata_file}")
 
         # Compute reward signals for each frame (state)
         if cfg_rewards['grounded']['phase_progression'] or cfg_rewards['grounded']['global_progression']:
@@ -84,7 +83,7 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
                             add_global_progression=cfg_rewards['grounded']['global_progression'])
             metadata_file = metadata_file.replace('.csv', '_prog.csv')
             metadata_df.to_csv(os.path.join(metadata_dir, metadata_file), index=False)
-            print(f"Added progression scores to metadata")
+            logger.info(f"[{split}] Added phase and global progression rewards to {metadata_file}")
             
         # Compute action-based rewards for each frame (state) conditioned on phases
         if cfg_rewards['imitation']['action_distribution']:
@@ -93,14 +92,14 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
             # and gradually increases rewards until the next phase transition (smooth rewards)
             metadata_file = metadata_file.replace('.csv', '_prob_action.csv')
             metadata_df.to_csv(os.path.join(metadata_dir, metadata_file), index=False)
-            print(f"Added action-based rewards to metadata")
+            logger.info(f"[{split}] Added action distribution rewards to {metadata_file}")
 
         if cfg_rewards['expert_knowledge']['risk_score']:
-            metadata_df = add_risk_scores(metadata_df, split, fold, 
+            metadata_df = add_risk_scores(metadata_df, cfg_data, split, fold, 
                             frame_risk_agg=cfg_rewards['expert_knowledge']['frame_risk_agg'])
             metadata_file = metadata_file.replace('.csv', '_risk.csv')
             metadata_df.to_csv(os.path.join(metadata_dir, metadata_file), index=False)
-            print(f"Added risk scores to metadata")
+            logger.info(f"[{split}] Added risk scores to {metadata_file}")
         
         # Add correct video_global_outcomes row and with all columns to the metadata file using the video id as unique identifier
         # Here we need to add the video global outcomes to the metadata
@@ -118,11 +117,11 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
                         metadata_df.loc[metadata_df['video'] == video_id, new_col] = video_global_outcome[orig_col].values[0]
             metadata_file = metadata_file.replace('.csv', '_glob_outcome.csv')
             metadata_df.to_csv(os.path.join(metadata_dir, metadata_file), index=False)
-            print(f"Added global outcome scores to metadata")
+            logger.info(f"[{split}] Added global outcome scores to {metadata_file}")
         else:
-            print(f"Global outcome file {video_global_outcome_path} not found, skipping")
+            logger.warning(f"[{split}] Global outcome file {video_global_outcome_path} not found, skipping global outcome scores")
     else:
-        print(f"Metadata file {metadata_path} has already been processed, skipping reward extraction")
+        logger.info(f"[{split}] Rewards extraction skipped, using metadata file {metadata_path}")
 
     # Find all videos in metadata csv file
     if metadata_df is not None:
@@ -130,14 +129,15 @@ def load_cholect50_data(cfg, split='train', max_videos=None):
     if max_videos:
         video_ids = video_ids[:max_videos]
     
-    print(f"Found {len(video_ids)} video directories")
+    logger.info(f"[{split}] Found {len(video_ids)} videos in metadata file")
     
     # Initialize data list
     data = []
     video_durations = []
     
     # Load frame embeddings for each video from the metadata
-    for video_id in tqdm(video_ids, desc="Loading videos"):
+    logger.info(f"[{split}] Loading data for {len(video_ids)} videos")
+    for video_id in tqdm(video_ids, desc="Loading frames for videos"):
         # Filter metadata for this video
         video_metadata = metadata_df[metadata_df['video'] == video_id]
         frame_files = video_metadata['embedding_path'].tolist()

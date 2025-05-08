@@ -2,23 +2,23 @@
 debug: false
 
 preprocess:
-  extract_rewards: false # Extract rewards from the dataset
-  rewards: # per frame reward (can be derived relative to the phase)
-    imitation: # Imitation-Learning (Distribution-Alignment) Reward
-      action_distribution: true # KL divergence between action distributions (precomputed on all videos per phase)
-    expert_knowledge: # Expert-Knowledge Reward
-      risk_score: true        # risk score associated with each actions triplets
-      frame_risk_agg: 'max' # default is max
+  extract_rewards: true       # Extract rewards from the dataset
+  rewards:
+    imitation:
+      action_distribution: false  # KL divergence between action distributions (precomputed on all videos per phase)
+    expert_knowledge:
+      risk_score: true            # risk score associated with each actions triplets
+      frame_risk_agg: 'max'       # default is max
     grounded:
-      phase_progression: true # percentage of the phase completed
-      global_progression: true   # absolute time in seconds
-      phase_completion: true # progressive +1 reward near the end of the phase
-      phase_transition: true # +1 reward at the end of the phase
+      phase_progression: false    # percentage of the phase completed
+      global_progression: false   # absolute time in seconds
+      phase_completion: false     # progressive +1 reward near the end of the phase
+      phase_transition: false     # +1 reward at the end of the phase
   value: # long-term value prediction per video (= final outcome value)
     global_outcome: true
 
 experiment:
-  max_videos: 5 # null  # Set to null to use all videos
+  max_videos: null  # Set to null to use all videos
   # Recognition model for the 
   recognition:
     train: false
@@ -38,7 +38,7 @@ experiment:
 
 # Training parameters
 training:
-  epochs: 3
+  epochs: 5
   batch_size: 16
   learning_rate: 0.00003 # 0.00003
   scheduler:
@@ -71,10 +71,10 @@ data:
   padding_value: 0.0
   max_horizon: 15
   paths:
-    data_dir: "/home/maxboels/datasets/CholecT50" # server: "/nfs/home/mboels/datasets/CholecT50", "/home/maxboels/datasets/CholecT50"
+    data_dir: "/nfs/home/mboels/datasets/CholecT50" # server: "/nfs/home/mboels/datasets/CholecT50", "/home/maxboels/datasets/CholecT50"
     class_labels_file_path: "./data/labels.json"
     fold: 0
-    metadata_file: "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv" # "embeddings_f0_swin_bas_129.csv" # "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv" # "embeddings_f0_swin_bas_129.csv" # embeddings_f0_swin_bas_129_with_enhanced
+    metadata_file: "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action.csv" # "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv" # "embeddings_f0_swin_bas_129.csv" # "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv" # "embeddings_f0_swin_bas_129.csv" # embeddings_f0_swin_bas_129_with_enhanced
     video_global_outcome_file: embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv
   risk_score_path: null
   max_videos: null                     # Set to null to use all videos

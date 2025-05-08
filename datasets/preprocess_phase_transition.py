@@ -3,7 +3,7 @@ import numpy as np
 from tqdm import tqdm
 
 
-def compute_phase_transition_rewards(metadata_df, video_id_col='video_id', n_phases=7, 
+def compute_phase_transition_rewards(metadata_df, video_id_col='video', n_phases=7, 
                                     reward_window=5, 
                                     phase_importance=None,
                                     reward_value=1.0):
