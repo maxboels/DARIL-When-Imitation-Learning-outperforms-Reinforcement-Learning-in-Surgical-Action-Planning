@@ -91,23 +91,30 @@ def run_cholect50_experiment(cfg):
     # Step II: World Model - Next Frame Prediction
     # 1. Pre-train next frame prediction model
     if cfg_exp['pretrain_world_model']['train']:       
-        print("\nTraining next frame prediction model...")
+        print("\n[WORLD MODEL] Training next frame prediction model...")
         world_model = WorldModel(**cfg['models']['world_model']).to(device)
         best_model_path = train_world_model(cfg, logger, world_model, train_loader, test_video_loaders, device=device)  # Reduced epochs for demonstration
-        print(f"Best model saved at: {best_model_path}")
+        logger.info(f"[WORLD MODEL] Best model saved at: {best_model_path}")
     
     # 2. Run inference
     if cfg_exp['pretrain_world_model']['inference']:
-        print("\nRunning inference...")
+        logger.info("\n[WORLD MODEL] Running inference...")
         if best_model_path is None:
             best_model_path = cfg_exp['pretrain_world_model']['best_model_path']
-            print(f"Using best model from pre existing path: {best_model_path}")
+            logger.info(f"[WORLD MODEL] Using best model from pre existing path: {best_model_path}")
         checkpoint = torch.load(best_model_path)
         world_model = WorldModel(**cfg['models']['world_model']).to(device)
         world_model.load_state_dict(checkpoint['model_state_dict'])
         world_model.eval()
         results = run_generation_inference(cfg, logger, world_model, test_video_loaders, device)
-        logger.info(f"Results: {results}")
+        logger.info(f"[WORLD MODEL] Results: {results}")
+
+        # Run enhanced inference evaluation
+        logger.info("\n[WORLD MODEL] Running enhanced inference evaluation with class-based metrics...")
+        enhanced_results = enhanced_inference_evaluation(cfg, logger, world_model, test_video_loaders, device)
+        logger.info(f"[WORLD MODEL] Enhanced evaluation completed!")        
+        results['enhanced'] = enhanced_results
+        logger.info(f"[WORLD MODEL] Enhanced results: {enhanced_results}")
 
     # Step 3: Train reward prediction model
     if cfg_exp['pretrain_reward_model']:
