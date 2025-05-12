@@ -1,9 +1,0 @@
-2025-04-23 15:01:09,622 - INFO - Log file: logs/2025-04-23_15-01-09/loggings.log
-2025-04-23 15:01:09,622 - INFO - Starting CholecT50 experiment for Surgical Actions Prediction
-2025-04-23 15:01:09,622 - INFO - Experiment configuration: {'max_videos': 2, 'recognition': {'train': False, 'inference': False, 'best_model_path': './best_checkpoints/best_model_epoch2_map0.5008.pt'}, 'pretrain_world_model': {'train': True, 'inference': True, 'best_model_path': None}, 'pretrain_reward_model': False, 'calculate_action_rewards': False, 'train_action_policy': False, 'run_tdmpc': False, 'analyze_results': False, 'run_evaluation': False}
-2025-04-23 15:01:09,622 - INFO - Using device: cuda
-2025-04-23 15:01:09,622 - INFO - Loading CholecT50 data...
-2025-04-23 15:01:17,798 - INFO - Starting world model training for 2 epochs
-2025-04-23 15:01:26,825 - INFO - Epoch 1/2 completed in 9.03s | Train loss: 1.0877
-2025-04-23 15:01:26,826 - INFO - [EVAL] Evaluating world model on 2 test videos
-2025-04-23 15:01:26,826 - INFO - [EVAL] Video IDs: ['VID02', 'VID06']

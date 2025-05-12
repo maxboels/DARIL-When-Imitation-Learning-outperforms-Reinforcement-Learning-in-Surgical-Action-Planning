@@ -1,8 +1,0 @@
-{
-    "sklearn_mAP_a_from_vid_ap": 0.37117369982490955,
-    "sklearn_mAP_a": 0.5001,
-    "sklearn_mAP_i": 0.9329,
-    "ivt_mAP_a_from_vid_ap": 0.37117369982490955,
-    "ivt_mAP_a": 0.3712,
-    "ivt_mAP_i": 0.9198
-}

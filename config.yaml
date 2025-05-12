@@ -26,8 +26,8 @@ experiment:
     best_model_path: "./best_checkpoints/best_model_epoch2_map0.5008.pt" # null #"best_model_epoch1_valloss1.190734.pt"
   # World model
   pretrain_world_model:
-    train: true
-    inference: false
+    train: false
+    inference: true
     best_model_path: null # "best_model_epoch1_valloss1.190734.pt" # null #"best_model_epoch1_valloss1.190734.pt"
   pretrain_reward_model: false
   calculate_action_rewards: false
