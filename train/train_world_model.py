@@ -339,7 +339,7 @@ def run_generation_inference(cfg, logger, model, test_video_loaders, device='cud
         trajectory_count = 0
         
         # Iterate through test videos
-        for video_idx, video_loader in enumerate(test_video_loaders):
+        for video_id, video_loader in test_video_loaders.items():
             # Process only some videos to limit the total trajectories
             if trajectory_count >= num_trajectories:
                 break
@@ -354,17 +354,24 @@ def run_generation_inference(cfg, logger, model, test_video_loaders, device='cud
                 next_actions = batch.get('next_actions', None)
                 if next_actions is not None:
                     next_actions = next_actions.to(device)
+                # get future states and actions
+                future_states = batch.get('future_states', None)
+                if future_states is not None:
+                    future_states = future_states.to(device)
+                future_actions = batch.get('future_actions', None)
+                if future_actions is not None:
+                    future_actions = future_actions.to(device)
                 
                 # Generate trajectories for first few examples in batch
                 batch_size = min(current_states.size(0), num_trajectories - trajectory_count)
                 
                 for i in range(batch_size):
                     # Extract initial state and action
-                    initial_state = current_states[i:i+1, 0:1].clone()  # [1, 1, embedding_dim]
+                    initial_state = current_states[i:i+1, -1:].clone()  # [1, 1, embedding_dim]
                     
                     # Extract or create initial action
                     if next_actions is not None:
-                        initial_action = next_actions[i:i+1, 0:1].clone()  # [1, 1, action_classes]
+                        initial_action = next_actions[i:i+1, -1:].clone()  # [1, 1, action_classes]
                     else:
                         # If no action provided, sample a random one
                         initial_action = torch.zeros(1, 1, model.num_action_classes, device=device)
@@ -384,8 +391,8 @@ def run_generation_inference(cfg, logger, model, test_video_loaders, device='cud
                     if next_states is not None:
                         max_gt_length = min(trajectory_length + 1, current_states.size(1))
                         gt_trajectory = {
-                            'states': current_states[i:i+1, :max_gt_length].cpu(),
-                            'actions': next_actions[i:i+1, :max_gt_length].cpu() if next_actions is not None else None
+                            'states': future_states[i:i+1, :max_gt_length].cpu(),
+                            'actions': future_actions[i:i+1, :max_gt_length].cpu() if next_actions is not None else None
                         }
                     
                     # Calculate metrics comparing generated to ground truth
@@ -410,7 +417,7 @@ def run_generation_inference(cfg, logger, model, test_video_loaders, device='cud
                     
                     # Store result
                     result = {
-                        'video_idx': video_idx,
+                        'video_idx': video_id,
                         'example_idx': i,
                         'generated': {
                             'states': generated['full_embeddings'].cpu(),

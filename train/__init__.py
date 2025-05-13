@@ -8,6 +8,7 @@ __all__ = [
     'train_recognition_head',
     'run_recognition_inference',
     'train_world_model',
+    'run_generation_inference',
     'run_world_model_inference',
-    'enhanced_inference_evaluation,
+    'enhanced_inference_evaluation',
 ]
