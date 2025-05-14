@@ -106,15 +106,13 @@ def run_cholect50_experiment(cfg):
         world_model = WorldModel(**cfg['models']['world_model']).to(device)
         world_model.load_state_dict(checkpoint['model_state_dict'])
         world_model.eval()
-        results = run_generation_inference(cfg, logger, world_model, test_video_loaders, device)
-        logger.info(f"[WORLD MODEL] Results: {results}")
-
-        # Run enhanced inference evaluation
-        logger.info("\n[WORLD MODEL] Running enhanced inference evaluation with class-based metrics...")
-        enhanced_results = enhanced_inference_evaluation(cfg, logger, world_model, test_video_loaders, device)
-        logger.info(f"[WORLD MODEL] Enhanced evaluation completed!")        
-        results['enhanced'] = enhanced_results
-        logger.info(f"[WORLD MODEL] Enhanced results: {enhanced_results}")
+        
+        # For inference
+        final_metrics = evaluate_world_model(
+            cfg, logger, world_model, test_video_loaders, device,
+            eval_mode='full', save_results=True
+        )
+        logger.info(f"[WORLD MODEL] Inference evaluation completed!")
 
     # Step 3: Train reward prediction model
     if cfg_exp['pretrain_reward_model']:

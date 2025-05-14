@@ -136,7 +136,9 @@ class WorldModel(nn.Module):
                 next_rewards: Dict[str, torch.Tensor] = None,
                 next_actions: Optional[torch.Tensor] = None,
                 next_phases: Optional[torch.Tensor] = None,
-                attention_mask: Optional[torch.Tensor] = None) -> Dict[str, torch.Tensor]:
+                attention_mask: Optional[torch.Tensor] = None,
+                eval_mode: str = 'basic', # 'basic' or 'full'
+    ) -> Dict[str, torch.Tensor]:
         """
         Forward pass for training the model with the correct temporal relationship:
         current_state + next_actions -> next_state
@@ -170,19 +172,8 @@ class WorldModel(nn.Module):
         position_ids = torch.arange(seq_length, dtype=torch.long, device=current_state.device)
         position_ids = position_ids.unsqueeze(0).expand(batch_size, -1)
 
-        # If no next_state provided, use current_state shifted right for teacher forcing
-        if next_state is None:
-            # Shift current_state to the right, prepend with zeros as first token
-            shifted_inputs = torch.cat([
-                torch.zeros(batch_size, 1, self.embedding_dim, device=current_state.device),
-                current_state[:, :-1]
-            ], dim=1)
-            
-            # Use the original current_state as targets
-            _z = current_state
-        else:
-            # Use provided current_state and next_state
-            _z = next_state
+        # Use provided current_state and next_state
+        _z = next_state
         
         # Pass through GPT-2 model
         outputs = self.model(
@@ -206,13 +197,13 @@ class WorldModel(nn.Module):
         head_outputs = {}
         if self.imitation_learning:
 
-            if self.action_learning:
+            if self.action_learning and next_actions is not None:
                 action_logits = self.heads['_a'](last_hidden_state)
                 # Calculate loss for the action head
                 action_loss = F.binary_cross_entropy_with_logits(action_logits, next_actions)
                 other_losses['_a_loss'] = action_loss * self.w_a
 
-            if self.phase_learning:
+            if self.phase_learning and next_phases is not None:
                 phase_logits = self.heads['_p'](last_hidden_state).permute(0, 2, 1) # [batch_size, num_phase_classes, seq_len]
                 # Calculate loss for the phase head (cross-entropy with a softmax output)
                 phase_loss = F.cross_entropy(phase_logits, next_phases)
@@ -225,7 +216,7 @@ class WorldModel(nn.Module):
         # and knows when to focus on which grounded signals or human preferences like safety
         # Ideally, we want to focus more on discovering new pathways/trajectories from raw data and final outcomes, leaving
         # space for the model to come up with better strategies humans might not have thought of.
-        if self.reward_learning:
+        if self.reward_learning and next_rewards is not None:
             # Calculate loss for the reward head
             reward_phase_completion = self.heads['_r_phase_completion'](last_hidden_state)
             reward_phase_initiation = self.heads['_r_phase_initiation'](last_hidden_state)
@@ -251,6 +242,7 @@ class WorldModel(nn.Module):
         outputs = {
             "_z_loss": _z_loss,
             "_z_hat": _z_hat,
+            "_a_hat": action_logits if self.action_learning and self.imitation_learning else None,
             "logits": outputs.logits,
             "head_outputs": head_outputs,
             "last_hidden_states": last_hidden_state

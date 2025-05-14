@@ -1,32 +1,32 @@
-
-"""
-Enhanced Inference Evaluation for World Model
-This module provides an enhanced evaluation function for the World Model, focusing on:
-1. Class-based metrics for action prediction (mAP, precision, recall, F1)
-2. Auto-regressive prediction for longer horizons
-3. Visualization of results
-4. Summary report generation
-"""
-import os
-import json
+import torch
+import torch.nn as nn
 import numpy as np
-import pandas as pd
+import os
+import time
+from tqdm import tqdm
+import matplotlib.pyplot as plt
 from collections import defaultdict
-from typing import Dict, Any
-from datetime import datetime
 from sklearn.metrics import precision_recall_fscore_support, average_precision_score
 from sklearn.decomposition import PCA
-from tqdm import tqdm
-from torch.utils.data import DataLoader
+from datetime import datetime
+from typing import Dict, Any, List, Optional, Tuple, Union
 
-def enhanced_inference_evaluation(cfg, logger, model, test_video_loaders, device='cuda'):
+def evaluate_world_model(
+    cfg: Dict[str, Any],
+    logger: Any,
+    model: nn.Module,
+    test_video_loaders: Dict[str, Any],
+    device: str = 'cuda',
+    eval_mode: str = 'full',
+    save_results: bool = True,
+    epoch: int = None,
+    render_visualizations: bool = True
+) -> Dict[str, Any]:
     """
-    Enhanced inference evaluation with class-based metrics and auto-regressive prediction.
+    Comprehensive evaluation function for world models that combines functionality from
+    evaluate_world_model, run_generation_inference, and enhanced_inference_evaluation.
     
-    This function builds on the existing run_generation_inference but adds:
-    1. Detailed action prediction metrics (mAP, precision, recall, F1)
-    2. Longer horizon auto-regressive evaluation where model uses its own predictions
-    3. Better visualization of results
+    This unified function can be used both during training and for final model evaluation.
     
     Args:
         cfg: Configuration dictionary
@@ -34,31 +34,35 @@ def enhanced_inference_evaluation(cfg, logger, model, test_video_loaders, device
         model: WorldModel instance
         test_video_loaders: Dictionary of DataLoaders for test videos
         device: Device to evaluate on
+        eval_mode: Evaluation mode - 'basic', 'generation', or 'full'
+                   - 'basic': Simple metrics used during training (faster)
+                   - 'generation': Include trajectory generation and basic metrics
+                   - 'full': Comprehensive evaluation with all metrics and visualizations
+        save_results: Whether to save results to disk
+        epoch: Current epoch (if called during training)
+        render_visualizations: Whether to generate visualizations
         
     Returns:
-        Dictionary of evaluation results
+        Dictionary of evaluation metrics
     """
-    import torch
-    import numpy as np
-    import os
-    import matplotlib.pyplot as plt
-    from datetime import datetime
-    from sklearn.metrics import precision_recall_fscore_support, average_precision_score
-    from sklearn.decomposition import PCA
-    
     model.eval()
     
-    # Create timestamp for results
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    results_dir = os.path.join("results", f"enhanced_inference_{timestamp}")
-    os.makedirs(results_dir, exist_ok=True)
-    logger.info(f"Running enhanced inference evaluation, saving to {results_dir}")
+    # Create results directory if saving
+    results_dir = None
+    if save_results:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        epoch_str = f"_epoch_{epoch}" if epoch is not None else ""
+        results_dir = os.path.join("results", f"eval_{eval_mode}{epoch_str}_{timestamp}")
+        os.makedirs(results_dir, exist_ok=True)
+        logger.info(f"Running evaluation in '{eval_mode}' mode, saving to {results_dir}")
     
     # Extract evaluation config
     eval_config = cfg['evaluation']['world_model']
+    rollout_horizon = eval_config.get('rollout_horizon', 10)
     horizons = eval_config.get('eval_horizons', [1, 3, 5, 10, 15])
+    overall_h = eval_config.get('overall_horizon', 1)
     
-    # Initialize metrics
+    # Initialize metrics structure
     metrics = {
         'action': {
             'overall': {
@@ -85,146 +89,307 @@ def enhanced_inference_evaluation(cfg, logger, model, test_video_loaders, device
                 'growth_rate': 0.0
             },
             'per_video': {}
-        }
+        },
+        'total_loss': 0.0
     }
+    
+    # Also track generated trajectories if needed
+    generated_trajectories = [] if eval_mode in ['generation', 'full'] else None
     
     # Process each video
     num_videos = len(test_video_loaders)
-    for video_id, data_loader in test_video_loaders.items():
-        logger.info(f"Evaluating video {video_id} with enhanced metrics")
-        
-        # Initialize video-specific metrics
-        video_action_preds = []
-        video_action_gts = []
-        video_state_mse = []
-        video_horizon_metrics = {h: {'action_preds': [], 'action_gts': [], 'state_mse': []} for h in horizons}
-        
-        for batch in data_loader:
-            # Move data to device
-            current_states = batch['current_states'].to(device)
-            next_states = batch['next_states'].to(device)
-            next_actions = batch['next_actions'].to(device)
-            future_states = batch['future_states'].to(device)
-            future_actions = batch['future_actions'].to(device)
+    video_ids = list(test_video_loaders.keys())
+    logger.info(f"[EVAL] Evaluating world model on {num_videos} test videos")
+    logger.info(f"[EVAL] Video IDs: {video_ids}")
+
+    # Init per frame metrics
+    metrics_per_frame = {video_id: {} for video_id in test_video_loaders}
+    
+    with torch.no_grad():
+        # Evaluate on each test video
+        for video_id, video_loader in test_video_loaders.items():
+            video_metrics = defaultdict(float)
+            num_batches = 0
             
-            batch_size = current_states.size(0)
+            # Initialize video-specific metrics
+            video_action_preds = []
+            video_action_gts = []
+            video_state_mse = []
+            video_horizon_metrics = {h: {'action_preds': [], 'action_gts': [], 'state_mse': []} for h in horizons}
             
-            with torch.no_grad():
-                # 1. First step prediction (standard)
-                outputs = model(current_states=current_states)
+            # Process each batch in the video
+            for batch_idx, batch in enumerate(tqdm(video_loader, desc=f"Evaluating video {video_id}")):
+                num_batches += 1
                 
-                # Extract action predictions
-                if '_a_hat' in outputs:
-                    action_probs = torch.sigmoid(outputs['_a_hat'])
-                    action_preds = (action_probs > 0.5).float()
-                    
-                    # Store first step predictions and ground truth
-                    video_action_preds.append(action_preds.cpu().numpy())
-                    video_action_gts.append(next_actions[:, 0].cpu().numpy())
+                # Move batch to device
+                current_states = batch['current_states'].to(device)
+                future_states = batch.get('future_states', None)
+                if future_states is not None:
+                    future_states = future_states.to(device)
+                next_states = batch.get('next_states', None)
+                if next_states is not None:
+                    next_states = next_states.to(device)
+                next_actions = batch.get('next_actions', None)
+                if next_actions is not None:
+                    next_actions = next_actions.to(device)
+                next_phases = batch.get('next_phases', None) 
+                if next_phases is not None:
+                    next_phases = next_phases.to(device)
+                next_rewards = batch.get('next_rewards', None)
+                if next_rewards is not None:
+                    next_rewards = {k: v.to(device) for k, v in next_rewards.items()}
+                future_actions = batch.get('future_actions', None)
+                if future_actions is not None:
+                    future_actions = future_actions.to(device)
+                attention_mask = batch.get('attention_mask', None)
+                if attention_mask is not None:
+                    attention_mask = attention_mask.to(device)
                 
-                # Extract state predictions
-                if '_z_hat' in outputs:
-                    next_state_preds = outputs['_z_hat']
-                    next_state_gts = next_states[:, -1]  # Last state in context
-                    
-                    # Calculate MSE
-                    mse = torch.mean((next_state_preds - next_state_gts) ** 2, dim=1)
-                    video_state_mse.append(mse.cpu().numpy())
-                
-                # 2. Auto-regressive multi-horizon prediction
-                # Use model's own predictions as inputs for future steps
-                horizon_outputs = evaluate_auto_regressive_horizons(
-                    model, current_states, future_states, future_actions, 
-                    horizons, device
+                # 1. Basic Evaluation - Single-step next state prediction
+                outputs = model(
+                    current_state=current_states,
+                    next_state=next_states,
+                    next_rewards=next_rewards,
+                    next_actions=next_actions,
+                    next_phases=next_phases,
+                    attention_mask=attention_mask
                 )
                 
-                # Store horizon metrics
-                for h in horizons:
-                    if h in horizon_outputs:
-                        video_horizon_metrics[h]['action_preds'].append(
-                            horizon_outputs[h]['action_preds'].cpu().numpy())
-                        video_horizon_metrics[h]['action_gts'].append(
-                            future_actions[:, min(h-1, future_actions.size(1)-1)].cpu().numpy())
-                        video_horizon_metrics[h]['state_mse'].append(
-                            horizon_outputs[h]['state_mse'].cpu().numpy())
+                # Calculate metrics for this batch
+                # State prediction error (MSE)
+                if '_z_hat' in outputs and next_states is not None:
+                    state_pred_error = ((outputs['_z_hat'] - next_states) ** 2).mean().item()
+                    video_metrics['state_pred_error'] += state_pred_error
+                    video_state_mse.append(state_pred_error)
                 
-                # 3. Generate rollout trajectory for visualization (selected samples)
-                if batch_size > 0:
-                    for sample_idx in range(min(batch_size, 2)):  # Only process max 2 samples per batch
-                        sample_states = current_states[sample_idx:sample_idx+1]
-                        sample_future = future_states[sample_idx:sample_idx+1]
+                # Action prediction accuracy (if applicable)
+                if model.imitation_learning and '_a' in model.heads:
+                    if 'head_outputs' in outputs and '_a' in outputs['head_outputs']:
+                        action_logits = outputs['head_outputs']['_a']
+                        action_probs = torch.sigmoid(action_logits)
+                        pred_actions = (action_probs > 0.5).float()
                         
-                        # Generate rollout
-                        rollout = model.generate_conditional_future_states(
-                            input_embeddings=sample_states,
-                            horizon=max(horizons),
-                            temperature=0.7,
-                            use_past=True
-                        )
-                        
-                        # Visualize comparison between prediction and ground truth
-                        visualize_sample_rollout(
-                            rollout, sample_future,
-                            os.path.join(results_dir, f"{video_id}_sample_{sample_idx}.png"),
-                            logger, title=f"Video {video_id} - Sample {sample_idx}"
-                        )
-        
-        # Process video metrics
-        if video_action_preds and video_action_gts:
-            # Concatenate all predictions and ground truth for this video
-            video_action_preds = np.vstack(video_action_preds)
-            video_action_gts = np.vstack(video_action_gts)
-            
-            # Calculate action metrics
-            video_action_metrics = calculate_action_metrics(video_action_preds, video_action_gts)
-            metrics['action']['per_video'][video_id] = video_action_metrics
-            
-            logger.info(f"Video {video_id} - Action Acc: {video_action_metrics['accuracy']:.4f}, "
-                       f"mAP: {video_action_metrics['mAP']:.4f}")
-        
-        if video_state_mse:
-            # Calculate average MSE for this video
-            video_state_mse = np.concatenate(video_state_mse)
-            video_avg_mse = np.mean(video_state_mse)
-            
-            metrics['state']['per_video'][video_id] = {
-                'mse': float(video_avg_mse),
-                'num_samples': len(video_state_mse)
-            }
-            
-            logger.info(f"Video {video_id} - State MSE: {video_avg_mse:.4f}")
-        
-        # Process horizon metrics
-        for h in horizons:
-            if (video_horizon_metrics[h]['action_preds'] and 
-                video_horizon_metrics[h]['action_gts'] and 
-                video_horizon_metrics[h]['state_mse']):
+                        if next_actions is not None:
+                            action_accuracy = (pred_actions == next_actions).float().mean().item()
+                            video_metrics['action_pred_accuracy'] += action_accuracy
+                            
+                            # Store for more detailed metrics
+                            video_action_preds.append(pred_actions.cpu().numpy())
+                            video_action_gts.append(next_actions.cpu().numpy())
                 
-                # Concatenate horizon metrics
-                h_action_preds = np.vstack(video_horizon_metrics[h]['action_preds'])
-                h_action_gts = np.vstack(video_horizon_metrics[h]['action_gts'])
-                h_state_mse = np.concatenate(video_horizon_metrics[h]['state_mse'])
+                # Add total loss
+                if 'total_loss' in outputs:
+                    video_metrics['total_loss'] += outputs['total_loss'].item()
                 
-                # Calculate action metrics for this horizon
-                h_action_metrics = calculate_action_metrics(h_action_preds, h_action_gts)
-                metrics['action']['horizon'][h][video_id] = h_action_metrics
-                
-                # Calculate state MSE for this horizon
-                h_avg_mse = np.mean(h_state_mse)
-                metrics['state']['horizon'][h][video_id] = {
-                    'mse': float(h_avg_mse),
-                    'num_samples': len(h_state_mse)
-                }
-                
-                logger.info(f"Video {video_id} - Horizon {h} - Action Acc: {h_action_metrics['accuracy']:.4f}, "
-                           f"mAP: {h_action_metrics['mAP']:.4f}, State MSE: {h_avg_mse:.4f}")
+                # For generation and full evaluation modes, perform additional evaluations
+                if eval_mode in ['generation', 'full']:
+
+                    # Get frame indices
+                    frame_indices = batch.get('frame_indices', None)
+                    if frame_indices is None:
+                        start_idx = batch_idx * batch['current_states'].size(0)
+                        frame_indices = torch.arange(start_idx, start_idx + batch['current_states'].size(0))
+                    
+                    # Generate once with maximum horizon
+                    max_horizon = max(horizons)
+                    rollout = model.generate_conditional_future_states(
+                        input_embeddings=current_states,
+                        input_actions=next_actions if next_actions is not None else None,
+                        horizon=max_horizon,
+                        temperature=0.7,
+                        use_past=True
+                    )
     
-    # Calculate overall metrics across videos
+                    # Extract predictions for all horizons at once
+                    if 'head_outputs' in rollout and '_a' in rollout['head_outputs']:
+                        action_probs_all = torch.sigmoid(rollout['head_outputs']['_a'])  # [batch_size, seq_length, num_classes]
+                        
+                        # Get ground truth
+                        if 'future_actions' in batch:
+                            gt_actions_all = batch['future_actions']  # [batch_size, seq_length, num_classes]
+                            
+                            # For each frame in the batch
+                            for i, frame_idx in enumerate(frame_indices):
+                                frame_idx = frame_idx.item()
+                                if frame_idx not in metrics_per_frame[video_id]:
+                                    metrics_per_frame[video_id][frame_idx] = {}
+                                
+                                # For each horizon, compute metrics
+                                for h_idx, h in enumerate(horizons):
+                                    if h <= action_probs_all.size(1) and h <= gt_actions_all.size(1):
+                                        try:
+                                            # Get prediction and ground truth for this frame at this horizon
+                                            pred_probs = action_probs_all[i, h-1]
+                                            gt = gt_actions_all[i, h-1]
+                                            
+                                            # Calculate mAP only for classes with positive examples
+                                            ap_scores = []
+                                            for c in range(gt.size(0)):
+                                                if gt[c].sum() > 0:  # Check if there are positive examples
+                                                    try:
+                                                        class_ap = average_precision_score(
+                                                            gt[c].cpu().unsqueeze(0).numpy(),
+                                                            pred_probs[c].cpu().unsqueeze(0).numpy()
+                                                        )
+                                                        ap_scores.append(class_ap)
+                                                    except:
+                                                        continue
+                                            
+                                            # Store mAP
+                                            map_score = np.mean(ap_scores) if ap_scores else np.nan  # Use NaN for visualization if no scores
+                                            metrics_per_frame[video_id][frame_idx][h] = {'mAP': map_score}
+                                        except Exception as e:
+                                            logger.warning(f"Error calculating metrics for frame {frame_idx}, horizon {h}: {str(e)}")
+                                            # Set to NaN to indicate missing data in visualization
+                                            metrics_per_frame[video_id][frame_idx][h] = {'mAP': np.nan}
+
+                    # # 2. Generate rollout trajectory for evaluation
+                    # rollout = model.generate_conditional_future_states(
+                    #     input_embeddings=current_states,
+                    #     input_actions=next_actions if next_actions is not None else None,
+                    #     horizon=rollout_horizon,
+                    #     temperature=0.7,
+                    #     use_past=True
+                    # )
+                    
+                    # Extract generated trajectory
+                    gen_states = rollout['full_embeddings'][:, -rollout_horizon:]  # [batch_size, rollout_horizon, embedding_dim]
+                    gen_actions = rollout.get('full_actions', None)
+                    
+                    # Calculate rollout error over timestep (if future states available)
+                    if future_states is not None:
+                        rollout_errors = []
+                        for t in range(min(gen_states.size(1), future_states.size(1))):
+                            error_t = ((future_states[:, t] - gen_states[:, t]) ** 2).mean().item()
+                            rollout_errors.append(error_t)
+                        
+                        # Aggregate rollout metrics
+                        if rollout_errors:
+                            video_metrics['rollout_error_mean'] = sum(rollout_errors) / len(rollout_errors)
+                            video_metrics['rollout_error_final'] = rollout_errors[-1]
+                            
+                            # Calculate error growth rate (how quickly errors accumulate)
+                            if len(rollout_errors) > 1:
+                                error_growth = (rollout_errors[-1] / (rollout_errors[0] + 1e-8))
+                                video_metrics['rollout_error_growth'] = error_growth
+                    
+                    # Store a few generated trajectories for later analysis
+                    if batch_idx < 2:  # Only store from first 2 batches
+                        for i in range(min(2, current_states.size(0))):  # Only store 2 examples per batch
+                            trajectory_data = {
+                                'video_id': video_id,
+                                'batch_idx': batch_idx,
+                                'example_idx': i,
+                                'generated': {
+                                    'states': gen_states[i].cpu(),
+                                    'actions': gen_actions[i].cpu() if gen_actions is not None else None
+                                },
+                                'ground_truth': {
+                                    'states': future_states[i].cpu() if future_states is not None else None,
+                                    'actions': future_actions[i].cpu() if future_actions is not None else None
+                                }
+                            }
+                            generated_trajectories.append(trajectory_data)
+                
+                # For full evaluation mode, perform auto-regressive multi-horizon evaluation
+                if eval_mode == 'full' and future_states is not None and future_actions is not None:
+                    # 3. Auto-regressive multi-horizon prediction
+                    horizon_outputs = evaluate_auto_regressive_horizons(
+                        model, current_states, future_states, future_actions, 
+                        horizons, device
+                    )
+                    
+                    # Store horizon metrics
+                    for h in horizons:
+                        if h in horizon_outputs:
+                            video_horizon_metrics[h]['action_preds'].append(
+                                horizon_outputs[h]['action_preds'].cpu().numpy())
+                            video_horizon_metrics[h]['action_gts'].append(
+                                future_actions[:, min(h-1, future_actions.size(1)-1)].cpu().numpy())
+                            video_horizon_metrics[h]['state_mse'].append(
+                                horizon_outputs[h]['state_mse'].cpu().numpy())    
+            
+            # Calculate average metrics for this video
+            for key in video_metrics:
+                if key not in ['rollout_error_mean', 'rollout_error_final', 'rollout_error_growth']:
+                    video_metrics[key] /= max(num_batches, 1)
+            
+            # Calculate detailed action metrics if we have predictions
+            if video_action_preds and video_action_gts:
+                # Concatenate all predictions and ground truth for this video
+                video_action_preds_concat = np.vstack(video_action_preds)
+                video_action_gts_concat = np.vstack(video_action_gts)
+
+                # Make sure preds have the same shape as gts
+                # If preds has 3 dimensions and dim[1] == 1, squeeze it if gts has 2 dimensions
+                if len(video_action_preds_concat.shape) == 3 and video_action_preds_concat.shape[1] == 1:
+                    video_action_preds_concat = video_action_preds_concat.squeeze(1)
+                
+                # Calculate action metrics
+                action_metrics = calculate_action_metrics(video_action_preds_concat, video_action_gts_concat)
+                metrics['action']['per_video'][video_id] = action_metrics
+            
+            # Store state prediction metrics
+            if video_state_mse:
+                metrics['state']['per_video'][video_id] = {
+                    'mse': float(np.mean(video_state_mse)),
+                    'num_samples': len(video_state_mse)
+                }
+            
+            # Store rollout metrics
+            if 'rollout_error_mean' in video_metrics:
+                metrics['rollout']['per_video'][video_id] = {
+                    'mean_error': float(video_metrics['rollout_error_mean']),
+                    'growth_rate': float(video_metrics['rollout_error_growth']) if 'rollout_error_growth' in video_metrics else 0.0,
+                    'final_error': float(video_metrics['rollout_error_final']) if 'rollout_error_final' in video_metrics else 0.0
+                }
+            
+            # Process horizon metrics for full evaluation
+            if eval_mode == 'full':
+                for h in horizons:
+                    if (video_horizon_metrics[h]['action_preds'] and 
+                        video_horizon_metrics[h]['action_gts'] and 
+                        video_horizon_metrics[h]['state_mse']):
+                        
+                        # Concatenate horizon metrics
+                        h_action_preds = np.vstack(video_horizon_metrics[h]['action_preds'])
+                        h_action_gts = np.vstack(video_horizon_metrics[h]['action_gts'])
+                        h_state_mse = np.concatenate(video_horizon_metrics[h]['state_mse'])
+                        
+                        # Make sure preds have the same shape as gts
+                        # If preds has 3 dimensions and dim[1] == 1, squeeze it if gts has 2 dimensions
+                        if len(h_action_preds.shape) == 3 and h_action_preds.shape[1] == 1:
+                            h_action_preds = h_action_preds.squeeze(1)
+
+                        # Calculate action metrics for this horizon
+                        h_action_metrics = calculate_action_metrics(h_action_preds, h_action_gts)
+                        metrics['action']['horizon'][h][video_id] = h_action_metrics
+                        
+                        # Calculate state MSE for this horizon
+                        h_avg_mse = np.mean(h_state_mse)
+                        metrics['state']['horizon'][h][video_id] = {
+                            'mse': float(h_avg_mse),
+                            'num_samples': len(h_state_mse)
+                        }
+            
+            # Log video metrics
+            logger.info(f"[EVAL] Video {video_id} | "
+                      f"State Pred MSE: {video_metrics.get('state_pred_error', 0):.4f} | "
+                      f"Action Pred Accuracy: {video_metrics.get('action_pred_accuracy', 0):.4f} | "
+                      f"Total Loss: {video_metrics.get('total_loss', 0):.4f}")
+            
+            if eval_mode in ['generation', 'full']:
+                logger.info(f"[EVAL] Video {video_id} Rollout | "
+                          f"Mean Error: {video_metrics.get('rollout_error_mean', 0):.4f} | "
+                          f"Growth Rate: {video_metrics.get('rollout_error_growth', 0):.4f}")
+    
+    # Calculate overall metrics
+    
     # Action metrics
     if metrics['action']['per_video']:
         calculate_overall_metrics(metrics['action'])
-        logger.info(f"Overall Action - Acc: {metrics['action']['overall']['accuracy']:.4f}, "
-                   f"mAP: {metrics['action']['overall']['mAP']:.4f}")
+        logger.info(f"[EVAL] Overall Action - Acc: {metrics['action']['overall']['accuracy']:.4f}, "
+                  f"mAP: {metrics['action']['overall']['mAP']:.4f}")
     
     # State metrics
     if metrics['state']['per_video']:
@@ -232,37 +397,106 @@ def enhanced_inference_evaluation(cfg, logger, model, test_video_loaders, device
             [metrics['state']['per_video'][v]['mse'] for v in metrics['state']['per_video']],
             [metrics['state']['per_video'][v]['num_samples'] for v in metrics['state']['per_video']]
         )
-        logger.info(f"Overall State MSE: {metrics['state']['overall']['mse']:.4f}")
+        logger.info(f"[EVAL] Overall State MSE: {metrics['state']['overall']['mse']:.4f}")
     
-    # Horizon metrics
-    for h in horizons:
-        if metrics['action']['horizon'][h]:
-            action_h_overall = {}
-            calculate_overall_metrics({'per_video': metrics['action']['horizon'][h], 'overall': action_h_overall})
-            metrics['action']['horizon'][h]['overall'] = action_h_overall
+    # Rollout metrics
+    if metrics['rollout']['per_video']:
+        metrics['rollout']['overall']['mean_error'] = np.mean([
+            metrics['rollout']['per_video'][v]['mean_error'] for v in metrics['rollout']['per_video']
+        ])
+        metrics['rollout']['overall']['growth_rate'] = np.mean([
+            metrics['rollout']['per_video'][v]['growth_rate'] for v in metrics['rollout']['per_video']
+        ])
+        logger.info(f"[EVAL] Overall Rollout - Mean Error: {metrics['rollout']['overall']['mean_error']:.4f}, "
+                  f"Growth Rate: {metrics['rollout']['overall']['growth_rate']:.4f}")
+    
+    # Horizon metrics for full evaluation
+    if eval_mode == 'full':
+        for h in horizons:
+            if metrics['action']['horizon'][h]:
+                action_h_overall = {}
+                calculate_overall_metrics({'per_video': metrics['action']['horizon'][h], 'overall': action_h_overall})
+                metrics['action']['horizon'][h]['overall'] = action_h_overall
+                
+                state_h_overall = {'mse': weighted_average(
+                    [metrics['state']['horizon'][h][v]['mse'] for v in metrics['state']['horizon'][h]],
+                    [metrics['state']['horizon'][h][v]['num_samples'] for v in metrics['state']['horizon'][h]]
+                )}
+                metrics['state']['horizon'][h]['overall'] = state_h_overall
+                
+                logger.info(f"[EVAL] Horizon {h} - Action Acc: {action_h_overall['accuracy']:.4f}, "
+                          f"mAP: {action_h_overall['mAP']:.4f}, State MSE: {state_h_overall['mse']:.4f}")
+
+    # Add overall metrics to the main metrics dictionary
+    if overall_h in metrics['action']['horizon'] and 'overall' in metrics['action']['horizon'][overall_h]:
+        metrics['action']['overall'] = metrics['action']['horizon'][overall_h]['overall']
+
+
+    # Generate visualizations and save results if specified
+    if save_results and results_dir:
+        # Save metrics
+        metrics_path = os.path.join(results_dir, "metrics.json")
+        save_json(metrics, metrics_path)
+        logger.info(f"Saved metrics to {metrics_path}")
+        
+        # Save generated trajectories if any
+        if generated_trajectories:
+            trajectories_path = os.path.join(results_dir, "generated_trajectories.pt")
+            torch.save(generated_trajectories, trajectories_path)
+            logger.info(f"Saved generated trajectories to {trajectories_path}")
+        
+        # Generate visualizations if specified
+        if render_visualizations:
+            if eval_mode == 'full':
+                visualize_results(metrics, os.path.join(results_dir, "visualizations"), logger)
             
-            state_h_overall = {'mse': weighted_average(
-                [metrics['state']['horizon'][h][v]['mse'] for v in metrics['state']['horizon'][h]],
-                [metrics['state']['horizon'][h][v]['num_samples'] for v in metrics['state']['horizon'][h]]
-            )}
-            metrics['state']['horizon'][h]['overall'] = state_h_overall
+            # Generate the heatmap plots
+            if save_results and eval_mode == 'full':
+                plot_map_anticipation_heatmap(
+                    metrics_per_frame, 
+                    video_ids=list(test_video_loaders.keys()),
+                    horizons=horizons,
+                    save_dir=os.path.join(results_dir, "visualizations/anticipation_heatmaps"),
+                    logger=logger
+                )
+                logger.info(f"Generated anticipation heatmaps for {len(metrics_per_frame)} videos")
+                
+                # If you have position-specific metrics (would need to modify the evaluation logic)
+                # plot_map_heatmap_per_video(metrics_per_position, video_lengths, horizons, 
+                #                            save_dir=os.path.join(results_dir, "visualizations/heatmaps"),
+                #                            logger=logger)
+                # logger.info(f"Generated mAP heatmaps for {len(metrics_per_position)} videos")
             
-            logger.info(f"Horizon {h} - Overall Action Acc: {action_h_overall['accuracy']:.4f}, "
-                       f"mAP: {action_h_overall['mAP']:.4f}, State MSE: {state_h_overall['mse']:.4f}")
-    
-    # Generate visualizations
-    visualize_results(metrics, os.path.join(results_dir, "visualizations"), logger)
-    
-    # Generate summary report
-    generate_summary_report(metrics, os.path.join(results_dir, "summary.md"), logger)
+            # Visualize sample trajectories
+            if generated_trajectories:
+                for i, traj in enumerate(generated_trajectories[:5]):  # Only visualize first 5
+                    if traj['generated']['states'] is not None and traj['ground_truth']['states'] is not None:
+                        visualize_sample_rollout(
+                            traj['generated'], traj['ground_truth']['states'],
+                            os.path.join(results_dir, f"{traj['video_id']}_sample_{i}.png"),
+                            logger, title=f"Video {traj['video_id']} - Sample {i}"
+                        )
+            
+            # Generate summary report for full evaluation
+            if eval_mode == 'full':
+                generate_summary_report(metrics, os.path.join(results_dir, "summary.md"), logger)
     
     return metrics
 
-def evaluate_auto_regressive_horizons(model, current_states, future_states, future_actions, horizons, device):
+def evaluate_auto_regressive_horizons(
+    model: nn.Module, 
+    current_states: torch.Tensor,
+    future_states: torch.Tensor, 
+    future_actions: torch.Tensor, 
+    horizons: List[int],
+    device: str
+) -> Dict[int, Dict[str, torch.Tensor]]:
     """
     Evaluate model predictions at different horizons using auto-regressive prediction.
     
     At each step, the model uses its own previous predictions as input.
+
+    Optionally uses the first future action as input for the first step.
     
     Args:
         model: WorldModel instance
@@ -275,9 +509,6 @@ def evaluate_auto_regressive_horizons(model, current_states, future_states, futu
     Returns:
         Dictionary of horizon-specific metrics
     """
-    import torch
-    import numpy as np
-    
     max_horizon = max(horizons)
     batch_size = current_states.size(0)
     
@@ -295,34 +526,62 @@ def evaluate_auto_regressive_horizons(model, current_states, future_states, futu
     for step in range(max_horizon):
         # Forward pass
         with torch.no_grad():
-            outputs = model(current_states=state)
+            outputs = model(
+                current_state=state, 
+                next_state=future_states[:, step:step+1],
+                next_actions=future_actions[:, step:step+1] if step < future_actions.size(1) else None,
+                attention_mask=None)
         
+            # outputs = model(
+            #     current_state=current_states,
+            #     next_state=next_states,
+            #     next_rewards=next_rewards,
+            #     next_actions=next_actions,
+            #     next_phases=next_phases,
+            #     attention_mask=attention_mask
+            # )
+
         # Extract predictions
-        action_probs = torch.sigmoid(outputs['_a_hat'])
-        action_preds = (action_probs > 0.5).float()
-        state_preds = outputs['_z_hat']
+        if '_a_hat' in outputs:
+            action_probs = torch.sigmoid(outputs['_a_hat'])
+            action_preds = (action_probs > 0.5).float()
+        else:
+            action_probs = outputs.get('head_outputs', {}).get('_a', None)
+            if action_probs is not None:
+                action_preds = (torch.sigmoid(action_probs) > 0.5).float()
+            else:
+                action_preds = None
+        
+        # Extract state predictions
+        state_preds = outputs.get('_z_hat', None)
         
         # Store predictions
-        all_action_preds.append(action_preds)
-        all_state_preds.append(state_preds)
-        
-        # Use predictions as next input (auto-regressive)
-        state = state_preds.unsqueeze(1)  # Add time dimension
+        if action_preds is not None:
+            all_action_preds.append(action_preds)
+        if state_preds is not None:
+            all_state_preds.append(state_preds)
+            # Use predictions as next input (auto-regressive)
+            # Add time dimension if not already present
+            if len(state_preds.size()) == 2:
+                state = state_preds.unsqueeze(1)
+            else:
+                state = state_preds  
         
         # Store metrics for horizons we care about
         horizon = step + 1
         if horizon in horizons:
             # Store action predictions
-            horizon_outputs[horizon]['action_preds'] = action_preds
+            if action_preds is not None:
+                horizon_outputs[horizon]['action_preds'] = action_preds
             
             # Calculate state prediction MSE
-            if horizon < future_states.size(1):
+            if state_preds is not None and horizon < future_states.size(1)+1:
                 state_mse = torch.mean((state_preds - future_states[:, horizon-1]) ** 2, dim=1)
                 horizon_outputs[horizon]['state_mse'] = state_mse
     
     return horizon_outputs
 
-def calculate_action_metrics(predictions, ground_truth):
+def calculate_action_metrics(predictions: np.ndarray, ground_truth: np.ndarray) -> Dict[str, Any]:
     """
     Calculate comprehensive metrics for action prediction.
     
@@ -333,9 +592,6 @@ def calculate_action_metrics(predictions, ground_truth):
     Returns:
         Dictionary of metrics
     """
-    from sklearn.metrics import precision_recall_fscore_support, average_precision_score
-    import numpy as np
-    
     # Calculate accuracy (exact match across all classes)
     exact_match = np.all(predictions == ground_truth, axis=1)
     accuracy = np.mean(exact_match)
@@ -358,16 +614,26 @@ def calculate_action_metrics(predictions, ground_truth):
                 ground_truth[:, i], predictions[:, i], average='binary'
             )
             
-            class_ap = average_precision_score(ground_truth[:, i], predictions[:, i])
-            ap_scores.append(class_ap)
-            
-            class_metrics = {
-                'precision': float(class_precision),
-                'recall': float(class_recall),
-                'f1': float(class_f1),
-                'ap': float(class_ap),
-                'support': int(np.sum(ground_truth[:, i]))
-            }
+            try:
+                class_ap = average_precision_score(ground_truth[:, i], predictions[:, i])
+                ap_scores.append(class_ap)
+                
+                class_metrics = {
+                    'precision': float(class_precision),
+                    'recall': float(class_recall),
+                    'f1': float(class_f1),
+                    'ap': float(class_ap),
+                    'support': int(np.sum(ground_truth[:, i]))
+                }
+            except:
+                # If calculation fails (e.g., only one class present)
+                class_metrics = {
+                    'precision': float(class_precision),
+                    'recall': float(class_recall),
+                    'f1': float(class_f1),
+                    'ap': 0.0,
+                    'support': int(np.sum(ground_truth[:, i]))
+                }
         else:
             # If class is not present or only one class value exists
             class_metrics = {
@@ -393,27 +659,83 @@ def calculate_action_metrics(predictions, ground_truth):
         'num_samples': int(predictions.shape[0])
     }
 
-def visualize_sample_rollout(rollout, ground_truth, save_path, logger, title=None):
+def calculate_overall_metrics(metrics_dict: Dict[str, Any]) -> None:
+    """
+    Calculate overall metrics from per-video metrics, weighted by sample count.
+    
+    Args:
+        metrics_dict: Dictionary with 'per_video' and 'overall' keys
+        
+    Updates the 'overall' dictionary in place.
+    """
+    if not metrics_dict['per_video']:
+        return
+    
+    # Get all video IDs
+    video_ids = list(metrics_dict['per_video'].keys())
+    
+    # Calculate total number of samples
+    total_samples = sum(metrics_dict['per_video'][v]['num_samples'] for v in video_ids)
+    
+    if total_samples == 0:
+        return
+    
+    # Initialize overall metrics
+    for metric in ['accuracy', 'precision', 'recall', 'f1', 'mAP']:
+        if metric not in metrics_dict['overall']:
+            metrics_dict['overall'][metric] = 0.0
+    
+    # Calculate weighted averages
+    for metric in metrics_dict['overall'].keys():
+        if all(metric in metrics_dict['per_video'][v] for v in video_ids):
+            metrics_dict['overall'][metric] = weighted_average(
+                [metrics_dict['per_video'][v][metric] for v in video_ids],
+                [metrics_dict['per_video'][v]['num_samples'] for v in video_ids]
+            )
+
+def weighted_average(values: List[float], weights: List[int]) -> float:
+    """
+    Calculate weighted average.
+    
+    Args:
+        values: List of values
+        weights: List of weights (same length as values)
+        
+    Returns:
+        Weighted average as a float
+    """
+    if not values or not weights or sum(weights) == 0:
+        return 0.0
+    
+    return float(np.average(values, weights=weights))
+
+def visualize_sample_rollout(
+    generated: Dict[str, torch.Tensor],
+    ground_truth: torch.Tensor,
+    save_path: str,
+    logger: Any,
+    title: str = None
+) -> None:
     """
     Visualize a comparison between predicted and ground truth trajectories.
     
     Args:
-        rollout: Dictionary with model rollout outputs
-        ground_truth: Ground truth future states [batch_size, horizon, embedding_dim]
+        generated: Dictionary with model generated outputs
+        ground_truth: Ground truth future states tensor
         save_path: Path to save visualization
         logger: Logger instance
         title: Optional title for the plot
     """
-    import matplotlib.pyplot as plt
-    from sklearn.decomposition import PCA
-    import numpy as np
-    
     # Extract predicted trajectory
-    if 'full_embeddings' in rollout:
-        pred_trajectory = rollout['full_embeddings'].cpu().numpy().squeeze(0)
+    if 'states' in generated:
+        pred_trajectory = generated['states'].cpu().numpy()
+        if len(pred_trajectory.shape) == 3:
+            pred_trajectory = pred_trajectory.squeeze(0)
         
         # Extract ground truth trajectory
-        gt_trajectory = ground_truth.cpu().numpy().squeeze(0)
+        gt_trajectory = ground_truth.cpu().numpy()
+        if len(gt_trajectory.shape) == 3:
+            gt_trajectory = gt_trajectory.squeeze(0)
         
         # Only compare up to the minimum length
         min_length = min(pred_trajectory.shape[0], gt_trajectory.shape[0])
@@ -465,7 +787,7 @@ def visualize_sample_rollout(rollout, ground_truth, save_path, logger, title=Non
         
         logger.info(f"Saved rollout visualization to {save_path}")
 
-def visualize_results(metrics, save_dir, logger):
+def visualize_results(metrics: Dict[str, Any], save_dir: str, logger: Any) -> None:
     """
     Create visualizations for the evaluation results.
     
@@ -474,10 +796,6 @@ def visualize_results(metrics, save_dir, logger):
         save_dir: Directory to save visualizations
         logger: Logger instance
     """
-    import os
-    import matplotlib.pyplot as plt
-    import numpy as np
-    
     os.makedirs(save_dir, exist_ok=True)
     
     # 1. Action metrics summary
@@ -541,7 +859,7 @@ def visualize_results(metrics, save_dir, logger):
     
     logger.info(f"Saved visualizations to {save_dir}")
 
-def generate_summary_report(metrics, save_path, logger):
+def generate_summary_report(metrics: Dict[str, Any], save_path: str, logger: Any) -> None:
     """
     Generate a summary report of evaluation results.
     
@@ -550,8 +868,6 @@ def generate_summary_report(metrics, save_path, logger):
         save_path: Path to save the report
         logger: Logger instance
     """
-    import os
-    
     # Create markdown report
     report = "# World Model Inference Evaluation Summary\n\n"
     
@@ -572,6 +888,14 @@ def generate_summary_report(metrics, save_path, logger):
         report += "| Metric | Value |\n"
         report += "|--------|-------|\n"
         report += f"| Mean Squared Error (MSE) | {metrics['state']['overall']['mse']:.4f} |\n\n"
+    
+    # Add rollout metrics
+    if 'rollout' in metrics and 'overall' in metrics['rollout']:
+        report += "## Rollout Prediction Metrics\n\n"
+        report += "| Metric | Value |\n"
+        report += "|--------|-------|\n"
+        report += f"| Mean Error | {metrics['rollout']['overall']['mean_error']:.4f} |\n"
+        report += f"| Growth Rate | {metrics['rollout']['overall']['growth_rate']:.4f} |\n\n"
     
     # Add horizon metrics
     if 'action' in metrics and 'horizon' in metrics['action']:
@@ -639,57 +963,212 @@ def generate_summary_report(metrics, save_path, logger):
     
     logger.info(f"Saved summary report to {save_path}")
 
-def calculate_overall_metrics(metrics_dict):
+def save_json(data: Dict[str, Any], path: str) -> None:
     """
-    Calculate overall metrics from per-video metrics, weighted by sample count.
+    Save data as JSON, handling non-serializable types.
     
     Args:
-        metrics_dict: Dictionary with 'per_video' and 'overall' keys
-        
-    Updates the 'overall' dictionary in place.
+        data: Data to save
+        path: Path to save to
     """
-    if not metrics_dict['per_video']:
-        return
+    import json
     
-    # Get all video IDs
-    video_ids = list(metrics_dict['per_video'].keys())
+    # Convert data to serializable types
+    def make_serializable(obj):
+        if isinstance(obj, dict):
+            return {k: make_serializable(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [make_serializable(item) for item in obj]
+        elif isinstance(obj, (np.int32, np.int64)):
+            return int(obj)
+        elif isinstance(obj, (np.float32, np.float64)):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        else:
+            return obj
     
-    # Calculate total number of samples
-    total_samples = sum(metrics_dict['per_video'][v]['num_samples'] for v in video_ids)
+    # Make data serializable
+    serializable_data = make_serializable(data)
     
-    if total_samples == 0:
-        return
-    
-    # Initialize overall metrics
-    metrics_dict['overall'] = {
-        'accuracy': 0.0,
-        'precision': 0.0,
-        'recall': 0.0,
-        'f1': 0.0,
-        'mAP': 0.0
-    }
-    
-    # Calculate weighted averages
-    for metric in metrics_dict['overall'].keys():
-        metrics_dict['overall'][metric] = weighted_average(
-            [metrics_dict['per_video'][v][metric] for v in video_ids],
-            [metrics_dict['per_video'][v]['num_samples'] for v in video_ids]
-        )
+    # Save to file
+    with open(path, 'w') as f:
+        json.dump(serializable_data, f, indent=2)
 
-def weighted_average(values, weights):
+
+def plot_map_anticipation_heatmap(metrics_per_frame, 
+                                 video_ids, 
+                                 horizons, 
+                                 save_dir=None, 
+                                 logger=None):
     """
-    Calculate weighted average.
+    Create a heatmap showing mAP scores for each frame position and anticipation horizon.
     
     Args:
-        values: List of values
-        weights: List of weights (same length as values)
+        metrics_per_frame: Dictionary with structure:
+            {video_id: {frame_idx: {horizon: {'mAP': score}}}}
+        video_ids: List of video IDs to generate plots for
+        horizons: List of anticipation horizons used
+        save_dir: Directory to save the plots
+        logger: Optional logger instance
         
     Returns:
-        Weighted average as a float
+        Dictionary of matplotlib figures keyed by video_id
     """
+    import matplotlib.pyplot as plt
     import numpy as np
+    import os
+    from matplotlib.colors import LinearSegmentedColormap
     
-    if not values or not weights or sum(weights) == 0:
-        return 0.0
+    if save_dir:
+        os.makedirs(save_dir, exist_ok=True)
     
-    return float(np.average(values, weights=weights))
+    # Custom colormap - from blue (low) to green (medium) to red (high)
+    colors = [(0, 0, 0.8), (0, 0.8, 0), (0.8, 0, 0)]  # blue, green, red
+    cmap_name = 'map_performance'
+    cm = LinearSegmentedColormap.from_list(cmap_name, colors, N=100)
+    
+    figures = {}
+    
+    for video_id in video_ids:
+        if video_id not in metrics_per_frame:
+            if logger:
+                logger.warning(f"No data for video {video_id}")
+            continue
+            
+        video_data = metrics_per_frame[video_id]
+        frame_indices = sorted(list(video_data.keys()))
+        num_frames = len(frame_indices)
+        
+        if num_frames == 0:
+            if logger:
+                logger.warning(f"No frames with metrics for video {video_id}")
+            continue
+        
+        # Create a matrix for the heatmap [horizons × frames]
+        map_matrix = np.zeros((len(horizons), num_frames))
+        map_matrix[:] = np.nan  # Initialize with NaN for missing values
+        
+        # Fill the matrix with mAP scores
+        for h_idx, horizon in enumerate(horizons):
+            for f_idx, frame_idx in enumerate(frame_indices):
+                if horizon in video_data[frame_idx]:
+                    map_score = video_data[frame_idx][horizon].get('mAP', np.nan)
+                    map_matrix[h_idx, f_idx] = map_score
+        
+        # Create figure
+        fig, ax = plt.subplots(figsize=(15, 8))
+        
+        # Plot as scatter points with color representing mAP
+        x, y = np.meshgrid(frame_indices, horizons)
+        scatter = ax.scatter(x, y, c=map_matrix, cmap=cm, 
+                             s=50, marker='s', alpha=0.8, vmin=0, vmax=1)
+        
+        # Set up axes and labels
+        ax.set_xlabel('Frame Position in Video', fontsize=12)
+        ax.set_ylabel('Anticipation Horizon (frames ahead)', fontsize=12)
+        ax.set_title(f'Action Anticipation Performance (mAP) for Video {video_id}', fontsize=14)
+        
+        # Configure x-axis
+        if num_frames > 20:
+            # For many frames, show fewer tick marks
+            tick_interval = max(1, num_frames // 10)
+            ax.set_xticks(frame_indices[::tick_interval])
+            ax.set_xticklabels(frame_indices[::tick_interval])
+        else:
+            ax.set_xticks(frame_indices)
+            ax.set_xticklabels(frame_indices)
+        
+        # Configure y-axis
+        ax.set_yticks(horizons)
+        
+        # Add colorbar
+        cbar = plt.colorbar(scatter, ax=ax)
+        cbar.set_label('mAP Score', fontsize=12)
+        
+        # Add gridlines
+        ax.grid(True, linestyle='--', alpha=0.3)
+        
+        # Adjust layout
+        plt.tight_layout()
+        
+        # Save if requested
+        if save_dir:
+            save_path = os.path.join(save_dir, f'map_anticipation_heatmap_{video_id}.png')
+            fig.savefig(save_path)
+            if logger:
+                logger.info(f"Saved anticipation heatmap for video {video_id} to {save_path}")
+        
+        figures[video_id] = fig
+    
+    return figures
+
+def plot_map_heatmap_per_video(metrics_per_position, video_lengths, horizons, save_dir=None, logger=None):
+    """
+    Create a heatmap showing mAP scores across both video duration and prediction horizons.
+    
+    Args:
+        metrics_per_position: Dictionary mapping video_id to a list of position-specific metrics
+                            Each position should have horizon-specific mAP scores
+        video_lengths: Dictionary mapping video_id to video length in frames
+        horizons: List of prediction horizons used
+        save_dir: Directory to save plots
+        logger: Optional logger
+        
+    Returns:
+        Dictionary of heatmap figures
+    """
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import os
+    
+    if save_dir:
+        os.makedirs(save_dir, exist_ok=True)
+        
+    figures = {}
+    
+    for video_id, positions_data in metrics_per_position.items():
+        # Extract video length
+        video_length = video_lengths.get(video_id, len(positions_data))
+        
+        # Create matrix for heatmap [horizons × positions]
+        num_positions = len(positions_data)
+        map_matrix = np.zeros((len(horizons), num_positions))
+        
+        # Fill matrix with mAP scores
+        for pos_idx, pos_metrics in enumerate(positions_data):
+            for h_idx, h in enumerate(horizons):
+                map_matrix[h_idx, pos_idx] = pos_metrics.get(h, {}).get('mAP', 0)
+        
+        # Create figure
+        fig, ax = plt.subplots(figsize=(14, 8))
+        im = ax.imshow(map_matrix, cmap='viridis', aspect='auto', vmin=0, vmax=1)
+        
+        # Set up axes
+        ax.set_xlabel('Video Duration (frames)')
+        ax.set_ylabel('Prediction Horizon')
+        ax.set_title(f'mAP Performance Map for Video {video_id}')
+        
+        # Set ticks
+        ax.set_yticks(range(len(horizons)))
+        ax.set_yticklabels(horizons)
+        
+        # X-ticks - show frame numbers
+        num_xticks = min(10, num_positions)
+        xtick_indices = np.linspace(0, num_positions-1, num_xticks, dtype=int)
+        ax.set_xticks(xtick_indices)
+        ax.set_xticklabels([f'{int(pos/num_positions*video_length)}' for pos in xtick_indices])
+        
+        # Add colorbar
+        cbar = plt.colorbar(im, ax=ax)
+        cbar.set_label('mAP Score')
+        
+        plt.tight_layout()
+        
+        if save_dir:
+            save_path = os.path.join(save_dir, f'map_heatmap_{video_id}.png')
+            fig.savefig(save_path)
+            
+        figures[video_id] = fig
+    
+    return figures

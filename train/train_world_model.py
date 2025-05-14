@@ -137,7 +137,29 @@ def train_world_model(cfg, logger, model, train_loader, test_video_loaders, devi
         
         # Evaluation
         if (epoch + 1) % eval_epoch_interval == 0 or epoch == epochs - 1:
-            val_metrics = evaluate_world_model(cfg, logger, model, test_video_loaders, device, epoch=epoch)
+            # val_metrics = evaluate_world_model(cfg, logger, model, test_video_loaders, device, epoch=epoch)
+
+            if cfg['experiment']['world_model']['inference'] and epoch < epochs - 1:
+                eval_mode = 'basic'
+                save_results = False
+            elif not cfg['experiment']['world_model']['inference'] and epoch == epochs - 1:
+                eval_mode = 'full'
+                save_results = True
+            else:
+                eval_mode = 'basic'
+                save_results = False
+                        
+            # Evaluate the world model
+            val_metrics = evaluate_world_model(
+                cfg=cfg,
+                logger=logger,
+                model=model,
+                test_video_loaders=test_video_loaders,
+                device=device,
+                eval_mode=eval_mode,
+                save_results=save_results,  # Don't save during training
+                epoch=epoch
+            )
             
             # Log validation metrics
             for key, value in val_metrics.items():
@@ -172,293 +194,293 @@ def train_world_model(cfg, logger, model, train_loader, test_video_loaders, devi
     logger.info(f"Training completed. Best model saved at {best_model_path}")
     return best_model_path
 
-def evaluate_world_model(cfg, logger, model, test_video_loaders, device='cuda', epoch=0):
-    """
-    Evaluate the world model on test videos.
+# def evaluate_world_model(cfg, logger, model, test_video_loaders, device='cuda', epoch=0):
+#     """
+#     Evaluate the world model on test videos.
     
-    This function evaluates both state prediction accuracy and action prediction accuracy,
-    as well as performing multi-step rollouts to assess the model's ability to predict
-    future surgical states over time.
+#     This function evaluates both state prediction accuracy and action prediction accuracy,
+#     as well as performing multi-step rollouts to assess the model's ability to predict
+#     future surgical states over time.
     
-    Args:
-        cfg: Configuration dictionary
-        model: WorldModel instance
-        test_video_loaders: List of DataLoaders for test videos
-        device: Device to evaluate on
+#     Args:
+#         cfg: Configuration dictionary
+#         model: WorldModel instance
+#         test_video_loaders: List of DataLoaders for test videos
+#         device: Device to evaluate on
         
-    Returns:
-        Dictionary of evaluation metrics
-    """
-    model.eval()
-    metrics = defaultdict(float)
-    num_videos = len(test_video_loaders)
-    video_ids = list(test_video_loaders.keys())
-    logger.info(f"[EVAL] Evaluating world model on {num_videos} test videos")
-    logger.info(f"[EVAL] Video IDs: {video_ids}")
+#     Returns:
+#         Dictionary of evaluation metrics
+#     """
+#     model.eval()
+#     metrics = defaultdict(float)
+#     num_videos = len(test_video_loaders)
+#     video_ids = list(test_video_loaders.keys())
+#     logger.info(f"[EVAL] Evaluating world model on {num_videos} test videos")
+#     logger.info(f"[EVAL] Video IDs: {video_ids}")
 
-    # Extract evaluation config
-    eval_config = cfg['evaluation']['world_model']
-    rollout_horizon = eval_config.get('rollout_horizon', 10)
+#     # Extract evaluation config
+#     eval_config = cfg['evaluation']['world_model']
+#     rollout_horizon = eval_config.get('rollout_horizon', 10)
     
-    with torch.no_grad():
-        # Evaluate on each test video
-        for video_id, video_loader in test_video_loaders.items():
-            video_metrics = defaultdict(float)
-            num_batches = 0
+#     with torch.no_grad():
+#         # Evaluate on each test video
+#         for video_id, video_loader in test_video_loaders.items():
+#             video_metrics = defaultdict(float)
+#             num_batches = 0
             
-            # Process each batch in the video
-            for batch_idx, batch in enumerate(tqdm(video_loader, desc=f"Evaluating video {video_id}")):
-                num_batches += 1
+#             # Process each batch in the video
+#             for batch_idx, batch in enumerate(tqdm(video_loader, desc=f"Evaluating video {video_id}")):
+#                 num_batches += 1
                 
-                # Move batch to device
-                current_states = batch['current_states'].to(device)
-                future_states = batch['future_states'].to(device)
-                next_states = batch['next_states'].to(device)
-                next_actions = batch['next_actions'].to(device)
-                next_phases = batch['next_phases'].to(device)
-                next_rewards = batch['next_rewards']
-                next_rewards = {k: v.to(device) for k, v in next_rewards.items()}
-                # Check if batch contains attention mask
-                attention_mask = batch.get('attention_mask', None)
-                if attention_mask is not None:
-                    attention_mask = attention_mask.to(device)
+#                 # Move batch to device
+#                 current_states = batch['current_states'].to(device)
+#                 future_states = batch['future_states'].to(device)
+#                 next_states = batch['next_states'].to(device)
+#                 next_actions = batch['next_actions'].to(device)
+#                 next_phases = batch['next_phases'].to(device)
+#                 next_rewards = batch['next_rewards']
+#                 next_rewards = {k: v.to(device) for k, v in next_rewards.items()}
+#                 # Check if batch contains attention mask
+#                 attention_mask = batch.get('attention_mask', None)
+#                 if attention_mask is not None:
+#                     attention_mask = attention_mask.to(device)
                 
-                # Single-step next state prediction for evaluation                
-                outputs = model(
-                    current_state=current_states,
-                    next_state=next_states,
-                    next_rewards=next_rewards,
-                    next_actions=next_actions,
-                    next_phases=next_phases,
-                    attention_mask=attention_mask
-                )
+#                 # Single-step next state prediction for evaluation                
+#                 outputs = model(
+#                     current_state=current_states,
+#                     next_state=next_states,
+#                     next_rewards=next_rewards,
+#                     next_actions=next_actions,
+#                     next_phases=next_phases,
+#                     attention_mask=attention_mask
+#                 )
 
-                # Calculate metrics for this batch
-                # State prediction error (MSE)
-                state_pred_error = ((outputs['_z_hat'] - next_states) ** 2).mean().item()
-                video_metrics['state_pred_error'] += state_pred_error
+#                 # Calculate metrics for this batch
+#                 # State prediction error (MSE)
+#                 state_pred_error = ((outputs['_z_hat'] - next_states) ** 2).mean().item()
+#                 video_metrics['state_pred_error'] += state_pred_error
                 
-                # Action prediction accuracy (if applicable)
-                if model.imitation_learning and '_a' in model.heads:
-                    if 'head_outputs' in outputs and '_a' in outputs['head_outputs']:
-                        action_logits = outputs['head_outputs']['_a']
-                        pred_actions = (torch.sigmoid(action_logits) > 0.5).float()
-                        action_accuracy = (pred_actions == next_actions).float().mean().item()
-                        video_metrics['action_pred_accuracy'] += action_accuracy
+#                 # Action prediction accuracy (if applicable)
+#                 if model.imitation_learning and '_a' in model.heads:
+#                     if 'head_outputs' in outputs and '_a' in outputs['head_outputs']:
+#                         action_logits = outputs['head_outputs']['_a']
+#                         pred_actions = (torch.sigmoid(action_logits) > 0.5).float()
+#                         action_accuracy = (pred_actions == next_actions).float().mean().item()
+#                         video_metrics['action_pred_accuracy'] += action_accuracy
                 
-                # Add total loss
-                if 'total_loss' in outputs:
-                    video_metrics['total_loss'] += outputs['total_loss'].item()
+#                 # Add total loss
+#                 if 'total_loss' in outputs:
+#                     video_metrics['total_loss'] += outputs['total_loss'].item()
                 
-                # Generate rollout trajectory
-                rollout = model.generate_conditional_future_states(
-                    input_embeddings=current_states,
-                    input_actions=next_actions, # check if sample or use true next actions from expert
-                    horizon=rollout_horizon,
-                    temperature=0.7,
-                    use_past=True
-                )
+#                 # Generate rollout trajectory
+#                 rollout = model.generate_conditional_future_states(
+#                     input_embeddings=current_states,
+#                     input_actions=next_actions, # check if sample or use true next actions from expert
+#                     horizon=rollout_horizon,
+#                     temperature=0.7,
+#                     use_past=True
+#                 )
                 
-                # Extract generated trajectory
-                gen_states = rollout['full_embeddings'][:, -rollout_horizon:]  # [batch_size, rollout_horizon, embedding_dim]
-                gen_actions = rollout['full_actions'] if 'full_actions' in rollout else None
+#                 # Extract generated trajectory
+#                 gen_states = rollout['full_embeddings'][:, -rollout_horizon:]  # [batch_size, rollout_horizon, embedding_dim]
+#                 gen_actions = rollout['full_actions'] if 'full_actions' in rollout else None
                 
-                # Calculate rollout error over timestep
-                rollout_errors = []
-                for t in range(gen_states.size(1)):
-                    # Only calculate error for timesteps that exist in the future states
-                    if t < gen_states.size(1):
-                        error_t = ((future_states[:, t] - gen_states[:, t]) ** 2).mean().item()
-                        rollout_errors.append(error_t)
+#                 # Calculate rollout error over timestep
+#                 rollout_errors = []
+#                 for t in range(gen_states.size(1)):
+#                     # Only calculate error for timesteps that exist in the future states
+#                     if t < gen_states.size(1):
+#                         error_t = ((future_states[:, t] - gen_states[:, t]) ** 2).mean().item()
+#                         rollout_errors.append(error_t)
                 
-                # Aggregate rollout metrics
-                video_metrics['rollout_error_mean'] = sum(rollout_errors) / len(rollout_errors) if rollout_errors else 0
-                video_metrics['rollout_error_final'] = rollout_errors[-1] if rollout_errors else 0
+#                 # Aggregate rollout metrics
+#                 video_metrics['rollout_error_mean'] = sum(rollout_errors) / len(rollout_errors) if rollout_errors else 0
+#                 video_metrics['rollout_error_final'] = rollout_errors[-1] if rollout_errors else 0
                 
-                # Calculate error growth rate (how quickly errors accumulate)
-                if len(rollout_errors) > 1:
-                    error_growth = (rollout_errors[-1] / (rollout_errors[0] + 1e-8))
-                    video_metrics['rollout_error_growth'] = error_growth
+#                 # Calculate error growth rate (how quickly errors accumulate)
+#                 if len(rollout_errors) > 1:
+#                     error_growth = (rollout_errors[-1] / (rollout_errors[0] + 1e-8))
+#                     video_metrics['rollout_error_growth'] = error_growth
             
-            # Calculate average metrics for this video
-            for key in video_metrics:
-                if key not in ['rollout_error_mean', 'rollout_error_final', 'rollout_error_growth']:
-                    video_metrics[key] /= num_batches
+#             # Calculate average metrics for this video
+#             for key in video_metrics:
+#                 if key not in ['rollout_error_mean', 'rollout_error_final', 'rollout_error_growth']:
+#                     video_metrics[key] /= num_batches
             
-            # Add to overall metrics (average across videos)
-            for key, value in video_metrics.items():
-                metrics[key] += value / num_videos
+#             # Add to overall metrics (average across videos)
+#             for key, value in video_metrics.items():
+#                 metrics[key] += value / num_videos
             
-            # Log video metrics
-            logger.info(f"[EVAL] Video {video_id} | "
-                       f"State Pred MSE: {video_metrics['state_pred_error']:.4f} | "
-                       f"Rollout MSE Mean: {video_metrics['rollout_error_mean']:.4f} | "
-                       f"Rollout MSE Growth: {video_metrics['rollout_error_growth']:.4f}")
+#             # Log video metrics
+#             logger.info(f"[EVAL] Video {video_id} | "
+#                        f"State Pred MSE: {video_metrics['state_pred_error']:.4f} | "
+#                        f"Rollout MSE Mean: {video_metrics['rollout_error_mean']:.4f} | "
+#                        f"Rollout MSE Growth: {video_metrics['rollout_error_growth']:.4f}")
     
-    # Set default action prediction accuracy if not calculated
-    if 'action_pred_accuracy' not in metrics:
-        metrics['action_pred_accuracy'] = 0.0
+#     # Set default action prediction accuracy if not calculated
+#     if 'action_pred_accuracy' not in metrics:
+#         metrics['action_pred_accuracy'] = 0.0
     
-    return dict(metrics)
+#     return dict(metrics)
 
-def run_generation_inference(cfg, logger, model, test_video_loaders, device='cuda'):
-    """
-    Run inference with the world model to generate trajectories.
+# def run_generation_inference(cfg, logger, model, test_video_loaders, device='cuda'):
+#     """
+#     Run inference with the world model to generate trajectories.
     
-    This function takes the trained world model and generates multi-step predictions
-    to evaluate its ability to predict future surgical states and actions.
+#     This function takes the trained world model and generates multi-step predictions
+#     to evaluate its ability to predict future surgical states and actions.
     
-    Args:
-        cfg: Configuration dictionary
-        logger: Logger instance
-        model: WorldModel instance
-        test_video_loaders: List of DataLoaders for test videos
-        device: Device to evaluate on
+#     Args:
+#         cfg: Configuration dictionary
+#         logger: Logger instance
+#         model: WorldModel instance
+#         test_video_loaders: List of DataLoaders for test videos
+#         device: Device to evaluate on
         
-    Returns:
-        Dictionary of results containing generated trajectories and metrics
-    """
-    model.eval()
+#     Returns:
+#         Dictionary of results containing generated trajectories and metrics
+#     """
+#     model.eval()
     
-    # Extract evaluation config
-    eval_config = cfg['evaluation']
-    num_trajectories = eval_config.get('num_trajectories', 5)
-    trajectory_length = eval_config.get('trajectory_length', 20)
-    log_dir = eval_config.get('log_dir', 'generation_results')
+#     # Extract evaluation config
+#     eval_config = cfg['evaluation']
+#     num_trajectories = eval_config.get('num_trajectories', 5)
+#     trajectory_length = eval_config.get('trajectory_length', 20)
+#     log_dir = eval_config.get('log_dir', 'generation_results')
     
-    # Create directory for saving results
-    os.makedirs(log_dir, exist_ok=True)
+#     # Create directory for saving results
+#     os.makedirs(log_dir, exist_ok=True)
     
-    # List to store all results
-    all_results = []
+#     # List to store all results
+#     all_results = []
     
-    # Generate trajectories for selected videos/frames
-    logger.info(f"Generating {num_trajectories} trajectories of length {trajectory_length}")
+#     # Generate trajectories for selected videos/frames
+#     logger.info(f"Generating {num_trajectories} trajectories of length {trajectory_length}")
     
-    with torch.no_grad():
-        trajectory_count = 0
+#     with torch.no_grad():
+#         trajectory_count = 0
         
-        # Iterate through test videos
-        for video_id, video_loader in test_video_loaders.items():
-            # Process only some videos to limit the total trajectories
-            if trajectory_count >= num_trajectories:
-                break
+#         # Iterate through test videos
+#         for video_id, video_loader in test_video_loaders.items():
+#             # Process only some videos to limit the total trajectories
+#             if trajectory_count >= num_trajectories:
+#                 break
             
-            # Get one batch from this video
-            for batch in video_loader:
-                # Move batch to device
-                current_states = batch['current_states'].to(device)
-                next_states = batch.get('next_states', None)
-                if next_states is not None:
-                    next_states = next_states.to(device)
-                next_actions = batch.get('next_actions', None)
-                if next_actions is not None:
-                    next_actions = next_actions.to(device)
-                # get future states and actions
-                future_states = batch.get('future_states', None)
-                if future_states is not None:
-                    future_states = future_states.to(device)
-                future_actions = batch.get('future_actions', None)
-                if future_actions is not None:
-                    future_actions = future_actions.to(device)
+#             # Get one batch from this video
+#             for batch in video_loader:
+#                 # Move batch to device
+#                 current_states = batch['current_states'].to(device)
+#                 next_states = batch.get('next_states', None)
+#                 if next_states is not None:
+#                     next_states = next_states.to(device)
+#                 next_actions = batch.get('next_actions', None)
+#                 if next_actions is not None:
+#                     next_actions = next_actions.to(device)
+#                 # get future states and actions
+#                 future_states = batch.get('future_states', None)
+#                 if future_states is not None:
+#                     future_states = future_states.to(device)
+#                 future_actions = batch.get('future_actions', None)
+#                 if future_actions is not None:
+#                     future_actions = future_actions.to(device)
                 
-                # Generate trajectories for first few examples in batch
-                batch_size = min(current_states.size(0), num_trajectories - trajectory_count)
+#                 # Generate trajectories for first few examples in batch
+#                 batch_size = min(current_states.size(0), num_trajectories - trajectory_count)
                 
-                for i in range(batch_size):
-                    # Extract initial state and action
-                    initial_state = current_states[i:i+1, -1:].clone()  # [1, 1, embedding_dim]
+#                 for i in range(batch_size):
+#                     # Extract initial state and action
+#                     initial_state = current_states[i:i+1, -1:].clone()  # [1, 1, embedding_dim]
                     
-                    # Extract or create initial action
-                    if next_actions is not None:
-                        initial_action = next_actions[i:i+1, -1:].clone()  # [1, 1, action_classes]
-                    else:
-                        # If no action provided, sample a random one
-                        initial_action = torch.zeros(1, 1, model.num_action_classes, device=device)
-                        initial_action = initial_action.bernoulli(0.5)  # Random binary actions
+#                     # Extract or create initial action
+#                     if next_actions is not None:
+#                         initial_action = next_actions[i:i+1, -1:].clone()  # [1, 1, action_classes]
+#                     else:
+#                         # If no action provided, sample a random one
+#                         initial_action = torch.zeros(1, 1, model.num_action_classes, device=device)
+#                         initial_action = initial_action.bernoulli(0.5)  # Random binary actions
                     
-                    # Generate trajectory
-                    generated = model.generate_conditional_future_states(
-                        input_embeddings=initial_state,
-                        input_actions=initial_action,
-                        horizon=trajectory_length,
-                        temperature=0.7,
-                        use_past=True
-                    )
+#                     # Generate trajectory
+#                     generated = model.generate_conditional_future_states(
+#                         input_embeddings=initial_state,
+#                         input_actions=initial_action,
+#                         horizon=trajectory_length,
+#                         temperature=0.7,
+#                         use_past=True
+#                     )
                     
-                    # Extract ground truth if available (for comparison)
-                    gt_trajectory = None
-                    if next_states is not None:
-                        max_gt_length = min(trajectory_length + 1, current_states.size(1))
-                        gt_trajectory = {
-                            'states': future_states[i:i+1, :max_gt_length].cpu(),
-                            'actions': future_actions[i:i+1, :max_gt_length].cpu() if next_actions is not None else None
-                        }
+#                     # Extract ground truth if available (for comparison)
+#                     gt_trajectory = None
+#                     if next_states is not None:
+#                         max_gt_length = min(trajectory_length + 1, current_states.size(1))
+#                         gt_trajectory = {
+#                             'states': future_states[i:i+1, :max_gt_length].cpu(),
+#                             'actions': future_actions[i:i+1, :max_gt_length].cpu() if next_actions is not None else None
+#                         }
                     
-                    # Calculate metrics comparing generated to ground truth
-                    metrics = {}
-                    if gt_trajectory is not None:
-                        # State prediction error at each timestep
-                        gen_states = generated['full_embeddings']
-                        gt_states = gt_trajectory['states']
+#                     # Calculate metrics comparing generated to ground truth
+#                     metrics = {}
+#                     if gt_trajectory is not None:
+#                         # State prediction error at each timestep
+#                         gen_states = generated['full_embeddings']
+#                         gt_states = gt_trajectory['states']
                         
-                        # Calculate error for overlapping timesteps
-                        min_length = min(gen_states.size(1), gt_states.size(1))
-                        state_errors = []
+#                         # Calculate error for overlapping timesteps
+#                         min_length = min(gen_states.size(1), gt_states.size(1))
+#                         state_errors = []
                         
-                        for t in range(1, min_length):  # Skip initial state
-                            error_t = ((gt_states[:, t] - gen_states[:, t]) ** 2).mean().item()
-                            state_errors.append(error_t)
+#                         for t in range(1, min_length):  # Skip initial state
+#                             error_t = ((gt_states[:, t] - gen_states[:, t]) ** 2).mean().item()
+#                             state_errors.append(error_t)
                         
-                        # Calculate state prediction metrics
-                        metrics['state_error_mean'] = sum(state_errors) / len(state_errors) if state_errors else 0
-                        metrics['state_error_final'] = state_errors[-1] if state_errors else 0
-                        metrics['state_error_growth'] = state_errors[-1] / (state_errors[0] + 1e-8) if len(state_errors) > 1 else 0
+#                         # Calculate state prediction metrics
+#                         metrics['state_error_mean'] = sum(state_errors) / len(state_errors) if state_errors else 0
+#                         metrics['state_error_final'] = state_errors[-1] if state_errors else 0
+#                         metrics['state_error_growth'] = state_errors[-1] / (state_errors[0] + 1e-8) if len(state_errors) > 1 else 0
                     
-                    # Store result
-                    result = {
-                        'video_idx': video_id,
-                        'example_idx': i,
-                        'generated': {
-                            'states': generated['full_embeddings'].cpu(),
-                            'actions': generated['full_actions'].cpu() if 'full_actions' in generated else None,
-                            'head_outputs': {k: v.cpu() for k, v in generated['head_outputs'].items()} if 'head_outputs' in generated else None
-                        },
-                        'ground_truth': gt_trajectory,
-                        'metrics': metrics
-                    }
+#                     # Store result
+#                     result = {
+#                         'video_idx': video_id,
+#                         'example_idx': i,
+#                         'generated': {
+#                             'states': generated['full_embeddings'].cpu(),
+#                             'actions': generated['full_actions'].cpu() if 'full_actions' in generated else None,
+#                             'head_outputs': {k: v.cpu() for k, v in generated['head_outputs'].items()} if 'head_outputs' in generated else None
+#                         },
+#                         'ground_truth': gt_trajectory,
+#                         'metrics': metrics
+#                     }
                     
-                    all_results.append(result)
-                    trajectory_count += 1
+#                     all_results.append(result)
+#                     trajectory_count += 1
                 
-                # Only process one batch per video
-                break
+#                 # Only process one batch per video
+#                 break
     
-    # Calculate overall metrics
-    overall_metrics = defaultdict(float)
-    for result in all_results:
-        for key, value in result['metrics'].items():
-            overall_metrics[key] += value
+#     # Calculate overall metrics
+#     overall_metrics = defaultdict(float)
+#     for result in all_results:
+#         for key, value in result['metrics'].items():
+#             overall_metrics[key] += value
     
-    # Average metrics
-    for key in overall_metrics:
-        overall_metrics[key] /= len(all_results)
+#     # Average metrics
+#     for key in overall_metrics:
+#         overall_metrics[key] /= len(all_results)
     
-    # Log overall metrics
-    logger.info(f"Generation metrics | State Error Mean: {overall_metrics.get('state_error_mean', 0):.4f} | "
-               f"State Error Growth: {overall_metrics.get('state_error_growth', 0):.4f}")
+#     # Log overall metrics
+#     logger.info(f"Generation metrics | State Error Mean: {overall_metrics.get('state_error_mean', 0):.4f} | "
+#                f"State Error Growth: {overall_metrics.get('state_error_growth', 0):.4f}")
     
-    # Save results
-    results_path = os.path.join(log_dir, "generation_results.pt")
-    torch.save({
-        'results': all_results,
-        'overall_metrics': overall_metrics
-    }, results_path)
+#     # Save results
+#     results_path = os.path.join(log_dir, "generation_results.pt")
+#     torch.save({
+#         'results': all_results,
+#         'overall_metrics': overall_metrics
+#     }, results_path)
     
-    return {
-        'results': all_results,
-        'overall_metrics': dict(overall_metrics)
-    }
+#     return {
+#         'results': all_results,
+#         'overall_metrics': dict(overall_metrics)
+#     }
 
 def plot_training_curves(metrics_history, log_dir):
     """
