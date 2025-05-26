@@ -1,0 +1,143 @@
+{
+  "baseline_imitation": {
+    "world_model_metrics": {
+      "avg_loss": 0.0,
+      "action_accuracy": 0.9934936495227669,
+      "num_batches": 655
+    },
+    "environment_metrics": {
+      "avg_episode_reward": 8.396797256879506,
+      "std_episode_reward": 26.17901053468066,
+      "avg_episode_length": 30.0,
+      "num_episodes": 5
+    }
+  },
+  "rl_algorithms": {
+    "ppo": {
+      "training_timesteps": 50000,
+      "evaluation": {
+        "avg_reward": -119.31550198003652,
+        "std_reward": 0.2221447570504767,
+        "avg_length": 50.0,
+        "min_reward": -119.6630301821977,
+        "max_reward": -118.96095119044186,
+        "episodes": [
+          {
+            "reward": -119.06736775748429,
+            "length": 50,
+            "final_phase": 0
+          },
+          {
+            "reward": -119.34147547818718,
+            "length": 50,
+            "final_phase": 0
+          },
+          {
+            "reward": -119.60859725959597,
+            "length": 50,
+            "final_phase": 0
+          },
+          {
+            "reward": -119.41194493472577,
+            "length": 50,
+            "final_phase": 0
+          },
+          {
+            "reward": -119.6630301821977,
+            "length": 50,
+            "final_phase": 0
+          },
+          {
+            "reward": -119.29621065966785,
+            "length": 50,
+            "final_phase": 0
+          },
+          {
+            "reward": -119.46876472197472,
+            "length": 50,
+            "final_phase": 0
+          },
+          {
+            "reward": -119.06257044263184,
+            "length": 50,
+            "final_phase": 0
+          },
+          {
+            "reward": -118.96095119044186,
+            "length": 50,
+            "final_phase": 0
+          },
+          {
+            "reward": -119.27410717345778,
+            "length": 50,
+            "final_phase": 0
+          }
+        ]
+      },
+      "model_path": "surgical_ppo_policy.zip"
+    },
+    "sac": {
+      "training_timesteps": 50000,
+      "evaluation": {
+        "avg_reward": 50.268932092515755,
+        "std_reward": 4.814818862172798,
+        "avg_length": 50.0,
+        "min_reward": 41.528050753287964,
+        "max_reward": 58.844352785870434,
+        "episodes": [
+          {
+            "reward": 41.528050753287964,
+            "length": 50,
+            "final_phase": 0
+          },
+          {
+            "reward": 48.29884775318206,
+            "length": 50,
+            "final_phase": 0
+          },
+          {
+            "reward": 50.0439510495402,
+            "length": 50,
+            "final_phase": 0
+          },
+          {
+            "reward": 44.357616846915334,
+            "length": 50,
+            "final_phase": 0
+          },
+          {
+            "reward": 52.38560086768121,
+            "length": 50,
+            "final_phase": 0
+          },
+          {
+            "reward": 56.05106429047882,
+            "length": 50,
+            "final_phase": 0
+          },
+          {
+            "reward": 58.844352785870434,
+            "length": 50,
+            "final_phase": 0
+          },
+          {
+            "reward": 50.940933038573704,
+            "length": 50,
+            "final_phase": 0
+          },
+          {
+            "reward": 48.603066276200124,
+            "length": 50,
+            "final_phase": 0
+          },
+          {
+            "reward": 51.63583726342769,
+            "length": 50,
+            "final_phase": 0
+          }
+        ]
+      },
+      "model_path": "surgical_sac_policy.zip"
+    }
+  }
+}

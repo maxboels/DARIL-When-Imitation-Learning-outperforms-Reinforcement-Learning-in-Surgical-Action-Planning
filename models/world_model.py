@@ -140,125 +140,134 @@ class WorldModel(nn.Module):
                 eval_mode: str = 'basic', # 'basic' or 'full'
     ) -> Dict[str, torch.Tensor]:
         """
-        Forward pass for training the model with the correct temporal relationship:
-        current_state + next_actions -> next_state
+        Enhanced forward pass that handles both training and RL inference
         
         Args:
             current_state: Frame embeddings tensor of shape [batch_size, seq_length, embedding_dim]
-            next_state: Target frame embeddings tensor of shape [batch_size, seq_length, embedding_dim]
-                   If None, will use current_state shifted to the right for teacher forcing
-            next_actions: We pass the next actions as input to the model for conditional generation of the next state,
-                     we want to learn the effect of future actions on the next state.
-            attention_mask: Attention mask of shape [batch_size, seq_length]
+            next_state: Target frame embeddings (None during RL inference)
+            next_rewards: Target rewards (None during RL inference)  
+            next_actions: Action inputs for conditioning
+            next_phases: Target phases (None during RL inference)
+            attention_mask: Attention mask
+            eval_mode: 'basic' for RL inference, 'training' for loss computation
         
         Returns:
-            Dictionary with loss and predictions
+            Dictionary with predictions and optional losses
         """
         batch_size, seq_length, _ = current_state.size()
         
         # Ensure next_actions is provided
         if next_actions is None:
-            raise ValueError("next_actions must be provided for the forward pass to capture the correct temporal relationship")
+            raise ValueError("next_actions must be provided for the forward pass")
         
-        # Get action embeddings from next_actions shape: [batch_size, seq_len, num_action_classes]
+        # Get action embeddings
         if self.action_conditioning:
-            next_action_embeddings = self.action_embedding(next_actions)  # [batch_size, seq_len, action_embedding_dim]
+            next_action_embeddings = self.action_embedding(next_actions)
             current_state = torch.cat([current_state, next_action_embeddings], dim=-1)
         
         # Project to GPT2 input dimension
-        proj_inputs = self.input_projection(current_state)  # [batch_size, seq_len, gpt2_input_dim]
+        proj_inputs = self.input_projection(current_state)
         
         # Create position IDs
         position_ids = torch.arange(seq_length, dtype=torch.long, device=current_state.device)
         position_ids = position_ids.unsqueeze(0).expand(batch_size, -1)
-
-        # Use provided current_state and next_state
-        _z = next_state
         
         # Pass through GPT-2 model
         outputs = self.model(
             inputs_embeds=proj_inputs,
             position_ids=position_ids,
-            attention_mask=attention_mask, # None if not provided
+            attention_mask=attention_mask,
             output_hidden_states=True
-        ) # outputs: logits, past_key_values, hidden_states
+        )
         
         # Get the last hidden state
-        last_hidden_state = outputs.hidden_states[-1] # D=768
+        last_hidden_state = outputs.hidden_states[-1]
         
         # Project back to embedding dimension
-        _z_hat = self.model.lm_head(last_hidden_state) # D=1024
+        _z_hat = self.model.lm_head(last_hidden_state)
         
-        # Calculate MSE loss between predictions and targets
-        _z_loss = F.mse_loss(_z_hat, _z)
-
-        # If we want to use imitation learning - predict the next action
-        other_losses = {}
-        head_outputs = {}
+        # Initialize output dictionary
+        result = {
+            "_z_hat": _z_hat,
+            "last_hidden_states": last_hidden_state,
+            "logits": outputs.logits,
+        }
+        
+        # Only compute losses if we have ground truth targets (training mode)
+        if next_state is not None and eval_mode != 'basic':
+            # Calculate MSE loss between predictions and targets
+            _z_loss = F.mse_loss(_z_hat, next_state)
+            result["_z_loss"] = _z_loss
+            total_loss = self.w_z * _z_loss
+        else:
+            # For RL inference, we don't have ground truth, so no loss computation
+            result["_z_loss"] = torch.tensor(0.0, device=current_state.device)
+            total_loss = torch.tensor(0.0, device=current_state.device)
+        
+        # Handle action prediction (imitation learning)
         if self.imitation_learning:
-
-            if self.action_learning and next_actions is not None:
+            if self.action_learning:
                 action_logits = self.heads['_a'](last_hidden_state)
-                # Calculate loss for the action head
-                action_loss = F.binary_cross_entropy_with_logits(action_logits, next_actions)
-                other_losses['_a_loss'] = action_loss * self.w_a
+                result["_a_hat"] = action_logits
+                
+                # Only compute action loss if we have targets
+                if next_actions is not None and eval_mode != 'basic':
+                    action_loss = F.binary_cross_entropy_with_logits(action_logits, next_actions)
+                    result["_a_loss"] = action_loss * self.w_a
+                    total_loss += result["_a_loss"]
 
             if self.phase_learning and next_phases is not None:
-                phase_logits = self.heads['_p'](last_hidden_state).permute(0, 2, 1) # [batch_size, num_phase_classes, seq_len]
-                # Calculate loss for the phase head (cross-entropy with a softmax output)
-                phase_loss = F.cross_entropy(phase_logits, next_phases)
-                other_losses['_p_loss'] = phase_loss * self.w_p
-
-        # If predicting rewards associated with the next state
-        # TODO: get the ground truth rewards scores: Done
-        # the goal is for the model to learn to pick actions that lead to higher rewards in short and long term
-        # Also, we want to learn the reward function itself that uses weights for each signal
-        # and knows when to focus on which grounded signals or human preferences like safety
-        # Ideally, we want to focus more on discovering new pathways/trajectories from raw data and final outcomes, leaving
-        # space for the model to come up with better strategies humans might not have thought of.
-        if self.reward_learning and next_rewards is not None:
-            # Calculate loss for the reward head
+                phase_logits = self.heads['_p'](last_hidden_state)
+                result["_p_hat"] = phase_logits
+                
+                # Only compute phase loss if we have targets and not in basic eval mode
+                if eval_mode != 'basic':
+                    phase_logits_transposed = phase_logits.permute(0, 2, 1)
+                    phase_loss = F.cross_entropy(phase_logits_transposed, next_phases)
+                    result["_p_loss"] = phase_loss * self.w_p
+                    total_loss += result["_p_loss"]
+        
+        # Handle reward prediction (for RL)
+        if self.reward_learning:
+            # Always predict rewards (needed for RL environment)
             reward_phase_completion = self.heads['_r_phase_completion'](last_hidden_state)
             reward_phase_initiation = self.heads['_r_phase_initiation'](last_hidden_state)
             reward_phase_progression = self.heads['_r_phase_progression'](last_hidden_state)
             reward_action_probability = self.heads['_r_action_probability'](last_hidden_state)
             reward_risk_penalty = self.heads['_r_risk'](last_hidden_state)
             reward_global_progression = self.heads['_r_global_progression'](last_hidden_state)
-            # Calculate loss for the reward head
-            reward_loss_phase_completion = F.mse_loss(reward_phase_completion, next_rewards['_r_phase_completion'])
-            reward_loss_phase_initiation = F.mse_loss(reward_phase_initiation, next_rewards['_r_phase_initiation'])
-            reward_loss_phase_progression = F.mse_loss(reward_phase_progression, next_rewards['_r_phase_progression'])
-            reward_loss_action_probability = F.mse_loss(reward_action_probability, next_rewards['_r_action_probability'])
-            reward_loss_risk_penalty = F.mse_loss(reward_risk_penalty, next_rewards['_r_risk'])
-            reward_loss_global_progression = F.mse_loss(reward_global_progression, next_rewards['_r_global_progression'])
-            # Store losses
-            other_losses['_r_phase_completion_loss'] = reward_loss_phase_completion * self.w_r * 1.0
-            other_losses['_r_phase_initiation_loss'] = reward_loss_phase_initiation * self.w_r * 1.0
-            other_losses['_r_phase_progression_loss'] = reward_loss_phase_progression * self.w_r * 1.0
-            other_losses['_r_action_probability_loss'] = reward_loss_action_probability * self.w_r * 1.0
-            other_losses['_r_risk_loss'] = reward_loss_risk_penalty * self.w_r * 0.1
-            other_losses['_r_global_progression_loss'] = reward_loss_global_progression * self.w_r * 0.1
-
-        outputs = {
-            "_z_loss": _z_loss,
-            "_z_hat": _z_hat,
-            "_a_hat": action_logits if self.action_learning and self.imitation_learning else None,
-            "logits": outputs.logits,
-            "head_outputs": head_outputs,
-            "last_hidden_states": last_hidden_state
-        }
-        # Add other losses if they exist
-        for key, value in other_losses.items():
-            outputs[key] = value
+            
+            # Store reward predictions (for RL environment)
+            result.update({
+                '_r_phase_completion_loss': -reward_phase_completion.squeeze(-1),  # Negative for reward
+                '_r_phase_initiation_loss': -reward_phase_initiation.squeeze(-1),
+                '_r_phase_progression_loss': -reward_phase_progression.squeeze(-1),
+                '_r_action_probability_loss': -reward_action_probability.squeeze(-1),
+                '_r_risk_loss': -reward_risk_penalty.squeeze(-1),
+                '_r_global_progression_loss': -reward_global_progression.squeeze(-1),
+            })
+            
+            # Only compute reward losses if we have targets (training mode)
+            if next_rewards is not None and eval_mode != 'basic':
+                reward_loss_phase_completion = F.mse_loss(reward_phase_completion, next_rewards['_r_phase_completion'])
+                reward_loss_phase_initiation = F.mse_loss(reward_phase_initiation, next_rewards['_r_phase_initiation'])
+                reward_loss_phase_progression = F.mse_loss(reward_phase_progression, next_rewards['_r_phase_progression'])
+                reward_loss_action_probability = F.mse_loss(reward_action_probability, next_rewards['_r_action_probability'])
+                reward_loss_risk_penalty = F.mse_loss(reward_risk_penalty, next_rewards['_r_risk'])
+                reward_loss_global_progression = F.mse_loss(reward_global_progression, next_rewards['_r_global_progression'])
+                
+                # Add training losses
+                total_loss += reward_loss_phase_completion * self.w_r * 1.0
+                total_loss += reward_loss_phase_initiation * self.w_r * 1.0
+                total_loss += reward_loss_phase_progression * self.w_r * 1.0
+                total_loss += reward_loss_action_probability * self.w_r * 1.0
+                total_loss += reward_loss_risk_penalty * self.w_r * 0.1
+                total_loss += reward_loss_global_progression * self.w_r * 0.1
         
-        # Calculate total loss
-        total_loss = self.w_z * _z_loss
-        for loss_name, loss_value in other_losses.items():
-            total_loss = total_loss + loss_value
+        # Add total loss to result
+        result["total_loss"] = total_loss
         
-        outputs["total_loss"] = total_loss
-        
-        return outputs
+        return result
     
     def predict_next_action(self, state: torch.Tensor) -> torch.Tensor:
         """
