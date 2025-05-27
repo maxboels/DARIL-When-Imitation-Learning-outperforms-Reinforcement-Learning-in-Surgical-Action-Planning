@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Surgical Action Grid</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2E86AB 0%, #A23B72 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .controls {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.9em;
+        }
+
+        select, button, input {
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .grid-container {
+            padding: 20px;
+            position: relative;
+        }
+
+        .grid-svg {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .axis-label {
+            font-size: 14px;
+            font-weight: 600;
+            fill: #495057;
+        }
+
+        .grid-cell {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .grid-cell:hover {
+            stroke: #2E86AB;
+            stroke-width: 2;
+        }
+
+        .past-action {
+            opacity: 0.6;
+        }
+
+        .current-action {
+            stroke: #dc3545;
+            stroke-width: 3;
+        }
+
+        .future-action {
+            opacity: 0.8;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 1000;
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .method-comparison {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .method-grid {
+            flex: 1;
+        }
+
+        .method-title {
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            color: white;
+        }
+
+        .method-il { background: #2E86AB; }
+        .method-ppo { background: #A23B72; }
+        .method-sac { background: #F18F01; }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+        }
+
+        .stats-panel {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #2E86AB;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .method-comparison {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 Interactive Surgical Action Grid</h1>
+            <p>Visualize AI planning horizon: Past actions + Future predictions</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label>Method Comparison</label>
+                <select id="methodSelect">
+                    <option value="single">Single Method</option>
+                    <option value="comparison">Compare All Methods</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>Primary Method</label>
+                <select id="primaryMethod">
+                    <option value="imitation_learning">Imitation Learning</option>
+                    <option value="ppo">PPO</option>
+                    <option value="sac">SAC</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>Planning Horizon</label>
+                <input type="range" id="horizonSlider" min="10" max="100" value="50" step="10">
+                <span id="horizonValue">50 steps</span>
+            </div>
+
+            <div class="control-group">
+                <label>Current Timestep</label>
+                <input type="range" id="timestepSlider" min="50" max="150" value="100" step="1">
+                <span id="timestepValue">100</span>
+            </div>
+
+            <button id="playButton">▶️ Auto-play</button>
+            <button id="resetButton">🔄 Reset</button>
+        </div>
+
+        <div class="grid-container">
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #6c757d;"></div>
+                    <span>Past Actions (Context)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #dc3545;"></div>
+                    <span>Current Timestep</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #28a745;"></div>
+                    <span>Next Action (Execute)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #17a2b8;"></div>
+                    <span>Future Predictions (Plan)</span>
+                </div>
+            </div>
+
+            <div id="gridVisualization"></div>
+        </div>
+
+        <div class="stats-panel">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="activeActions">0</div>
+                    <div class="stat-label">Active Actions Now</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="plannedActions">0</div>
+                    <div class="stat-label">Planned Actions</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="confidence">0%</div>
+                    <div class="stat-label">Prediction Confidence</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="currentPhase">Phase 1</div>
+                    <div class="stat-label">Surgical Phase</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip" style="display: none;"></div>
+
+    <script>
+        // Global variables
+        let currentTimestep = 100;
+        let planningHorizon = 50;
+        let isPlaying = false;
+        let playInterval;
+        let simulatedData = {};
+
+        // Surgical action labels (simplified for demo)
+        const actionLabels = {
+            0: "Grasp", 1: "Cut", 2: "Dissect", 3: "Coagulate", 4: "Irrigate",
+            5: "Suction", 6: "Clip", 7: "Retract", 8: "Measure", 9: "Navigate",
+            // ... would include all 100 actions
+        };
+
+        // Surgical phases
+        const surgicalPhases = [
+            "Preparation", "Calot Triangle Dissection", "Clipping & Cutting",
+            "Gallbladder Dissection", "Packaging", "Cleaning", "Retraction"
+        ];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            generateSimulatedData();
+            setupEventListeners();
+            updateVisualization();
+        });
+
+        function generateSimulatedData() {
+            // Generate realistic surgical action sequences for each method
+            const methods = ['imitation_learning', 'ppo', 'sac'];
+            
+            methods.forEach(method => {
+                simulatedData[method] = {
+                    pastActions: [],
+                    futureRollouts: {}
+                };
+
+                // Generate past actions (100 timesteps)
+                for (let t = 0; t < 100; t++) {
+                    const phase = Math.floor(t / 15); // Rough phase progression
+                    const actions = generatePhaseAppropriateActions(phase, method);
+                    simulatedData[method].pastActions.push(actions);
+                }
+
+                // Generate future rollouts for each possible timestep
+                for (let t = 100; t < 200; t++) {
+                    const rollout = [];
+                    for (let h = 0; h < 100; h++) {
+                        const futurePhase = Math.floor((t + h) / 15);
+                        const actions = generatePhaseAppropriateActions(futurePhase, method, t + h);
+                        rollout.push(actions);
+                    }
+                    simulatedData[method].futureRollouts[t] = rollout;
+                }
+            });
+        }
+
+        function generatePhaseAppropriateActions(phase, method, timestep = 0) {
+            const actions = new Array(100).fill(0);
+            
+            // Phase-specific action patterns
+            const phasePatterns = {
+                0: [0, 1, 9, 8], // Preparation: Grasp, Cut, Navigate, Measure
+                1: [2, 3, 6, 7], // Dissection: Dissect, Coagulate, Clip, Retract
+                2: [1, 6, 3, 4], // Clipping: Cut, Clip, Coagulate, Irrigate
+                3: [2, 4, 5, 7], // Gallbladder: Dissect, Irrigate, Suction, Retract
+                4: [0, 7, 8, 9], // Packaging: Grasp, Retract, Measure, Navigate
+                5: [4, 5, 3, 8], // Cleaning: Irrigate, Suction, Coagulate, Measure
+                6: [7, 0, 9, 8]  // Retraction: Retract, Grasp, Navigate, Measure
+            };
+
+            const pattern = phasePatterns[Math.min(phase, 6)] || phasePatterns[0];
+            
+            // Method-specific behavior
+            let numActions, consistency;
+            switch(method) {
+                case 'imitation_learning':
+                    numActions = 2 + Math.floor(Math.random() * 3); // 2-4 actions
+                    consistency = 0.8;
+                    break;
+                case 'sac':
+                    numActions = 3 + Math.floor(Math.random() * 3); // 3-5 actions
+                    consistency = 0.9;
+                    break;
+                case 'ppo':
+                    numActions = 1 + Math.floor(Math.random() * 3); // 1-3 actions
+                    consistency = 0.6;
+                    break;
+            }
+
+            // Select actions with some randomness
+            for (let i = 0; i < numActions; i++) {
+                if (Math.random() < consistency) {
+                    // Use phase-appropriate action
+                    const actionIdx = pattern[i % pattern.length];
+                    actions[actionIdx] = 0.7 + Math.random() * 0.3; // 0.7-1.0 confidence
+                } else {
+                    // Random action
+                    const randomIdx = Math.floor(Math.random() * 100);
+                    actions[randomIdx] = 0.3 + Math.random() * 0.4; // 0.3-0.7 confidence
+                }
+            }
+
+            return actions;
+        }
+
+        function setupEventListeners() {
+            document.getElementById('horizonSlider').addEventListener('input', function(e) {
+                planningHorizon = parseInt(e.target.value);
+                document.getElementById('horizonValue').textContent = `${planningHorizon} steps`;
+                updateVisualization();
+            });
+
+            document.getElementById('timestepSlider').addEventListener('input', function(e) {
+                currentTimestep = parseInt(e.target.value);
+                document.getElementById('timestepValue').textContent = currentTimestep;
+                updateVisualization();
+            });
+
+            document.getElementById('primaryMethod').addEventListener('change', updateVisualization);
+            document.getElementById('methodSelect').addEventListener('change', updateVisualization);
+
+            document.getElementById('playButton').addEventListener('click', function() {
+                if (isPlaying) {
+                    stopAutoPlay();
+                } else {
+                    startAutoPlay();
+                }
+            });
+
+            document.getElementById('resetButton').addEventListener('click', function() {
+                currentTimestep = 100;
+                document.getElementById('timestepSlider').value = 100;
+                document.getElementById('timestepValue').textContent = '100';
+                stopAutoPlay();
+                updateVisualization();
+            });
+        }
+
+        function startAutoPlay() {
+            isPlaying = true;
+            document.getElementById('playButton').textContent = '⏸️ Pause';
+            
+            playInterval = setInterval(() => {
+                currentTimestep++;
+                if (currentTimestep > 150) {
+                    currentTimestep = 100; // Loop back
+                }
+                document.getElementById('timestepSlider').value = currentTimestep;
+                document.getElementById('timestepValue').textContent = currentTimestep;
+                updateVisualization();
+            }, 500); // 500ms per timestep
+        }
+
+        function stopAutoPlay() {
+            isPlaying = false;
+            document.getElementById('playButton').textContent = '▶️ Auto-play';
+            if (playInterval) {
+                clearInterval(playInterval);
+            }
+        }
+
+        function updateVisualization() {
+            const isComparison = document.getElementById('methodSelect').value === 'comparison';
+            const primaryMethod = document.getElementById('primaryMethod').value;
+
+            // Clear existing visualization
+            d3.select('#gridVisualization').selectAll('*').remove();
+
+            if (isComparison) {
+                createComparisonGrid();
+            } else {
+                createSingleGrid(primaryMethod);
+            }
+
+            updateStats();
+        }
+
+        function createSingleGrid(method) {
+            const container = d3.select('#gridVisualization');
+            const margin = {top: 40, right: 40, bottom: 60, left: 80};
+            const width = 1200 - margin.left - margin.right;
+            const height = 600 - margin.bottom - margin.top;
+
+            const svg = container.append('svg')
+                .attr('width', width + margin.left + margin.right)
+                .attr('height', height + margin.bottom + margin.top)
+                .attr('class', 'grid-svg');
+
+            const g = svg.append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+
+            // Create scales
+            const xScale = d3.scaleLinear()
+                .domain([0, 200])
+                .range([0, width]);
+
+            const yScale = d3.scaleLinear()
+                .domain([0, 100])
+                .range([height, 0]);
+
+            const cellWidth = width / 200;
+            const cellHeight = height / 100;
+
+            // Create grid data
+            const gridData = [];
+            
+            // Past actions (timesteps 0-99)
+            for (let t = 0; t < 100; t++) {
+                const actions = simulatedData[method].pastActions[t];
+                for (let a = 0; a < 100; a++) {
+                    if (actions[a] > 0) {
+                        gridData.push({
+                            x: t,
+                            y: a,
+                            value: actions[a],
+                            type: 'past',
+                            timestep: t,
+                            action: a,
+                            confidence: actions[a]
+                        });
+                    }
+                }
+            }
+
+            // Current timestep marker
+            gridData.push({
+                x: currentTimestep,
+                y: -5, // Special marker
+                type: 'current_marker',
+                timestep: currentTimestep
+            });
+
+            // Future predictions
+            const futureRollout = simulatedData[method].futureRollouts[currentTimestep] || [];
+            for (let h = 0; h < Math.min(planningHorizon, futureRollout.length); h++) {
+                const actions = futureRollout[h];
+                for (let a = 0; a < 100; a++) {
+                    if (actions[a] > 0) {
+                        gridData.push({
+                            x: currentTimestep + h + 1,
+                            y: a,
+                            value: actions[a],
+                            type: h === 0 ? 'next' : 'future',
+                            timestep: currentTimestep + h + 1,
+                            action: a,
+                            confidence: actions[a],
+                            horizonStep: h
+                        });
+                    }
+                }
+            }
+
+            // Draw grid cells
+            const cells = g.selectAll('.grid-cell')
+                .data(gridData.filter(d => d.type !== 'current_marker'))
+                .enter()
+                .append('rect')
+                .attr('class', 'grid-cell')
+                .attr('x', d => xScale(d.x))
+                .attr('y', d => yScale(d.y + 1))
+                .attr('width', cellWidth)
+                .attr('height', cellHeight)
+                .attr('fill', d => {
+                    switch(d.type) {
+                        case 'past': return d3.interpolateGreys(0.3 + d.value * 0.4);
+                        case 'next': return d3.interpolateGreens(0.4 + d.value * 0.6);
+                        case 'future': return d3.interpolateBlues(0.3 + d.value * 0.5);
+                        default: return '#ccc';
+                    }
+                })
+                .attr('opacity', d => d.type === 'past' ? 0.6 : 0.8)
+                .on('mouseover', function(event, d) {
+                    showTooltip(event, d, method);
+                })
+                .on('mouseout', hideTooltip);
+
+            // Current timestep line
+            g.append('line')
+                .attr('x1', xScale(currentTimestep))
+                .attr('x2', xScale(currentTimestep))
+                .attr('y1', 0)
+                .attr('y2', height)
+                .attr('stroke', '#dc3545')
+                .attr('stroke-width', 3)
+                .attr('stroke-dasharray', '5,5');
+
+            // Add axes
+            const xAxis = d3.axisBottom(xScale)
+                .tickValues([0, 50, 100, 150, 200])
+                .tickFormat(d => {
+                    if (d < 100) return `Past ${100-d}`;
+                    if (d === 100) return 'Now';
+                    return `+${d-100}`;
+                });
+
+            const yAxis = d3.axisLeft(yScale)
+                .tickValues(d3.range(0, 101, 10));
+
+            g.append('g')
+                .attr('transform', `translate(0,${height})`)
+                .call(xAxis);
+
+            g.append('g')
+                .call(yAxis);
+
+            // Axis labels
+            g.append('text')
+                .attr('transform', 'rotate(-90)')
+                .attr('y', 0 - margin.left)
+                .attr('x', 0 - (height / 2))
+                .attr('dy', '1em')
+                .style('text-anchor', 'middle')
+                .attr('class', 'axis-label')
+                .text('Action Classes (0-99)');
+
+            g.append('text')
+                .attr('transform', `translate(${width/2}, ${height + margin.bottom - 10})`)
+                .style('text-anchor', 'middle')
+                .attr('class', 'axis-label')
+                .text('Timesteps (Past ← Now → Future)');
+        }
+
+        function createComparisonGrid() {
+            const container = d3.select('#gridVisualization');
+            const methods = ['imitation_learning', 'ppo', 'sac'];
+            const methodNames = ['Imitation Learning', 'PPO', 'SAC'];
+            const methodColors = ['method-il', 'method-ppo', 'method-sac'];
+
+            const comparisonDiv = container.append('div')
+                .attr('class', 'method-comparison');
+
+            methods.forEach((method, i) => {
+                const methodDiv = comparisonDiv.append('div')
+                    .attr('class', 'method-grid');
+
+                methodDiv.append('div')
+                    .attr('class', `method-title ${methodColors[i]}`)
+                    .text(methodNames[i]);
+
+                const svg = methodDiv.append('svg')
+                    .attr('width', 380)
+                    .attr('height', 300)
+                    .attr('class', 'grid-svg');
+
+                createMiniGrid(svg, method, 380, 300);
+            });
+        }
+
+        function createMiniGrid(svg, method, width, height) {
+            const margin = {top: 20, right: 20, bottom: 30, left: 40};
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
+
+            const g = svg.append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+
+            const xScale = d3.scaleLinear()
+                .domain([currentTimestep - 20, currentTimestep + 20])
+                .range([0, innerWidth]);
+
+            const yScale = d3.scaleLinear()
+                .domain([0, 100])
+                .range([innerHeight, 0]);
+
+            const cellWidth = innerWidth / 40;
+            const cellHeight = innerHeight / 100;
+
+            // Create simplified grid data
+            const gridData = [];
+            
+            // Show context around current timestep
+            for (let t = Math.max(0, currentTimestep - 20); t < Math.min(200, currentTimestep + 20); t++) {
+                let actions;
+                if (t < 100) {
+                    actions = simulatedData[method].pastActions[t];
+                } else {
+                    const rollout = simulatedData[method].futureRollouts[currentTimestep] || [];
+                    const rolloutIndex = t - currentTimestep - 1;
+                    actions = rolloutIndex >= 0 && rolloutIndex < rollout.length ? rollout[rolloutIndex] : [];
+                }
+
+                if (actions) {
+                    for (let a = 0; a < 100; a++) {
+                        if (actions[a] > 0) {
+                            gridData.push({
+                                x: t,
+                                y: a,
+                                value: actions[a],
+                                type: t < currentTimestep ? 'past' : (t === currentTimestep ? 'current' : 'future')
+                            });
+                        }
+                    }
+                }
+            }
+
+            // Draw cells
+            g.selectAll('.mini-cell')
+                .data(gridData)
+                .enter()
+                .append('rect')
+                .attr('class', 'mini-cell')
+                .attr('x', d => xScale(d.x))
+                .attr('y', d => yScale(d.y + 1))
+                .attr('width', cellWidth)
+                .attr('height', cellHeight)
+                .attr('fill', d => {
+                    switch(d.type) {
+                        case 'past': return d3.interpolateGreys(0.3 + d.value * 0.4);
+                        case 'current': return '#dc3545';
+                        case 'future': return d3.interpolateBlues(0.3 + d.value * 0.5);
+                        default: return '#ccc';
+                    }
+                })
+                .attr('opacity', 0.7);
+
+            // Current timestep line
+            g.append('line')
+                .attr('x1', xScale(currentTimestep))
+                .attr('x2', xScale(currentTimestep))
+                .attr('y1', 0)
+                .attr('y2', innerHeight)
+                .attr('stroke', '#dc3545')
+                .attr('stroke-width', 2);
+        }
+
+        function showTooltip(event, d, method) {
+            const tooltip = d3.select('#tooltip');
+            
+            let content = `<strong>Timestep ${d.timestep}</strong><br/>`;
+            content += `<strong>Action ${d.action}</strong>: ${actionLabels[d.action] || 'Unknown'}<br/>`;
+            content += `<strong>Confidence</strong>: ${(d.confidence * 100).toFixed(1)}%<br/>`;
+            content += `<strong>Method</strong>: ${method.replace('_', ' ').toUpperCase()}<br/>`;
+            
+            if (d.type === 'future') {
+                content += `<strong>Planning Horizon</strong>: +${d.horizonStep + 1} steps<br/>`;
+            }
+            
+            // Add phase information
+            const phase = Math.floor(d.timestep / 30);
+            content += `<strong>Surgical Phase</strong>: ${surgicalPhases[Math.min(phase, 6)]}`;
+
+            tooltip.html(content)
+                .style('display', 'block')
+                .style('left', (event.pageX + 10) + 'px')
+                .style('top', (event.pageY - 10) + 'px');
+        }
+
+        function hideTooltip() {
+            d3.select('#tooltip').style('display', 'none');
+        }
+
+        function updateStats() {
+            const method = document.getElementById('primaryMethod').value;
+            const rollout = simulatedData[method].futureRollouts[currentTimestep] || [];
+            
+            // Count active actions now
+            const currentActions = rollout[0] || [];
+            const activeNow = currentActions.filter(a => a > 0.5).length;
+            
+            // Count planned actions in horizon
+            let plannedTotal = 0;
+            for (let h = 0; h < Math.min(planningHorizon, rollout.length); h++) {
+                plannedTotal += rollout[h].filter(a => a > 0.5).length;
+            }
+            
+            // Calculate average confidence
+            let totalConfidence = 0, count = 0;
+            for (let h = 0; h < Math.min(5, rollout.length); h++) {
+                for (let a = 0; a < 100; a++) {
+                    if (rollout[h][a] > 0) {
+                        totalConfidence += rollout[h][a];
+                        count++;
+                    }
+                }
+            }
+            const avgConfidence = count > 0 ? (totalConfidence / count * 100) : 0;
+            
+            // Current phase
+            const currentPhase = Math.floor(currentTimestep / 30);
+            
+            // Update display
+            document.getElementById('activeActions').textContent = activeNow;
+            document.getElementById('plannedActions').textContent = plannedTotal;
+            document.getElementById('confidence').textContent = `${avgConfidence.toFixed(1)}%`;
+            document.getElementById('currentPhase').textContent = surgicalPhases[Math.min(currentPhase, 6)];
+        }
+    </script>
+</body>
+</html>
