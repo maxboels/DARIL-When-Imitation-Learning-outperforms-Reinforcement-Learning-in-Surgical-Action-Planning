@@ -1,0 +1,24 @@
+2025-05-27 21:47:36,596 - INFO - Log file: logs/2025-05-27_21-47-36/dual_world_model.log
+2025-05-27 21:47:36,596 - INFO - Starting Dual World Model experiment
+2025-05-27 21:47:36,596 - INFO - Using device: cuda
+2025-05-27 21:47:36,596 - INFO - Loading CholecT50 data...
+2025-05-27 21:47:36,596 - INFO - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-05-27 21:47:37,001 - INFO - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-05-27 21:47:37,001 - INFO - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-05-27 21:47:37,002 - INFO - [Train] Found 5 videos in metadata file
+2025-05-27 21:47:37,002 - INFO - [Train] Loading data for 5 videos
+2025-05-27 21:47:37,356 - INFO - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-05-27 21:47:37,446 - INFO - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-05-27 21:47:37,446 - INFO - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-05-27 21:47:37,447 - INFO - [Test] Found 5 videos in metadata file
+2025-05-27 21:47:37,447 - INFO - [Test] Loading data for 5 videos
+2025-05-27 21:47:40,252 - INFO - Training samples: 8867
+2025-05-27 21:47:40,252 - INFO - Test videos: 5
+2025-05-27 21:47:40,252 - INFO - Initializing Dual World Model...
+2025-05-27 21:47:40,848 - INFO - Total parameters: 48,924,145
+2025-05-27 21:47:40,848 - INFO - Trainable parameters: 48,924,145
+2025-05-27 21:47:40,848 - INFO - Training mode: supervised
+2025-05-27 21:47:40,848 - INFO - Starting supervised training...
+2025-05-27 21:47:40,850 - INFO - Starting supervised training for autoregressive action prediction
+2025-05-27 21:47:41,248 - INFO - Batch 0/555 | Loss: 3.1361
+2025-05-27 21:47:45,642 - INFO - Batch 100/555 | Loss: 0.7689

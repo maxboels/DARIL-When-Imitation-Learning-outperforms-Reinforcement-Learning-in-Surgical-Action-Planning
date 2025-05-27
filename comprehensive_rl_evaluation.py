@@ -32,6 +32,8 @@ class TrajectoryEvaluator:
     def __init__(self, save_dir: str = 'trajectory_evaluation'):
         self.save_dir = Path(save_dir)
         self.save_dir.mkdir(exist_ok=True, parents=True)
+
+        self.eval_max_videos = 2  # Limit for computational efficiency
         
         # Results storage
         self.trajectory_results = {}
@@ -76,9 +78,9 @@ class TrajectoryEvaluator:
         temporal_map_scores = defaultdict(dict)
         
         # Evaluate each video
-        for video_idx, video in enumerate(test_data[:5]):  # Limit for computational efficiency
+        for video_idx, video in enumerate(test_data[:self.eval_max_videos]):  # Limit for computational efficiency
             video_id = video['video_id']
-            print(f"📹 Evaluating video: {video_id} ({video_idx + 1}/{len(test_data[:5])})")
+            print(f"📹 Evaluating video: {video_id} ({video_idx + 1}/{len(test_data[:self.eval_max_videos])})")
             
             # Get ground truth trajectory
             gt_actions = video['actions_binaries']  # Shape: [num_frames, 100]
@@ -135,7 +137,7 @@ class TrajectoryEvaluator:
             'statistical_tests': statistical_results,
             'evaluation_config': {
                 'max_trajectory_length': max_trajectory_length,
-                'num_videos': len(test_data[:5]),
+                'num_videos': len(test_data[:self.eval_max_videos]),
                 'num_actions': 100
             }
         }

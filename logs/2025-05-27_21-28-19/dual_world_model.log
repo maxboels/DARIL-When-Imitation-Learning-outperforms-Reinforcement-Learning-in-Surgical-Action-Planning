@@ -1,0 +1,17 @@
+2025-05-27 21:28:19,763 - INFO - Log file: logs/2025-05-27_21-28-19/dual_world_model.log
+2025-05-27 21:28:19,763 - INFO - Starting Dual World Model experiment
+2025-05-27 21:28:19,763 - INFO - Using device: cuda
+2025-05-27 21:28:19,763 - INFO - Loading CholecT50 data...
+2025-05-27 21:28:19,763 - INFO - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-05-27 21:28:20,168 - INFO - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-05-27 21:28:20,168 - INFO - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-05-27 21:28:20,170 - INFO - [Train] Found 40 videos in metadata file
+2025-05-27 21:28:20,170 - INFO - [Train] Loading data for 40 videos
+2025-05-27 21:28:23,350 - INFO - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-05-27 21:28:23,444 - INFO - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-05-27 21:28:23,445 - INFO - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-05-27 21:28:23,445 - INFO - [Test] Found 10 videos in metadata file
+2025-05-27 21:28:23,445 - INFO - [Test] Loading data for 10 videos
+2025-05-27 21:28:34,610 - INFO - Training samples: 78928
+2025-05-27 21:28:34,611 - INFO - Test videos: 10
+2025-05-27 21:28:34,611 - INFO - Initializing Dual World Model...

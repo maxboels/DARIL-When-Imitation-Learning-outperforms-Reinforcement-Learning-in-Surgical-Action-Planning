@@ -1,131 +1,317 @@
+# ===================================================================
+# Enhanced Configuration for Dual World Model
+# Supports both supervised autoregressive action prediction and RL training
+# ===================================================================
+
 # Debug mode
 debug: false
 
+# Training mode: 'supervised', 'rl', or 'mixed'
+training_mode: 'supervised'  # Start with supervised learning
+
+# Data preprocessing
 preprocess:
-  extract_rewards: true       # Extract rewards from the dataset
+  extract_rewards: false  # Set to true if rewards need to be extracted from the dataset
   rewards:
     imitation:
-      action_distribution: false  # KL divergence between action distributions (precomputed on all videos per phase)
+      action_distribution: true
     expert_knowledge:
-      risk_score: true            # risk score associated with each actions triplets
-      frame_risk_agg: 'max'       # default is max
+      risk_score: true
+      frame_risk_agg: 'max'
     grounded:
-      phase_progression: false    # percentage of the phase completed
-      global_progression: false   # absolute time in seconds
-      phase_completion: false     # progressive +1 reward near the end of the phase
-      phase_transition: false     # +1 reward at the end of the phase
-  value: # long-term value prediction per video (= final outcome value)
+      phase_progression: true
+      global_progression: true
+      phase_completion: true
+      phase_transition: true
+  value:
     global_outcome: true
 
+# Experiment configuration
 experiment:
-  max_videos: 2 # null  # Set to null to use all videos
-  # Recognition model for the 
+  max_videos: 2 # null  # Increase for better training
+  
+  # Dual World Model Training
+  dual_world_model:
+    train: true
+    inference: true
+    best_model_path: null  # Will be set after training
+  
+  # RL Experiments (after supervised training)
+  rl_experiments:
+    enabled: true
+    run_after_supervised: true
+    algorithms: ['ppo', 'sac']
+    timesteps: 50000
+    eval_episodes: 10
+  
+  # Legacy settings (keep for compatibility)
   recognition:
     train: false
     inference: false
-    best_model_path: "./best_checkpoints/best_model_epoch2_map0.5008.pt" # null #"best_model_epoch1_valloss1.190734.pt"
-  # World model
   world_model:
     train: false
-    inference: true
-    best_model_path: "logs/2025-05-08_14-14-22/checkpoints/world_model_best_epoch_2.pt" # "best_model_epoch1_valloss1.190734.pt" # null #"best_model_epoch1_valloss1.190734.pt"
-  pretrain_reward_model: false
-  calculate_action_rewards: false
-  train_action_policy: false
-  run_tdmpc: false
-  analyze_results: false
-  run_evaluation: false
+    inference: false
 
 # Training parameters
 training:
-  epochs: 5
+  epochs: 2
   batch_size: 16
-  learning_rate: 0.00003 # 0.00003
+  learning_rate: 0.0001  # Start with lower LR for stability
+  log_every_n_steps: 100
+  
+  # Learning rate scheduling
   scheduler:
-    type: "cosine"
-    warmup_steps: 1000  # ~10% of total steps (204 batches * 4 epochs)
-  weight_decay: 0.1
+    type: "cosine"  # or "linear_warmup"
+    warmup_steps: 1000
+    
+  # Regularization
+  weight_decay: 0.01
   gradient_clip_val: 1.0
+  dropout: 0.1
+  
+  # Logging and checkpointing
   num_workers: 4
   pin_memory: true
-  log_every_n_steps: 80
+  log_every_n_steps: 100
   log_dir: "logs"
-  save_checkpoint_every_n_epochs: 2
   checkpoint_dir: "checkpoints"
-  log_every_n_steps: 80
-  eval_epoch_interval: 1
+  eval_epoch_interval: 2
   save_model: true
 
+# RL Training Configuration
+rl_training:
+  # Environment settings
+  rl_horizon: 50
+  reward_mode: 'dense'  # 'dense' or 'sparse'
+  normalize_rewards: true
+  early_termination: true
+  
+  # Reward weights for environment
+  reward_weights:
+    phase_completion: 1.0
+    phase_initiation: 0.5
+    phase_progression: 1.0
+    global_progression: 0.8
+    action_probability: 0.3
+    risk_penalty: -0.5
+  
+  # Algorithm-specific settings
+  ppo:
+    learning_rate: 3e-4
+    n_steps: 2048
+    batch_size: 64
+    n_epochs: 10
+    gamma: 0.99
+    gae_lambda: 0.95
+    clip_range: 0.2
+    
+  sac:
+    learning_rate: 3e-4
+    buffer_size: 100000
+    learning_starts: 1000
+    batch_size: 256
+    tau: 0.005
+    gamma: 0.99
+
+# Evaluation configuration
 evaluation:
-  world_model:
+  # Supervised evaluation
+  supervised:
+    action_prediction:
+      top_ks: [1, 3, 5, 10]
+      horizons: [1, 3, 5, 10, 15]
+      temperature: 1.0
+      nucleus_p: 0.9
+    
+  # RL evaluation
+  rl:
     rollout_horizon: 15
+    eval_horizons: [1, 3, 5, 10, 15]
+    eval_episodes: 10
+    use_best_actions: true
+    
+  # General evaluation
+  world_model:
     use_memory: false
     max_horizon: 15
-    eval_horizons: [1, 3, 5, 10, 15]
     overall_horizon: 1
-    top_ks: [1, 3, 5, 10]
 
-# Data paths configuration
+# Data configuration
 data:
-  context_length: 20 # 20
+  context_length: 20
   train_shift: 1
   padding_value: 0.0
   max_horizon: 15
+  
   paths:
-    data_dir: "/home/maxboels/datasets/CholecT50" # server: "/home/maxboels/datasets/CholecT50", "/home/maxboels/datasets/CholecT50"
+    data_dir: "/home/maxboels/datasets/CholecT50"
     class_labels_file_path: "./data/labels.json"
     fold: 0
-    metadata_file: "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action.csv" # "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv" # "embeddings_f0_swin_bas_129.csv" # "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv" # "embeddings_f0_swin_bas_129.csv" # embeddings_f0_swin_bas_129_with_enhanced
-    video_global_outcome_file: embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv
+    metadata_file: "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv"
+    video_global_outcome_file: "embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv"
+  
   risk_score_path: null
-  max_videos: null                     # Set to null to use all videos
-  frame_risk_agg: 'max' # default is max
+  max_videos: 1 # Set to null for all videos, or a specific number for debugging
+  frame_risk_agg: 'max'
 
 # Model configurations
 models:
-  # Recognition model configuration
+  # Dual World Model (NEW)
+  dual_world_model:
+    # Architecture
+    hidden_dim: 768
+    embedding_dim: 1024
+    action_embedding_dim: 128
+    n_layer: 6
+    max_length: 1024
+    dropout: 0.1
+    
+    # Model capabilities
+    enable_autoregressive_prediction: true # could change ar (autoregressive) to il for imitation learning or sl for supervised learning
+    enable_rl_prediction: true
+    enable_reward_prediction: true
+    
+    # Dimensions
+    num_action_classes: 100
+    num_phase_classes: 7
+    
+    # Loss weights (will be adjusted based on training mode)
+    loss_weights:
+      state: 1.0
+      action: 1.0
+      reward: 0.5
+      phase: 0.3
+  
+  # Legacy model configs (keep for compatibility)
   recognition:
     transformer:
       embedding_dim: 1024
-      hidden_dim: 768     # Hidden dimension for recognition module
+      hidden_dim: 768
       num_action_classes: 100
       num_instrument_classes: 6
       dropout: 0.1
       num_heads: 8
       num_layers: 2
-  # GPT-2 model configuration
+      
   world_model:
     hidden_dim: 768
     embedding_dim: 1024
     action_embedding_dim: 100
     n_layer: 6
     use_head: true
-    # I/O
     action_conditioning: true
     imitation_learning: true
     action_learning: true
     phase_learning: true
     reward_learning: true
-    # Dimensions
+    num_action_classes: 100
+    num_phase_classes: 7
+    num_outcomes: 1
     targets_dims:
       _z: 512
       _a: 100
       _r: 1
       _q: 1
       _R: 1
-    target_heads: ['_a'] # "next_r", "next_q", "final_R"]
-    # Loss weights
+    target_heads: ['_a']
     loss_weights:
-      w_z: 1.0  # Embedding prediction (default: 0.8)
-      w_a: 1.0  # Action prediction (default: 0.1)
-      w_r: null  # Reward prediction (0.1)
-      w_q: null  # Q-value prediction (0.1)
-      w_R: null  # Final reward estimation (0.05)
+      w_z: 1.0
+      w_a: 1.0
+      w_r: 1.0
+      w_q: null
+      w_R: null
+
+# Supervised Learning Configuration
+supervised_learning:
+  # Data augmentation for better generalization
+  augmentation:
+    noise_std: 0.01  # Add small noise to states
+    action_dropout: 0.1  # Randomly drop some actions
+    temporal_shift: 0.1  # Small temporal shifts
   
-  # Reward model configuration
-  reward:
-    input_dim: 1024
-    context_length: 5
-    hidden_dim: 256
-    num_heads: 4
-    num_layers: 2
+  # Sequence modeling
+  autoregressive:
+    context_length: 20
+    prediction_horizon: 15
+    use_teacher_forcing: true  # Use ground truth during training
+    teacher_forcing_ratio: 0.8  # Ratio of teacher forcing vs. model predictions
+  
+  # Action prediction specific
+  action_prediction:
+    loss_type: 'bce'  # 'bce' or 'focal'
+    class_weights: null  # Can be computed from data
+    label_smoothing: 0.1
+
+# Advanced configurations
+advanced:
+  # Memory and optimization
+  mixed_precision: true  # Use automatic mixed precision
+  gradient_accumulation_steps: 1
+  find_unused_parameters: false
+  
+  # Distributed training (if available)
+  distributed: false
+  world_size: 1
+  rank: 0
+  
+  # Reproducibility
+  seed: 42
+  deterministic: false  # Set to true for full reproducibility (slower)
+  
+  # Monitoring
+  wandb:
+    enabled: false
+    project: "surgical_world_model"
+    entity: null
+    tags: ["world_model", "surgical_robotics"]
+  
+  # Model analysis
+  analysis:
+    save_attention_maps: false
+    save_hidden_states: false
+    analyze_action_patterns: true
+    generate_trajectory_videos: false
+
+# Hardware optimization
+hardware:
+  # GPU settings
+  gpu_memory_fraction: 0.9
+  allow_growth: true
+  
+  # CPU settings
+  num_threads: 4
+  
+  # Data loading
+  prefetch_factor: 2
+  persistent_workers: true
+
+# Specific configurations for different training phases
+training_phases:
+  # Phase 1: Supervised pre-training
+  supervised:
+    epochs: 8
+    learning_rate: 0.0001
+    focus_on: ['state_prediction', 'action_prediction']
+    loss_weights:
+      state: 1.0
+      action: 1.0
+      reward: 0.1
+      phase: 0.1
+  
+  # Phase 2: RL fine-tuning
+  rl:
+    epochs: 5
+    learning_rate: 0.00005  # Lower LR for fine-tuning
+    focus_on: ['state_prediction', 'enable_reward_prediction']
+    loss_weights:
+      state: 1.0
+      action: 0.5
+      reward: 1.0
+      phase: 0.3
+  
+  # Phase 3: Mixed training (optional)
+  mixed:
+    epochs: 3
+    learning_rate: 0.00002
+    alternating_batches: true
+    supervised_ratio: 0.7

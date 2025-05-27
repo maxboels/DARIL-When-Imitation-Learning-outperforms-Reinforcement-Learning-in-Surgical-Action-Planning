@@ -48,7 +48,7 @@ def compute_phase_transition_rewards(metadata_df, video_id_col='video', n_phases
         video_ids = [0]
     
     # Process each video separately
-    for video_id in tqdm(video_ids, desc="Processing videos"):
+    for video_id in tqdm(video_ids, desc="[PHASE TRANSITION] Processing videos"):
         # Get data for this video only
         video_mask = df[video_id_col] == video_id
         

@@ -1,0 +1,60 @@
+2025-05-27 21:53:54,861 - INFO - Log file: logs/2025-05-27_21-53-54/dual_world_model.log
+2025-05-27 21:53:54,861 - INFO - Starting Dual World Model experiment
+2025-05-27 21:53:54,861 - INFO - Using device: cuda
+2025-05-27 21:53:54,861 - INFO - Loading CholecT50 data...
+2025-05-27 21:53:54,861 - INFO - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-05-27 21:53:55,259 - INFO - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-05-27 21:53:55,260 - INFO - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-05-27 21:53:55,261 - INFO - [Train] Found 2 videos in metadata file
+2025-05-27 21:53:55,261 - INFO - [Train] Loading data for 2 videos
+2025-05-27 21:53:55,397 - INFO - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-05-27 21:53:55,488 - INFO - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-05-27 21:53:55,488 - INFO - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-05-27 21:53:55,489 - INFO - [Test] Found 2 videos in metadata file
+2025-05-27 21:53:55,489 - INFO - [Test] Loading data for 2 videos
+2025-05-27 21:53:56,844 - INFO - Training samples: 3255
+2025-05-27 21:53:56,845 - INFO - Test videos: 2
+2025-05-27 21:53:56,845 - INFO - Initializing Dual World Model...
+2025-05-27 21:53:57,456 - INFO - Total parameters: 48,924,145
+2025-05-27 21:53:57,456 - INFO - Trainable parameters: 48,924,145
+2025-05-27 21:53:57,456 - INFO - Training mode: supervised
+2025-05-27 21:53:57,456 - INFO - Starting supervised training...
+2025-05-27 21:53:57,458 - INFO - Starting supervised training for autoregressive action prediction
+2025-05-27 21:53:57,851 - INFO - Batch 0/204 | Loss: 3.3123
+2025-05-27 21:54:02,314 - INFO - Batch 100/204 | Loss: 0.5482
+2025-05-27 21:54:06,726 - INFO - Batch 200/204 | Loss: 0.3687
+2025-05-27 21:54:10,755 - INFO - New best model saved: logs/2025-05-27_21-53-54/checkpoints/supervised_best_epoch_1.pt
+2025-05-27 21:54:10,755 - INFO - Epoch 1/2 | Train Loss: 0.7822 | Val Loss: 0.8200 | Val Action Acc: 0.9875
+2025-05-27 21:54:10,895 - INFO - Batch 0/204 | Loss: 0.2909
+2025-05-27 21:54:15,337 - INFO - Batch 100/204 | Loss: 0.2716
+2025-05-27 21:54:19,797 - INFO - Batch 200/204 | Loss: 0.2435
+2025-05-27 21:54:23,926 - INFO - New best model saved: logs/2025-05-27_21-53-54/checkpoints/supervised_best_epoch_2.pt
+2025-05-27 21:54:23,926 - INFO - Epoch 2/2 | Train Loss: 0.2925 | Val Loss: 0.7301 | Val Action Acc: 0.9876
+2025-05-27 21:54:24,506 - INFO - Training plots saved to logs/2025-05-27_21-53-54
+2025-05-27 21:54:24,617 - INFO - Training completed. Best model: logs/2025-05-27_21-53-54/checkpoints/supervised_best_epoch_2.pt
+2025-05-27 21:54:24,617 - INFO - Final model: logs/2025-05-27_21-53-54/checkpoints/final_model.pt
+2025-05-27 21:54:24,618 - INFO - Supervised training completed. Model saved: logs/2025-05-27_21-53-54/checkpoints/supervised_best_epoch_2.pt
+2025-05-27 21:54:24,618 - INFO - Starting model evaluation...
+2025-05-27 21:54:24,618 - INFO - Evaluating supervised-trained model
+2025-05-27 21:54:25,235 - INFO - Starting comprehensive evaluation of both modes
+2025-05-27 21:54:25,235 - INFO - Starting supervised mode evaluation (autoregressive action prediction)
+2025-05-27 21:54:25,235 - INFO - Evaluating video: VID02
+2025-05-27 21:55:41,484 - INFO - Evaluating video: VID06
+2025-05-27 21:56:46,773 - INFO - Supervised evaluation completed. Processed 4992 samples from 2 videos.
+2025-05-27 21:56:46,773 - INFO - Starting RL mode evaluation (state and reward prediction)
+2025-05-27 21:56:46,774 - INFO - Evaluating RL mode on video: VID02
+2025-05-27 21:56:49,589 - INFO - Evaluating RL mode on video: VID06
+2025-05-27 21:56:51,882 - INFO - RL evaluation completed. Processed 4992 samples from 2 videos.
+2025-05-27 21:56:53,073 - INFO - Supervised evaluation results saved to logs/2025-05-27_21-53-54/evaluation_results
+2025-05-27 21:56:53,435 - INFO - RL evaluation results saved to logs/2025-05-27_21-53-54/evaluation_results
+2025-05-27 21:56:53,763 - INFO - Comparison visualizations saved to logs/2025-05-27_21-53-54/evaluation_results
+2025-05-27 21:56:53,764 - INFO - Comprehensive evaluation completed
+2025-05-27 21:56:53,764 - INFO - Evaluation completed successfully
+2025-05-27 21:56:53,764 - INFO - Action prediction accuracy: 0.3168
+2025-05-27 21:56:53,764 - INFO - State prediction MSE: 0.4098
+2025-05-27 21:56:53,764 - INFO - RL state prediction MSE: 0.4087
+2025-05-27 21:56:53,764 - INFO - Starting RL environment experiments...
+2025-05-27 21:56:53,764 - INFO - Setting up RL environment experiments
+2025-05-27 21:56:53,766 - INFO - Testing random policy baseline...
+2025-05-27 21:56:53,793 - ERROR - RL environment experiments failed: a Tensor with 20 elements cannot be converted to Scalar
+2025-05-27 21:56:53,793 - INFO - Generating summary report...

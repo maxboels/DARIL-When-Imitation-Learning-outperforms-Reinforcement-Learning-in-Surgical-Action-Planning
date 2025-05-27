@@ -173,7 +173,7 @@ def add_progression_scores(metadata_df, num_phases=7, phase_column_name="phase_p
     
     video_ids = result_df['video'].unique().tolist()
     
-    for video_id in tqdm(video_ids, desc="Processing videos"):
+    for video_id in tqdm(video_ids, desc="[PROGRESSION REWARDS] Processing videos"):
         # Get frames for this video
         video_frames = result_df[result_df['video'] == video_id]
         

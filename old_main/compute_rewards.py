@@ -760,7 +760,7 @@ def main():
         error_count = 0
         skip_count = 0
         
-        for video_id in tqdm(video_ids, desc="Processing videos"):
+        for video_id in tqdm(video_ids, desc="[REWARD SHAPING] Processing videos"):
             try:
                 # Skip if visualization already exists
                 output_path = os.path.join(args.output_dir, f"{video_id}_reward_visualization.png")

@@ -1,0 +1,131 @@
+# Debug mode
+debug: false
+
+preprocess:
+  extract_rewards: true       # Extract rewards from the dataset
+  rewards:
+    imitation:
+      action_distribution: false  # KL divergence between action distributions (precomputed on all videos per phase)
+    expert_knowledge:
+      risk_score: true            # risk score associated with each actions triplets
+      frame_risk_agg: 'max'       # default is max
+    grounded:
+      phase_progression: false    # percentage of the phase completed
+      global_progression: false   # absolute time in seconds
+      phase_completion: false     # progressive +1 reward near the end of the phase
+      phase_transition: false     # +1 reward at the end of the phase
+  value: # long-term value prediction per video (= final outcome value)
+    global_outcome: true
+
+experiment:
+  max_videos: 2 # null  # Set to null to use all videos
+  # Recognition model for the 
+  recognition:
+    train: false
+    inference: false
+    best_model_path: "./best_checkpoints/best_model_epoch2_map0.5008.pt" # null #"best_model_epoch1_valloss1.190734.pt"
+  # World model
+  world_model:
+    train: false
+    inference: true
+    best_model_path: "logs/2025-05-08_14-14-22/checkpoints/world_model_best_epoch_2.pt" # "best_model_epoch1_valloss1.190734.pt" # null #"best_model_epoch1_valloss1.190734.pt"
+  pretrain_reward_model: false
+  calculate_action_rewards: false
+  train_action_policy: false
+  run_tdmpc: false
+  analyze_results: false
+  run_evaluation: false
+
+# Training parameters
+training:
+  epochs: 5
+  batch_size: 16
+  learning_rate: 0.00003 # 0.00003
+  scheduler:
+    type: "cosine"
+    warmup_steps: 1000  # ~10% of total steps (204 batches * 4 epochs)
+  weight_decay: 0.1
+  gradient_clip_val: 1.0
+  num_workers: 4
+  pin_memory: true
+  log_every_n_steps: 80
+  log_dir: "logs"
+  save_checkpoint_every_n_epochs: 2
+  checkpoint_dir: "checkpoints"
+  log_every_n_steps: 80
+  eval_epoch_interval: 1
+  save_model: true
+
+evaluation:
+  world_model:
+    rollout_horizon: 15
+    use_memory: false
+    max_horizon: 15
+    eval_horizons: [1, 3, 5, 10, 15]
+    overall_horizon: 1
+    top_ks: [1, 3, 5, 10]
+
+# Data paths configuration
+data:
+  context_length: 20 # 20
+  train_shift: 1
+  padding_value: 0.0
+  max_horizon: 15
+  paths:
+    data_dir: "/home/maxboels/datasets/CholecT50" # server: "/home/maxboels/datasets/CholecT50", "/home/maxboels/datasets/CholecT50"
+    class_labels_file_path: "./data/labels.json"
+    fold: 0
+    metadata_file: "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action.csv" # "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv" # "embeddings_f0_swin_bas_129.csv" # "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv" # "embeddings_f0_swin_bas_129.csv" # embeddings_f0_swin_bas_129_with_enhanced
+    video_global_outcome_file: embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv
+  risk_score_path: null
+  max_videos: null                     # Set to null to use all videos
+  frame_risk_agg: 'max' # default is max
+
+# Model configurations
+models:
+  # Recognition model configuration
+  recognition:
+    transformer:
+      embedding_dim: 1024
+      hidden_dim: 768     # Hidden dimension for recognition module
+      num_action_classes: 100
+      num_instrument_classes: 6
+      dropout: 0.1
+      num_heads: 8
+      num_layers: 2
+  # GPT-2 model configuration
+  world_model:
+    hidden_dim: 768
+    embedding_dim: 1024
+    action_embedding_dim: 100
+    n_layer: 6
+    use_head: true
+    # I/O
+    action_conditioning: true
+    imitation_learning: true
+    action_learning: true
+    phase_learning: true
+    reward_learning: true
+    # Dimensions
+    targets_dims:
+      _z: 512
+      _a: 100
+      _r: 1
+      _q: 1
+      _R: 1
+    target_heads: ['_a'] # "next_r", "next_q", "final_R"]
+    # Loss weights
+    loss_weights:
+      w_z: 1.0  # Embedding prediction (default: 0.8)
+      w_a: 1.0  # Action prediction (default: 0.1)
+      w_r: null  # Reward prediction (0.1)
+      w_q: null  # Q-value prediction (0.1)
+      w_R: null  # Final reward estimation (0.05)
+  
+  # Reward model configuration
+  reward:
+    input_dim: 1024
+    context_length: 5
+    hidden_dim: 256
+    num_heads: 4
+    num_layers: 2

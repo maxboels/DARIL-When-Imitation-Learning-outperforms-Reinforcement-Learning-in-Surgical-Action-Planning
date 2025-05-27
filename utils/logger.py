@@ -44,4 +44,16 @@ class SimpleLogger:
     def info(self, message: str, *args, **kwargs) -> None:
         """Log info level message."""
         self.logger.info(message, *args, **kwargs)
+    def warning(self, message: str, *args, **kwargs) -> None:
+        """Log warning level message."""
+        self.logger.warning(message, *args, **kwargs)
+
+    def error(self, message: str, *args, **kwargs) -> None:
+        """Log error level message."""
+        self.logger.error(message, *args, **kwargs)
+
+    def debug(self, message: str, *args, **kwargs) -> None:
+        """Log debug level message."""
+        self.logger.debug(message, *args, **kwargs)
+
 
