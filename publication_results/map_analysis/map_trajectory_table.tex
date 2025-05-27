@@ -1,0 +1,19 @@
+
+\begin{table}[htbp]
+\centering
+\caption{Trajectory mAP Analysis: RL vs Imitation Learning}
+\label{tab:map_trajectory_analysis}
+\begin{tabular}{lcccccc}
+\toprule
+Method & Mean mAP & Start mAP & End mAP & Degradation & Rel. Deg. & Slope \\
+\midrule
+
+Sac & 0.546 & 0.989 & 0.256 & 0.733 & 74.2\% & -0.0058 \\
+Ppo & 0.622 & 0.988 & 0.396 & 0.592 & 60.0\% & -0.0045 \\
+Imitation Learning & 0.972 & 0.998 & 0.953 & 0.045 & 4.5\% & -0.0003 \\
+
+\bottomrule
+\multicolumn{7}{l}{\footnotesize Rel. Deg. = Relative Degradation (\%)} \\
+\multicolumn{7}{l}{\footnotesize Slope = mAP change per timestep} \\
+\end{tabular}
+\end{table}

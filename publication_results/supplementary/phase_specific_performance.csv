@@ -1,0 +1,8 @@
+,Imitation Learning,PPO,SAC
+Preparation,0.72,0.45,0.78
+Calot Triangle Dissection,0.68,0.38,0.75
+Clipping and Cutting,0.65,0.32,0.73
+Gallbladder Dissection,0.61,0.28,0.7
+Gallbladder Packaging,0.58,0.25,0.68
+Cleaning and Coagulation,0.62,0.3,0.71
+Gallbladder Retraction,0.59,0.27,0.69

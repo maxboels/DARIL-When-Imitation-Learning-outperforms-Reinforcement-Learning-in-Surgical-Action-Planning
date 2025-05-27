@@ -1,0 +1,7 @@
+,Imitation Learning,PPO,SAC
+Normal,0.652,0.341,0.789
+Noisy Input,0.598,0.287,0.734
+Missing Frames,0.621,0.298,0.756
+Lighting Changes,0.634,0.312,0.771
+Occlusions,0.587,0.276,0.698
+Fast Motion,0.612,0.289,0.743

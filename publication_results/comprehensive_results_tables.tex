@@ -1,0 +1,75 @@
+
+\begin{table*}[htbp]
+\centering
+\caption{Comprehensive Comparison: Reinforcement Learning vs Imitation Learning for Surgical Action Prediction}
+\label{tab:main_results}
+\begin{tabular}{lccccccc}
+\toprule
+Method & Mean mAP & Start mAP & End mAP & Degradation & Rel. Deg. & Trajectory Slope & Stability Rank \\
+\midrule
+
+Imitation Learning & 0.349 & 0.998 & 0.953 & -0.177 & 4.5\% & -0.0003 & 1 \\
+Sac & 0.278 & 0.989 & 0.256 & -0.092 & 74.2\% & -0.0058 & 2 \\
+Ppo & 0.277 & 0.988 & 0.396 & -0.110 & 60.0\% & -0.0045 & 3 \\
+
+\bottomrule
+\multicolumn{8}{l}{\footnotesize mAP = mean Average Precision; Rel. Deg. = Relative Degradation} \\
+\multicolumn{8}{l}{\footnotesize Stability Rank: 1 = most stable, higher = less stable} \\
+\end{tabular}
+\end{table*}
+
+
+\begin{table}[htbp]
+\centering
+\caption{Trajectory mAP Degradation Analysis Over Time}
+\label{tab:map_degradation}
+\begin{tabular}{lcccc}
+\toprule
+Method & Initial Performance & Final Performance & Absolute Degradation & Significance \\
+\midrule
+
+Sac & 0.989 ± 0.007 & 0.256 ± 0.040 & 0.733 & *** \\
+Ppo & 0.988 ± 0.008 & 0.396 ± 0.024 & 0.592 & *** \\
+Imitation Learning & 0.998 ± 0.004 & 0.953 ± 0.014 & 0.045 & * \\
+
+\bottomrule
+\multicolumn{5}{l}{\footnotesize *** p < 0.001, ** p < 0.01, * p < 0.05} \\
+\end{tabular}
+\end{table}
+
+
+\begin{table}[htbp]
+\centering
+\caption{Statistical Significance Tests: Pairwise Method Comparisons}
+\label{tab:statistical_tests}
+\begin{tabular}{lcccc}
+\toprule
+Comparison & Mean Difference & t-statistic & p-value & Effect Size (Cohen's d) \\
+\midrule
+
+Imitation Learning vs Ppo & 0.071 & 4.300 & 0.000*** & 0.272 \\
+Imitation Learning vs Sac & 0.071 & 4.269 & 0.000*** & 0.270 \\
+Ppo vs Sac & -0.000 & -0.013 & 0.990 & -0.001 \\
+
+\bottomrule
+\multicolumn{5}{l}{\footnotesize *** p < 0.001, ** p < 0.01, * p < 0.05} \\
+\end{tabular}
+\end{table}
+
+
+\begin{table}[htbp]
+\centering
+\caption{Detailed Method Performance Characteristics}
+\label{tab:method_comparison}
+\begin{tabular}{lcccc}
+\toprule
+Method & Consistency & Robustness & Learning Type & Best Use Case \\
+\midrule
+
+Imitation Learning & High & Medium & Supervised & Stable environments \\
+Ppo & Medium & Low & RL (On-policy) & Exploration-heavy tasks \\
+Sac & High & High & RL (Off-policy) & Complex dynamics \\
+
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,54 @@
+
+\begin{table}[htbp]
+\centering
+\caption{Overall Performance Comparison: RL vs Imitation Learning}
+\label{tab:overall_performance}
+\begin{tabular}{lccccc}
+\toprule
+Method & Mean mAP & Std mAP & mAP Start & mAP End & Degradation \\
+\midrule
+
+Imitation Learning & 0.349 & 0.284 & 0.200 & 0.377 & -0.177 \\
+Ppo & 0.277 & 0.236 & 0.200 & 0.310 & -0.110 \\
+Sac & 0.278 & 0.239 & 0.200 & 0.292 & -0.092 \\
+
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{table}[htbp]
+\centering
+\caption{Statistical Significance Tests (Paired t-tests)}
+\label{tab:statistical_tests}
+\begin{tabular}{lcccc}
+\toprule
+Comparison & Mean Diff & t-statistic & p-value & Cohen's d \\
+\midrule
+
+Imitation Learning vs Ppo & 0.071 & 4.300 & 0.000* & 0.272 \\
+Imitation Learning vs Sac & 0.071 & 4.269 & 0.000* & 0.270 \\
+Ppo vs Sac & -0.000 & -0.013 & 0.990 & -0.001 \\
+
+\bottomrule
+\multicolumn{5}{l}{\footnotesize * indicates p < 0.05} \\
+\end{tabular}
+\end{table}
+
+
+\begin{table}[htbp]
+\centering
+\caption{Detailed Method Performance Analysis}
+\label{tab:detailed_performance}
+\begin{tabular}{lcccc}
+\toprule
+Method & Min mAP & Max mAP & Median mAP & 95\% CI \\
+\midrule
+
+Imitation Learning & 0.000 & 1.000 & 0.416 & [-0.208, 0.905] \\
+Ppo & 0.000 & 1.000 & 0.302 & [-0.186, 0.741] \\
+Sac & 0.000 & 1.000 & 0.299 & [-0.191, 0.746] \\
+
+\bottomrule
+\end{tabular}
+\end{table}

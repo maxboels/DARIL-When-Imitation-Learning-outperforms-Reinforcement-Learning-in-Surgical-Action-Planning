@@ -1,0 +1,96 @@
+
+\documentclass[conference]{IEEEtran}
+\usepackage{amsmath,amsfonts}
+\usepackage{algorithmic}
+\usepackage{array}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{url}
+\usepackage{cite}
+
+\begin{document}
+
+\title{Reinforcement Learning vs Imitation Learning for Surgical Action Prediction: A Comprehensive Evaluation Using Actual Trained Models}
+
+\author{
+\IEEEauthorblockN{Author Name}
+\IEEEauthorblockA{Institution\\
+Address\\
+Email: author@institution.edu}
+}
+
+\maketitle
+
+\begin{abstract}
+This paper presents a comprehensive comparison between reinforcement learning (RL) and imitation learning (IL) approaches for surgical action prediction using actual trained models. We evaluate trajectory-level performance using cumulative mean Average Precision (mAP) analysis on the CholecT50 dataset, comparing Proximal Policy Optimization (PPO), Soft Actor-Critic (SAC), and supervised imitation learning. Our analysis uses a world model trained on the same data as a latent simulator, eliminating sim-to-real transfer issues. Results show that Imitation Learning achieves the best performance with 0.979 mAP. Statistical analysis reveals significant differences between methods, providing insights for surgical AI development.
+\end{abstract}
+
+\section{Introduction}
+Surgical action prediction is crucial for computer-assisted surgery systems. While imitation learning from expert demonstrations has been the standard approach, reinforcement learning offers potential advantages in temporal modeling and optimization. This work provides a rigorous comparison using actual trained models.
+
+\section{Methods}
+
+\subsection{Experimental Setup}
+We compare three approaches using actual trained models:
+\begin{itemize}
+\item \textbf{Imitation Learning (IL)}: World model trained via supervised learning on expert demonstrations
+\item \textbf{Proximal Policy Optimization (PPO)}: On-policy RL using the world model as environment
+\item \textbf{Soft Actor-Critic (SAC)}: Off-policy RL with continuous action spaces
+\end{itemize}
+
+All methods use the same world model as the underlying simulator, trained on identical CholecT50 data, ensuring fair comparison without sim-to-real gaps.
+
+\subsection{Evaluation Protocol}
+We employ single-step inference where each method predicts the next action given the current visual state. Evaluation uses cumulative mAP trajectory analysis, computing mAP at each timestep using predictions from the start to that timestep.
+
+\section{Results}
+
+% Include generated tables
+\input{publication_tables.tex}
+
+\subsection{Main Findings}
+
+\textbf{Overall Performance:} {best_method[0].replace('_', ' ').title()} achieves the highest mean mAP of {best_method[1]['mean_map']:.3f}, demonstrating {'superior' if best_method[0] != 'imitation_learning' else 'competitive'} performance {'over' if best_method[0] != 'imitation_learning' else 'among'} all methods.
+
+\textbf{RL vs IL Comparison:}
+
+\textbf{Overall Performance:} Imitation Learning achieves the highest mean mAP of 0.979, demonstrating competitive performance among all methods.
+\textbf{RL vs IL Comparison:}
+\begin{itemize}
+\item PPO underperforms IL: -0.678 mAP (-69.3\%)
+\item SAC underperforms IL: -0.647 mAP (-66.1\%)
+\end{itemize}
+
+\textbf{Trajectory Stability:} Methods show varying degradation patterns over time. Imitation Learning demonstrates the best trajectory stability.
+\textbf{Statistical Significance:} Pairwise comparisons reveal:
+\begin{itemize}
+\item Ppo vs Sac: p = 0.000, Cohen's d = -0.28
+\item Ppo vs Imitation Learning: p = 0.000, Cohen's d = -8.83
+\item Sac vs Imitation Learning: p = 0.000, Cohen's d = -8.26
+\end{itemize}
+
+\section{Discussion}
+
+\subsection{Key Insights}
+Our evaluation using actual trained models reveals important insights:
+
+1. \textbf{Model Architecture Matters}: The competitive performance of Imitation Learning suggests that direct imitation of expert behavior remains highly effective for surgical action prediction.
+
+2. \textbf{Training Methodology}: Using the same underlying world model eliminates confounding factors from sim-to-real transfer, providing a fair comparison of learning paradigms.
+
+3. \textbf{Trajectory Analysis}: Cumulative mAP evaluation reveals how prediction quality evolves over surgical procedures, crucial for understanding clinical applicability.
+
+\subsection{Clinical Implications}
+IL remains competitive for surgical applications, particularly where direct mimicry of expert behavior is desired.
+
+\section{Conclusion}
+This comprehensive evaluation using actual trained models provides rigorous comparison of RL and IL for surgical action prediction. Imitation Learning demonstrates superior performance, confirming the effectiveness of imitation learning. Future work should explore hybrid approaches combining both paradigms.
+
+\begin{thebibliography}{1}
+\bibitem{ref1} Add your references here...
+\end{thebibliography}
+
+\end{document}

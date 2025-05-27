@@ -1,0 +1,22 @@
+
+\begin{table}[htb]
+\centering
+\caption{Trajectory mAP Analysis: Single-step Inference with Cumulative Evaluation}
+\label{tab:trajectory_map_results}
+\begin{tabular}{lcccc}
+\toprule
+Method & Mean mAP & Std mAP & Degradation & Videos \\
+\midrule
+Imitation Learning & 0.979 & 0.018 & 0.037 & 5 \\
+Sac & 0.331 & 0.109 & 0.360 & 5 \\
+Ppo & 0.000 & 0.000 & 0.000 & 5 \\
+
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item Inference: Single-step prediction (predict $t+1$ from $t$)
+\item Evaluation: Cumulative mAP (evaluate predictions from start to timestep $t$)
+\item Degradation: mAP difference between first and last timestep
+\end{tablenotes}
+\end{table}

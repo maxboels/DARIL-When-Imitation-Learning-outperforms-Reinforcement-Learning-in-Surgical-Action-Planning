@@ -1,0 +1,56 @@
+
+\begin{table*}[htbp]
+\centering
+\caption{Comprehensive Comparison: Reinforcement Learning vs Imitation Learning for Surgical Action Prediction Using Actual Trained Models}
+\label{tab:main_results}
+\begin{tabular}{lccccccc}
+\toprule
+Method & Mean mAP & Std mAP & Initial mAP & Final mAP & Degradation & Stability & Videos \\
+\midrule
+
+Imitation Learning & 0.979 & 0.010 & 0.998 & 0.961 & 0.037 & -0.037 & 5 \\
+Sac & 0.331 & 0.052 & 0.602 & 0.242 & 0.360 & -0.360 & 5 \\
+Ppo & 0.301 & 0.070 & 0.516 & 0.228 & 0.288 & -0.288 & 5 \\
+
+\bottomrule
+\multicolumn{8}{l}{\footnotesize Degradation = Initial mAP - Final mAP; Stability = -Degradation (higher is better)} \\
+\multicolumn{8}{l}{\footnotesize All methods use actual trained models, not simulations} \\
+\end{tabular}
+\end{table*}
+
+
+\begin{table}[htbp]
+\centering
+\caption{Statistical Significance Tests Between Methods}
+\label{tab:statistical_tests}
+\begin{tabular}{lcccc}
+\toprule
+Comparison & Mean Difference & t-statistic & p-value & Effect Size \\
+\midrule
+
+Ppo vs Sac & -0.031 & -4.472 & 0.000*** & -0.285 \\
+Ppo vs Imitation Learning & -0.678 & -138.778 & 0.000*** & -8.830 \\
+Sac vs Imitation Learning & -0.647 & -129.740 & 0.000*** & -8.255 \\
+
+\bottomrule
+\multicolumn{5}{l}{\footnotesize *** p < 0.001, ** p < 0.01, * p < 0.05} \\
+\end{tabular}
+\end{table}
+
+
+\begin{table}[htbp]
+\centering
+\caption{Detailed Performance Analysis by Method}
+\label{tab:detailed_performance}
+\begin{tabular}{lcccc}
+\toprule
+Method & Min mAP & Max mAP & Median mAP & Range \\
+\midrule
+
+Imitation Learning & 0.961 & 0.990 & 0.983 & 0.029 \\
+Sac & 0.269 & 0.404 & 0.331 & 0.135 \\
+Ppo & 0.215 & 0.378 & 0.308 & 0.163 \\
+
+\bottomrule
+\end{tabular}
+\end{table}

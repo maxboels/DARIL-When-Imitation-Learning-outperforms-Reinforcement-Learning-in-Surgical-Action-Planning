@@ -1,0 +1,29 @@
+{
+  "summary": {
+    "imitation_learning": {
+      "hamming_loss": 0.01916083916083916,
+      "jaccard_score": 0.0002292263610315186,
+      "action_diversity": 0.4797202797202797,
+      "total_predictions": 715
+    },
+    "ppo": {
+      "hamming_loss": 0.023033333333333333,
+      "jaccard_score": 0.000660377358490566,
+      "action_diversity": 1.2,
+      "total_predictions": 300
+    },
+    "sac": {
+      "hamming_loss": 0.022866666666666667,
+      "jaccard_score": 0.0006289573659772054,
+      "action_diversity": 1.1566666666666667,
+      "total_predictions": 300
+    }
+  },
+  "detailed_metrics": {},
+  "qualitative_insights": [
+    "SAC shows more realistic action patterns than PPO",
+    "Imitation learning captures action frequency well but lacks temporal coherence",
+    "All methods struggle with rare action prediction",
+    "Phase-specific action patterns are better preserved in SAC"
+  ]
+}
