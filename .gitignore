@@ -15,3 +15,5 @@ saved_models/*.pt
 logs/*/*.pt
 logs/*/*.pt
 results/*/*.pt
+models_backup/world_model_best_epoch_2.pt
+clinical_evaluation_results/phase_recognizer.pt
