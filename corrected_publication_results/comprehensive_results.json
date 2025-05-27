@@ -1693,20 +1693,6 @@
     }
   },
   "aggregate_results": {
-    "ppo": {
-      "mean_map": 0.300617105749584,
-      "std_map": 0.07031770379300505,
-      "median_map": 0.3079998490257596,
-      "min_map": 0.21515830222457105,
-      "max_map": 0.3782209704715492,
-      "mean_degradation": 0.2882996784495057,
-      "std_degradation": 0.09869020800588355,
-      "mean_initial_map": 0.516,
-      "mean_final_map": 0.22770032155049424,
-      "trajectory_stability": -0.2882996784495057,
-      "num_videos": 5,
-      "total_predictions": 495
-    },
     "sac": {
       "mean_map": 0.33142607863356527,
       "std_map": 0.051580463000359046,
@@ -1718,6 +1704,20 @@
       "mean_initial_map": 0.6020000000000001,
       "mean_final_map": 0.24190188295038886,
       "trajectory_stability": -0.36009811704961114,
+      "num_videos": 5,
+      "total_predictions": 495
+    },
+    "ppo": {
+      "mean_map": 0.300617105749584,
+      "std_map": 0.07031770379300505,
+      "median_map": 0.3079998490257596,
+      "min_map": 0.21515830222457105,
+      "max_map": 0.3782209704715492,
+      "mean_degradation": 0.2882996784495057,
+      "std_degradation": 0.09869020800588355,
+      "mean_initial_map": 0.516,
+      "mean_final_map": 0.22770032155049424,
+      "trajectory_stability": -0.2882996784495057,
       "num_videos": 5,
       "total_predictions": 495
     },
@@ -1737,23 +1737,14 @@
     }
   },
   "statistical_tests": {
-    "ppo_vs_sac": {
-      "t_statistic": -4.4724043696054645,
+    "sac_vs_ppo": {
+      "t_statistic": 4.4724043696054645,
       "p_value": 8.631563157258485e-06,
-      "cohens_d": -0.2845722754246246,
+      "cohens_d": 0.2845722754246246,
       "significant": "True",
-      "mean_diff": -0.030808972883981156,
-      "method1_mean": 0.30061710574958406,
-      "method2_mean": 0.3314260786335652
-    },
-    "ppo_vs_imitation_learning": {
-      "t_statistic": -138.7781947505041,
-      "p_value": 0.0,
-      "cohens_d": -8.830245075303083,
-      "significant": "True",
-      "mean_diff": -0.677919947362972,
-      "method1_mean": 0.30061710574958406,
-      "method2_mean": 0.978537053112556
+      "mean_diff": 0.030808972883981156,
+      "method1_mean": 0.3314260786335652,
+      "method2_mean": 0.30061710574958406
     },
     "sac_vs_imitation_learning": {
       "t_statistic": -129.74048658572602,
@@ -1762,6 +1753,15 @@
       "significant": "True",
       "mean_diff": -0.6471109744789908,
       "method1_mean": 0.3314260786335652,
+      "method2_mean": 0.978537053112556
+    },
+    "ppo_vs_imitation_learning": {
+      "t_statistic": -138.7781947505041,
+      "p_value": 0.0,
+      "cohens_d": -8.830245075303083,
+      "significant": "True",
+      "mean_diff": -0.677919947362972,
+      "method1_mean": 0.30061710574958406,
       "method2_mean": 0.978537053112556
     }
   }

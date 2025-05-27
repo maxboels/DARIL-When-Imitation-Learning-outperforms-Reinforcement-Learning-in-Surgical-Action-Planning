@@ -133,15 +133,15 @@ def run_corrected_evaluation():
         evaluator, results = run_corrected_evaluation()
         
         if evaluator and results:
-            return evaluator, results, True
+            return (evaluator, results)  # Return as a tuple instead of 3 separate values
         else:
-            return None, None, False
+            return None
             
     except Exception as e:
         print(f"❌ Evaluation failed: {e}")
         import traceback
         traceback.print_exc()
-        return None, None, False
+        return None
 
 def create_final_summary(evaluator, results):
     """Create final summary report"""
@@ -242,10 +242,13 @@ def main():
     
     # Step 3: Run corrected evaluation
     print_header("STEP 2: CORRECTED EVALUATION")
-    evaluator, results, success = run_step("Corrected Evaluation", run_corrected_evaluation)
-    if not success:
+    result, success = run_step("Corrected Evaluation", run_corrected_evaluation)
+    if not success or result is None:
         print("\n❌ Evaluation failed. Check error messages above.")
         return False
+    
+    # Unpack the evaluation results
+    evaluator, results = result
     
     # Step 4: Create final summary
     print_header("STEP 3: FINAL SUMMARY")

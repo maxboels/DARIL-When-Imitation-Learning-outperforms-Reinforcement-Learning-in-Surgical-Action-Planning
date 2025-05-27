@@ -1,7 +1,7 @@
 # Fdb version 4
-["pdflatex"] 1748353399.23379 "/home/maxboels/projects/surl/corrected_publication_results/complete_paper.tex" "complete_paper.pdf" "complete_paper" 1748353399.57687 2
+["pdflatex"] 1748356110.97516 "/home/maxboels/projects/surl/corrected_publication_results/complete_paper.tex" "complete_paper.pdf" "complete_paper" 1748356111.35179 2
   "/etc/texmf/web2c/texmf.cnf" 1730199251.52305 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/maxboels/projects/surl/corrected_publication_results/complete_paper.tex" 1748353326.48436 4954 4cc883c79fd9976ae97b29ea78b5ee2c ""
+  "/home/maxboels/projects/surl/corrected_publication_results/complete_paper.tex" 1748356110.39138 4953 bfebf0cb68bfa5cba1ca673e0cf3577d ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/adobe/times/ptmb7t.tfm" 1136768653 2172 fd0c924230362ff848a33632ed45dc23 ""
@@ -77,9 +77,9 @@
   "/usr/share/texmf/web2c/texmf.cnf" 1707919699 40399 f2c302f7d2af602abb742093540a5834 ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1746530043.52338 5472669 54eaf61a88b6b7896ebd0dac973cb29c ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1746530131 8214692 262f898aaa86ff062f19eebdfca17a6e ""
-  "complete_paper.aux" 1748353399.5252 1887 53203d4526408c97a9ce6158c90718b8 "pdflatex"
-  "complete_paper.tex" 1748353326.48436 4954 4cc883c79fd9976ae97b29ea78b5ee2c ""
-  "publication_tables.tex" 1748353326.48336 1699 3a96acf27c0440f60a4274e42393424a ""
+  "complete_paper.aux" 1748356111.2954 1887 53203d4526408c97a9ce6158c90718b8 "pdflatex"
+  "complete_paper.tex" 1748356110.39138 4953 bfebf0cb68bfa5cba1ca673e0cf3577d ""
+  "publication_tables.tex" 1748356110.39138 1696 5a41f6d14c70f859313313b44d3d9550 ""
   (generated)
   "complete_paper.aux"
   "complete_paper.log"
