@@ -1,0 +1,45 @@
+{
+  "timestamp": "2025-05-28T14:39:53.775533",
+  "il_results": {
+    "method": "Imitation Learning",
+    "metrics": {
+      "mAP": 0.20755260087915164,
+      "num_valid_classes": 36,
+      "top_1_accuracy": 0.5711060948081265,
+      "top_3_accuracy": 0.7878103837471784,
+      "top_5_accuracy": 0.8329571106094809,
+      "top_10_accuracy": 0.837471783295711,
+      "exact_match_accuracy": 0.282,
+      "f1_micro": 0.9858,
+      "f1_macro": 0.10943108966571449,
+      "hamming_accuracy": 0.9858,
+      "active_action_accuracy": 0.44429347826086957,
+      "total_samples": 500,
+      "total_classes": 100,
+      "avg_active_per_sample": 1.472,
+      "sparsity_ratio": 0.01472
+    },
+    "total_samples": 500,
+    "model_path": "logs/2025-05-28_12-37-34/checkpoints/supervised_best_epoch_3.pt"
+  },
+  "rl_results": {
+    "ppo": {
+      "method": "PPO (RL)",
+      "metrics": {
+        "best_reward": 6.553085755255248,
+        "final_avg_reward": 5.148037237440143,
+        "training_episodes": 20,
+        "status": "completed"
+      }
+    },
+    "sac": {
+      "method": "SAC (RL)",
+      "metrics": {
+        "best_reward": 6.189934081167878,
+        "final_avg_reward": 4.535898857146053,
+        "training_episodes": 20,
+        "status": "completed"
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+2025-05-28 14:50:05,199 - INFO - Log file: logs/2025-05-28_14-50-05/il_vs_rl_comparison.log
+2025-05-28 14:50:05,199 - INFO - 🚀 Starting IL vs RL Comparison Experiment
+2025-05-28 14:50:05,199 - INFO - Device: cuda
+2025-05-28 14:50:05,199 - INFO - Results will be saved to: logs/2025-05-28_14-50-05/comparison_results
+2025-05-28 14:50:05,199 - INFO - 📊 Loading dataset...
+2025-05-28 14:50:05,199 - INFO - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-05-28 14:50:05,592 - INFO - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-05-28 14:50:05,592 - INFO - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-05-28 14:50:05,594 - INFO - [Train] Found 2 videos in metadata file
+2025-05-28 14:50:05,594 - INFO - [Train] Loading data for 2 videos
+2025-05-28 14:50:05,727 - INFO - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-05-28 14:50:05,824 - INFO - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-05-28 14:50:05,824 - INFO - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-05-28 14:50:05,824 - INFO - [Test] Found 2 videos in metadata file
+2025-05-28 14:50:05,824 - INFO - [Test] Loading data for 2 videos
+2025-05-28 14:50:06,010 - INFO - Loaded 2 training videos and 2 test videos
+2025-05-28 14:50:06,010 - INFO - 🎓 Training Imitation Learning Model...
+2025-05-28 14:50:06,010 - INFO - Training supervised imitation learning model
+2025-05-28 14:50:08,003 - INFO - Model parameters: 48,924,145 total, 48,924,145 trainable
+2025-05-28 14:50:08,005 - INFO - Starting supervised training for autoregressive action prediction
+2025-05-28 14:50:08,394 - INFO - Batch 0/204 | Loss: 3.3123
+2025-05-28 14:50:12,807 - INFO - Batch 100/204 | Loss: 0.5440
+2025-05-28 14:50:17,206 - INFO - Batch 200/204 | Loss: 0.3635
+2025-05-28 14:51:03,415 - ERROR - ❌ Comparison experiment failed: DataLoader worker (pid(s) 53485, 53486, 53487, 53488) exited unexpectedly

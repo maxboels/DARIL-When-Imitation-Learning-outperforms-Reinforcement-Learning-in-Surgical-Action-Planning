@@ -1,0 +1,68 @@
+2025-05-28 12:37:34,753 - INFO - Log file: logs/2025-05-28_12-37-34/il_vs_rl_comparison.log
+2025-05-28 12:37:34,753 - INFO - 🚀 Starting IL vs RL Comparison Experiment
+2025-05-28 12:37:34,753 - INFO - Device: cuda
+2025-05-28 12:37:34,753 - INFO - Results will be saved to: logs/2025-05-28_12-37-34/comparison_results
+2025-05-28 12:37:34,753 - INFO - 📊 Loading dataset...
+2025-05-28 12:37:34,753 - INFO - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-05-28 12:37:35,147 - INFO - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-05-28 12:37:35,147 - INFO - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-05-28 12:37:35,148 - INFO - [Train] Found 2 videos in metadata file
+2025-05-28 12:37:35,148 - INFO - [Train] Loading data for 2 videos
+2025-05-28 12:37:35,282 - INFO - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-05-28 12:37:35,373 - INFO - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-05-28 12:37:35,373 - INFO - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-05-28 12:37:35,374 - INFO - [Test] Found 2 videos in metadata file
+2025-05-28 12:37:35,374 - INFO - [Test] Loading data for 2 videos
+2025-05-28 12:37:35,560 - INFO - Loaded 2 training videos and 2 test videos
+2025-05-28 12:37:35,560 - INFO - 🎓 Training Imitation Learning Model...
+2025-05-28 12:37:35,560 - INFO - Training supervised imitation learning model
+2025-05-28 12:37:37,587 - INFO - Model parameters: 48,924,145 total, 48,924,145 trainable
+2025-05-28 12:37:37,589 - INFO - Starting supervised training for autoregressive action prediction
+2025-05-28 12:37:38,013 - INFO - Batch 0/204 | Loss: 3.3123
+2025-05-28 12:37:42,413 - INFO - Batch 100/204 | Loss: 0.5440
+2025-05-28 12:37:46,812 - INFO - Batch 200/204 | Loss: 0.3635
+2025-05-28 12:39:49,450 - INFO - New best model saved: logs/2025-05-28_12-37-34/checkpoints/supervised_best_epoch_1.pt
+2025-05-28 12:39:49,450 - INFO - Epoch 1/3 | Train Loss: 0.7883 | Val Loss: 0.5163 | Val Action Acc: 0.0000
+2025-05-28 12:39:49,601 - INFO - Batch 0/204 | Loss: 0.2939
+2025-05-28 12:39:54,070 - INFO - Batch 100/204 | Loss: 0.2733
+2025-05-28 12:39:58,531 - INFO - Batch 200/204 | Loss: 0.2519
+2025-05-28 12:42:05,416 - INFO - New best model saved: logs/2025-05-28_12-37-34/checkpoints/supervised_best_epoch_2.pt
+2025-05-28 12:42:05,416 - INFO - Epoch 2/3 | Train Loss: 0.2955 | Val Loss: 0.4450 | Val Action Acc: 0.0000
+2025-05-28 12:42:05,592 - INFO - Batch 0/204 | Loss: 0.2230
+2025-05-28 12:42:10,134 - INFO - Batch 100/204 | Loss: 0.2206
+2025-05-28 12:42:14,656 - INFO - Batch 200/204 | Loss: 0.1837
+2025-05-28 12:44:34,698 - INFO - New best model saved: logs/2025-05-28_12-37-34/checkpoints/supervised_best_epoch_3.pt
+2025-05-28 12:44:34,699 - INFO - Epoch 3/3 | Train Loss: 0.2272 | Val Loss: 0.4137 | Val Action Acc: 0.0000
+2025-05-28 12:44:35,211 - INFO - Training plots saved to logs/2025-05-28_12-37-34
+2025-05-28 12:44:35,321 - INFO - Training completed. Best model: logs/2025-05-28_12-37-34/checkpoints/supervised_best_epoch_3.pt
+2025-05-28 12:44:35,321 - INFO - Final model: logs/2025-05-28_12-37-34/checkpoints/final_model.pt
+2025-05-28 12:44:35,322 - INFO - ✅ IL training completed. Model saved: logs/2025-05-28_12-37-34/checkpoints/supervised_best_epoch_3.pt
+2025-05-28 12:44:35,421 - INFO - 🤖 Training RL Models...
+2025-05-28 12:44:36,082 - INFO - Loaded world model for RL training: logs/2025-05-28_12-37-34/checkpoints/supervised_best_epoch_3.pt
+2025-05-28 12:44:36,082 - INFO - 🔥 Training PPO agent...
+2025-05-28 12:44:36,086 - ERROR - ❌ PPO training failed: '<=' not supported between instances of 'float' and 'str'
+2025-05-28 12:44:36,086 - INFO - 🔥 Training SAC agent...
+2025-05-28 12:44:36,095 - ERROR - ❌ SAC training failed: '<=' not supported between instances of 'float' and 'str'
+2025-05-28 12:44:36,095 - INFO - 📈 Running comprehensive evaluation...
+2025-05-28 12:44:36,095 - INFO - 📊 Evaluating Imitation Learning model...
+2025-05-28 12:44:37,230 - INFO - Starting comprehensive evaluation of both modes
+2025-05-28 12:44:37,230 - INFO - Starting supervised mode evaluation (autoregressive action prediction)
+2025-05-28 12:44:37,230 - INFO - Evaluating 2 videos with horizons [1, 3, 5, 10, 15] and top-k [1, 3, 5, 10]
+2025-05-28 12:44:37,230 - INFO - Evaluating video: VID02 (1/2)
+2025-05-28 12:45:55,683 - INFO - Evaluating video: VID06 (2/2)
+2025-05-28 12:46:57,498 - INFO - Supervised evaluation completed. Processed 4992 samples from 2 videos.
+2025-05-28 12:46:57,498 - INFO - Starting RL mode evaluation (state and reward prediction)
+2025-05-28 12:46:57,499 - INFO - Evaluating RL mode on video: VID02
+2025-05-28 12:46:59,923 - INFO - Evaluating RL mode on video: VID06
+2025-05-28 12:47:01,867 - INFO - RL evaluation completed. Processed 4992 samples from 2 videos.
+2025-05-28 12:47:02,668 - INFO - Supervised evaluation results saved to logs/2025-05-28_12-37-34/comparison_results/il_evaluation
+2025-05-28 12:47:02,908 - INFO - RL evaluation results saved to logs/2025-05-28_12-37-34/comparison_results/il_evaluation
+2025-05-28 12:47:03,174 - INFO - Comparison visualizations saved to logs/2025-05-28_12-37-34/comparison_results/il_evaluation
+2025-05-28 12:47:03,174 - INFO - Comprehensive evaluation completed
+2025-05-28 12:47:03,174 - INFO - ✅ IL evaluation completed
+2025-05-28 12:47:03,243 - INFO - 🔬 Performing statistical analysis...
+2025-05-28 12:47:03,243 - INFO - 📝 Generating reports and visualizations...
+2025-05-28 12:47:03,243 - INFO - 📄 Final report saved to: logs/2025-05-28_12-37-34/comparison_results/comparison_report.md
+2025-05-28 12:47:03,245 - INFO - 💾 Complete results saved to: logs/2025-05-28_12-37-34/comparison_results/complete_comparison_results.json
+2025-05-28 12:47:03,246 - INFO - 📋 Experiment summary saved to: logs/2025-05-28_12-37-34/comparison_results/experiment_summary.json
+2025-05-28 12:47:03,246 - INFO - ✅ Complete IL vs RL comparison finished successfully!
