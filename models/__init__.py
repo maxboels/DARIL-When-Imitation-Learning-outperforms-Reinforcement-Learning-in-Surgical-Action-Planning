@@ -8,7 +8,7 @@ from .action_policy import ActionPolicyModel
 
 # RL components
 from .world_model import WorldModel
-from .rl_environment import SurgicalWorldModelEnv
+# from .rl_environment import SurgicalWorldModelEnv
 
  
 
@@ -16,7 +16,7 @@ from .rl_environment import SurgicalWorldModelEnv
 __all__ = [
     'RecognitionHead',
     'WorldModel',
-    'SurgicalWorldModelEnv',
+    # 'SurgicalWorldModelEnv',
     'RewardPredictor',
     'ActionPolicyModel',
 ]

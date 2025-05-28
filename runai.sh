@@ -3,7 +3,7 @@
 # Define variables
 CONFIG_NAME=$1
 JOB_NAME=$(echo $CONFIG_NAME | cut -f 1 -d '.' | tr '_' '-' | tr '/' '-')
-DOCKER_IMAGE="aicregistry:5000/mboels:sworld"
+DOCKER_IMAGE="aicregistry:5000/mboels:swrl"
 PROJECT_NAME="mboels"
 NUM_GPUS=1
 NUM_CPUS=2

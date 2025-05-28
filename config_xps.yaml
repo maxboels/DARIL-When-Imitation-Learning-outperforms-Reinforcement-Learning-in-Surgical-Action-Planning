@@ -30,9 +30,9 @@ preprocess:
 experiment:
   max_videos: null  # to be removed later (use from train or test)
   train:
-    max_videos: null  # Increase for full training
+    max_videos: 10  # Increase for full training
   test:
-    max_videos: null   # Test on more videos
+    max_videos: 5   # Test on more videos
   
   # Dual World Model Training
   dual_world_model:
@@ -58,7 +58,7 @@ experiment:
 
 # Training parameters
 training:
-  epochs: 5  # Reduced for faster iteration
+  epochs: 2  # Reduced for faster iteration
   batch_size: 16
   learning_rate: 0.0001  # Start with lower LR for stability
   log_every_n_steps: 100
@@ -157,7 +157,7 @@ data:
   max_horizon: 15
   
   paths:
-    data_dir: "/nfs/home/mboels/datasets/CholecT50"
+    data_dir: "/home/maxboels/datasets/CholecT50"
     class_labels_file_path: "./data/labels.json"
     fold: 0
     metadata_file: "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv"

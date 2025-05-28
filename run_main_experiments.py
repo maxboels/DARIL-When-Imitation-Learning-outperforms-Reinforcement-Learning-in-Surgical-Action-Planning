@@ -5,8 +5,8 @@ This script implements a comprehensive comparison between:
 1. Imitation Learning (Supervised approach)
 2. Reinforcement Learning (PPO and SAC with world model)
 """
-
-import numpy as np
+ 
+ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -191,7 +191,7 @@ class ComparisonExperiment:
         """Train RL models using Stable-Baselines3."""
         # Import RL training components
         # from rl_trainer import RLTrainer  # This would be the script we created above
-        from sb3_rl_trainer import SB3Trainer # Stable Baselines3 trainer
+        from trainer.sb3_rl_trainer import SB3Trainer # Stable Baselines3 trainer
         
         world_model = DualWorldModel.load_model(world_model_path, self.device)
         
@@ -306,12 +306,12 @@ class ComparisonExperiment:
         
         # Import RL agents
         if algorithm.lower() == 'ppo':
-            from rl_trainer import PPOAgent
+            from trainer.sb3_rl_trainer import SB3Trainer # Stable Baselines3 trainer
             # Load and evaluate PPO agent
             # This would require creating an environment and running episodes
             pass
         elif algorithm.lower() == 'sac':
-            from rl_trainer import SACAgent
+            from trainer.sb3_rl_trainer import SB3Trainer # Stable Baselines3 trainer
             # Load and evaluate SAC agent
             pass
         

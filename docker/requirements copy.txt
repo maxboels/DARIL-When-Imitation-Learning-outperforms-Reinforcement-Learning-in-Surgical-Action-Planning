@@ -16,9 +16,9 @@ pyyaml>=6.0
 tensorboard>=2.6.0
 seaborn>=0.12.0
 transformers==4.46.3
-# CHOOSE ONE of the following two lines:
-opencv-python-headless==4.11.0.86 # Recommended for servers
 # opencv-python==4.8.0.74
+opencv-python-headless==4.11.0.86
 ivtmetrics==0.1.5
+# add RL packages: gymnasium, stable-baselines3, and others
 gymnasium
 stable-baselines3

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define variables
-DOCKER_TAG=aicregistry:5000/${USER}:sworld
+DOCKER_TAG=aicregistry:5000/${USER}:swrl
 
 
 # Build the Docker image
