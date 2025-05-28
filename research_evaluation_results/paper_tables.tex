@@ -1,0 +1,51 @@
+
+\begin{table}[htbp]
+\centering
+\caption{Performance Comparison Across Methods and Horizons}
+\label{tab:main_results}
+\begin{tabular}{lcccccc}
+\toprule
+Method & Horizon & mAP & Top-1 & Top-3 & F1 & Exact Match \\
+\midrule
+Random & 1 & 0.028 & 0.009 & 0.024 & 0.022 & 0.000 \\
+Random & 10 & 0.029 & 0.008 & 0.038 & 0.027 & 0.000 \\
+Random & 15 & 0.028 & 0.009 & 0.036 & 0.028 & 0.000 \\
+Random & 20 & 0.029 & 0.013 & 0.043 & 0.030 & 0.000 \\
+Random & 3 & 0.027 & 0.010 & 0.044 & 0.026 & 0.000 \\
+Random & 5 & 0.028 & 0.012 & 0.041 & 0.028 & 0.000 \\
+
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+\begin{table}[htbp]
+\centering
+\caption{Statistical Significance Testing}
+\label{tab:statistical_tests}
+\begin{tabular}{lcccc}
+\toprule
+Comparison & Mean Diff & t-statistic & p-value & Cohen's d \\
+\midrule
+
+\bottomrule
+\multicolumn{5}{l}{\footnotesize * indicates p < 0.05} \\
+\end{tabular}
+\end{table}
+
+
+
+\begin{table}[htbp]
+\centering
+\caption{Clinical Relevance Metrics}
+\label{tab:clinical_metrics}
+\begin{tabular}{lccc}
+\toprule
+Method & Critical Actions & Phase Awareness & Risk Assessment \\
+\midrule
+Random & 0.016 & 0.812 & 0.567 \\
+
+\bottomrule
+\end{tabular}
+\end{table}

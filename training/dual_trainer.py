@@ -344,68 +344,44 @@ class DualTrainer:
         return self.best_model_path
     
     def _evaluate_supervised(self, val_loaders: Dict[str, DataLoader]) -> Dict[str, float]:
-        """Evaluate model in supervised mode."""
+        """Evaluate model in supervised mode with proper metrics."""
         self.model.eval()
-        metrics = defaultdict(float)
-        total_samples = 0
+        all_metrics = defaultdict(list)
         
         with torch.no_grad():
             for video_id, val_loader in val_loaders.items():
-                video_metrics = defaultdict(float)
-                num_batches = 0
-                
                 for batch in val_loader:
-                    # Move batch to device
                     current_states = batch['current_states'].to(self.device)
                     next_states = batch['next_states'].to(self.device)
                     next_actions = batch['next_actions'].to(self.device)
-                    next_phases = batch.get('next_phases', None)
-                    if next_phases is not None:
-                        next_phases = next_phases.to(self.device)
                     
-                    # Get current actions if available
-                    current_actions = batch.get('current_actions', None)
-                    if current_actions is not None:
-                        current_actions = current_actions.to(self.device)
-                        if current_actions.dim() == 2:
-                            current_actions = current_actions.unsqueeze(1).expand(-1, current_states.size(1), -1)
-                    
-                    # Forward pass
                     outputs = self.model(
                         current_states=current_states,
-                        actions=current_actions,
                         next_states=next_states,
                         next_actions=next_actions,
-                        next_phases=next_phases,
                         mode='supervised'
                     )
                     
-                    # Accumulate losses
+                    # Calculate proper metrics
+                    if 'action_pred' in outputs:
+                        batch_metrics = calculate_proper_validation_metrics(
+                            outputs['action_pred'], next_actions
+                        )
+                        
+                        for key, value in batch_metrics.items():
+                            all_metrics[key].append(value)
+                    
+                    # Other losses
                     for key, value in outputs.items():
                         if key.endswith('loss') and isinstance(value, torch.Tensor):
-                            video_metrics[key] += value.item()
-                    
-                    # Calculate action accuracy
-                    if 'action_pred' in outputs:
-                        action_pred = torch.sigmoid(outputs['action_pred'])
-                        action_pred_binary = (action_pred > 0.5).float()
-                        action_accuracy = (action_pred_binary == next_actions).float().mean().item()
-                        video_metrics['action_accuracy'] += action_accuracy
-                    
-                    num_batches += 1
-                
-                # Average over batches
-                for key in video_metrics:
-                    video_metrics[key] /= num_batches
-                    metrics[key] += video_metrics[key]
-                
-                total_samples += 1
+                            all_metrics[key].append(value.item())
         
-        # Average over videos
-        for key in metrics:
-            metrics[key] /= max(total_samples, 1)
+        # Average all metrics
+        final_metrics = {}
+        for key, values in all_metrics.items():
+            final_metrics[key] = np.mean(values) if values else 0.0
         
-        return dict(metrics)
+        return final_metrics
     
     def _evaluate_rl(self, val_loaders: Dict[str, DataLoader]) -> Dict[str, float]:
         """Evaluate model in RL mode."""
@@ -539,6 +515,67 @@ class DualTrainer:
         
         self.logger.info(f"Training plots saved to {self.log_dir}")
 
+def calculate_proper_validation_metrics(action_pred, next_actions):
+    """Calculate proper validation metrics for multi-label classification."""
+    
+    action_probs = torch.sigmoid(action_pred)
+    action_pred_binary = (action_probs > 0.5).float()
+    
+    metrics = {}
+    
+    # 1. Element-wise accuracy (the misleading 99% metric)
+    element_wise_acc = (action_pred_binary == next_actions).float().mean().item()
+    metrics['element_wise_accuracy'] = element_wise_acc
+    
+    # 2. Exact match accuracy (much more meaningful)
+    exact_match = (action_pred_binary == next_actions).all(dim=-1).float().mean().item()
+    metrics['exact_match_accuracy'] = exact_match
+    
+    # 3. Hamming accuracy (accounts for class imbalance)
+    hamming_acc = (action_pred_binary == next_actions).float().sum(dim=-1) / next_actions.size(-1)
+    metrics['hamming_accuracy'] = hamming_acc.mean().item()
+    
+    # 4. Active action accuracy (only for active actions)
+    active_mask = next_actions > 0.5
+    if active_mask.sum() > 0:
+        active_correct = (action_pred_binary[active_mask] == next_actions[active_mask]).float().mean()
+        metrics['active_action_accuracy'] = active_correct.item()
+    else:
+        metrics['active_action_accuracy'] = 0.0
+    
+    # 5. Precision, Recall, F1 for active actions
+    if active_mask.sum() > 0:
+        predicted_active = action_pred_binary > 0.5
+        
+        # True positives, false positives, false negatives
+        tp = (predicted_active & (next_actions > 0.5)).float().sum()
+        fp = (predicted_active & (next_actions <= 0.5)).float().sum()
+        fn = (~predicted_active & (next_actions > 0.5)).float().sum()
+        
+        precision = tp / (tp + fp + 1e-8)
+        recall = tp / (tp + fn + 1e-8)
+        f1 = 2 * precision * recall / (precision + recall + 1e-8)
+        
+        metrics['precision'] = precision.item()
+        metrics['recall'] = recall.item()
+        metrics['f1_score'] = f1.item()
+    
+    # 6. Mean Average Precision (the real metric)
+    try:
+        from sklearn.metrics import average_precision_score
+        ap_scores = []
+        for i in range(next_actions.size(-1)):
+            if next_actions[:, i].sum() > 0:  # Only for classes that appear
+                y_true = next_actions[:, i].cpu().numpy()
+                y_scores = action_probs[:, i].cpu().numpy()
+                ap = average_precision_score(y_true, y_scores)
+                ap_scores.append(ap)
+        
+        metrics['mean_average_precision'] = np.mean(ap_scores) if ap_scores else 0.0
+    except:
+        metrics['mean_average_precision'] = 0.0
+    
+    return metrics
 
 def train_dual_world_model(cfg, logger, model, train_loader, test_video_loaders, device='cuda'):
     """
