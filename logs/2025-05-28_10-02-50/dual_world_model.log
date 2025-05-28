@@ -1,0 +1,166 @@
+2025-05-28 10:02:50,146 - INFO - Log file: logs/2025-05-28_10-02-50/dual_world_model.log
+2025-05-28 10:02:50,146 - INFO - Starting Dual World Model experiment
+2025-05-28 10:02:50,146 - INFO - Using device: cuda
+2025-05-28 10:02:50,146 - INFO - Loading CholecT50 data...
+2025-05-28 10:02:50,146 - INFO - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-05-28 10:02:50,537 - INFO - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-05-28 10:02:50,537 - INFO - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-05-28 10:02:50,539 - INFO - [Train] Found 40 videos in metadata file
+2025-05-28 10:02:50,539 - INFO - [Train] Loading data for 40 videos
+2025-05-28 10:02:56,232 - INFO - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-05-28 10:02:56,320 - INFO - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-05-28 10:02:56,320 - INFO - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-05-28 10:02:56,321 - INFO - [Test] Found 10 videos in metadata file
+2025-05-28 10:02:56,321 - INFO - [Test] Loading data for 10 videos
+2025-05-28 10:03:08,064 - INFO - Training samples: 78928
+2025-05-28 10:03:08,064 - INFO - Test videos: 10
+2025-05-28 10:03:08,064 - INFO - Initializing Dual World Model...
+2025-05-28 10:03:08,665 - INFO - Total parameters: 48,924,145
+2025-05-28 10:03:08,665 - INFO - Trainable parameters: 48,924,145
+2025-05-28 10:03:08,665 - INFO - Training mode: supervised
+2025-05-28 10:03:08,665 - INFO - Starting supervised training...
+2025-05-28 10:03:08,667 - INFO - Starting supervised training for autoregressive action prediction
+2025-05-28 10:03:09,131 - INFO - Batch 0/4933 | Loss: 3.2461
+2025-05-28 10:03:13,535 - INFO - Batch 100/4933 | Loss: 0.7943
+2025-05-28 10:03:17,960 - INFO - Batch 200/4933 | Loss: 0.5642
+2025-05-28 10:03:22,394 - INFO - Batch 300/4933 | Loss: 0.5762
+2025-05-28 10:03:26,830 - INFO - Batch 400/4933 | Loss: 0.5567
+2025-05-28 10:03:31,271 - INFO - Batch 500/4933 | Loss: 0.3995
+2025-05-28 10:03:35,718 - INFO - Batch 600/4933 | Loss: 0.4802
+2025-05-28 10:03:40,178 - INFO - Batch 700/4933 | Loss: 0.3833
+2025-05-28 10:03:44,629 - INFO - Batch 800/4933 | Loss: 0.3593
+2025-05-28 10:03:49,094 - INFO - Batch 900/4933 | Loss: 0.2978
+2025-05-28 10:03:53,587 - INFO - Batch 1000/4933 | Loss: 0.3552
+2025-05-28 10:03:58,063 - INFO - Batch 1100/4933 | Loss: 0.2385
+2025-05-28 10:04:02,534 - INFO - Batch 1200/4933 | Loss: 0.3057
+2025-05-28 10:04:07,011 - INFO - Batch 1300/4933 | Loss: 0.4328
+2025-05-28 10:04:11,497 - INFO - Batch 1400/4933 | Loss: 0.2737
+2025-05-28 10:04:15,987 - INFO - Batch 1500/4933 | Loss: 0.2298
+2025-05-28 10:04:20,468 - INFO - Batch 1600/4933 | Loss: 0.2940
+2025-05-28 10:04:24,954 - INFO - Batch 1700/4933 | Loss: 0.2207
+2025-05-28 10:04:29,443 - INFO - Batch 1800/4933 | Loss: 0.2362
+2025-05-28 10:04:33,923 - INFO - Batch 1900/4933 | Loss: 0.2218
+2025-05-28 10:04:38,407 - INFO - Batch 2000/4933 | Loss: 0.2329
+2025-05-28 10:04:42,891 - INFO - Batch 2100/4933 | Loss: 0.2417
+2025-05-28 10:04:47,365 - INFO - Batch 2200/4933 | Loss: 0.3667
+2025-05-28 10:04:51,847 - INFO - Batch 2300/4933 | Loss: 0.2412
+2025-05-28 10:04:56,332 - INFO - Batch 2400/4933 | Loss: 0.2201
+2025-05-28 10:05:00,828 - INFO - Batch 2500/4933 | Loss: 0.3489
+2025-05-28 10:05:05,329 - INFO - Batch 2600/4933 | Loss: 0.2869
+2025-05-28 10:05:09,854 - INFO - Batch 2700/4933 | Loss: 0.1865
+2025-05-28 10:05:14,332 - INFO - Batch 2800/4933 | Loss: 0.2321
+2025-05-28 10:05:18,820 - INFO - Batch 2900/4933 | Loss: 0.2015
+2025-05-28 10:05:23,313 - INFO - Batch 3000/4933 | Loss: 0.2455
+2025-05-28 10:05:27,821 - INFO - Batch 3100/4933 | Loss: 0.2645
+2025-05-28 10:05:32,298 - INFO - Batch 3200/4933 | Loss: 0.2293
+2025-05-28 10:05:36,781 - INFO - Batch 3300/4933 | Loss: 0.1950
+2025-05-28 10:05:41,383 - INFO - Batch 3400/4933 | Loss: 0.2299
+2025-05-28 10:05:45,859 - INFO - Batch 3500/4933 | Loss: 0.2040
+2025-05-28 10:05:50,339 - INFO - Batch 3600/4933 | Loss: 0.2253
+2025-05-28 10:05:54,836 - INFO - Batch 3700/4933 | Loss: 0.1997
+2025-05-28 10:05:59,437 - INFO - Batch 3800/4933 | Loss: 0.1998
+2025-05-28 10:06:03,925 - INFO - Batch 3900/4933 | Loss: 0.1764
+2025-05-28 10:06:08,400 - INFO - Batch 4000/4933 | Loss: 0.2574
+2025-05-28 10:06:12,952 - INFO - Batch 4100/4933 | Loss: 0.1574
+2025-05-28 10:06:17,456 - INFO - Batch 4200/4933 | Loss: 0.2112
+2025-05-28 10:06:21,921 - INFO - Batch 4300/4933 | Loss: 0.2047
+2025-05-28 10:06:26,385 - INFO - Batch 4400/4933 | Loss: 0.1845
+2025-05-28 10:06:30,875 - INFO - Batch 4500/4933 | Loss: 0.2006
+2025-05-28 10:06:35,329 - INFO - Batch 4600/4933 | Loss: 0.2301
+2025-05-28 10:06:39,795 - INFO - Batch 4700/4933 | Loss: 0.1673
+2025-05-28 10:06:44,243 - INFO - Batch 4800/4933 | Loss: 0.1940
+2025-05-28 10:06:48,724 - INFO - Batch 4900/4933 | Loss: 0.1673
+2025-05-28 10:07:11,910 - INFO - New best model saved: logs/2025-05-28_10-02-50/checkpoints/supervised_best_epoch_1.pt
+2025-05-28 10:07:11,910 - INFO - Epoch 1/2 | Train Loss: 0.3107 | Val Loss: 0.3652 | Val Action Acc: 0.9914
+2025-05-28 10:07:12,208 - INFO - Batch 0/4933 | Loss: 0.2119
+2025-05-28 10:07:16,738 - INFO - Batch 100/4933 | Loss: 0.1733
+2025-05-28 10:07:21,208 - INFO - Batch 200/4933 | Loss: 0.2235
+2025-05-28 10:07:25,676 - INFO - Batch 300/4933 | Loss: 0.1520
+2025-05-28 10:07:30,145 - INFO - Batch 400/4933 | Loss: 0.1696
+2025-05-28 10:07:34,606 - INFO - Batch 500/4933 | Loss: 0.1729
+2025-05-28 10:07:39,068 - INFO - Batch 600/4933 | Loss: 0.2484
+2025-05-28 10:07:43,546 - INFO - Batch 700/4933 | Loss: 0.1878
+2025-05-28 10:07:48,025 - INFO - Batch 800/4933 | Loss: 0.1614
+2025-05-28 10:07:52,513 - INFO - Batch 900/4933 | Loss: 0.1493
+2025-05-28 10:07:56,983 - INFO - Batch 1000/4933 | Loss: 0.1902
+2025-05-28 10:08:01,464 - INFO - Batch 1100/4933 | Loss: 0.1548
+2025-05-28 10:08:05,934 - INFO - Batch 1200/4933 | Loss: 0.1484
+2025-05-28 10:08:10,415 - INFO - Batch 1300/4933 | Loss: 0.1638
+2025-05-28 10:08:14,889 - INFO - Batch 1400/4933 | Loss: 0.2243
+2025-05-28 10:08:19,362 - INFO - Batch 1500/4933 | Loss: 0.1842
+2025-05-28 10:08:23,837 - INFO - Batch 1600/4933 | Loss: 0.1752
+2025-05-28 10:08:28,299 - INFO - Batch 1700/4933 | Loss: 0.1684
+2025-05-28 10:08:32,775 - INFO - Batch 1800/4933 | Loss: 0.2137
+2025-05-28 10:08:37,247 - INFO - Batch 1900/4933 | Loss: 0.1634
+2025-05-28 10:08:41,711 - INFO - Batch 2000/4933 | Loss: 0.1483
+2025-05-28 10:08:46,173 - INFO - Batch 2100/4933 | Loss: 0.1866
+2025-05-28 10:08:50,643 - INFO - Batch 2200/4933 | Loss: 0.2052
+2025-05-28 10:08:55,106 - INFO - Batch 2300/4933 | Loss: 0.1353
+2025-05-28 10:08:59,579 - INFO - Batch 2400/4933 | Loss: 0.1374
+2025-05-28 10:09:04,046 - INFO - Batch 2500/4933 | Loss: 0.1722
+2025-05-28 10:09:08,529 - INFO - Batch 2600/4933 | Loss: 0.1504
+2025-05-28 10:09:12,995 - INFO - Batch 2700/4933 | Loss: 0.1430
+2025-05-28 10:09:17,460 - INFO - Batch 2800/4933 | Loss: 0.1386
+2025-05-28 10:09:21,942 - INFO - Batch 2900/4933 | Loss: 0.1634
+2025-05-28 10:09:26,411 - INFO - Batch 3000/4933 | Loss: 0.1640
+2025-05-28 10:09:30,895 - INFO - Batch 3100/4933 | Loss: 0.1362
+2025-05-28 10:09:35,365 - INFO - Batch 3200/4933 | Loss: 0.1325
+2025-05-28 10:09:39,831 - INFO - Batch 3300/4933 | Loss: 0.1456
+2025-05-28 10:09:44,317 - INFO - Batch 3400/4933 | Loss: 0.1533
+2025-05-28 10:09:48,780 - INFO - Batch 3500/4933 | Loss: 0.1336
+2025-05-28 10:09:53,246 - INFO - Batch 3600/4933 | Loss: 0.1917
+2025-05-28 10:09:57,722 - INFO - Batch 3700/4933 | Loss: 0.1462
+2025-05-28 10:10:02,215 - INFO - Batch 3800/4933 | Loss: 0.2806
+2025-05-28 10:10:06,672 - INFO - Batch 3900/4933 | Loss: 0.2439
+2025-05-28 10:10:11,203 - INFO - Batch 4000/4933 | Loss: 0.2119
+2025-05-28 10:10:15,710 - INFO - Batch 4100/4933 | Loss: 0.1940
+2025-05-28 10:10:20,222 - INFO - Batch 4200/4933 | Loss: 0.1547
+2025-05-28 10:10:24,736 - INFO - Batch 4300/4933 | Loss: 0.1326
+2025-05-28 10:10:29,230 - INFO - Batch 4400/4933 | Loss: 0.1594
+2025-05-28 10:10:33,716 - INFO - Batch 4500/4933 | Loss: 0.1310
+2025-05-28 10:10:38,229 - INFO - Batch 4600/4933 | Loss: 0.1553
+2025-05-28 10:10:42,721 - INFO - Batch 4700/4933 | Loss: 0.1935
+2025-05-28 10:10:47,192 - INFO - Batch 4800/4933 | Loss: 0.1951
+2025-05-28 10:10:51,662 - INFO - Batch 4900/4933 | Loss: 0.1252
+2025-05-28 10:11:14,592 - INFO - Epoch 2/2 | Train Loss: 0.1800 | Val Loss: 0.3672 | Val Action Acc: 0.9919
+2025-05-28 10:11:15,451 - INFO - Training plots saved to logs/2025-05-28_10-02-50
+2025-05-28 10:11:15,623 - INFO - Training completed. Best model: logs/2025-05-28_10-02-50/checkpoints/supervised_best_epoch_1.pt
+2025-05-28 10:11:15,623 - INFO - Final model: logs/2025-05-28_10-02-50/checkpoints/final_model.pt
+2025-05-28 10:11:15,624 - INFO - Supervised training completed. Model saved: logs/2025-05-28_10-02-50/checkpoints/supervised_best_epoch_1.pt
+2025-05-28 10:11:15,624 - INFO - Starting model evaluation...
+2025-05-28 10:11:15,624 - INFO - Evaluating supervised-trained model
+2025-05-28 10:11:16,652 - INFO - Starting comprehensive evaluation of both modes
+2025-05-28 10:11:16,652 - INFO - Starting supervised mode evaluation (autoregressive action prediction)
+2025-05-28 10:11:16,652 - INFO - Evaluating 10 videos with horizons [1, 3, 5, 10, 15] and top-k [1, 3, 5, 10]
+2025-05-28 10:11:16,652 - INFO - Evaluating video: VID02 (1/10)
+2025-05-28 10:12:37,078 - INFO - Evaluating video: VID06 (2/10)
+2025-05-28 10:13:39,237 - INFO - Evaluating video: VID111 (3/10)
+2025-05-28 10:14:37,322 - INFO - Evaluating video: VID14 (4/10)
+2025-05-28 10:15:25,464 - INFO - Evaluating video: VID23 (5/10)
+2025-05-28 10:16:12,462 - INFO - Evaluating video: VID25 (6/10)
+2025-05-28 10:17:14,596 - INFO - Evaluating video: VID50 (7/10)
+2025-05-28 10:17:47,924 - INFO - Evaluating video: VID51 (8/10)
+2025-05-28 10:19:18,208 - INFO - Evaluating video: VID66 (9/10)
+2025-05-28 10:20:11,843 - INFO - Evaluating video: VID79 (10/10)
+2025-05-28 10:21:52,067 - INFO - Supervised evaluation completed. Processed 21885 samples from 10 videos.
+2025-05-28 10:21:52,067 - INFO - Starting RL mode evaluation (state and reward prediction)
+2025-05-28 10:21:52,068 - INFO - Evaluating RL mode on video: VID02
+2025-05-28 10:21:54,776 - INFO - Evaluating RL mode on video: VID06
+2025-05-28 10:21:57,005 - INFO - Evaluating RL mode on video: VID111
+2025-05-28 10:21:59,112 - INFO - Evaluating RL mode on video: VID14
+2025-05-28 10:22:01,004 - INFO - Evaluating RL mode on video: VID23
+2025-05-28 10:22:02,756 - INFO - Evaluating RL mode on video: VID25
+2025-05-28 10:22:04,969 - INFO - Evaluating RL mode on video: VID50
+2025-05-28 10:22:06,249 - INFO - Evaluating RL mode on video: VID51
+2025-05-28 10:22:09,113 - INFO - Evaluating RL mode on video: VID66
+2025-05-28 10:22:11,021 - INFO - Evaluating RL mode on video: VID79
+2025-05-28 10:22:14,303 - INFO - RL evaluation completed. Processed 21885 samples from 10 videos.
+2025-05-28 10:22:15,177 - INFO - Supervised evaluation results saved to logs/2025-05-28_10-02-50/evaluation_results
+2025-05-28 10:22:15,437 - INFO - RL evaluation results saved to logs/2025-05-28_10-02-50/evaluation_results
+2025-05-28 10:22:15,753 - INFO - Comparison visualizations saved to logs/2025-05-28_10-02-50/evaluation_results
+2025-05-28 10:22:15,754 - INFO - Comprehensive evaluation completed
+2025-05-28 10:22:15,754 - INFO - Evaluation completed successfully
+2025-05-28 10:22:15,754 - INFO - Action prediction accuracy: 0.3977
+2025-05-28 10:22:15,754 - INFO - State prediction MSE: 0.1678
+2025-05-28 10:22:15,754 - INFO - RL state prediction MSE: 0.1639
+2025-05-28 10:22:15,754 - INFO - Generating summary report...

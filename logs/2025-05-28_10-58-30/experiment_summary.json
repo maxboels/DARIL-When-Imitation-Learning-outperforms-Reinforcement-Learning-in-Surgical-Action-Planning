@@ -1,0 +1,20 @@
+{
+  "experiment_timestamp": "2025-05-28T11:01:42.414343",
+  "training_summary": {
+    "supervised": "completed"
+  },
+  "evaluation_summary": {
+    "state_prediction": {
+      "better_mode": "rl",
+      "improvement": 0.002682780664263597,
+      "supervised_mse": 0.40984392187066293,
+      "rl_mse": 0.40874440052170236
+    }
+  },
+  "rl_summary": {},
+  "recommendations": [
+    "\u2713 Supervised training completed successfully",
+    "\u26a0 Low action prediction performance, check data quality and model architecture",
+    "\u2192 Rl mode performs better for state prediction"
+  ]
+}

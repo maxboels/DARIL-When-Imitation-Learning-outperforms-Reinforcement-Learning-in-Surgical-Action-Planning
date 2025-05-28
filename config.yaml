@@ -28,7 +28,11 @@ preprocess:
 
 # Experiment configuration
 experiment:
-  max_videos: 2 # null  # Increase for better training
+  max_videos: null  # to be removed later (use from train or test)
+  train:
+    max_videos: null
+  test:
+    max_videos: null
   
   # Dual World Model Training
   dual_world_model:
@@ -38,7 +42,7 @@ experiment:
   
   # RL Experiments (after supervised training)
   rl_experiments:
-    enabled: true
+    enabled: false  # PATCHED: Temporarily disabled
     run_after_supervised: true
     algorithms: ['ppo', 'sac']
     timesteps: 50000
@@ -151,7 +155,7 @@ data:
     video_global_outcome_file: "embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv"
   
   risk_score_path: null
-  max_videos: 1 # Set to null for all videos, or a specific number for debugging
+  max_videos: null  # PATCHED: Use all videos # Set to null for all videos, or a specific number for debugging
   frame_risk_agg: 'max'
 
 # Model configurations

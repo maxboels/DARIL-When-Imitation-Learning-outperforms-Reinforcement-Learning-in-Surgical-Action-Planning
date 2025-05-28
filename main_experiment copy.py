@@ -62,153 +62,144 @@ def run_dual_world_model_experiment(cfg):
         'config': cfg
     }
     
-    try:
-        # Step 1: Load data
-        logger.info("Loading CholecT50 data...")
-        train_data = load_cholect50_data(cfg, logger, split='train', max_videos=cfg['experiment']['train']['max_videos'])
-        test_data = load_cholect50_data(cfg, logger, split='test', max_videos=cfg['experiment']['test']['max_videos'])
-        
-        # Create datasets and dataloaders
-        train_dataset = NextFramePredictionDataset(cfg['data'], train_data)
-        train_loader = DataLoader(
-            train_dataset, 
-            batch_size=cfg['training']['batch_size'], 
-            shuffle=True,
-            num_workers=cfg['training']['num_workers'],
-            pin_memory=cfg['training']['pin_memory']
-        )
-        
-        test_video_loaders = create_video_dataloaders(cfg, test_data, batch_size=16, shuffle=False)
-        
-        logger.info(f"Max training videos: {cfg['experiment']['train']['max_videos']}")
-        logger.info(f"Max test videos: {cfg['experiment']['test']['max_videos']}")
-        logger.info(f"Training samples: {len(train_dataset)}")
-        logger.info(f"Test videos: {len(test_video_loaders)}")
-        
-        # Step 2: Initialize Dual World Model
-        logger.info("Initializing Dual World Model...")
-        model_config = cfg['models']['dual_world_model']
-        model = DualWorldModel(**model_config).to(device)
-        
-        # Log model parameters
-        total_params = sum(p.numel() for p in model.parameters())
-        trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-        logger.info(f"Total parameters: {total_params:,}")
-        logger.info(f"Trainable parameters: {trainable_params:,}")
-        
-        # Step 3: Training Phase
-        training_mode = cfg.get('training_mode', 'supervised')
-        logger.info(f"Training mode: {training_mode}")
-        
-        if training_mode in ['supervised', 'mixed']:
-            # Supervised training for autoregressive action prediction
-            logger.info("Starting supervised training...")
-            cfg['training_mode'] = 'supervised'
-            
-            try:
-                supervised_model_path = train_dual_world_model(cfg, logger, model, train_loader, test_video_loaders, device)
-                experiment_results['model_paths']['supervised'] = supervised_model_path
-                experiment_results['supervised_training'] = {'status': 'completed', 'model_path': supervised_model_path}
-                logger.info(f"Supervised training completed. Model saved: {supervised_model_path}")
-            except Exception as e:
-                logger.error(f"Supervised training failed: {str(e)}")
-                experiment_results['supervised_training'] = {'status': 'failed', 'error': str(e)}
-                return experiment_results
-        
-        if training_mode in ['rl', 'mixed']:
-            # RL training for state and reward prediction
-            logger.info("Starting RL training...")
-            
-            # If mixed mode, load the supervised model first
-            if training_mode == 'mixed' and 'supervised' in experiment_results['model_paths']:
-                logger.info("Loading supervised model for RL fine-tuning...")
-                model = DualWorldModel.load_model(experiment_results['model_paths']['supervised'], device)
-            
-            cfg['training_mode'] = 'rl'
-            
-            try:
-                rl_model_path = train_dual_world_model(cfg, logger, model, train_loader, test_video_loaders, device)
-                experiment_results['model_paths']['rl'] = rl_model_path
-                experiment_results['rl_training'] = {'status': 'completed', 'model_path': rl_model_path}
-                logger.info(f"RL training completed. Model saved: {rl_model_path}")
-            except Exception as e:
-                logger.error(f"RL training failed: {str(e)}")
-                experiment_results['rl_training'] = {'status': 'failed', 'error': str(e)}
-                if training_mode == 'rl':  # If pure RL mode failed, return
-                    return experiment_results
-        
-        # Step 4: Evaluation
-        logger.info("Starting model evaluation...")
-        
-        # Determine which model to evaluate
-        if 'rl' in experiment_results['model_paths']:
-            eval_model_path = experiment_results['model_paths']['rl']
-            logger.info("Evaluating RL-trained model")
-        elif 'supervised' in experiment_results['model_paths']:
-            eval_model_path = experiment_results['model_paths']['supervised']
-            logger.info("Evaluating supervised-trained model")
-        else:
-            logger.error("No trained model available for evaluation")
-            return experiment_results
+    # Step 1: Load data
+    logger.info("Loading CholecT50 data...")
+    train_data = load_cholect50_data(cfg, logger, split='train', max_videos=cfg['experiment']['train']['max_videos'])
+    test_data = load_cholect50_data(cfg, logger, split='test', max_videos=cfg['experiment']['test']['max_videos'])
+    
+    # Create datasets and dataloaders
+    train_dataset = NextFramePredictionDataset(cfg['data'], train_data)
+    train_loader = DataLoader(
+        train_dataset, 
+        batch_size=cfg['training']['batch_size'], 
+        shuffle=True,
+        num_workers=cfg['training']['num_workers'],
+        pin_memory=cfg['training']['pin_memory']
+    )
+    
+    test_video_loaders = create_video_dataloaders(cfg, test_data, batch_size=16, shuffle=False)
+    
+    logger.info(f"Max training videos: {cfg['experiment']['train']['max_videos']}")
+    logger.info(f"Max test videos: {cfg['experiment']['test']['max_videos']}")
+    logger.info(f"Training samples: {len(train_dataset)}")
+    logger.info(f"Test videos: {len(test_video_loaders)}")
+    
+    # Step 2: Initialize Dual World Model
+    logger.info("Initializing Dual World Model...")
+    model_config = cfg['models']['dual_world_model']
+    model = DualWorldModel(**model_config).to(device)
+    
+    # Log model parameters
+    total_params = sum(p.numel() for p in model.parameters())
+    trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    logger.info(f"Total parameters: {total_params:,}")
+    logger.info(f"Trainable parameters: {trainable_params:,}")
+    
+    # Step 3: Training Phase
+    training_mode = cfg.get('training_mode', 'supervised')
+    logger.info(f"Training mode: {training_mode}")
+    
+    if training_mode in ['supervised', 'mixed']:
+        # Supervised training for autoregressive action prediction
+        logger.info("Starting supervised training...")
+        cfg['training_mode'] = 'supervised'
         
         try:
-            # Load model for evaluation
-            eval_model = DualWorldModel.load_model(eval_model_path, device)
-            
-            # Create evaluator
-            evaluator = DualModelEvaluator(eval_model, cfg, device, logger)
-            
-            # Run comprehensive evaluation
-            eval_results = evaluator.evaluate_both_modes(
-                test_video_loaders, 
-                save_results=True, 
-                save_dir=os.path.join(logger.log_dir, "evaluation_results")
-            )
-            
-            experiment_results['evaluation_results'] = eval_results
-            logger.info("Evaluation completed successfully")
-            
-            # Log key metrics
-            if 'supervised' in eval_results:
-                sup_results = eval_results['supervised']
-                if 'action_prediction' in sup_results:
-                    action_acc = sup_results['action_prediction'].get('single_step_action_exact_match', {}).get('mean', 0)
-                    logger.info(f"Action prediction accuracy: {action_acc:.4f}")
-                
-                if 'state_prediction' in sup_results:
-                    state_mse = sup_results['state_prediction'].get('single_step_state_mse', {}).get('mean', 0)
-                    logger.info(f"State prediction MSE: {state_mse:.4f}")
-            
-            if 'rl' in eval_results:
-                rl_results = eval_results['rl']
-                if 'state_prediction' in rl_results:
-                    rl_state_mse = rl_results['state_prediction'].get('state_mse', {}).get('mean', 0)
-                    logger.info(f"RL state prediction MSE: {rl_state_mse:.4f}")
-            
+            supervised_model_path = train_dual_world_model(cfg, logger, model, train_loader, test_video_loaders, device)
+            experiment_results['model_paths']['supervised'] = supervised_model_path
+            experiment_results['supervised_training'] = {'status': 'completed', 'model_path': supervised_model_path}
+            logger.info(f"Supervised training completed. Model saved: {supervised_model_path}")
         except Exception as e:
-            logger.error(f"Evaluation failed: {str(e)}")
-            experiment_results['evaluation_results'] = {'status': 'failed', 'error': str(e)}
-        
-        # Step 5: RL Environment Testing (if RL experiments are enabled)
-        if False:  # PATCHED: Temporarily disable RL experiments
-        # if cfg.get('experiment', {}).get('rl_experiments', {}).get('enabled', False):
-            logger.info("Starting RL environment experiments...")
-            
-            try:
-                rl_env_results = run_rl_environment_experiments(cfg, logger, eval_model, train_data, device)
-                experiment_results['rl_environment'] = rl_env_results
-                logger.info("RL environment experiments completed")
-            except Exception as e:
-                logger.error(f"RL environment experiments failed: {str(e)}")
-                experiment_results['rl_environment'] = {'status': 'failed', 'error': str(e)}
+            logger.error(f"Supervised training failed: {str(e)}")
+            experiment_results['supervised_training'] = {'status': 'failed', 'error': str(e)}
+            return experiment_results
     
-    except Exception as e:
-        logger.error(f"Experiment failed: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        experiment_results['error'] = str(e)
-        experiment_results['traceback'] = traceback.format_exc()
+    if training_mode in ['rl', 'mixed']:
+        # RL training for state and reward prediction
+        logger.info("Starting RL training...")
+        
+        # If mixed mode, load the supervised model first
+        if training_mode == 'mixed' and 'supervised' in experiment_results['model_paths']:
+            logger.info("Loading supervised model for RL fine-tuning...")
+            model = DualWorldModel.load_model(experiment_results['model_paths']['supervised'], device)
+        
+        cfg['training_mode'] = 'rl'
+        
+        try:
+            rl_model_path = train_dual_world_model(cfg, logger, model, train_loader, test_video_loaders, device)
+            experiment_results['model_paths']['rl'] = rl_model_path
+            experiment_results['rl_training'] = {'status': 'completed', 'model_path': rl_model_path}
+            logger.info(f"RL training completed. Model saved: {rl_model_path}")
+        except Exception as e:
+            logger.error(f"RL training failed: {str(e)}")
+            experiment_results['rl_training'] = {'status': 'failed', 'error': str(e)}
+            if training_mode == 'rl':  # If pure RL mode failed, return
+                return experiment_results
+    
+    # Step 4: Evaluation
+    logger.info("Starting model evaluation...")
+    
+    # Determine which model to evaluate
+    if 'rl' in experiment_results['model_paths']:
+        eval_model_path = experiment_results['model_paths']['rl']
+        logger.info("Evaluating RL-trained model")
+    elif 'supervised' in experiment_results['model_paths']:
+        eval_model_path = experiment_results['model_paths']['supervised']
+        logger.info("Evaluating supervised-trained model")
+    else:
+        logger.error("No trained model available for evaluation")
         return experiment_results
+    
+    try:
+        # Load model for evaluation
+        eval_model = DualWorldModel.load_model(eval_model_path, device)
+        
+        # Create evaluator
+        evaluator = DualModelEvaluator(eval_model, cfg, device, logger)
+        
+        # Run comprehensive evaluation
+        eval_results = evaluator.evaluate_both_modes(
+            test_video_loaders, 
+            save_results=True, 
+            save_dir=os.path.join(logger.log_dir, "evaluation_results")
+        )
+        
+        experiment_results['evaluation_results'] = eval_results
+        logger.info("Evaluation completed successfully")
+        
+        # Log key metrics
+        if 'supervised' in eval_results:
+            sup_results = eval_results['supervised']
+            if 'action_prediction' in sup_results:
+                action_acc = sup_results['action_prediction'].get('single_step_action_exact_match', {}).get('mean', 0)
+                logger.info(f"Action prediction accuracy: {action_acc:.4f}")
+            
+            if 'state_prediction' in sup_results:
+                state_mse = sup_results['state_prediction'].get('single_step_state_mse', {}).get('mean', 0)
+                logger.info(f"State prediction MSE: {state_mse:.4f}")
+        
+        if 'rl' in eval_results:
+            rl_results = eval_results['rl']
+            if 'state_prediction' in rl_results:
+                rl_state_mse = rl_results['state_prediction'].get('state_mse', {}).get('mean', 0)
+                logger.info(f"RL state prediction MSE: {rl_state_mse:.4f}")
+        
+    except Exception as e:
+        logger.error(f"Evaluation failed: {str(e)}")
+        experiment_results['evaluation_results'] = {'status': 'failed', 'error': str(e)}
+    
+    # Step 5: RL Environment Testing (if RL experiments are enabled)
+    if False:  # PATCHED: Temporarily disable RL experiments
+    # if cfg.get('experiment', {}).get('rl_experiments', {}).get('enabled', False):
+        logger.info("Starting RL environment experiments...")
+        
+        try:
+            rl_env_results = run_rl_environment_experiments(cfg, logger, eval_model, train_data, device)
+            experiment_results['rl_environment'] = rl_env_results
+            logger.info("RL environment experiments completed")
+        except Exception as e:
+            logger.error(f"RL environment experiments failed: {str(e)}")
+            experiment_results['rl_environment'] = {'status': 'failed', 'error': str(e)}
     
     # Step 6: Generate Summary Report
     logger.info("Generating summary report...")
@@ -386,7 +377,7 @@ def generate_experiment_summary(experiment_results, logger):
     Returns:
         Dictionary containing experiment summary
     """
-    # Handle None experiment_results
+    # PATCHED: Handle None experiment_results
     if experiment_results is None:
         logger.warning("Experiment results are None, creating empty summary")
         return {
@@ -405,14 +396,12 @@ def generate_experiment_summary(experiment_results, logger):
         'recommendations': []
     }
     
-    # Training summary - Fixed: Handle None values properly
-    supervised_training = experiment_results.get('supervised_training') or {}
-    if supervised_training:
-        summary['training_summary']['supervised'] = supervised_training.get('status', 'unknown')
+    # Training summary
+    if experiment_results.get('supervised_training', {}):
+        summary['training_summary']['supervised'] = experiment_results['supervised_training']['status']
     
-    rl_training = experiment_results.get('rl_training') or {}
-    if rl_training:
-        summary['training_summary']['rl'] = rl_training.get('status', 'unknown')
+    if experiment_results.get('rl_training', {}):
+        summary['training_summary']['rl'] = experiment_results['rl_training']['status']
     
     # Evaluation summary
     eval_results = experiment_results.get('evaluation_results')
@@ -440,21 +429,15 @@ def generate_experiment_summary(experiment_results, logger):
     # Generate recommendations
     recommendations = []
     
-    # Training recommendations - Fixed: Handle None values properly
+    # Training recommendations
+    supervised_training = experiment_results.get('supervised_training') or {}
     if supervised_training.get('status') == 'completed':
         recommendations.append("✓ Supervised training completed successfully")
-    elif supervised_training.get('status') == 'failed':
-        recommendations.append("⚠ Supervised training failed - check error logs")
-    elif supervised_training:  # If some training info exists but not completed
-        recommendations.append("⚠ Consider debugging supervised training issues")
     else:
-        recommendations.append("⚠ No supervised training was attempted")
+        recommendations.append("⚠ Consider debugging supervised training issues")
     
-    # RL training recommendations
-    if rl_training.get('status') == 'completed':
+    if experiment_results.get('rl_training', {}).get('status') == 'completed':
         recommendations.append("✓ RL training completed successfully")
-    elif rl_training.get('status') == 'failed':
-        recommendations.append("⚠ RL training failed - check error logs")
     
     # Evaluation recommendations
     if eval_results:
@@ -471,8 +454,6 @@ def generate_experiment_summary(experiment_results, logger):
             better_mode = eval_results['comparison']['state_prediction'].get('better_mode')
             if better_mode:
                 recommendations.append(f"→ {better_mode.title()} mode performs better for state prediction")
-    else:
-        recommendations.append("⚠ No evaluation results available")
     
     # RL environment recommendations
     if rl_env_results:
@@ -522,7 +503,7 @@ def main():
         print("="*60)
         
         # Print key results
-        if results and results.get('evaluation_results'):
+        if results.get('evaluation_results'):
             eval_results = results['evaluation_results']
             
             if 'supervised' in eval_results:
@@ -536,7 +517,7 @@ def main():
                 rl_state_mse = rl_results.get('state_prediction', {}).get('state_mse', {}).get('mean', 0)
                 print(f"RL Mode - State MSE: {rl_state_mse:.4f}")
         
-        if results and results.get('rl_environment'):
+        if results.get('rl_environment'):
             rl_env = results['rl_environment']
             random_reward = rl_env.get('random_policy', {}).get('avg_reward', 0)
             bc_reward = rl_env.get('behavioral_cloning', {}).get('avg_reward', 0)
