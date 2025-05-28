@@ -6,7 +6,7 @@ This script implements a comprehensive comparison between:
 2. Reinforcement Learning (PPO and SAC with world model)
 """
  
- import numpy as np
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
