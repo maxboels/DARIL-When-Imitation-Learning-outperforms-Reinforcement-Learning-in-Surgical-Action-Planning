@@ -7,7 +7,7 @@
 debug: false
 
 # Training mode: 'supervised', 'rl', or 'mixed'
-training_mode: 'mixed'  # Train both IL and RL for comparison
+training_mode: 'rl'  # Train both IL and RL for comparison
 
 # Data preprocessing
 preprocess:
@@ -82,21 +82,8 @@ training:
   eval_epoch_interval: 1  # Evaluate more frequently
   save_model: true
 
-# Add these sections to enable fair evaluation
-fair_evaluation:
-  enabled: true
-  include_traditional_metrics: true    # Keep your existing metrics
-  include_clinical_metrics: true       # Add clinical outcome metrics
-  
-  clinical_outcome_weights:
-    phase_progression: 2.0
-    safety: 3.0  
-    efficiency: 1.5
-    innovation: 0.5
-
 # RL Training Configuration (UPDATED)
 rl_training:
-  outcome_based_rewards: true          # Use clinical rewards instead of action mimicry
   # Environment settings
   rl_horizon: 50
   reward_mode: 'dense'  # 'dense' or 'sparse'

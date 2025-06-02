@@ -2,8 +2,8 @@
 """
 Complete IL vs RL Comparison Script for Surgical Action Prediction
 This script implements a comprehensive comparison between:
-1. Imitation Learning (Supervised approach)
-2. Reinforcement Learning (PPO and SAC with world model)
+1. Imitation Learning (Supervised approach) for Expert Behavior Cloning
+2. Reinforcement Learning (PPO and SAC with world model) for Autonomous Exploration
 """
  
 import numpy as np
@@ -35,6 +35,13 @@ from utils.logger import SimpleLogger
 from models.dual_world_model import DualWorldModel
 from trainer.dual_trainer import DualTrainer, train_dual_world_model
 from evaluation.dual_evaluator import DualModelEvaluator
+
+# New components for RL training # trainer/outcome_based_rl_environment.py
+from trainer.specific_rl_improvements import (
+    OutcomeBasedRewardFunction,
+    FairEvaluationMetrics,
+    ImprovedRLEnvironment
+)
 
 # Suppress warnings from sklearn
 import warnings
@@ -251,52 +258,81 @@ class ComparisonExperiment:
         
         return rl_results
     
-    def _run_comprehensive_evaluation(self, test_data: List[Dict]) -> Dict[str, Any]:
-        """Run comprehensive evaluation of all trained models."""
+    def _run_comprehensive_evaluation(self, test_data):
+        """Use dual evaluation framework"""
         
-        evaluation_results = {}
+        # Import the new evaluator
+        from evaluation.dual_evaluation_framework import DualEvaluationFramework
         
-        # Evaluate IL model
-        if 'imitation_learning' in self.results['model_paths']:
-            self.logger.info("📊 Evaluating Imitation Learning model...")
-            
-            il_model_path = self.results['model_paths']['imitation_learning']
-            il_model = DualWorldModel.load_model(il_model_path, self.device)
-            
-            # Create evaluator
-            evaluator = DualModelEvaluator(il_model, self.config, self.device, self.logger)
-            
-            # Create test dataloaders
-            test_video_loaders = create_video_dataloaders(
-                self.config, test_data, batch_size=16, shuffle=False
-            )
-            
-            # Evaluate
-            il_eval_results = evaluator.evaluate_both_modes(
-                test_video_loaders,
-                save_results=True,
-                save_dir=self.results_dir / "il_evaluation"
-            )
-            
-            evaluation_results['imitation_learning'] = il_eval_results
-            self.logger.info("✅ IL evaluation completed")
+        # Create evaluator
+        dual_evaluator = DualEvaluationFramework(self.config, self.logger)
         
-        # Evaluate RL models
-        for algorithm in self.results['rl_results'].keys():
-            if algorithm in self.results['model_paths'] and 'status' not in self.results['rl_results'][algorithm]:
-                self.logger.info(f"📊 Evaluating {algorithm.upper()} model...")
+        # Load models
+        il_model = self._load_il_model()
+        rl_models = self._load_rl_models()
+        world_model = self._load_world_model()
+        
+        # Run BOTH traditional and clinical evaluation
+        dual_results = dual_evaluator.evaluate_comprehensively(
+            il_model, rl_models, test_data, world_model
+        )
+        
+        return dual_results
+
+    # def _run_comprehensive_evaluation(self, test_data: List[Dict]) -> Dict[str, Any]:
+    #     """Run comprehensive evaluation of all trained models."""
+        
+    #     evaluation_results = {}
+        
+    #     # Evaluate IL model
+    #     if 'imitation_learning' in self.results['model_paths']:
+    #         self.logger.info("📊 Evaluating Imitation Learning model...")
+            
+    #         il_model_path = self.results['model_paths']['imitation_learning']
+    #         il_model = DualWorldModel.load_model(il_model_path, self.device)
+            
+    #         # Create evaluator
+    #         evaluator = DualModelEvaluator(il_model, self.config, self.device, self.logger)
+            
+    #         # Create test dataloaders
+    #         test_video_loaders = create_video_dataloaders(
+    #             self.config, test_data, batch_size=16, shuffle=False
+    #         )
+            
+    #         # Evaluate
+    #         il_eval_results = evaluator.evaluate_both_modes(
+    #             test_video_loaders,
+    #             save_results=True,
+    #             save_dir=self.results_dir / "il_evaluation"
+    #         )
+            
+    #         evaluation_results['imitation_learning'] = il_eval_results
+    #         self.logger.info("✅ IL evaluation completed")
+        
+    #     # Evaluate RL models
+    #     for algorithm in self.results['rl_results'].keys():
+    #         if algorithm in self.results['model_paths'] and 'status' not in self.results['rl_results'][algorithm]:
+    #             self.logger.info(f"📊 Evaluating {algorithm.upper()} model...")
                 
-                try:
-                    rl_eval_results = self._evaluate_rl_model(algorithm, test_data)
-                    evaluation_results[algorithm] = rl_eval_results
-                    self.logger.info(f"✅ {algorithm.upper()} evaluation completed")
+    #             try:
+    #                 rl_eval_results = self._evaluate_rl_model(algorithm, test_data)
+    #                 evaluation_results[algorithm] = rl_eval_results
+    #                 self.logger.info(f"✅ {algorithm.upper()} evaluation completed")
                     
-                except Exception as e:
-                    self.logger.error(f"❌ {algorithm.upper()} evaluation failed: {e}")
-                    evaluation_results[algorithm] = {'status': 'failed', 'error': str(e)}
+    #             except Exception as e:
+    #                 self.logger.error(f"❌ {algorithm.upper()} evaluation failed: {e}")
+    #                 evaluation_results[algorithm] = {'status': 'failed', 'error': str(e)}
         
-        return evaluation_results
+    #     return evaluation_results
     
+    def _run_dual_evaluation(self, il_model, rl_models, test_data, world_model):
+        """Use the new dual evaluation framework"""
+        from evaluation.dual_evaluation_framework import DualEvaluationFramework
+        
+        evaluator = DualEvaluationFramework(self.config, self.logger)
+        results = evaluator.evaluate_comprehensively(il_model, rl_models, test_data, world_model)
+        return results
+
     def _evaluate_rl_model(self, algorithm: str, test_data: List[Dict]) -> Dict[str, Any]:
         """Evaluate a specific RL model."""
         
@@ -540,13 +576,13 @@ def main():
     print("=" * 80)
     
     # Check if fixed config exists
-    config_path = 'config_fixed.yaml'  # Use the fixed config we created
+    config_path = 'config_rl_only.yaml'  # Use the fixed config we created
     if not os.path.exists(config_path):
         config_path = 'config.yaml'  # Fallback to original
         print(f"⚠️ Using original config: {config_path}")
-        print("💡 For best results, use the fixed configuration with RL enabled")
+        print("💡 For best results, use the configuration with RL enabled")
     else:
-        print(f"✅ Using fixed config: {config_path}")
+        print(f"✅ Using config: {config_path}")
     
     try:
         # Create and run experiment
@@ -562,6 +598,15 @@ def main():
                 summary = comparison_results['summary']
                 print(f"🏆 Best method: {summary.get('best_method', 'N/A')}")
                 print(f"📊 Best score: {summary.get('best_score', 0):.4f}")
+
+
+            if 'evaluation_results' in results:
+                print("\n📈 Evaluation Results:")
+                print("Traditional winner:", results['comparison_summary']['traditional_comparison']['winner'])
+                print("Clinical winner:", results['comparison_summary']['clinical_comparison']['winner'])
+                print("Bias detected:", results['bias_analysis']['ranking_differences']['same_winner'])
+
+
         else:
             print(f"\n❌ Comparison failed: {results['error']}")
             return 1

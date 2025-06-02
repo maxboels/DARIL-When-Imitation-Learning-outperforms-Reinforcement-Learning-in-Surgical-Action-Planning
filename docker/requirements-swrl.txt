@@ -1,0 +1,24 @@
+timm
+albumentations
+hydra-core
+omegaconf
+scipy
+pillow
+torchmetrics
+numpy>=1.20.0
+torch>=2.0.0
+torchvision>=0.15.0
+matplotlib>=3.5.0
+pandas>=1.3.0
+scikit-learn>=1.0.0
+tqdm>=4.60.0
+pyyaml>=6.0
+tensorboard>=2.6.0
+seaborn>=0.12.0
+transformers==4.46.3
+# CHOOSE ONE of the following two lines:
+opencv-python-headless==4.11.0.86 # Recommended for servers
+# opencv-python==4.8.0.74
+ivtmetrics==0.1.5
+gymnasium
+stable-baselines3

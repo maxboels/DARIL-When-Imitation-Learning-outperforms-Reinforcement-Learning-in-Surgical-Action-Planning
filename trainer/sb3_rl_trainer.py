@@ -31,6 +31,8 @@ except ImportError:
     SB3_CONTRIB_AVAILABLE = False
     print("⚠️ SB3-Contrib not available. Install with: pip install sb3-contrib")
 
+from .outcome_based_rl_environment import OutcomeBasedRewardFunction
+
 class SurgicalActionEnv(gym.Env):
     """
     FIXED Gymnasium environment for surgical actions - handles discrete actions properly.
@@ -76,7 +78,12 @@ class SurgicalActionEnv(gym.Env):
             'positive_action_bonus': 2.0,  # Extra reward for correct positive predictions
             'consistency_bonus': 0.3
         })
-    
+
+        self.reward_function = OutcomeBasedRewardFunction(config)
+        # ADD this line:
+        self.outcome_reward_function = OutcomeBasedRewardFunction(config)
+
+
     def reset(self, seed=None, options=None):
         """Reset environment for new episode."""
         super().reset(seed=seed)
@@ -125,6 +132,11 @@ class SurgicalActionEnv(gym.Env):
                 reward = self._calculate_reward(binary_action, ground_truth_actions)
             else:
                 reward = 0.0
+            
+            reward = self.reward_function.calculate_reward(
+                binary_action, self.current_state, self.video, 
+                self.current_frame_idx, self.current_phase
+            )
         
         self.current_state = next_state
         self.episode_reward += reward
@@ -137,7 +149,13 @@ class SurgicalActionEnv(gym.Env):
         }
         
         return next_state, reward, done, False, info
-    
+
+    # Replace your _calculate_reward() method with:
+    def _calculate_outcome_reward(self, predicted_actions, video_metadata, frame_idx, phase):
+        return self.outcome_reward_function.calculate_reward(
+            predicted_actions, self.current_state, video_metadata, frame_idx, phase
+        )    
+
     def _calculate_reward(self, predicted_actions: np.ndarray, ground_truth_actions: np.ndarray) -> float:
         """Enhanced reward calculation focusing on positive actions."""
         
