@@ -1,0 +1,32 @@
+2025-06-02 14:07:20,829 - INFO - Log file: logs/2025-06-02_14-07-20/il_vs_rl_comparison.log
+2025-06-02 14:07:20,829 - INFO - 🚀 Starting IL vs RL Comparison Experiment
+2025-06-02 14:07:20,829 - INFO - Device: cuda
+2025-06-02 14:07:20,829 - INFO - Results will be saved to: logs/2025-06-02_14-07-20/comparison_results
+2025-06-02 14:07:20,829 - INFO - 📊 Loading dataset...
+2025-06-02 14:07:20,829 - INFO - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-02 14:07:21,221 - INFO - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-02 14:07:21,221 - INFO - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-02 14:07:21,223 - INFO - [Train] Found 2 videos in metadata file
+2025-06-02 14:07:21,223 - INFO - [Train] Loading data for 2 videos
+2025-06-02 14:07:21,355 - INFO - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-02 14:07:21,449 - INFO - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-02 14:07:21,449 - INFO - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-02 14:07:21,449 - INFO - [Test] Found 2 videos in metadata file
+2025-06-02 14:07:21,449 - INFO - [Test] Loading data for 2 videos
+2025-06-02 14:07:21,633 - INFO - Loaded 2 training videos and 2 test videos
+2025-06-02 14:07:21,633 - INFO - 🎓 Training Imitation Learning Model...
+2025-06-02 14:07:21,633 - INFO - Training supervised imitation learning model
+2025-06-02 14:07:23,599 - INFO - Model parameters: 48,924,145 total, 48,924,145 trainable
+2025-06-02 14:07:23,600 - INFO - Starting supervised training for autoregressive action prediction
+2025-06-02 14:07:24,000 - INFO - Batch 0/204 | Loss: 3.3123
+2025-06-02 14:07:28,449 - INFO - Batch 100/204 | Loss: 0.5414
+2025-06-02 14:07:32,831 - INFO - Batch 200/204 | Loss: 0.3646
+2025-06-02 14:09:13,129 - INFO - New best model saved: logs/2025-06-02_14-07-20/checkpoints/supervised_best_epoch_1.pt
+2025-06-02 14:09:13,129 - INFO - Epoch 1/1 | Train Loss: 0.7761 | Val Loss: 0.5147 | Val Action Acc: 0.0000
+2025-06-02 14:09:13,575 - INFO - Training plots saved to logs/2025-06-02_14-07-20
+2025-06-02 14:09:13,691 - INFO - Training completed. Best model: logs/2025-06-02_14-07-20/checkpoints/supervised_best_epoch_1.pt
+2025-06-02 14:09:13,691 - INFO - Final model: logs/2025-06-02_14-07-20/checkpoints/final_model.pt
+2025-06-02 14:09:13,691 - INFO - ✅ IL training completed. Model saved: logs/2025-06-02_14-07-20/checkpoints/supervised_best_epoch_1.pt
+2025-06-02 14:09:13,790 - INFO - 🤖 Training RL Models...
+2025-06-02 14:09:14,495 - INFO - 📈 Running comprehensive evaluation...
+2025-06-02 14:09:14,497 - ERROR - ❌ Comparison experiment failed: 'ComparisonExperiment' object has no attribute '_load_il_model'

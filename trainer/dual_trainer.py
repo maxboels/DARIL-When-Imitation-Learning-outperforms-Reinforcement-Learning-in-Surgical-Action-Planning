@@ -350,7 +350,7 @@ class DualTrainer:
         
         with torch.no_grad():
             for video_id, val_loader in val_loaders.items():
-                for batch in val_loader:
+                for batch_idx, batch in enumerate(tqdm(val_loader, desc=f"Evaluating {video_id} ...")):
                     current_states = batch['current_states'].to(self.device)
                     next_states = batch['next_states'].to(self.device)
                     next_actions = batch['next_actions'].to(self.device)

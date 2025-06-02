@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Complete IL vs RL Comparison Script for Surgical Action Prediction
+Complete IL vs RL Comparison Script for Surgical Action Prediction - FIXED
 This script implements a comprehensive comparison between:
 1. Imitation Learning (Supervised approach) for Expert Behavior Cloning
 2. Reinforcement Learning (PPO and SAC with world model) for Autonomous Exploration
@@ -36,7 +36,7 @@ from models.dual_world_model import DualWorldModel
 from trainer.dual_trainer import DualTrainer, train_dual_world_model
 from evaluation.dual_evaluator import DualModelEvaluator
 
-# New components for RL training # trainer/outcome_based_rl_environment.py
+# New components for RL training
 from trainer.specific_rl_improvements import (
     OutcomeBasedRewardFunction,
     FairEvaluationMetrics,
@@ -113,7 +113,7 @@ class ComparisonExperiment:
                 self.logger.warning("⚠️ RL experiments are disabled in config")
                 self.results['rl_results'] = {}
             
-            # Step 4: Comprehensive evaluation
+            # Step 4: Comprehensive evaluation - FIXED
             self.logger.info("📈 Running comprehensive evaluation...")
             evaluation_results = self._run_comprehensive_evaluation(test_data)
             self.results['evaluation_results'] = evaluation_results
@@ -202,7 +202,6 @@ class ComparisonExperiment:
     def _train_rl_models(self, train_data, world_model_path):
         """Train RL models using Stable-Baselines3."""
         # Import RL training components
-        # from rl_trainer import RLTrainer  # This would be the script we created above
         from trainer.sb3_rl_trainer import SB3Trainer # Stable Baselines3 trainer
         
         world_model = DualWorldModel.load_model(world_model_path, self.device)
@@ -211,7 +210,7 @@ class ComparisonExperiment:
         sb3_trainer = SB3Trainer(world_model, self.config, self.logger, self.device)
         
         rl_results = {}
-        algorithms = ['ppo', 'sac']  # Reliable algorithms
+        algorithms = ['ppo', 'dqn']  # Reliable algorithms
         timesteps = 10000
         
         for algorithm in algorithms:
@@ -222,151 +221,200 @@ class ComparisonExperiment:
         
         return rl_results
 
-    def _train_custom_rl_models(self, train_data: List[Dict], world_model_path: str) -> Dict[str, Any]:
-        """Train RL models using the world model as environment."""
-        
-        # Load the pre-trained world model
-        world_model = DualWorldModel.load_model(world_model_path, self.device)
-        self.logger.info(f"Loaded world model for RL training: {world_model_path}")
-        
-        # Create RL trainer
-        rl_trainer = RLTrainer(world_model, self.config, self.logger, self.device)
-        
-        # Get RL configuration
-        rl_config = self.config.get('experiment', {}).get('rl_experiments', {})
-        algorithms = rl_config.get('algorithms', ['ppo'])
-        episodes = rl_config.get('timesteps', 10000) // 50  # Convert to episodes
-        
-        rl_results = {}
-        
-        # Train each RL algorithm
-        for algorithm in algorithms:
-            self.logger.info(f"🔥 Training {algorithm.upper()} agent...")
-            
-            try:
-                if algorithm.lower() == 'ppo':
-                    result = rl_trainer.train_ppo(train_data, episodes=episodes)
-                elif algorithm.lower() == 'sac':
-                    result = rl_trainer.train_sac(train_data, episodes=episodes)
-                else:
-                    self.logger.warning(f"Unknown RL algorithm: {algorithm}")
-                    continue
-                
-                rl_results[algorithm] = result
-                self.results['model_paths'][algorithm] = result['model_path']
-                
-                self.logger.info(f"✅ {algorithm.upper()} training completed")
-                
-            except Exception as e:
-                self.logger.error(f"❌ {algorithm.upper()} training failed: {e}")
-                rl_results[algorithm] = {'status': 'failed', 'error': str(e)}
-        
-        return rl_results
+    # FIXED: Add missing methods for evaluation
+    def _load_il_model(self):
+        """Load the trained IL model."""
+        if 'imitation_learning' in self.results['model_paths']:
+            il_model_path = self.results['model_paths']['imitation_learning']
+            if il_model_path and os.path.exists(il_model_path):
+                return DualWorldModel.load_model(il_model_path, self.device)
+        return None
     
+    def _load_rl_models(self) -> Dict:
+        """Load the trained RL models."""
+        rl_models = {}
+        
+        # Load each RL model if it exists
+        for algorithm, result in self.results['rl_results'].items():
+            if result.get('status') == 'success' and 'model_path' in result:
+                model_path = result['model_path']
+                if os.path.exists(model_path):
+                    try:
+                        # Import SB3 models
+                        from stable_baselines3 import PPO, DQN, A2C
+                        
+                        if 'ppo' in algorithm.lower():
+                            model = PPO.load(model_path)
+                        elif 'dqn' in algorithm.lower():
+                            model = DQN.load(model_path)
+                        elif 'a2c' in algorithm.lower():
+                            model = A2C.load(model_path)
+                        else:
+                            continue
+                        
+                        rl_models[algorithm] = model
+                    except Exception as e:
+                        self.logger.warning(f"Failed to load {algorithm} model: {e}")
+        
+        return rl_models
+    
+    def _load_world_model(self):
+        """Load the world model."""
+        if 'imitation_learning' in self.results['model_paths']:
+            world_model_path = self.results['model_paths']['imitation_learning']
+            if world_model_path and os.path.exists(world_model_path):
+                return DualWorldModel.load_model(world_model_path, self.device)
+        return None
+
     def _run_comprehensive_evaluation(self, test_data):
-        """Use dual evaluation framework"""
+        """Run comprehensive evaluation with proper error handling."""
         
-        # Import the new evaluator
-        from evaluation.dual_evaluation_framework import DualEvaluationFramework
+        evaluation_results = {}
         
-        # Create evaluator
-        dual_evaluator = DualEvaluationFramework(self.config, self.logger)
-        
-        # Load models
+        # 1. Evaluate IL model if available
         il_model = self._load_il_model()
-        rl_models = self._load_rl_models()
-        world_model = self._load_world_model()
+        if il_model is not None:
+            self.logger.info("📊 Evaluating Imitation Learning model...")
+            il_eval_results = self._evaluate_il_model(il_model, test_data)
+            evaluation_results['imitation_learning'] = il_eval_results
+        else:
+            self.logger.warning("⚠️ IL model not available for evaluation")
+            evaluation_results['imitation_learning'] = {'status': 'not_available'}
         
-        # Run BOTH traditional and clinical evaluation
-        dual_results = dual_evaluator.evaluate_comprehensively(
-            il_model, rl_models, test_data, world_model
+        # 2. Evaluate RL models if available
+        rl_models = self._load_rl_models()
+        if rl_models:
+            for algorithm, rl_model in rl_models.items():
+                self.logger.info(f"📊 Evaluating {algorithm.upper()} model...")
+                try:
+                    rl_eval_results = self._evaluate_rl_model(rl_model, test_data, algorithm)
+                    evaluation_results[algorithm] = rl_eval_results
+                except Exception as e:
+                    self.logger.error(f"❌ {algorithm.upper()} evaluation failed: {e}")
+                    evaluation_results[algorithm] = {'status': 'failed', 'error': str(e)}
+        else:
+            self.logger.warning("⚠️ No RL models available for evaluation")
+        
+        # 3. Comparison analysis
+        if len(evaluation_results) > 1:
+            comparison_analysis = self._create_comparison_analysis(evaluation_results)
+            evaluation_results['comparison_analysis'] = comparison_analysis
+        
+        return evaluation_results
+    
+    def _evaluate_il_model(self, il_model, test_data) -> Dict[str, Any]:
+        """Evaluate IL model with both traditional and clinical metrics."""
+        
+        # Create test dataloaders
+        test_video_loaders = create_video_dataloaders(
+            self.config, test_data, batch_size=16, shuffle=False
         )
         
-        return dual_results
-
-    # def _run_comprehensive_evaluation(self, test_data: List[Dict]) -> Dict[str, Any]:
-    #     """Run comprehensive evaluation of all trained models."""
+        # Create evaluator
+        evaluator = DualModelEvaluator(il_model, self.config, self.device, self.logger)
         
-    #     evaluation_results = {}
+        # Evaluate
+        il_eval_results = evaluator.evaluate_both_modes(
+            test_video_loaders,
+            save_results=True,
+            save_dir=self.results_dir / "il_evaluation"
+        )
         
-    #     # Evaluate IL model
-    #     if 'imitation_learning' in self.results['model_paths']:
-    #         self.logger.info("📊 Evaluating Imitation Learning model...")
-            
-    #         il_model_path = self.results['model_paths']['imitation_learning']
-    #         il_model = DualWorldModel.load_model(il_model_path, self.device)
-            
-    #         # Create evaluator
-    #         evaluator = DualModelEvaluator(il_model, self.config, self.device, self.logger)
-            
-    #         # Create test dataloaders
-    #         test_video_loaders = create_video_dataloaders(
-    #             self.config, test_data, batch_size=16, shuffle=False
-    #         )
-            
-    #         # Evaluate
-    #         il_eval_results = evaluator.evaluate_both_modes(
-    #             test_video_loaders,
-    #             save_results=True,
-    #             save_dir=self.results_dir / "il_evaluation"
-    #         )
-            
-    #         evaluation_results['imitation_learning'] = il_eval_results
-    #         self.logger.info("✅ IL evaluation completed")
-        
-    #     # Evaluate RL models
-    #     for algorithm in self.results['rl_results'].keys():
-    #         if algorithm in self.results['model_paths'] and 'status' not in self.results['rl_results'][algorithm]:
-    #             self.logger.info(f"📊 Evaluating {algorithm.upper()} model...")
-                
-    #             try:
-    #                 rl_eval_results = self._evaluate_rl_model(algorithm, test_data)
-    #                 evaluation_results[algorithm] = rl_eval_results
-    #                 self.logger.info(f"✅ {algorithm.upper()} evaluation completed")
-                    
-    #             except Exception as e:
-    #                 self.logger.error(f"❌ {algorithm.upper()} evaluation failed: {e}")
-    #                 evaluation_results[algorithm] = {'status': 'failed', 'error': str(e)}
-        
-    #     return evaluation_results
+        return il_eval_results
     
-    def _run_dual_evaluation(self, il_model, rl_models, test_data, world_model):
-        """Use the new dual evaluation framework"""
-        from evaluation.dual_evaluation_framework import DualEvaluationFramework
+    def _evaluate_rl_model(self, rl_model, test_data: List[Dict], algorithm: str) -> Dict[str, Any]:
+        """Evaluate RL model on test data."""
         
-        evaluator = DualEvaluationFramework(self.config, self.logger)
-        results = evaluator.evaluate_comprehensively(il_model, rl_models, test_data, world_model)
-        return results
-
-    def _evaluate_rl_model(self, algorithm: str, test_data: List[Dict]) -> Dict[str, Any]:
-        """Evaluate a specific RL model."""
+        # Create simple RL evaluation
+        from trainer.sb3_rl_trainer import SurgicalActionEnv
         
-        # This is a simplified evaluation - in practice you'd want more comprehensive metrics
-        # Load the trained RL agent
-        model_path = self.results['model_paths'][algorithm]
+        # Create environment for evaluation
+        env = SurgicalActionEnv(
+            world_model=self._load_world_model(),
+            video_data=test_data,
+            config=self.config.get('rl_training', {}),
+            device=self.device
+        )
         
-        # Import RL agents
-        if algorithm.lower() == 'ppo':
-            from trainer.sb3_rl_trainer import SB3Trainer # Stable Baselines3 trainer
-            # Load and evaluate PPO agent
-            # This would require creating an environment and running episodes
-            pass
-        elif algorithm.lower() == 'sac':
-            from trainer.sb3_rl_trainer import SB3Trainer # Stable Baselines3 trainer
-            # Load and evaluate SAC agent
-            pass
+        # Run evaluation episodes
+        n_eval_episodes = 5  # Small number for quick evaluation
+        episode_rewards = []
         
-        # For now, return placeholder results
-        # In a complete implementation, you'd run the agent in the environment
-        # and collect metrics like episode rewards, success rates, etc.
+        for episode in range(n_eval_episodes):
+            obs, _ = env.reset()
+            episode_reward = 0
+            done = False
+            
+            while not done:
+                action, _ = rl_model.predict(obs, deterministic=True)
+                obs, reward, done, truncated, info = env.step(action)
+                episode_reward += reward
+                
+                if truncated:
+                    break
+            
+            episode_rewards.append(episode_reward)
         
         return {
-            'avg_episode_reward': np.random.uniform(0.5, 2.0),  # Placeholder
-            'success_rate': np.random.uniform(0.3, 0.8),        # Placeholder
-            'avg_episode_length': np.random.uniform(30, 60),    # Placeholder
-            'evaluation_episodes': 50,
-            'model_path': model_path
+            'algorithm': algorithm,
+            'mean_reward': float(np.mean(episode_rewards)),
+            'std_reward': float(np.std(episode_rewards)),
+            'min_reward': float(np.min(episode_rewards)),
+            'max_reward': float(np.max(episode_rewards)),
+            'n_episodes': n_eval_episodes,
+            'status': 'success'
         }
+    
+    def _create_comparison_analysis(self, evaluation_results: Dict) -> Dict[str, Any]:
+        """Create comparison analysis between IL and RL results."""
+        
+        analysis = {
+            'methods_evaluated': list(evaluation_results.keys()),
+            'il_performance': {},
+            'rl_performance': {},
+            'comparison_summary': {}
+        }
+        
+        # Extract IL performance
+        if 'imitation_learning' in evaluation_results:
+            il_results = evaluation_results['imitation_learning']
+            if 'supervised' in il_results:
+                sup_results = il_results['supervised']
+                if 'action_prediction' in sup_results:
+                    mAP = sup_results['action_prediction'].get('single_step_action_exact_match', {}).get('mean', 0)
+                    analysis['il_performance'] = {
+                        'mAP': mAP,
+                        'metric_type': 'action_matching',
+                        'status': 'success'
+                    }
+        
+        # Extract RL performance
+        rl_results = {}
+        for method, results in evaluation_results.items():
+            if method != 'imitation_learning' and method != 'comparison_analysis':
+                if results.get('status') == 'success':
+                    rl_results[method] = {
+                        'mean_reward': results.get('mean_reward', 0),
+                        'std_reward': results.get('std_reward', 0),
+                        'metric_type': 'episode_reward'
+                    }
+        
+        analysis['rl_performance'] = rl_results
+        
+        # Create summary
+        if analysis['il_performance'] and rl_results:
+            il_score = analysis['il_performance'].get('mAP', 0)
+            best_rl = max(rl_results.values(), key=lambda x: x['mean_reward']) if rl_results else None
+            
+            if best_rl:
+                analysis['comparison_summary'] = {
+                    'il_best_score': il_score,
+                    'rl_best_score': best_rl['mean_reward'],
+                    'rl_best_method': [k for k, v in rl_results.items() if v == best_rl][0],
+                    'note': 'Different metrics - direct comparison requires outcome-based evaluation'
+                }
+        
+        return analysis
     
     def _perform_statistical_comparison(self) -> Dict[str, Any]:
         """Perform statistical comparison between methods."""
@@ -391,35 +439,35 @@ class ComparisonExperiment:
                 il_map = il_results['supervised']['action_prediction'].get('single_step_action_exact_match', {}).get('mean', 0)
                 methods_performance['Imitation Learning'] = il_map
         
-        # RL performance
-        for algorithm in ['ppo', 'sac']:
+        # RL performance - convert rewards to comparable scores
+        for algorithm in ['ppo', 'dqn', 'a2c']:
             if algorithm in evaluation_results:
                 rl_results = evaluation_results[algorithm]
-                # Convert RL metrics to comparable format
-                # This is simplified - you'd want proper metric conversion
-                rl_reward = rl_results.get('avg_episode_reward', 0)
-                rl_performance = min(rl_reward / 2.0, 1.0)  # Normalize to [0,1]
-                methods_performance[f'{algorithm.upper()} (RL)'] = rl_performance
+                if rl_results.get('status') == 'success':
+                    rl_reward = rl_results.get('mean_reward', 0)
+                    # Normalize reward to [0,1] range for comparison
+                    normalized_score = min(max(rl_reward / 100.0, 0), 1)  # Assume max reward ~100
+                    methods_performance[f'{algorithm.upper()} (RL)'] = normalized_score
         
         # Perform comparisons
         comparison_results['methods_compared'] = list(methods_performance.keys())
         comparison_results['performance_scores'] = methods_performance
         
         # Rank methods
-        ranked_methods = sorted(methods_performance.items(), key=lambda x: x[1], reverse=True)
-        comparison_results['rankings'] = {
-            'ranking': [method for method, score in ranked_methods],
-            'scores': [score for method, score in ranked_methods]
-        }
-        
-        # Generate summary
-        if ranked_methods:
+        if methods_performance:
+            ranked_methods = sorted(methods_performance.items(), key=lambda x: x[1], reverse=True)
+            comparison_results['rankings'] = {
+                'ranking': [method for method, score in ranked_methods],
+                'scores': [score for method, score in ranked_methods]
+            }
+            
+            # Generate summary
             best_method, best_score = ranked_methods[0]
             comparison_results['summary'] = {
                 'best_method': best_method,
                 'best_score': best_score,
                 'total_methods': len(ranked_methods),
-                'significant_differences': len(ranked_methods) > 1  # Simplified
+                'evaluation_note': 'Comparison uses different metrics - outcome-based evaluation needed for fair comparison'
             }
         
         return comparison_results
@@ -444,6 +492,8 @@ class ComparisonExperiment:
             report_content.append(f"- **Best performing method:** {summary.get('best_method', 'N/A')}")
             report_content.append(f"- **Best score:** {summary.get('best_score', 0):.4f}")
             report_content.append(f"- **Methods compared:** {summary.get('total_methods', 0)}")
+            if 'evaluation_note' in summary:
+                report_content.append(f"- **Note:** {summary['evaluation_note']}")
         
         report_content.append("")
         
@@ -459,19 +509,21 @@ class ComparisonExperiment:
                 if 'action_prediction' in sup_results:
                     action_acc = sup_results['action_prediction'].get('single_step_action_exact_match', {}).get('mean', 0)
                     report_content.append(f"- **Action Prediction Accuracy:** {action_acc:.4f}")
-                if 'state_prediction' in sup_results:
-                    state_mse = sup_results['state_prediction'].get('single_step_state_mse', {}).get('mean', 0)
-                    report_content.append(f"- **State Prediction MSE:** {state_mse:.4f}")
             report_content.append("")
         
         # RL Results
-        for algorithm in ['ppo', 'sac']:
+        for algorithm in ['ppo', 'dqn', 'a2c']:
             if algorithm in self.results.get('evaluation_results', {}):
                 report_content.append(f"### {algorithm.upper()} (Reinforcement Learning)")
                 rl_results = self.results['evaluation_results'][algorithm]
-                report_content.append(f"- **Average Episode Reward:** {rl_results.get('avg_episode_reward', 0):.4f}")
-                report_content.append(f"- **Success Rate:** {rl_results.get('success_rate', 0):.4f}")
-                report_content.append(f"- **Average Episode Length:** {rl_results.get('avg_episode_length', 0):.1f}")
+                if rl_results.get('status') == 'success':
+                    report_content.append(f"- **Mean Episode Reward:** {rl_results.get('mean_reward', 0):.4f}")
+                    report_content.append(f"- **Std Episode Reward:** {rl_results.get('std_reward', 0):.4f}")
+                    report_content.append(f"- **Evaluation Episodes:** {rl_results.get('n_episodes', 0)}")
+                else:
+                    report_content.append(f"- **Status:** {rl_results.get('status', 'unknown')}")
+                    if 'error' in rl_results:
+                        report_content.append(f"- **Error:** {rl_results['error']}")
                 report_content.append("")
         
         # Method Comparison
@@ -499,8 +551,8 @@ class ComparisonExperiment:
         
         report_content.append("")
         report_content.append("## Recommendations")
-        report_content.append("1. Further investigate the best-performing method with larger datasets.")
-        report_content.append("2. Consider ensemble approaches combining IL and RL strengths.")
+        report_content.append("1. Implement outcome-based evaluation for fair comparison between IL and RL.")
+        report_content.append("2. Consider hybrid approaches combining IL and RL strengths.")
         report_content.append("3. Evaluate on additional surgical datasets for generalization.")
         
         # Save report
@@ -510,7 +562,7 @@ class ComparisonExperiment:
         
         self.logger.info(f"📄 Final report saved to: {report_path}")
         
-        # Also create a simple summary for console output
+        # Console summary
         print("\n" + "="*80)
         print("🏆 FINAL COMPARISON RESULTS")
         print("="*80)
@@ -603,15 +655,6 @@ def main():
                 summary = comparison_results['summary']
                 print(f"🏆 Best method: {summary.get('best_method', 'N/A')}")
                 print(f"📊 Best score: {summary.get('best_score', 0):.4f}")
-
-
-            if 'evaluation_results' in results:
-                print("\n📈 Evaluation Results:")
-                print("Traditional winner:", results['comparison_summary']['traditional_comparison']['winner'])
-                print("Clinical winner:", results['comparison_summary']['clinical_comparison']['winner'])
-                print("Bias detected:", results['bias_analysis']['ranking_differences']['same_winner'])
-
-
         else:
             print(f"\n❌ Comparison failed: {results['error']}")
             return 1
