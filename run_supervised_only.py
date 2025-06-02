@@ -15,7 +15,7 @@ from pathlib import Path
 from datasets.cholect50 import load_cholect50_data, NextFramePredictionDataset
 from torch.utils.data import DataLoader
 from models.dual_world_model import DualWorldModel
-from training.dual_trainer import DualTrainer
+from trainer.dual_trainer import DualTrainer
 from utils.logger import SimpleLogger
 
 def run_supervised_only_experiment():
@@ -66,7 +66,7 @@ def run_supervised_only_experiment():
     logger.info("Starting supervised training...")
     cfg['training_mode'] = 'supervised'
     
-    from training.dual_trainer import train_dual_world_model
+    from trainer.dual_trainer import train_dual_world_model
     best_model_path = train_dual_world_model(cfg, logger, model, train_loader, test_video_loaders, device)
     
     logger.info(f"Training completed! Best model: {best_model_path}")

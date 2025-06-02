@@ -24,7 +24,7 @@ sys.path.append(str(project_root))
 
 # Import your modules
 from models.dual_world_model import DualWorldModel
-from training.dual_trainer import DualTrainer
+from trainer.dual_trainer import DualTrainer
 from evaluation.dual_evaluator import DualModelEvaluator
 from rl.improved_environment import SurgicalWorldModelEnv
 from datasets.cholect50 import load_cholect50_data, NextFramePredictionDataset

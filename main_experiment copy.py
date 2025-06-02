@@ -24,7 +24,7 @@ from utils.logger import SimpleLogger
 
 # Import new components
 from models.dual_world_model import DualWorldModel
-from training.dual_trainer import DualTrainer, train_dual_world_model
+from trainer.dual_trainer import DualTrainer, train_dual_world_model
 from evaluation.dual_evaluator import DualModelEvaluator
 from rl.environment import SurgicalWorldModelEnv, MultiVideoSurgicalEnv
 
@@ -260,7 +260,7 @@ def run_rl_environment_experiments(cfg, logger, model, train_data, device):
     
     if algorithms:
         try:
-            from training.rl_trainer import RLExperimentRunner
+            from trainer.rl_trainer import RLExperimentRunner
             
             # Create RL trainer
             rl_trainer = RLExperimentRunner(cfg, logger)

@@ -33,7 +33,7 @@ from utils.logger import SimpleLogger
 
 # Import model components
 from models.dual_world_model import DualWorldModel
-from training.dual_trainer import DualTrainer, train_dual_world_model
+from trainer.dual_trainer import DualTrainer, train_dual_world_model
 from evaluation.dual_evaluator import DualModelEvaluator
 
 # Suppress warnings from sklearn
