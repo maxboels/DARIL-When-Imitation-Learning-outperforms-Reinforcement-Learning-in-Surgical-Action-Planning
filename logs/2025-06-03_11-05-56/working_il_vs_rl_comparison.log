@@ -1,0 +1,35 @@
+2025-06-03 11:05:56,470 - INFO - Log file: logs/2025-06-03_11-05-56/working_il_vs_rl_comparison.log
+2025-06-03 11:05:56,474 - INFO - 🚀 Starting WORKING IL vs RL Comparison Experiment
+2025-06-03 11:05:56,474 - INFO - 📊 Loading dataset...
+2025-06-03 11:05:56,474 - INFO - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-03 11:05:56,871 - INFO - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 11:05:56,871 - INFO - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 11:05:56,873 - INFO - [Train] Found 2 videos in metadata file
+2025-06-03 11:05:56,873 - INFO - [Train] Loading data for 2 videos
+2025-06-03 11:05:57,003 - INFO - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-03 11:05:57,087 - INFO - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 11:05:57,087 - INFO - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 11:05:57,088 - INFO - [Test] Found 1 videos in metadata file
+2025-06-03 11:05:57,088 - INFO - [Test] Loading data for 1 videos
+2025-06-03 11:05:57,193 - INFO - Loaded 2 training videos and 1 test videos
+2025-06-03 11:05:57,193 - INFO - ✅ Using existing IL model: logs/2025-06-02_14-07-20/checkpoints/supervised_best_epoch_1.pt
+2025-06-03 11:05:57,193 - INFO - 🤖 Training RL Models (WORKING VERSION)...
+2025-06-03 11:05:57,894 - INFO - 🤖 Training PPO (WORKING VERSION)...
+2025-06-03 11:06:14,478 - INFO - 🤖 Training A2C (WORKING VERSION)...
+2025-06-03 11:06:26,095 - INFO - 📊 WORKING EXPERIMENT RESULTS:
+2025-06-03 11:06:26,095 - INFO - ==================================================
+2025-06-03 11:06:26,095 - INFO - ✅ PPO: Mean reward = 116.567 ± 15.266
+2025-06-03 11:06:26,095 - INFO -    Episode stats: {'avg_length': 50.0, 'avg_reward': 111.45246461695234, 'episodes': 100, 'last_length': 50, 'last_reward': 100.37727272727275}
+2025-06-03 11:06:26,095 - INFO -    Training timesteps: 10000
+2025-06-03 11:06:26,095 - INFO -    Model saved: logs/2025-06-03_11-05-56/rl_training/ppo_model_final_fixed.zip
+2025-06-03 11:06:26,096 - INFO - ✅ A2C: Mean reward = 90.598 ± 23.362
+2025-06-03 11:06:26,096 - INFO -    Episode stats: {'avg_length': 50.0, 'avg_reward': 115.39134554214064, 'episodes': 100, 'last_length': 50, 'last_reward': 82.38891089108911}
+2025-06-03 11:06:26,096 - INFO -    Training timesteps: 10000
+2025-06-03 11:06:26,096 - INFO -    Model saved: logs/2025-06-03_11-05-56/rl_training/a2c_model_final_fixed.zip
+2025-06-03 11:06:26,096 - INFO - 
+🎯 SUMMARY:
+2025-06-03 11:06:26,096 - INFO -    Successful algorithms: 2/2
+2025-06-03 11:06:26,096 - INFO -    Working algorithms: ppo, a2c
+2025-06-03 11:06:26,096 - INFO -    Best performing: PPO with 116.567 mean reward
+2025-06-03 11:06:26,096 - INFO - 
+✅ WORKING IL vs RL comparison completed successfully!

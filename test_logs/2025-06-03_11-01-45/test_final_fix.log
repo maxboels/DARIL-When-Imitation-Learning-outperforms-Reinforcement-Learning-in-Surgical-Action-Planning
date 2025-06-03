@@ -1,0 +1,6 @@
+2025-06-03 11:01:45,065 - INFO - Log file: test_logs/2025-06-03_11-01-45/test_final_fix.log
+2025-06-03 11:01:45,066 - INFO - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-03 11:01:45,497 - INFO - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 11:01:45,497 - INFO - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 11:01:45,499 - INFO - [Train] Found 2 videos in metadata file
+2025-06-03 11:01:45,499 - INFO - [Train] Loading data for 2 videos

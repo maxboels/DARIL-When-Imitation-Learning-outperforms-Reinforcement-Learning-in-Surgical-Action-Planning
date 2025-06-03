@@ -1,0 +1,45 @@
+2025-06-03 09:58:57,772 - INFO - Log file: logs/2025-06-03_09-58-57/il_vs_rl_comparison.log
+2025-06-03 09:58:57,772 - INFO - 🚀 Starting IL vs RL Comparison Experiment
+2025-06-03 09:58:57,772 - INFO - Device: cuda
+2025-06-03 09:58:57,772 - INFO - Results will be saved to: logs/2025-06-03_09-58-57/comparison_results
+2025-06-03 09:58:57,772 - INFO - 📊 Loading dataset...
+2025-06-03 09:58:57,772 - INFO - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-03 09:58:58,197 - INFO - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 09:58:58,197 - INFO - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 09:58:58,199 - INFO - [Train] Found 2 videos in metadata file
+2025-06-03 09:58:58,199 - INFO - [Train] Loading data for 2 videos
+2025-06-03 09:58:58,330 - INFO - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-03 09:58:58,410 - INFO - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 09:58:58,410 - INFO - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 09:58:58,411 - INFO - [Test] Found 2 videos in metadata file
+2025-06-03 09:58:58,411 - INFO - [Test] Loading data for 2 videos
+2025-06-03 09:58:58,600 - INFO - Loaded 2 training videos and 2 test videos
+2025-06-03 09:58:58,600 - INFO - 🎓 Training Imitation Learning Model...
+2025-06-03 09:58:58,600 - INFO - Training supervised imitation learning model
+2025-06-03 09:59:00,601 - INFO - Model parameters: 48,924,145 total, 48,924,145 trainable
+2025-06-03 09:59:00,603 - INFO - Starting supervised training for autoregressive action prediction
+2025-06-03 09:59:00,973 - INFO - Batch 0/204 | Loss: 3.3123
+2025-06-03 09:59:05,382 - INFO - Batch 100/204 | Loss: 0.5414
+2025-06-03 09:59:09,856 - INFO - Batch 200/204 | Loss: 0.3646
+2025-06-03 10:00:50,664 - INFO - New best model saved: logs/2025-06-03_09-58-57/checkpoints/supervised_best_epoch_1.pt
+2025-06-03 10:00:50,664 - INFO - Epoch 1/1 | Train Loss: 0.7761 | Val Loss: 0.5147 | Val Action Acc: 0.0000
+2025-06-03 10:00:51,108 - INFO - Training plots saved to logs/2025-06-03_09-58-57
+2025-06-03 10:00:51,218 - INFO - Training completed. Best model: logs/2025-06-03_09-58-57/checkpoints/supervised_best_epoch_1.pt
+2025-06-03 10:00:51,218 - INFO - Final model: logs/2025-06-03_09-58-57/checkpoints/final_model.pt
+2025-06-03 10:00:51,218 - INFO - ✅ IL training completed. Model saved: logs/2025-06-03_09-58-57/checkpoints/supervised_best_epoch_1.pt
+2025-06-03 10:00:51,307 - INFO - 🤖 Training RL Models...
+2025-06-03 10:00:51,449 - INFO - ✅ PPO training completed
+2025-06-03 10:00:51,453 - INFO - ✅ DQN training completed
+2025-06-03 10:00:51,454 - INFO - 📈 Running comprehensive evaluation...
+2025-06-03 10:00:51,454 - INFO - 🔍 Starting comprehensive evaluation...
+2025-06-03 10:00:51,454 - INFO - 📥 Loading models for evaluation...
+2025-06-03 10:00:51,454 - INFO - 📥 Loading IL model from: logs/2025-06-03_09-58-57/checkpoints/supervised_best_epoch_1.pt
+2025-06-03 10:00:52,093 - INFO - ✅ IL model loaded successfully
+2025-06-03 10:00:52,094 - WARNING - ⚠️ No RL models found to load
+2025-06-03 10:00:52,094 - WARNING - ⚠️ No RL models available for comparison
+2025-06-03 10:00:52,094 - INFO - 📥 Loading IL model from: logs/2025-06-03_09-58-57/checkpoints/supervised_best_epoch_1.pt
+2025-06-03 10:00:52,853 - INFO - ✅ IL model loaded successfully
+2025-06-03 10:00:52,862 - INFO - 📊 Starting Comprehensive Dual Evaluation...
+2025-06-03 10:00:52,862 - INFO - 🔍 Including BOTH traditional and outcome-based metrics
+2025-06-03 10:00:52,862 - INFO - 🎓 Evaluating Imitation Learning...
+2025-06-03 10:00:52,878 - ERROR - ❌ Comparison experiment failed: Expected all tensors to be on the same device, but found at least two devices, cuda:0 and cpu! (when checking argument for argument mat1 in method wrapper_CUDA_addmm)

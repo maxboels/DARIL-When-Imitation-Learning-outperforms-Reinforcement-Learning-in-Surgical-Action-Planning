@@ -1,0 +1,52 @@
+2025-06-03 11:54:36,170 - INFO - Log file: logs/2025-06-03_11-54-36/updated_il_vs_rl_comparison.log
+2025-06-03 11:54:36,170 - INFO - 🚀 Starting UPDATED IL vs RL Comparison Experiment
+2025-06-03 11:54:36,170 - INFO - Device: cuda
+2025-06-03 11:54:36,170 - INFO - Action Space: Continuous Box(0,1,(100,)) with binary thresholding
+2025-06-03 11:54:36,170 - INFO - Results will be saved to: logs/2025-06-03_11-54-36/comparison_results
+2025-06-03 11:54:36,170 - INFO - 📊 Loading dataset...
+2025-06-03 11:54:36,170 - INFO - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-03 11:54:36,609 - INFO - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 11:54:36,609 - INFO - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 11:54:36,611 - INFO - [Train] Found 2 videos in metadata file
+2025-06-03 11:54:36,611 - INFO - [Train] Loading data for 2 videos
+2025-06-03 11:54:36,746 - INFO - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-03 11:54:36,833 - INFO - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 11:54:36,833 - INFO - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 11:54:36,834 - INFO - [Test] Found 1 videos in metadata file
+2025-06-03 11:54:36,834 - INFO - [Test] Loading data for 1 videos
+2025-06-03 11:54:36,943 - INFO - Loaded 2 training videos and 1 test videos
+2025-06-03 11:54:36,943 - INFO - 🎓 Training Imitation Learning Model...
+2025-06-03 11:54:36,943 - INFO - Training supervised imitation learning model
+2025-06-03 11:54:38,819 - INFO - Model parameters: 48,924,145 total, 48,924,145 trainable
+2025-06-03 11:54:38,821 - INFO - Starting supervised training for autoregressive action prediction
+2025-06-03 11:54:39,218 - INFO - Batch 0/204 | Loss: 3.3123
+2025-06-03 11:54:43,772 - INFO - Batch 100/204 | Loss: 0.5414
+2025-06-03 11:54:48,293 - INFO - Batch 200/204 | Loss: 0.3646
+2025-06-03 11:55:51,392 - INFO - New best model saved: logs/2025-06-03_11-54-36/checkpoints/supervised_best_epoch_1.pt
+2025-06-03 11:55:51,393 - INFO - Epoch 1/1 | Train Loss: 0.7761 | Val Loss: 0.4113 | Val Action Acc: 0.0000
+2025-06-03 11:55:51,897 - INFO - Training plots saved to logs/2025-06-03_11-54-36
+2025-06-03 11:55:52,020 - INFO - Training completed. Best model: logs/2025-06-03_11-54-36/checkpoints/supervised_best_epoch_1.pt
+2025-06-03 11:55:52,020 - INFO - Final model: logs/2025-06-03_11-54-36/checkpoints/final_model.pt
+2025-06-03 11:55:52,020 - INFO - ✅ IL training completed. Model saved: logs/2025-06-03_11-54-36/checkpoints/supervised_best_epoch_1.pt
+2025-06-03 11:55:52,092 - INFO - 🤖 Training RL Models with WORKING Trainer...
+2025-06-03 11:55:52,740 - INFO - ✅ Loaded world model from: logs/2025-06-03_11-54-36/checkpoints/supervised_best_epoch_1.pt
+2025-06-03 11:55:52,741 - INFO - 🚀 Starting RL training with 10000 timesteps per algorithm
+2025-06-03 11:55:52,741 - INFO - 📋 Action Space: Continuous Box(0,1,(100,)) → thresholded to binary
+2025-06-03 11:55:52,741 - INFO - 🤖 Training PPO (Final Fixed Version)...
+2025-06-03 11:56:10,292 - INFO - ✅ PPO training successful: 102.233 ± 22.719
+2025-06-03 11:56:10,292 - INFO - 🤖 Training A2C (Final Fixed Version)...
+2025-06-03 11:56:24,509 - INFO - ✅ A2C training successful: 88.549 ± 24.405
+2025-06-03 11:56:24,509 - INFO - 📈 Running comprehensive evaluation...
+2025-06-03 11:56:24,509 - INFO - 🔍 Starting comprehensive evaluation...
+2025-06-03 11:56:24,509 - INFO - 📥 Loading models for evaluation...
+2025-06-03 11:56:24,510 - INFO - 📥 Loading IL model from: logs/2025-06-03_11-54-36/checkpoints/supervised_best_epoch_1.pt
+2025-06-03 11:56:25,160 - INFO - ✅ IL model loaded successfully
+2025-06-03 11:56:25,173 - INFO - ✅ Loaded PPO model from logs/2025-06-03_11-54-36/rl_training/ppo_model_final_fixed.zip
+2025-06-03 11:56:25,181 - INFO - ✅ Loaded A2C model from logs/2025-06-03_11-54-36/rl_training/a2c_model_final_fixed.zip
+2025-06-03 11:56:25,181 - INFO - 📥 Loading IL model from: logs/2025-06-03_11-54-36/checkpoints/supervised_best_epoch_1.pt
+2025-06-03 11:56:25,781 - INFO - ✅ IL model loaded successfully
+2025-06-03 11:56:25,789 - INFO - 🔧 Evaluation framework using device: cuda
+2025-06-03 11:56:25,789 - INFO - 📊 Starting Comprehensive Dual Evaluation...
+2025-06-03 11:56:25,790 - INFO - 🔍 Including BOTH traditional and outcome-based metrics
+2025-06-03 11:56:25,790 - INFO - 🎓 Evaluating Imitation Learning...
+2025-06-03 11:56:25,790 - ERROR - ❌ Comparison experiment failed: 'DualWorldModel' object has no attribute 'get_parameters'

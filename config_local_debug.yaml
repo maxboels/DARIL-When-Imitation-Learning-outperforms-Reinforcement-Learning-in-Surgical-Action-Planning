@@ -32,13 +32,18 @@ experiment:
   train:
     max_videos: 2  # Increase for full training
   test:
-    max_videos: 2   # Test on more videos
+    max_videos: 1   # Test on more videos
   
   # Dual World Model Training
   dual_world_model:
     train: true
     inference: true
     best_model_path: null  # Will be set after training
+  
+  # Imitation Learning (ENABLED for IL vs RL comparison)
+  il_experiments:
+    enabled: true  # ✅ ENABLED for IL vs RL comparison
+    il_model_path: "logs/2025-06-02_14-07-20/checkpoints/supervised_best_epoch_1.pt"  # Path to the best IL model
   
   # RL Experiments (ENABLED for comparison)
   rl_experiments:

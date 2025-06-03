@@ -68,10 +68,6 @@ class DualEvaluationFramework:
         # For paper presentation
         self.bias_analysis = True         # Analyze differences between approaches
         
-        # Device management
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.logger.info(f"🔧 Evaluation framework using device: {self.device}")
-    
     def evaluate_comprehensively(self, 
                                 il_model, 
                                 rl_models: Dict,
@@ -155,95 +151,51 @@ class DualEvaluationFramework:
                                     test_data: List[Dict], 
                                     method_type: str) -> TraditionalMetrics:
         """
-        Traditional evaluation USING the dataset (correct approach).
+        Traditional IL-focused evaluation (action matching).
+        This is biased toward IL but important to include for comparison.
         """
         
         all_predictions = []
         all_targets = []
         
-        # Get model device
-        model_device = next(model.get_parameters()).device
-        self.logger.info(f"🔧 Model device: {model_device}")
-        
         if method_type.startswith('IL'):
-            # Create datasets from test data (this will chunk sequences properly)
-            from datasets.cholect50 import NextFramePredictionDataset
-            from torch.utils.data import DataLoader
-            
+            # IL evaluation (direct action prediction)
             model.eval()
             with torch.no_grad():
                 for video in test_data:
-                    self.logger.info(f"🔧 Evaluating video {video.get('video_id', 'unknown')}")
+                    states = torch.tensor(video['frame_embeddings']).unsqueeze(0)
+                    targets = torch.tensor(video['actions_binaries']).unsqueeze(0)
                     
-                    try:
-                        # Create dataset for this video (uses your chunking logic!)
-                        video_dataset = NextFramePredictionDataset(self.config['data'], [video])
-                        video_loader = DataLoader(video_dataset, batch_size=16, shuffle=False)
-                        
-                        video_predictions = []
-                        video_targets = []
-                        
-                        for batch_idx, batch in enumerate(video_loader):
-                            # Use the properly formatted sequences from your dataset
-                            current_states = batch['current_states'].to(model_device)  # Already chunked!
-                            next_actions = batch['next_actions'].to(model_device)      # Already chunked!
-
-                            if batch_idx == 0:
-                                self.logger.info(f"🔧 Batch shapes - States: {current_states.shape}, Actions: {next_actions.shape}")
-                            
-                            # Forward pass
-                            outputs = model(current_states=current_states)
-                            
-                            if 'action_pred' in outputs:
-                                predictions = torch.sigmoid(outputs['action_pred'])
-                                video_predictions.append(predictions.cpu().numpy())
-                                video_targets.append(next_actions.cpu().numpy())
-                        
-                        # Concatenate batches for this video
-                        if video_predictions:
-                            all_predictions.extend(video_predictions)
-                            all_targets.extend(video_targets)
-                            
-                    except Exception as e:
-                        self.logger.error(f"❌ Error evaluating video {video.get('video_id', 'unknown')}: {e}")
-                        continue
+                    outputs = model(current_states=states)
+                    if 'action_pred' in outputs:
+                        predictions = torch.sigmoid(outputs['action_pred'])
+                        all_predictions.append(predictions.cpu().numpy())
+                        all_targets.append(targets.cpu().numpy())
         
         else:
-            # RL evaluation (unchanged)
+            # RL evaluation (run policy and compare to expert actions)
             for video in test_data:
-                try:
-                    rl_actions = self._generate_rl_actions(model, video)
-                    expert_actions = video['actions_binaries']
-                    
-                    # Use reasonable chunk size for RL too
-                    chunk_size = 512
-                    rl_actions = rl_actions[:chunk_size]
-                    expert_actions = expert_actions[:chunk_size]
-                    
-                    if len(rl_actions) > 0 and len(expert_actions) > 0:
-                        all_predictions.append(rl_actions.reshape(1, len(rl_actions), -1))
-                        all_targets.append(expert_actions.reshape(1, len(expert_actions), -1))
-                        
-                except Exception as e:
-                    self.logger.error(f"❌ Error in RL evaluation: {e}")
-                    continue
+                rl_actions = self._generate_rl_actions(model, video)
+                expert_actions = video['actions_binaries']
+                
+                # Ensure same length
+                min_len = min(len(rl_actions), len(expert_actions))
+                rl_actions = rl_actions[:min_len]
+                expert_actions = expert_actions[:min_len]
+                
+                all_predictions.append(rl_actions)
+                all_targets.append(expert_actions)
         
         if not all_predictions:
-            self.logger.warning("⚠️ No predictions available")
             return self._create_zero_traditional_metrics()
         
-        try:
-            predictions = np.concatenate(all_predictions, axis=0)
-            targets = np.concatenate(all_targets, axis=0)
-            
-            self.logger.info(f"🔧 Final shapes - Predictions: {predictions.shape}, Targets: {targets.shape}")
-            
-            return self._calculate_traditional_metrics(predictions, targets, method_type)
-            
-        except Exception as e:
-            self.logger.error(f"❌ Error calculating metrics: {e}")
-            return self._create_zero_traditional_metrics()
-
+        # Concatenate all predictions and targets
+        predictions = np.concatenate(all_predictions, axis=0)
+        targets = np.concatenate(all_targets, axis=0)
+        
+        # Calculate traditional metrics
+        return self._calculate_traditional_metrics(predictions, targets, method_type)
+    
     def _evaluate_clinical_outcomes(self, 
                                   model, 
                                   test_data: List[Dict], 
@@ -770,40 +722,21 @@ class DualEvaluationFramework:
         return insights
     
     def _generate_il_actions(self, il_model, video: Dict) -> np.ndarray:
-        """Generate IL actions using the dataset (correct approach)."""
-        
-        from datasets.cholect50 import NextFramePredictionDataset
-        from torch.utils.data import DataLoader
-        
-        model_device = next(il_model.parameters()).device
+        """Generate action sequence from IL model."""
         
         il_model.eval()
         with torch.no_grad():
-            try:
-                # Use your dataset to get properly chunked sequences
-                video_dataset = NextFramePredictionDataset(self.config['data'], [video])
-                video_loader = DataLoader(video_dataset, batch_size=16, shuffle=False)
-                
-                all_actions = []
-                
-                for batch in video_loader:
-                    current_states = batch['current_states'].to(model_device)
-                    outputs = il_model(current_states=current_states)
-                    
-                    if 'action_pred' in outputs:
-                        predictions = torch.sigmoid(outputs['action_pred'])
-                        binary_actions = (predictions > 0.5).float()
-                        all_actions.append(binary_actions.cpu().numpy())
-                
-                if all_actions:
-                    return np.concatenate(all_actions, axis=0).squeeze()
-                    
-            except Exception as e:
-                self.logger.error(f"❌ Error generating IL actions: {e}")
+            states = torch.tensor(video['frame_embeddings']).unsqueeze(0)
+            outputs = il_model(current_states=states)
+            
+            if 'action_pred' in outputs:
+                predictions = torch.sigmoid(outputs['action_pred'])
+                binary_actions = (predictions > 0.5).float()
+                return binary_actions.squeeze(0).cpu().numpy()
         
         # Fallback
-        return np.zeros((100, 100))  # Reasonable fallback size
-
+        return np.zeros((len(video['frame_embeddings']), 100))
+    
     def _generate_rl_actions(self, rl_model, video: Dict) -> np.ndarray:
         """Generate action sequence from RL model."""
         

@@ -1,0 +1,24 @@
+2025-06-03 09:58:09,050 - INFO - Log file: logs/2025-06-03_09-58-09/il_vs_rl_comparison.log
+2025-06-03 09:58:09,057 - INFO - 🚀 Starting IL vs RL Comparison Experiment
+2025-06-03 09:58:09,057 - INFO - Device: cuda
+2025-06-03 09:58:09,057 - INFO - Results will be saved to: logs/2025-06-03_09-58-09/comparison_results
+2025-06-03 09:58:09,057 - INFO - 📊 Loading dataset...
+2025-06-03 09:58:09,057 - INFO - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-03 09:58:09,461 - INFO - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 09:58:09,461 - INFO - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 09:58:09,463 - INFO - [Train] Found 2 videos in metadata file
+2025-06-03 09:58:09,463 - INFO - [Train] Loading data for 2 videos
+2025-06-03 09:58:09,719 - INFO - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-03 09:58:09,808 - INFO - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 09:58:09,808 - INFO - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 09:58:09,809 - INFO - [Test] Found 2 videos in metadata file
+2025-06-03 09:58:09,809 - INFO - [Test] Loading data for 2 videos
+2025-06-03 09:58:10,322 - INFO - Loaded 2 training videos and 2 test videos
+2025-06-03 09:58:10,322 - INFO - 🎓 Training Imitation Learning Model...
+2025-06-03 09:58:10,322 - INFO - Training supervised imitation learning model
+2025-06-03 09:58:12,435 - INFO - Model parameters: 48,924,145 total, 48,924,145 trainable
+2025-06-03 09:58:12,436 - INFO - Starting supervised training for autoregressive action prediction
+2025-06-03 09:58:12,885 - INFO - Batch 0/204 | Loss: 3.3675
+2025-06-03 09:58:17,339 - INFO - Batch 100/204 | Loss: 0.6052
+2025-06-03 09:58:21,769 - INFO - Batch 200/204 | Loss: 0.3787
+2025-06-03 09:58:30,244 - ERROR - ❌ Comparison experiment failed: [Errno 2] No such file or directory

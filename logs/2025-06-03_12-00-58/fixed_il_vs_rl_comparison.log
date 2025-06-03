@@ -1,0 +1,68 @@
+2025-06-03 12:00:58,237 - INFO - Log file: logs/2025-06-03_12-00-58/fixed_il_vs_rl_comparison.log
+2025-06-03 12:00:58,237 - INFO - 🚀 Starting FIXED IL vs RL Comparison Experiment
+2025-06-03 12:00:58,237 - INFO - Device: cuda
+2025-06-03 12:00:58,237 - INFO - Action Space: Continuous Box(0,1,(100,)) with binary thresholding
+2025-06-03 12:00:58,237 - INFO - Results will be saved to: logs/2025-06-03_12-00-58/comparison_results
+2025-06-03 12:00:58,237 - INFO - 📊 Loading dataset...
+2025-06-03 12:00:58,238 - INFO - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-03 12:00:58,634 - INFO - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 12:00:58,634 - INFO - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 12:00:58,636 - INFO - [Train] Found 2 videos in metadata file
+2025-06-03 12:00:58,636 - INFO - [Train] Loading data for 2 videos
+2025-06-03 12:00:58,764 - INFO - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-03 12:00:58,859 - INFO - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 12:00:58,859 - INFO - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 12:00:58,860 - INFO - [Test] Found 1 videos in metadata file
+2025-06-03 12:00:58,860 - INFO - [Test] Loading data for 1 videos
+2025-06-03 12:00:58,968 - INFO - Loaded 2 training videos and 1 test videos
+2025-06-03 12:00:58,969 - INFO - 🎓 Training Imitation Learning Model...
+2025-06-03 12:00:58,969 - INFO - Training supervised imitation learning model
+2025-06-03 12:01:00,627 - INFO - Model parameters: 48,924,145 total, 48,924,145 trainable
+2025-06-03 12:01:00,629 - INFO - Starting supervised training for autoregressive action prediction
+2025-06-03 12:01:01,009 - INFO - Batch 0/204 | Loss: 3.3123
+2025-06-03 12:01:05,395 - INFO - Batch 100/204 | Loss: 0.5414
+2025-06-03 12:01:09,806 - INFO - Batch 200/204 | Loss: 0.3646
+2025-06-03 12:02:07,436 - INFO - New best model saved: logs/2025-06-03_12-00-58/checkpoints/supervised_best_epoch_1.pt
+2025-06-03 12:02:07,436 - INFO - Epoch 1/1 | Train Loss: 0.7761 | Val Loss: 0.4113 | Val Action Acc: 0.0000
+2025-06-03 12:02:07,856 - INFO - Training plots saved to logs/2025-06-03_12-00-58
+2025-06-03 12:02:07,969 - INFO - Training completed. Best model: logs/2025-06-03_12-00-58/checkpoints/supervised_best_epoch_1.pt
+2025-06-03 12:02:07,970 - INFO - Final model: logs/2025-06-03_12-00-58/checkpoints/final_model.pt
+2025-06-03 12:02:07,970 - INFO - ✅ IL training completed. Model saved: logs/2025-06-03_12-00-58/checkpoints/supervised_best_epoch_1.pt
+2025-06-03 12:02:08,038 - INFO - 🤖 Training RL Models with WORKING Trainer...
+2025-06-03 12:02:08,661 - INFO - ✅ Loaded world model from: logs/2025-06-03_12-00-58/checkpoints/supervised_best_epoch_1.pt
+2025-06-03 12:02:08,661 - INFO - 🚀 Starting RL training with 10000 timesteps per algorithm
+2025-06-03 12:02:08,661 - INFO - 📋 Action Space: Continuous Box(0,1,(100,)) → thresholded to binary
+2025-06-03 12:02:08,661 - INFO - 🤖 Training PPO (Final Fixed Version)...
+2025-06-03 12:02:24,557 - INFO - ✅ PPO training successful: 102.233 ± 22.719
+2025-06-03 12:02:24,557 - INFO - 🤖 Training A2C (Final Fixed Version)...
+2025-06-03 12:02:37,055 - INFO - ✅ A2C training successful: 88.549 ± 24.405
+2025-06-03 12:02:37,055 - INFO - 📈 Running comprehensive evaluation...
+2025-06-03 12:02:37,055 - INFO - 🔍 Starting comprehensive evaluation...
+2025-06-03 12:02:37,055 - INFO - 📥 Loading models for evaluation...
+2025-06-03 12:02:37,055 - INFO - 📥 Loading IL model from: logs/2025-06-03_12-00-58/checkpoints/supervised_best_epoch_1.pt
+2025-06-03 12:02:37,642 - INFO - ✅ IL model loaded successfully
+2025-06-03 12:02:37,652 - INFO - ✅ Loaded PPO model from logs/2025-06-03_12-00-58/rl_training/ppo_model_final_fixed.zip
+2025-06-03 12:02:37,661 - INFO - ✅ Loaded A2C model from logs/2025-06-03_12-00-58/rl_training/a2c_model_final_fixed.zip
+2025-06-03 12:02:37,661 - INFO - 📥 Loading IL model from: logs/2025-06-03_12-00-58/checkpoints/supervised_best_epoch_1.pt
+2025-06-03 12:02:38,264 - INFO - ✅ IL model loaded successfully
+2025-06-03 12:02:38,264 - INFO - 🔧 Evaluation framework using device: cuda
+2025-06-03 12:02:38,264 - INFO - 📊 Starting Comprehensive Dual Evaluation...
+2025-06-03 12:02:38,265 - INFO - 🔍 Including BOTH traditional and outcome-based metrics
+2025-06-03 12:02:38,265 - INFO - 🎓 Evaluating Imitation Learning...
+2025-06-03 12:02:38,265 - INFO - 🔧 Model device: cuda:0
+2025-06-03 12:02:38,265 - INFO - 🔧 Evaluating video VID02
+2025-06-03 12:02:38,654 - INFO - 🔧 Batch shapes - States: torch.Size([16, 20, 1024]), Actions: torch.Size([16, 20, 100])
+2025-06-03 12:02:40,427 - INFO - 🔧 Final shapes - Predictions: (2839, 20, 100), Targets: (2839, 20, 100)
+2025-06-03 12:02:46,676 - INFO - 🤖 Evaluating ppo...
+2025-06-03 12:02:46,677 - INFO - 🔧 Model device: cuda
+2025-06-03 12:02:47,427 - INFO - 🔧 Final shapes - Predictions: (1, 512, 100), Targets: (1, 512, 100)
+2025-06-03 12:02:48,188 - INFO - 🤖 Evaluating a2c...
+2025-06-03 12:02:48,188 - INFO - 🔧 Model device: cuda
+2025-06-03 12:02:48,918 - INFO - 🔧 Final shapes - Predictions: (1, 512, 100), Targets: (1, 512, 100)
+2025-06-03 12:02:49,681 - INFO - 🔍 Analyzing evaluation bias...
+2025-06-03 12:02:49,681 - INFO - ⚖️ Creating comprehensive comparison...
+2025-06-03 12:02:49,681 - INFO - ✅ Dual evaluation completed successfully
+2025-06-03 12:02:49,682 - INFO - 🔬 Performing statistical analysis...
+2025-06-03 12:02:49,682 - INFO - 📝 Generating reports and visualizations...
+2025-06-03 12:02:49,682 - INFO - 📄 Fixed comparison report saved to: logs/2025-06-03_12-00-58/comparison_results/fixed_comparison_report.md
+2025-06-03 12:02:49,683 - ERROR - ❌ Comparison experiment failed: Object of type ComprehensiveResults is not JSON serializable
