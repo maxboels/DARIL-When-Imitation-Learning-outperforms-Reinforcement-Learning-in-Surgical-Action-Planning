@@ -11,7 +11,22 @@ export PYTHONPATH="${PROJECT_DIR}:${PYTHONPATH}"
 # Change to the project directory
 cd $PROJECT_DIR
 
+
+# Fix OpenCV issue on DGX server
+echo "🔧 Fixing OpenCV compatibility issue on DGX server..."
+
+# Option 1: Reinstall opencv-python
+pip uninstall opencv-python opencv-python-headless -y
+pip install opencv-python==4.8.1.78
+
+# Option 2: If that doesn't work, try downgrading
+# pip install opencv-python==4.5.5.64
+
+# Option 3: Install specific versions
+# pip install opencv-python==4.7.1.72
+
+echo "✅ OpenCV fix attempted. Try running your script again."
+echo "If this doesn't work, use the fallback solution below."
+
 # Run the training script with the specified configuration
-# we removed the config flag
-# python run_exp_real_data.py --config $CONFIG_NAME
 python run_main_experiment_v4.py

@@ -1,0 +1,111 @@
+2025-06-03 12:10:52,549 - INFO - Log file: logs/2025-06-03_12-10-52/fixed_il_vs_rl_comparison.log
+2025-06-03 12:10:52,551 - INFO - 🚀 Starting FIXED IL vs RL Comparison Experiment
+2025-06-03 12:10:52,551 - INFO - Device: cuda
+2025-06-03 12:10:52,551 - INFO - Action Space: Continuous Box(0,1,(100,)) with binary thresholding
+2025-06-03 12:10:52,551 - INFO - Results will be saved to: logs/2025-06-03_12-10-52/comparison_results
+2025-06-03 12:10:52,551 - INFO - 📊 Loading dataset...
+2025-06-03 12:10:52,551 - INFO - Loading train data from /nfs/home/mboels/datasets/CholecT50 with fold 0
+2025-06-03 12:10:54,017 - INFO - [Train] Start processing metadata file /nfs/home/mboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 12:10:54,017 - INFO - [Train] Rewards extraction skipped, using metadata file /nfs/home/mboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 12:10:54,020 - INFO - [Train] Found 10 videos in metadata file
+2025-06-03 12:10:54,020 - INFO - [Train] Loading data for 10 videos
+2025-06-03 12:11:16,138 - INFO - Loading test data from /nfs/home/mboels/datasets/CholecT50 with fold 0
+2025-06-03 12:11:16,592 - INFO - [Test] Start processing metadata file /nfs/home/mboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 12:11:16,592 - INFO - [Test] Rewards extraction skipped, using metadata file /nfs/home/mboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 12:11:16,593 - INFO - [Test] Found 5 videos in metadata file
+2025-06-03 12:11:16,593 - INFO - [Test] Loading data for 5 videos
+2025-06-03 12:11:31,434 - INFO - Loaded 10 training videos and 5 test videos
+2025-06-03 12:11:31,435 - INFO - 🎓 Training Imitation Learning Model...
+2025-06-03 12:11:31,435 - INFO - Training supervised imitation learning model
+2025-06-03 12:11:41,938 - INFO - Model parameters: 48,924,145 total, 48,924,145 trainable
+2025-06-03 12:11:41,949 - INFO - Starting supervised training for autoregressive action prediction
+2025-06-03 12:11:46,651 - INFO - Batch 0/1087 | Loss: 3.4002
+2025-06-03 12:11:50,107 - INFO - Batch 100/1087 | Loss: 0.8856
+2025-06-03 12:11:53,465 - INFO - Batch 200/1087 | Loss: 0.6698
+2025-06-03 12:11:56,927 - INFO - Batch 300/1087 | Loss: 0.5251
+2025-06-03 12:12:00,624 - INFO - Batch 400/1087 | Loss: 0.4449
+2025-06-03 12:12:04,165 - INFO - Batch 500/1087 | Loss: 0.3632
+2025-06-03 12:12:07,737 - INFO - Batch 600/1087 | Loss: 0.3658
+2025-06-03 12:12:11,350 - INFO - Batch 700/1087 | Loss: 0.2571
+2025-06-03 12:12:14,803 - INFO - Batch 800/1087 | Loss: 0.4240
+2025-06-03 12:12:18,369 - INFO - Batch 900/1087 | Loss: 0.3048
+2025-06-03 12:12:21,784 - INFO - Batch 1000/1087 | Loss: 0.2512
+2025-06-03 12:25:59,741 - INFO - New best model saved: logs/2025-06-03_12-10-52/checkpoints/supervised_best_epoch_1.pt
+2025-06-03 12:25:59,741 - INFO - Epoch 1/3 | Train Loss: 0.4771 | Val Loss: 0.2566 | Val Action Acc: 0.0000
+2025-06-03 12:26:00,143 - INFO - Batch 0/1087 | Loss: 0.2895
+2025-06-03 12:26:03,503 - INFO - Batch 100/1087 | Loss: 0.2326
+2025-06-03 12:26:07,108 - INFO - Batch 200/1087 | Loss: 0.3609
+2025-06-03 12:26:11,005 - INFO - Batch 300/1087 | Loss: 0.2009
+2025-06-03 12:26:14,960 - INFO - Batch 400/1087 | Loss: 0.2108
+2025-06-03 12:26:18,682 - INFO - Batch 500/1087 | Loss: 0.1851
+2025-06-03 12:26:22,626 - INFO - Batch 600/1087 | Loss: 0.2567
+2025-06-03 12:26:26,418 - INFO - Batch 700/1087 | Loss: 0.1780
+2025-06-03 12:26:30,205 - INFO - Batch 800/1087 | Loss: 0.2420
+2025-06-03 12:26:33,647 - INFO - Batch 900/1087 | Loss: 0.1996
+2025-06-03 12:26:37,171 - INFO - Batch 1000/1087 | Loss: 0.2133
+2025-06-03 12:40:36,635 - INFO - New best model saved: logs/2025-06-03_12-10-52/checkpoints/supervised_best_epoch_2.pt
+2025-06-03 12:40:36,636 - INFO - Epoch 2/3 | Train Loss: 0.2237 | Val Loss: 0.2458 | Val Action Acc: 0.0000
+2025-06-03 12:40:37,101 - INFO - Batch 0/1087 | Loss: 0.2211
+2025-06-03 12:40:40,869 - INFO - Batch 100/1087 | Loss: 0.1586
+2025-06-03 12:40:44,570 - INFO - Batch 200/1087 | Loss: 0.2271
+2025-06-03 12:40:48,344 - INFO - Batch 300/1087 | Loss: 0.2109
+2025-06-03 12:40:51,860 - INFO - Batch 400/1087 | Loss: 0.1992
+2025-06-03 12:40:55,318 - INFO - Batch 500/1087 | Loss: 0.1455
+2025-06-03 12:40:58,882 - INFO - Batch 600/1087 | Loss: 0.1778
+2025-06-03 12:41:02,325 - INFO - Batch 700/1087 | Loss: 0.1581
+2025-06-03 12:41:05,880 - INFO - Batch 800/1087 | Loss: 0.1635
+2025-06-03 12:41:09,653 - INFO - Batch 900/1087 | Loss: 0.1724
+2025-06-03 12:41:13,868 - INFO - Batch 1000/1087 | Loss: 0.1724
+2025-06-03 12:55:39,332 - INFO - New best model saved: logs/2025-06-03_12-10-52/checkpoints/supervised_best_epoch_3.pt
+2025-06-03 12:55:39,332 - INFO - Epoch 3/3 | Train Loss: 0.1816 | Val Loss: 0.2363 | Val Action Acc: 0.0000
+2025-06-03 12:55:40,420 - INFO - Training plots saved to logs/2025-06-03_12-10-52
+2025-06-03 12:55:41,013 - INFO - Training completed. Best model: logs/2025-06-03_12-10-52/checkpoints/supervised_best_epoch_3.pt
+2025-06-03 12:55:41,013 - INFO - Final model: logs/2025-06-03_12-10-52/checkpoints/final_model.pt
+2025-06-03 12:55:41,014 - INFO - ✅ IL training completed. Model saved: logs/2025-06-03_12-10-52/checkpoints/supervised_best_epoch_3.pt
+2025-06-03 12:55:42,053 - INFO - 🤖 Training RL Models with WORKING Trainer...
+2025-06-03 12:55:43,970 - INFO - ✅ Loaded world model from: logs/2025-06-03_12-10-52/checkpoints/supervised_best_epoch_3.pt
+2025-06-03 12:55:43,971 - INFO - 🚀 Starting RL training with 10000 timesteps per algorithm
+2025-06-03 12:55:43,972 - INFO - 📋 Action Space: Continuous Box(0,1,(100,)) → thresholded to binary
+2025-06-03 12:55:43,972 - INFO - 🤖 Training PPO (Final Fixed Version)...
+2025-06-03 12:56:18,530 - INFO - ✅ PPO training successful: 110.255 ± 17.932
+2025-06-03 12:56:18,531 - INFO - 🤖 Training A2C (Final Fixed Version)...
+2025-06-03 12:56:45,501 - INFO - ✅ A2C training successful: 115.557 ± 15.226
+2025-06-03 12:56:45,502 - INFO - 📈 Running comprehensive evaluation...
+2025-06-03 12:56:45,502 - INFO - 🔍 Starting comprehensive evaluation...
+2025-06-03 12:56:45,502 - INFO - 📥 Loading models for evaluation...
+2025-06-03 12:56:45,502 - INFO - 📥 Loading IL model from: logs/2025-06-03_12-10-52/checkpoints/supervised_best_epoch_3.pt
+2025-06-03 12:56:46,918 - INFO - ✅ IL model loaded successfully
+2025-06-03 12:56:46,990 - INFO - ✅ Loaded PPO model from logs/2025-06-03_12-10-52/rl_training/ppo_model_final_fixed.zip
+2025-06-03 12:56:47,036 - INFO - ✅ Loaded A2C model from logs/2025-06-03_12-10-52/rl_training/a2c_model_final_fixed.zip
+2025-06-03 12:56:47,036 - INFO - 📥 Loading IL model from: logs/2025-06-03_12-10-52/checkpoints/supervised_best_epoch_3.pt
+2025-06-03 12:56:48,484 - INFO - ✅ IL model loaded successfully
+2025-06-03 12:56:48,485 - INFO - 🔧 Evaluation framework using device: cuda
+2025-06-03 12:56:48,485 - INFO - 📊 Starting Comprehensive Dual Evaluation...
+2025-06-03 12:56:48,485 - INFO - 🔍 Including BOTH traditional and outcome-based metrics
+2025-06-03 12:56:48,485 - INFO - 🎓 Evaluating Imitation Learning...
+2025-06-03 12:56:48,485 - INFO - 🔧 Model device: cuda:0
+2025-06-03 12:56:48,487 - INFO - 🔧 Evaluating video VID02
+2025-06-03 12:56:48,875 - INFO - 🔧 Batch shapes - States: torch.Size([16, 20, 1024]), Actions: torch.Size([16, 20, 100])
+2025-06-03 12:56:51,828 - INFO - 🔧 Evaluating video VID06
+2025-06-03 12:56:52,121 - INFO - 🔧 Batch shapes - States: torch.Size([16, 20, 1024]), Actions: torch.Size([16, 20, 100])
+2025-06-03 12:56:54,602 - INFO - 🔧 Evaluating video VID111
+2025-06-03 12:56:55,248 - INFO - 🔧 Batch shapes - States: torch.Size([16, 20, 1024]), Actions: torch.Size([16, 20, 100])
+2025-06-03 12:56:57,561 - INFO - 🔧 Evaluating video VID14
+2025-06-03 12:56:58,143 - INFO - 🔧 Batch shapes - States: torch.Size([16, 20, 1024]), Actions: torch.Size([16, 20, 100])
+2025-06-03 12:56:59,931 - INFO - 🔧 Evaluating video VID23
+2025-06-03 12:57:00,401 - INFO - 🔧 Batch shapes - States: torch.Size([16, 20, 1024]), Actions: torch.Size([16, 20, 100])
+2025-06-03 12:57:06,321 - INFO - 🔧 Final shapes - Predictions: (10480, 20, 100), Targets: (10480, 20, 100)
+2025-06-03 12:58:28,467 - INFO - 🤖 Evaluating ppo...
+2025-06-03 12:58:28,468 - INFO - 🔧 Model device: cuda
+2025-06-03 12:58:37,928 - INFO - 🔧 Final shapes - Predictions: (5, 512, 100), Targets: (5, 512, 100)
+2025-06-03 12:58:47,670 - INFO - 🤖 Evaluating a2c...
+2025-06-03 12:58:47,671 - INFO - 🔧 Model device: cuda
+2025-06-03 12:58:57,624 - INFO - 🔧 Final shapes - Predictions: (5, 512, 100), Targets: (5, 512, 100)
+2025-06-03 12:59:08,285 - INFO - 🔍 Analyzing evaluation bias...
+2025-06-03 12:59:08,287 - INFO - ⚖️ Creating comprehensive comparison...
+2025-06-03 12:59:08,287 - INFO - ✅ Dual evaluation completed successfully
+2025-06-03 12:59:08,290 - INFO - 🔬 Performing statistical analysis...
+2025-06-03 12:59:08,290 - INFO - 📝 Generating reports and visualizations...
+2025-06-03 12:59:08,294 - INFO - 📄 Fixed comparison report saved to: logs/2025-06-03_12-10-52/comparison_results/fixed_comparison_report.md
+2025-06-03 12:59:08,298 - INFO - 💾 Fixed results saved to: logs/2025-06-03_12-10-52/comparison_results/fixed_complete_comparison_results.json
+2025-06-03 12:59:08,298 - INFO - ✅ Complete IL vs RL comparison finished successfully!

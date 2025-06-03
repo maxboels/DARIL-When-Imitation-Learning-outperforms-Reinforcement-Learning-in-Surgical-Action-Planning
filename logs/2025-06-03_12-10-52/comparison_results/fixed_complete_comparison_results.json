@@ -1,0 +1,636 @@
+{
+  "il_results": null,
+  "rl_results": {
+    "ppo": {
+      "algorithm": "PPO_Final_Fixed",
+      "mean_reward": 110.25458859999999,
+      "std_reward": 17.932473703791096,
+      "model_path": "logs/2025-06-03_12-10-52/rl_training/ppo_model_final_fixed.zip",
+      "status": "success",
+      "episode_stats": {
+        "avg_length": 50.0,
+        "avg_reward": 114.31195929216173,
+        "episodes": 100,
+        "last_length": 50,
+        "last_reward": 107.91165016501648
+      },
+      "training_timesteps": 10000
+    },
+    "a2c": {
+      "algorithm": "A2C_Final_Fixed",
+      "mean_reward": 115.5565776,
+      "std_reward": 15.22560893883152,
+      "model_path": "logs/2025-06-03_12-10-52/rl_training/a2c_model_final_fixed.zip",
+      "status": "success",
+      "episode_stats": {
+        "avg_length": 50.0,
+        "avg_reward": 113.74262643833045,
+        "episodes": 100,
+        "last_length": 50,
+        "last_reward": 123.3900055725829
+      },
+      "training_timesteps": 10000
+    }
+  },
+  "comparison_results": {
+    "methods_compared": [
+      "PPO (RL)",
+      "A2C (RL)"
+    ],
+    "primary_metric": "Mean Episode Reward",
+    "statistical_tests": {},
+    "rankings": {
+      "ranking": [
+        "A2C (RL)",
+        "PPO (RL)"
+      ],
+      "scores": [
+        115.5565776,
+        110.25458859999999
+      ]
+    },
+    "summary": {
+      "best_method": "A2C (RL)",
+      "best_score": 115.5565776,
+      "total_methods": 2,
+      "significant_differences": true,
+      "training_successful": true
+    },
+    "action_space_info": {
+      "type": "Continuous Box(0,1,(100,))",
+      "conversion": "Thresholded to binary at 0.5",
+      "reasoning": "SB3 compatibility - avoids MultiBinary sampling issues"
+    },
+    "performance_scores": {
+      "PPO (RL)": 110.25458859999999,
+      "A2C (RL)": 115.5565776
+    }
+  },
+  "model_paths": {
+    "imitation_learning": "logs/2025-06-03_12-10-52/checkpoints/supervised_best_epoch_3.pt"
+  },
+  "config": {
+    "debug": false,
+    "training_mode": "rl",
+    "preprocess": {
+      "extract_rewards": false,
+      "rewards": {
+        "imitation": {
+          "action_distribution": true
+        },
+        "expert_knowledge": {
+          "risk_score": true,
+          "frame_risk_agg": "max"
+        },
+        "grounded": {
+          "phase_progression": true,
+          "global_progression": true,
+          "phase_completion": true,
+          "phase_transition": true
+        }
+      },
+      "value": {
+        "global_outcome": true
+      }
+    },
+    "experiment": {
+      "max_videos": 10,
+      "train": {
+        "max_videos": 10
+      },
+      "test": {
+        "max_videos": 5
+      },
+      "dual_world_model": {
+        "train": true,
+        "inference": true,
+        "best_model_path": null
+      },
+      "il_experiments": {
+        "enabled": true,
+        "il_model_path": null
+      },
+      "rl_experiments": {
+        "enabled": true,
+        "run_after_supervised": true,
+        "algorithms": [
+          "ppo",
+          "dqn"
+        ],
+        "timesteps": 10000,
+        "eval_episodes": 20
+      },
+      "recognition": {
+        "train": false,
+        "inference": false
+      },
+      "world_model": {
+        "train": false,
+        "inference": false
+      }
+    },
+    "training": {
+      "epochs": 3,
+      "batch_size": 16,
+      "learning_rate": 0.0001,
+      "log_every_n_steps": 100,
+      "scheduler": {
+        "type": "cosine",
+        "warmup_steps": 1000
+      },
+      "weight_decay": 0.01,
+      "gradient_clip_val": 1.0,
+      "dropout": 0.1,
+      "num_workers": 4,
+      "pin_memory": true,
+      "log_dir": "logs",
+      "checkpoint_dir": "checkpoints",
+      "eval_epoch_interval": 1,
+      "save_model": true
+    },
+    "fair_evaluation": {
+      "enabled": true,
+      "include_traditional_metrics": true,
+      "include_clinical_metrics": true,
+      "clinical_outcome_weights": {
+        "phase_progression": 2.0,
+        "safety": 3.0,
+        "efficiency": 1.5,
+        "innovation": 0.5
+      }
+    },
+    "rl_training": {
+      "outcome_based_rewards": true,
+      "rl_horizon": 50,
+      "reward_mode": "dense",
+      "normalize_rewards": true,
+      "early_termination": true,
+      "reward_weights": {
+        "phase_completion": 1.0,
+        "phase_initiation": 0.5,
+        "phase_progression": 1.0,
+        "global_progression": 0.8,
+        "action_probability": 0.3,
+        "risk_penalty": -0.5
+      },
+      "ppo": {
+        "learning_rate": 0.0003,
+        "n_steps": 2048,
+        "batch_size": 64,
+        "n_epochs": 10,
+        "gamma": 0.99,
+        "gae_lambda": 0.95,
+        "clip_range": 0.2,
+        "entropy_coef": 0.01,
+        "value_coef": 0.5
+      },
+      "sac": {
+        "learning_rate": 0.0003,
+        "buffer_size": 100000,
+        "learning_starts": 1000,
+        "batch_size": 256,
+        "tau": 0.005,
+        "gamma": 0.99,
+        "alpha": 0.2
+      }
+    },
+    "evaluation": {
+      "supervised": {
+        "action_prediction": {
+          "top_ks": [
+            1,
+            3,
+            5,
+            10
+          ],
+          "horizons": [
+            1,
+            3,
+            5,
+            10,
+            15
+          ],
+          "temperature": 1.0,
+          "nucleus_p": 0.9
+        }
+      },
+      "rl": {
+        "rollout_horizon": 15,
+        "eval_horizons": [
+          1,
+          3,
+          5,
+          10,
+          15
+        ],
+        "eval_episodes": 20,
+        "use_best_actions": true
+      },
+      "comparison": {
+        "statistical_tests": true,
+        "significance_level": 0.05,
+        "effect_size_threshold": 0.2
+      },
+      "world_model": {
+        "use_memory": false,
+        "max_horizon": 15,
+        "overall_horizon": 1
+      }
+    },
+    "data": {
+      "context_length": 20,
+      "train_shift": 1,
+      "padding_value": 0.0,
+      "max_horizon": 15,
+      "paths": {
+        "data_dir": "/nfs/home/mboels/datasets/CholecT50",
+        "class_labels_file_path": "./data/labels.json",
+        "fold": 0,
+        "metadata_file": "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv",
+        "video_global_outcome_file": "embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv"
+      },
+      "risk_score_path": null,
+      "max_videos": 2,
+      "frame_risk_agg": "max"
+    },
+    "models": {
+      "dual_world_model": {
+        "hidden_dim": 768,
+        "embedding_dim": 1024,
+        "action_embedding_dim": 128,
+        "n_layer": 6,
+        "max_length": 1024,
+        "dropout": 0.1,
+        "enable_autoregressive_prediction": true,
+        "enable_rl_prediction": true,
+        "enable_reward_prediction": true,
+        "num_action_classes": 100,
+        "num_phase_classes": 7,
+        "loss_weights": {
+          "state": 1.0,
+          "action": 1.0,
+          "reward": 0.5,
+          "phase": 0.3
+        }
+      },
+      "rl_agents": {
+        "ppo": {
+          "hidden_dim": 256,
+          "learning_rate": 0.0003,
+          "clip_ratio": 0.2,
+          "entropy_coef": 0.01,
+          "value_coef": 0.5
+        },
+        "sac": {
+          "hidden_dim": 256,
+          "learning_rate": 0.0003,
+          "tau": 0.005,
+          "alpha": 0.2
+        }
+      },
+      "recognition": {
+        "transformer": {
+          "embedding_dim": 1024,
+          "hidden_dim": 768,
+          "num_action_classes": 100,
+          "num_instrument_classes": 6,
+          "dropout": 0.1,
+          "num_heads": 8,
+          "num_layers": 2
+        }
+      },
+      "world_model": {
+        "hidden_dim": 768,
+        "embedding_dim": 1024,
+        "action_embedding_dim": 100,
+        "n_layer": 6,
+        "use_head": true,
+        "action_conditioning": true,
+        "imitation_learning": true,
+        "action_learning": true,
+        "phase_learning": true,
+        "reward_learning": true,
+        "num_action_classes": 100,
+        "num_phase_classes": 7,
+        "num_outcomes": 1,
+        "targets_dims": {
+          "_z": 512,
+          "_a": 100,
+          "_r": 1,
+          "_q": 1,
+          "_R": 1
+        },
+        "target_heads": [
+          "_a"
+        ],
+        "loss_weights": {
+          "w_z": 1.0,
+          "w_a": 1.0,
+          "w_r": 1.0,
+          "w_q": null,
+          "w_R": null
+        }
+      }
+    },
+    "supervised_learning": {
+      "augmentation": {
+        "noise_std": 0.01,
+        "action_dropout": 0.1,
+        "temporal_shift": 0.1
+      },
+      "autoregressive": {
+        "context_length": 20,
+        "prediction_horizon": 15,
+        "use_teacher_forcing": true,
+        "teacher_forcing_ratio": 0.8
+      },
+      "action_prediction": {
+        "loss_type": "bce",
+        "class_weights": null,
+        "label_smoothing": 0.1
+      }
+    },
+    "research_comparison": {
+      "methods": [
+        {
+          "name": "Imitation Learning",
+          "type": "supervised",
+          "model_type": "dual_world_model",
+          "mode": "supervised"
+        },
+        {
+          "name": "PPO (World Model)",
+          "type": "rl",
+          "algorithm": "ppo",
+          "world_model": true
+        },
+        {
+          "name": "SAC (World Model)",
+          "type": "rl",
+          "algorithm": "sac",
+          "world_model": true
+        },
+        {
+          "name": "Random Baseline",
+          "type": "baseline",
+          "algorithm": "random"
+        }
+      ],
+      "evaluation_metrics": {
+        "primary": "mAP",
+        "secondary": [
+          "top_1_accuracy",
+          "top_3_accuracy",
+          "f1_score",
+          "exact_match"
+        ],
+        "clinical": [
+          "critical_action_performance",
+          "phase_awareness",
+          "risk_assessment"
+        ],
+        "planning": [
+          "trajectory_coherence",
+          "horizon_degradation",
+          "planning_efficiency"
+        ]
+      },
+      "statistical_analysis": {
+        "perform_tests": true,
+        "tests": [
+          "t_test",
+          "wilcoxon",
+          "bootstrap"
+        ],
+        "multiple_comparison_correction": "bonferroni",
+        "confidence_level": 0.95
+      }
+    },
+    "advanced": {
+      "mixed_precision": true,
+      "gradient_accumulation_steps": 1,
+      "find_unused_parameters": false,
+      "distributed": false,
+      "world_size": 1,
+      "rank": 0,
+      "seed": 42,
+      "deterministic": false,
+      "wandb": {
+        "enabled": false,
+        "project": "surgical_world_model_comparison",
+        "entity": null,
+        "tags": [
+          "world_model",
+          "surgical_robotics",
+          "il_vs_rl"
+        ]
+      },
+      "analysis": {
+        "save_attention_maps": false,
+        "save_hidden_states": false,
+        "analyze_action_patterns": true,
+        "generate_trajectory_videos": false
+      }
+    },
+    "hardware": {
+      "gpu_memory_fraction": 0.9,
+      "allow_growth": true,
+      "num_threads": 4,
+      "prefetch_factor": 2,
+      "persistent_workers": true
+    },
+    "training_phases": {
+      "supervised": {
+        "epochs": 1,
+        "learning_rate": 0.0001,
+        "focus_on": [
+          "state_prediction",
+          "action_prediction"
+        ],
+        "loss_weights": {
+          "state": 1.0,
+          "action": 1.0,
+          "reward": 0.1,
+          "phase": 0.1
+        }
+      },
+      "rl": {
+        "episodes": 2000,
+        "learning_rate": 5e-05,
+        "focus_on": [
+          "state_prediction",
+          "reward_prediction"
+        ],
+        "loss_weights": {
+          "state": 1.0,
+          "action": 0.5,
+          "reward": 1.0,
+          "phase": 0.3
+        }
+      },
+      "mixed": {
+        "epochs": 1,
+        "learning_rate": 2e-05,
+        "alternating_batches": true,
+        "supervised_ratio": 0.7
+      }
+    },
+    "results": {
+      "save_predictions": true,
+      "create_visualizations": true,
+      "generate_report": true,
+      "latex_tables": true,
+      "visualization": {
+        "create_interactive": true,
+        "save_trajectories": true,
+        "plot_attention": false,
+        "plot_performance_curves": true
+      },
+      "report": {
+        "include_statistical_analysis": true,
+        "include_clinical_insights": true,
+        "include_method_comparison": true,
+        "format": [
+          "markdown",
+          "latex",
+          "html"
+        ]
+      }
+    }
+  },
+  "evaluation_results": {
+    "evaluation_approaches": {
+      "traditional": "Action matching (IL-biased)",
+      "clinical": "Surgical outcomes (fair comparison)"
+    },
+    "method_results": {
+      "Imitation_Learning": {
+        "method_name": "IL",
+        "traditional_metrics": {
+          "mAP": 0.2226377417583495,
+          "exact_match_accuracy": 0.36258587786259544,
+          "hamming_accuracy": 0.9895595896946565,
+          "top_1_accuracy": 0.7051295792158796,
+          "top_3_accuracy": 0.8776553557265654,
+          "top_5_accuracy": 0.9236886669096054,
+          "precision": 0.7194818599850287,
+          "recall": 0.4940078278136393,
+          "f1_score": 0.585797595770737,
+          "action_similarity": 0.9895595896946565
+        },
+        "clinical_metrics": {
+          "phase_completion_rate": 0.020087860070563547,
+          "safety_score": 1.0,
+          "efficiency_score": 0.0,
+          "procedure_success_rate": 0.4080351440282254,
+          "complication_rate": 0.0,
+          "innovation_score": 0.0,
+          "overall_clinical_score": 0.336628993823286
+        },
+        "evaluation_notes": "IL naturally excels at traditional metrics (action matching)"
+      },
+      "RL_ppo": {
+        "method_name": "RL_ppo",
+        "traditional_metrics": {
+          "mAP": 0.053848379629629635,
+          "exact_match_accuracy": 0.11953125,
+          "hamming_accuracy": 0.98360546875,
+          "top_1_accuracy": 0.0,
+          "top_3_accuracy": 0.012968967114404817,
+          "top_5_accuracy": 0.01760074108383511,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "action_similarity": 0.98360546875
+        },
+        "clinical_metrics": {
+          "phase_completion_rate": 0.020087860070563547,
+          "safety_score": 1.0,
+          "efficiency_score": 0.06194656814426023,
+          "procedure_success_rate": 0.4204244576570774,
+          "complication_rate": 0.0,
+          "innovation_score": 0.0,
+          "overall_clinical_score": 0.35149617017790846
+        },
+        "evaluation_notes": "RL optimized for outcomes, may differ from expert actions"
+      },
+      "RL_a2c": {
+        "method_name": "RL_a2c",
+        "traditional_metrics": {
+          "mAP": 0.053848379629629635,
+          "exact_match_accuracy": 0.156640625,
+          "hamming_accuracy": 0.9854609375,
+          "top_1_accuracy": 0.0,
+          "top_3_accuracy": 0.012968967114404817,
+          "top_5_accuracy": 0.01760074108383511,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "action_similarity": 0.9854609375
+        },
+        "clinical_metrics": {
+          "phase_completion_rate": 0.020087860070563547,
+          "safety_score": 1.0,
+          "efficiency_score": 0.0,
+          "procedure_success_rate": 0.4080351440282254,
+          "complication_rate": 0.0,
+          "innovation_score": 0.0,
+          "overall_clinical_score": 0.336628993823286
+        },
+        "evaluation_notes": "RL optimized for outcomes, may differ from expert actions"
+      }
+    },
+    "bias_analysis": {
+      "traditional_winner": "Imitation_Learning",
+      "clinical_winner": "RL_ppo",
+      "winner_changed": true,
+      "traditional_scores": {
+        "Imitation_Learning": 0.2226377417583495,
+        "RL_ppo": 0.053848379629629635,
+        "RL_a2c": 0.053848379629629635
+      },
+      "clinical_scores": {
+        "Imitation_Learning": 0.336628993823286,
+        "RL_ppo": 0.35149617017790846,
+        "RL_a2c": 0.336628993823286
+      }
+    },
+    "comparison_summary": {
+      "traditional_comparison": {
+        "results": [
+          [
+            "Imitation_Learning",
+            0.2226377417583495
+          ],
+          [
+            "RL_ppo",
+            0.053848379629629635
+          ],
+          [
+            "RL_a2c",
+            0.053848379629629635
+          ]
+        ],
+        "winner": "Imitation_Learning"
+      },
+      "clinical_comparison": {
+        "results": [
+          [
+            "RL_ppo",
+            0.35149617017790846
+          ],
+          [
+            "Imitation_Learning",
+            0.336628993823286
+          ],
+          [
+            "RL_a2c",
+            0.336628993823286
+          ]
+        ],
+        "winner": "RL_ppo"
+      }
+    },
+    "research_insights": {}
+  }
+}

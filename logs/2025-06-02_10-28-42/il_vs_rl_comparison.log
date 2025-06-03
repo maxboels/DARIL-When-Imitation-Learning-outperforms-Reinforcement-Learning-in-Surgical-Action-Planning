@@ -275,3 +275,10 @@
 2025-06-02 11:45:53,994 - INFO - Batch 4700/4933 | Loss: 0.1084
 2025-06-02 11:45:57,745 - INFO - Batch 4800/4933 | Loss: 0.1345
 2025-06-02 11:46:01,537 - INFO - Batch 4900/4933 | Loss: 0.1265
+2025-06-02 12:01:06,481 - INFO - Epoch 5/5 | Train Loss: 0.1353 | Val Loss: 0.1963 | Val Action Acc: 0.0000
+2025-06-02 12:01:07,044 - INFO - Training plots saved to logs/2025-06-02_10-28-42
+2025-06-02 12:01:07,400 - INFO - Training completed. Best model: logs/2025-06-02_10-28-42/checkpoints/supervised_best_epoch_3.pt
+2025-06-02 12:01:07,401 - INFO - Final model: logs/2025-06-02_10-28-42/checkpoints/final_model.pt
+2025-06-02 12:01:07,401 - INFO - ✅ IL training completed. Model saved: logs/2025-06-02_10-28-42/checkpoints/supervised_best_epoch_3.pt
+2025-06-02 12:01:09,949 - INFO - 🤖 Training RL Models...
+2025-06-02 12:01:10,068 - ERROR - ❌ Comparison experiment failed: module 'cv2.dnn' has no attribute 'DictValue'

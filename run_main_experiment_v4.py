@@ -591,7 +591,7 @@ class FixedComparisonExperiment:
     FIXED ComparisonExperiment using the working RL trainer and fixed evaluation.
     """
     
-    def __init__(self, config_path: str = 'config_local_debug.yaml'):
+    def __init__(self, config_path: str = 'config_dgx_debug.yaml'):
         """Initialize the comparison experiment."""
         
         # Load configuration
@@ -1033,7 +1033,10 @@ def main():
     print("✅ Enhanced error handling and monitoring")
     print()
     
-    config_path = 'config_local_debug.yaml'
+    # Choose config file here:
+    config_path = 'config_dgx_debug.yaml'
+
+    # Check if config file exists
     if not os.path.exists(config_path):
         config_path = 'config.yaml'
         print(f"⚠️ Using original config: {config_path}")
