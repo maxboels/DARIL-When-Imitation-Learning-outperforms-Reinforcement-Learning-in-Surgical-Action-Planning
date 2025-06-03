@@ -1,5 +1,13 @@
 *.pyc
 
+archive_and_fixes/*/*/*.pt
+archive_and_fixes/*/*.pt
+archive_and_fixes/*/events.*
+archive_and_fixes/*/tensorboard/*
+archive_and_fixes/*/checkpoints/*/*.pt
+archive_and_fixes/*/checkpoints/*/events.*
+archive_and_fixes/*/checkpoints/*/tensorboard/*
+archive_and_fixes/*/checkpoints/*/best_model_*.pt
 
 checkpoints/*/*.pt
 logs/*/events.*
