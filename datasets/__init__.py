@@ -5,9 +5,9 @@ from .cholect50 import (
     # RewardPredictionDataset,
     # ActionPolicyDataset
 )
-from .preprocess_action_scores import precompute_action_based_rewards
-from .preprocess_progression import add_progression_scores
-from .preprocess_risk_scores import add_risk_scores
+from .preprocessing.action_scores import precompute_action_based_rewards
+from .preprocessing.progression import add_progression_scores
+from .preprocessing.risk_scores import add_risk_scores
 
 # Export the classes and functions for external use
 __all__ = [

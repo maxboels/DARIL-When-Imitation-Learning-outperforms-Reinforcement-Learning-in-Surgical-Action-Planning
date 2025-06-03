@@ -138,7 +138,7 @@ class DualTrainer:
                             train_loader: DataLoader, 
                             val_loaders: Dict[str, DataLoader]) -> str:
         """
-        Train the model in supervised mode for autoregressive action prediction.
+        Train the latent world model with supervised imitation learning for autoregressive action prediction.
         
         Args:
             train_loader: Training data loader
@@ -147,7 +147,7 @@ class DualTrainer:
         Returns:
             Path to the best saved model
         """
-        self.logger.info("Starting supervised training for autoregressive action prediction")
+        self.logger.info("Starting the Imitation Learning training for autoregressive action prediction")
         
         for epoch in range(self.epochs):
             # Training phase

@@ -1032,7 +1032,7 @@ def main():
     print()
     
     # Choose config file here:
-    config_path = 'config_dgx_all.yaml'
+    config_path = 'config_local_debug.yaml'
 
     # Check if config file exists
     if not os.path.exists(config_path):

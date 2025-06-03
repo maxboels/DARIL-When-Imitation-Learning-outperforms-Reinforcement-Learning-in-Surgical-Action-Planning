@@ -1,15 +1,13 @@
 # Import models from model_recognition.py
-from .model_recognition import RecognitionHead
+from .archive.model_recognition import RecognitionHead
 
 # Import models from model_generative.py
-from .world_model import WorldModel
-from .reward_model import RewardPredictor
-from .action_policy import ActionPolicyModel
+from .archive.world_model import WorldModel
+from .archive.reward_model import RewardPredictor
+from .archive.action_policy import ActionPolicyModel
 
 # RL components
-from .world_model import WorldModel
-# from .rl_environment import SurgicalWorldModelEnv
-
+from .archive.world_model import WorldModel
  
 
 # Re-export all models when using "from models import *"
