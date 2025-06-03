@@ -14,4 +14,4 @@ cd $PROJECT_DIR
 # Run the training script with the specified configuration
 # we removed the config flag
 # python run_exp_real_data.py --config $CONFIG_NAME
-python run_main_experiments.py
+python run_main_experiment_v4.py
