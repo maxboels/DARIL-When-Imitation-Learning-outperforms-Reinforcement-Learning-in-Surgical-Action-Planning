@@ -1,8 +1,0 @@
-2025-06-03 16:44:18,685 - INFO - Log file: logs/2025-06-03_16-44-18/fixed_il_vs_rl_comparison.log
-2025-06-03 16:44:18,685 - INFO - 🚀 Starting FIXED IL vs RL Comparison Experiment
-2025-06-03 16:44:18,685 - INFO - Device: cuda
-2025-06-03 16:44:18,685 - INFO - Action Space: Continuous Box(0,1,(100,)) with binary thresholding
-2025-06-03 16:44:18,685 - INFO - Results will be saved to: logs/2025-06-03_16-44-18/comparison_results
-2025-06-03 16:44:18,685 - INFO - 📊 Loading dataset...
-2025-06-03 16:44:18,686 - INFO - Loading train data from /nfs/home/mboels/datasets/CholecT50 with fold 0
-2025-06-03 16:44:18,687 - ERROR - ❌ Comparison experiment failed: [Errno 2] No such file or directory: '/nfs/home/mboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv'
