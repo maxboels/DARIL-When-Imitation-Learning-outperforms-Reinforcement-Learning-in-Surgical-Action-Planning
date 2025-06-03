@@ -32,7 +32,7 @@ class SimpleLogger:
         self.name = name if name else 'exp'
         
         # Get logger with unique name to avoid conflicts
-        logger_name = f'logger_{self.name}_{id(self)}'
+        logger_name = f'{self.name}_{id(self)}'
         self.logger = logging.getLogger(logger_name)
         self.logger.setLevel(logging.INFO)
         

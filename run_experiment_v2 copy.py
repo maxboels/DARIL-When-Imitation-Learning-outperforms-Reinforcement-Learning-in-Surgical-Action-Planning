@@ -478,9 +478,9 @@ class SurgicalRLComparison:
         return evaluation_results
     
     def _run_comprehensive_evaluation(self, test_data: List[Dict]) -> Dict[str, Any]:
-        """Run comprehensive evaluation comparing all methods."""
+        """Run comprehensive evaluation comparing all three methods."""
         
-        self.logger.info("📊 Running comprehensive evaluation...")
+        self.logger.info("📊 Running comprehensive three-way evaluation...")
         
         # Load models for evaluation
         models_for_evaluation = {}
@@ -540,7 +540,7 @@ class SurgicalRLComparison:
         self.logger.info("📝 Generating research paper results...")
         
         paper_results = {
-            'title': 'SAGAA - Surgical Action Generation for Agentic Assistance: IL vs RL with World Model vs RL with Offline Videos',
+            'title': 'Three-Way Comparison: IL vs RL with World Model vs RL with Offline Videos',
             'experiment_summary': {
                 'method_1': 'Imitation Learning (Baseline) - Supervised learning on expert demonstrations',
                 'method_2': 'RL with World Model Simulation - Uses learned dynamics for exploration',
@@ -568,31 +568,18 @@ class SurgicalRLComparison:
         
         if method2.get('status') == 'success':
             rl_models = method2.get('rl_models', {})
-            algorithm_performance = {}
-            for alg_name, alg_result in rl_models.items():
-                if alg_result.get('status') == 'success':
-                    algorithm_performance[alg_name] = alg_result.get('mean_reward', 0)
-            
             paper_results['method_performance']['RL_WorldModel'] = {
                 'algorithms': list(rl_models.keys()),
                 'successful_training': [alg for alg, res in rl_models.items() if res.get('status') == 'success'],
-                'algorithm_performance': algorithm_performance,
                 'status': 'success',
                 'strength': 'Exploration via simulation'
             }
         
-        # FIXED: Handle successful Method 3
         if method3.get('status') == 'success':
             rl_models = method3.get('rl_models', {})
-            algorithm_performance = {}
-            for alg_name, alg_result in rl_models.items():
-                if alg_result.get('status') == 'success':
-                    algorithm_performance[alg_name] = alg_result.get('mean_reward', 0)
-            
             paper_results['method_performance']['RL_OfflineVideos'] = {
                 'algorithms': list(rl_models.keys()),
                 'successful_training': [alg for alg, res in rl_models.items() if res.get('status') == 'success'],
-                'algorithm_performance': algorithm_performance,
                 'status': 'success',
                 'strength': 'Direct interaction with real data',
                 'uses_world_model': False,
@@ -604,14 +591,8 @@ class SurgicalRLComparison:
                 'error': method3.get('error', 'Unknown error'),
                 'strength': 'Direct interaction with real data'
             }
-        else:
-            paper_results['method_performance']['RL_OfflineVideos'] = {
-                'status': method3.get('status', 'unknown'),
-                'note': 'Unexpected status',
-                'strength': 'Direct interaction with real data'
-            }
         
-        # FIXED: Generate key findings that include Method 3
+        # Generate key findings
         findings = []
         if method1.get('status') == 'success':
             findings.append("✅ Method 1 (IL): Successfully trained and evaluated")
@@ -622,14 +603,14 @@ class SurgicalRLComparison:
         elif method3.get('status') == 'failed':
             findings.append(f"❌ Method 3 (RL + Offline Videos): Failed - {method3.get('error', 'Unknown error')}")
         else:
-            findings.append("⚠️ Method 3 (RL + Offline Videos): Unexpected status")
+            findings.append("⚠️ Method 3 (RL + Offline Videos): Implementation needed for complete comparison")
         
         paper_results['key_findings'] = findings
         
-        # Research contributions (UPDATED)
+        # Research contributions
         paper_results['research_contributions'] = [
-            "First systematic experiment of IL vs model-based RL vs model-free RL in surgery",
-            "Demonstration of world model effectiveness vs direct video interaction for surgical action prediction",
+            "First systematic three-way comparison of IL vs model-based RL vs model-free RL in surgery",
+            "Demonstration of world model effectiveness vs direct video interaction",
             "Comprehensive evaluation framework addressing different RL paradigms",
             "Novel comparison of simulation-based vs real-data-based RL approaches",
             "Open-source implementation for reproducible surgical RL research"
@@ -666,16 +647,12 @@ class SurgicalRLComparison:
                     summary_lines.append(f"- **mAP**: {performance['mAP']:.4f}")
                 if 'algorithms' in performance:
                     summary_lines.append(f"- **Algorithms**: {', '.join(performance['algorithms'])}")
-                    # Add individual algorithm performance
-                    if 'algorithm_performance' in performance:
-                        for alg, perf in performance['algorithm_performance'].items():
-                            summary_lines.append(f"  - **{alg.upper()}**: Mean Reward = {perf:.3f}")
             else:
                 summary_lines.append(f"- **Status**: {performance['status']}")
-                if 'note' in performance:
-                    summary_lines.append(f"- **Note**: {performance['note']}")
                 if 'error' in performance:
                     summary_lines.append(f"- **Error**: {performance['error']}")
+                if 'note' in performance:
+                    summary_lines.append(f"- **Note**: {performance['note']}")
             summary_lines.append("")
         
         summary_lines.append("## Key Findings")
@@ -765,81 +742,23 @@ def main():
             print("📊 EXPERIMENT SUMMARY:")
             print("-" * 30)
             
-            # Method 1 Results
             method1 = results.get('method_1_il_baseline', {})
             if method1.get('status') == 'success':
                 il_map = method1.get('evaluation', {}).get('mAP', 0)
                 print(f"✅ Method 1 (IL): mAP = {il_map:.4f}")
-            else:
-                print(f"❌ Method 1 (IL): {method1.get('status', 'Unknown status')}")
             
-            # Method 2 Results
             method2 = results.get('method_2_rl_world_model', {})
             if method2.get('status') == 'success':
                 successful_rl = [alg for alg, res in method2.get('rl_models', {}).items() 
                                if res.get('status') == 'success']
                 print(f"✅ Method 2 (RL + World Model): {len(successful_rl)} algorithms trained")
-                
-                # Show individual algorithm performance
-                for alg_name, alg_result in method2.get('rl_models', {}).items():
-                    if alg_result.get('status') == 'success':
-                        mean_reward = alg_result.get('mean_reward', 0)
-                        print(f"   └─ {alg_name.upper()}: Mean Reward = {mean_reward:.3f}")
-            else:
-                print(f"❌ Method 2 (RL + World Model): {method2.get('status', 'Unknown status')}")
             
-            # Method 3 Results (FIXED)
             method3 = results.get('method_3_rl_offline_videos', {})
-            if method3.get('status') == 'success':
-                successful_direct = [alg for alg, res in method3.get('rl_models', {}).items() 
-                                   if res.get('status') == 'success']
-                print(f"✅ Method 3 (RL + Offline Videos): {len(successful_direct)} algorithms trained")
-                
-                # Show individual algorithm performance
-                for alg_name, alg_result in method3.get('rl_models', {}).items():
-                    if alg_result.get('status') == 'success':
-                        mean_reward = alg_result.get('mean_reward', 0)
-                        print(f"   └─ {alg_name.upper()}: Mean Reward = {mean_reward:.3f}")
-            elif method3.get('status') == 'failed':
-                print(f"❌ Method 3 (RL + Offline Videos): Failed - {method3.get('error', 'Unknown error')}")
-            else:
-                print(f"⚠️ Method 3 (RL + Offline Videos): {method3.get('status', 'Unknown status')}")
+            if method3.get('status') == 'placeholder':
+                print("⚠️ Method 3 (RL + Offline Videos): Implementation needed")
             
             print(f"\n📁 Results saved to: {experiment.results_dir}")
-            
-            # Enhanced summary
-            print("\n🎯 EXPERIMENT COMPLETE!")
-            print("=" * 40)
-            
-            total_methods = 0
-            successful_methods = 0
-            
-            if method1.get('status') == 'success':
-                successful_methods += 1
-            total_methods += 1
-            
-            if method2.get('status') == 'success':
-                successful_methods += 1
-            total_methods += 1
-            
-            if method3.get('status') == 'success':
-                successful_methods += 1
-            total_methods += 1
-            
-            print(f"📊 Success Rate: {successful_methods}/{total_methods} methods completed")
-            
-            if successful_methods == 3:
-                print("🎉 ALL THREE METHODS SUCCESSFUL!")
-                print("🎓 Ready for research paper publication!")
-                print("\n📋 Key Achievements:")
-                print("   • First systematic surgical RL comparison")
-                print("   • IL vs Model-based RL vs Model-free RL")
-                print("   • Comprehensive evaluation framework")
-                print("   • Publication-ready results generated")
-            else:
-                print(f"⚠️  {3-successful_methods} method(s) incomplete")
-            
-            print("\n🔬 RESEARCH PAPER READY!")
+            print("\n🎯 RESEARCH PAPER READY!")
             
         else:
             print(f"\n❌ Experiment failed: {results['error']}")

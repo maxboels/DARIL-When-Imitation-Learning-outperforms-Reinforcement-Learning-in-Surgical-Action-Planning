@@ -44,6 +44,10 @@ class DirectVideoEnvironment(gym.Env):
         self.episode_lengths = []
         self.episode_rewards = []
         
+        # Episode statistics
+        self.episode_lengths = []
+        self.episode_rewards = []
+        
         # Action and observation spaces
         self.action_space = spaces.Box(
             low=0, high=1, shape=(100,), dtype=np.float32
@@ -372,14 +376,6 @@ class DirectVideoSB3Trainer:
             print(f"📊 Mean reward: {mean_reward:.3f} ± {std_reward:.3f}")
             print(f"📊 Episode stats: {episode_stats}")
             
-            return result
-            
-        except Exception as e:
-            print(f"❌ PPO Direct Video training failed: {e}")
-            import traceback
-            traceback.print_exc()
-            return {'algorithm': 'PPO_DirectVideo', 'status': 'failed', 'error': str(e)}
-    
     def train_a2c_direct(self, timesteps: int = 10000) -> Dict[str, Any]:
         """Train A2C on direct video episodes."""
         
@@ -473,7 +469,114 @@ class DirectVideoSB3Trainer:
             import traceback
             traceback.print_exc()
             return {'algorithm': 'A2C_DirectVideo', 'status': 'failed', 'error': str(e)}
-    
+
+    def train_all_algorithms(self, timesteps: int = 10000) -> Dict[str, Any]:
+        """Train all algorithms on direct video sequences."""
+        
+        results = {}
+        
+        # Train PPO
+        try:
+            results['ppo'] = self.train_ppo_direct(timesteps)
+        except Exception as e:
+            self.logger.error(f"❌ PPO training failed: {e}")
+            results['ppo'] = {'status': 'failed', 'error': str(e)}
+        
+        # Train A2C
+        try:
+            results['a2c'] = self.train_a2c_direct(timesteps)
+        except Exception as e:
+            self.logger.error(f"❌ A2C training failed: {e}")
+            results['a2c'] = {'status': 'failed', 'error': str(e)}
+        
+        return results
+
+    def train_a2c_direct(self, timesteps: int = 10000) -> Dict[str, Any]:
+        """Train A2C on direct video episodes."""
+        
+        print("🎬 Training A2C with Direct Video Episodes")
+        print("-" * 50)
+        
+        try:
+            # Create environment
+            env = self.create_env(n_envs=1)
+            
+            # Create A2C model
+            from stable_baselines3 import A2C
+            from stable_baselines3.common.callbacks import EvalCallback
+            
+            model = A2C(
+                "MlpPolicy",
+                env,
+                learning_rate=1e-4,
+                n_steps=32,
+                gamma=0.99,
+                gae_lambda=1.0,
+                ent_coef=0.01,
+                vf_coef=0.25,
+                verbose=1,
+                device='cpu',
+                tensorboard_log=str(self.save_dir / 'tensorboard_logs')
+            )
+            
+            # Setup callbacks
+            eval_callback = EvalCallback(
+                env,
+                best_model_save_path=str(self.save_dir / 'a2c_best_direct'),
+                log_path=str(self.save_dir / 'a2c_logs_direct'),
+                eval_freq=max(timesteps // 5, 500),
+                deterministic=True,
+                verbose=1
+            )
+            
+            print(f"🚀 Training A2C for {timesteps} timesteps...")
+            
+            # Train model
+            model.learn(
+                total_timesteps=timesteps,
+                callback=[eval_callback],
+                tb_log_name="A2C_DirectVideo",
+                progress_bar=True
+            )
+            
+            # Save and evaluate
+            model_path = self.save_dir / 'a2c_direct_video.zip'
+            model.save(str(model_path))
+            
+            from stable_baselines3.common.evaluation import evaluate_policy
+            mean_reward, std_reward = evaluate_policy(
+                model, env, n_eval_episodes=5, deterministic=True
+            )
+            
+            # Get environment statistics
+            base_env = env.envs[0].env
+            episode_stats = base_env.get_episode_stats()
+            
+            result = {
+                'algorithm': 'A2C_DirectVideo',
+                'approach': 'Direct RL on video sequences (no world model)',
+                'mean_reward': float(mean_reward),
+                'std_reward': float(std_reward),
+                'model_path': str(model_path),
+                'status': 'success',
+                'training_timesteps': timesteps,
+                'uses_world_model': False,
+                'uses_real_frames': True,
+                'episode_stats': episode_stats
+            }
+            
+            print(f"✅ A2C Direct Video training successful!")
+            print(f"📊 Mean reward: {mean_reward:.3f} ± {std_reward:.3f}")
+            print(f"📊 Episode stats: {episode_stats}")
+            
+            return result
+            
+        except Exception as e:
+            print(f"❌ A2C Direct Video training failed: {e}")
+            import traceback
+            traceback.print_exc()
+            return {'algorithm': 'A2C_DirectVideo', 'status': 'failed', 'error': str(e)}
+
     def train_all_algorithms(self, timesteps: int = 10000) -> Dict[str, Any]:
         """Train all algorithms on direct video sequences."""
         
@@ -497,7 +600,7 @@ class DirectVideoSB3Trainer:
 
 
 def test_direct_video_environment(train_data: List[Dict], config: Dict):
-    """Test the direct video environment with actual data."""
+    """Test the direct video environment."""
     
     print("🧪 TESTING DIRECT VIDEO ENVIRONMENT")
     print("=" * 40)

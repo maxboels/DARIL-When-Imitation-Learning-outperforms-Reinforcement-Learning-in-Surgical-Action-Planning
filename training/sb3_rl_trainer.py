@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-FINAL FIXED SB3 Trainer - Action space issue resolved
+SB3 Trainer - Action space issue resolved
 """
 
 import torch

@@ -1,0 +1,90 @@
+2025-06-03 20:47:29,912 - INFO - logger_surgical_rl_comparison_129829966042784 - Shared experiment log directory: logs/2025-06-03_20-47
+2025-06-03 20:47:29,913 - INFO - logger_surgical_rl_comparison_129829966042784 - 🚀 SURGICAL RL COMPARISON INITIALIZED
+2025-06-03 20:47:29,913 - INFO - logger_surgical_rl_comparison_129829966042784 - Method 1: Imitation Learning (Baseline)
+2025-06-03 20:47:29,913 - INFO - logger_surgical_rl_comparison_129829966042784 - Method 2: RL with World Model Simulation
+2025-06-03 20:47:29,913 - INFO - logger_surgical_rl_comparison_129829966042784 - Method 3: RL with Offline Video Episodes
+2025-06-03 20:47:29,913 - INFO - logger_surgical_rl_comparison_129829966042784 - Device: cuda
+2025-06-03 20:47:29,913 - INFO - logger_surgical_rl_comparison_129829966042784 - Results will be saved to: logs/2025-06-03_20-47/surgical_rl_results
+2025-06-03 20:47:29,913 - INFO - logger_surgical_rl_comparison_129829966042784 - ============================================================
+2025-06-03 20:47:29,913 - INFO - logger_surgical_rl_comparison_129829966042784 - STEP 1: LOADING DATASET
+2025-06-03 20:47:29,913 - INFO - logger_surgical_rl_comparison_129829966042784 - ============================================================
+2025-06-03 20:47:29,913 - INFO - logger_surgical_rl_comparison_129829966042784 - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-03 20:47:30,309 - INFO - logger_surgical_rl_comparison_129829966042784 - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 20:47:30,309 - INFO - logger_surgical_rl_comparison_129829966042784 - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 20:47:30,311 - INFO - logger_surgical_rl_comparison_129829966042784 - [Train] Found 2 videos in metadata file
+2025-06-03 20:47:30,311 - INFO - logger_surgical_rl_comparison_129829966042784 - [Train] Loading data for 2 videos
+2025-06-03 20:47:30,443 - INFO - logger_surgical_rl_comparison_129829966042784 - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-03 20:47:30,535 - INFO - logger_surgical_rl_comparison_129829966042784 - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 20:47:30,535 - INFO - logger_surgical_rl_comparison_129829966042784 - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 20:47:30,536 - INFO - logger_surgical_rl_comparison_129829966042784 - [Test] Found 1 videos in metadata file
+2025-06-03 20:47:30,536 - INFO - logger_surgical_rl_comparison_129829966042784 - [Test] Loading data for 1 videos
+2025-06-03 20:47:30,643 - INFO - logger_surgical_rl_comparison_129829966042784 - ✅ Loaded 2 training videos and 1 test videos
+2025-06-03 20:47:30,643 - INFO - logger_surgical_rl_comparison_129829966042784 - ============================================================
+2025-06-03 20:47:30,643 - INFO - logger_surgical_rl_comparison_129829966042784 - STEP 2: METHOD 1 - IMITATION LEARNING BASELINE
+2025-06-03 20:47:30,643 - INFO - logger_surgical_rl_comparison_129829966042784 - ============================================================
+2025-06-03 20:47:30,643 - INFO - logger_surgical_rl_comparison_129829966042784 - 🎓 Training Imitation Learning Baseline...
+2025-06-03 20:47:30,643 - INFO - logger_surgical_rl_comparison_129829966042784 - 📋 Approach: Supervised learning on expert demonstrations
+2025-06-03 20:47:32,133 - INFO - logger_surgical_rl_comparison_129829966042784 - Starting the Imitation Learning training for autoregressive action prediction
+2025-06-03 20:47:32,532 - INFO - logger_surgical_rl_comparison_129829966042784 - Batch 0/204 | Loss: 3.3123
+2025-06-03 20:47:36,914 - INFO - logger_surgical_rl_comparison_129829966042784 - Batch 100/204 | Loss: 0.5414
+2025-06-03 20:47:41,307 - INFO - logger_surgical_rl_comparison_129829966042784 - Batch 200/204 | Loss: 0.3646
+2025-06-03 20:48:38,827 - INFO - logger_surgical_rl_comparison_129829966042784 - New best model saved: logs/2025-06-03_20-47/checkpoints/supervised_best_epoch_1.pt
+2025-06-03 20:48:38,828 - INFO - logger_surgical_rl_comparison_129829966042784 - Epoch 1/1 | Train Loss: 0.7761 | Val Loss: 0.4113 | Val Action Acc: 0.0000
+2025-06-03 20:48:39,264 - INFO - logger_surgical_rl_comparison_129829966042784 - Training plots saved to logs/2025-06-03_20-47
+2025-06-03 20:48:39,373 - INFO - logger_surgical_rl_comparison_129829966042784 - Training completed. Best model: logs/2025-06-03_20-47/checkpoints/supervised_best_epoch_1.pt
+2025-06-03 20:48:39,373 - INFO - logger_surgical_rl_comparison_129829966042784 - Final model: logs/2025-06-03_20-47/checkpoints/final_model.pt
+2025-06-03 20:48:42,541 - INFO - logger_surgical_rl_comparison_129829966042784 - ✅ Method 1 (IL) completed successfully
+2025-06-03 20:48:42,542 - INFO - logger_surgical_rl_comparison_129829966042784 - 📊 IL mAP: 0.2378
+2025-06-03 20:48:42,607 - INFO - logger_surgical_rl_comparison_129829966042784 - ============================================================
+2025-06-03 20:48:42,607 - INFO - logger_surgical_rl_comparison_129829966042784 - STEP 3: METHOD 2 - RL WITH WORLD MODEL SIMULATION
+2025-06-03 20:48:42,607 - INFO - logger_surgical_rl_comparison_129829966042784 - ============================================================
+2025-06-03 20:48:42,608 - INFO - logger_surgical_rl_comparison_129829966042784 - 🌍 Training RL with World Model Simulation...
+2025-06-03 20:48:42,608 - INFO - logger_surgical_rl_comparison_129829966042784 - 📋 Approach: World model as RL environment simulator
+2025-06-03 20:48:43,219 - INFO - logger_surgical_rl_comparison_129829966042784 - ✅ Using world model from Method 1: logs/2025-06-03_20-47/checkpoints/supervised_best_epoch_1.pt
+2025-06-03 20:48:43,220 - INFO - logger_surgical_rl_comparison_129829966042784 - 🤖 Training PPO with world model simulation...
+2025-06-03 20:48:56,222 - INFO - logger_surgical_rl_comparison_129829966042784 - 🤖 Training A2C with world model simulation...
+2025-06-03 20:49:06,213 - INFO - logger_surgical_rl_comparison_129829966042784 - ✅ Method 2 (RL + World Model) completed successfully
+2025-06-03 20:49:06,213 - INFO - logger_surgical_rl_comparison_129829966042784 - 📊 Successful RL models: ['ppo', 'a2c']
+2025-06-03 20:49:06,213 - INFO - logger_surgical_rl_comparison_129829966042784 - ============================================================
+2025-06-03 20:49:06,213 - INFO - logger_surgical_rl_comparison_129829966042784 - STEP 4: METHOD 3 - RL WITH OFFLINE VIDEO EPISODES
+2025-06-03 20:49:06,213 - INFO - logger_surgical_rl_comparison_129829966042784 - ============================================================
+2025-06-03 20:49:06,213 - INFO - logger_surgical_rl_comparison_129829966042784 - 📹 Training RL with Offline Video Episodes...
+2025-06-03 20:49:06,213 - INFO - logger_surgical_rl_comparison_129829966042784 - 📋 Approach: Direct RL on video sequences (no world model)
+2025-06-03 20:49:06,213 - INFO - logger_surgical_rl_comparison_129829966042784 - 🧪 Testing Direct Video Environment...
+2025-06-03 20:49:06,216 - INFO - logger_surgical_rl_comparison_129829966042784 - 🚀 Training RL algorithms on direct video sequences for 10000 timesteps...
+2025-06-03 20:49:27,455 - INFO - logger_surgical_rl_comparison_129829966042784 - ✅ ppo Direct Video evaluation completed
+2025-06-03 20:49:27,455 - INFO - logger_surgical_rl_comparison_129829966042784 - ✅ a2c Direct Video evaluation completed
+2025-06-03 20:49:27,455 - INFO - logger_surgical_rl_comparison_129829966042784 - ✅ Method 3 (RL + Offline Videos) completed successfully
+2025-06-03 20:49:27,455 - INFO - logger_surgical_rl_comparison_129829966042784 - 📊 Successful Direct Video RL models: ['ppo', 'a2c']
+2025-06-03 20:49:27,455 - INFO - logger_surgical_rl_comparison_129829966042784 - ============================================================
+2025-06-03 20:49:27,455 - INFO - logger_surgical_rl_comparison_129829966042784 - STEP 5: COMPREHENSIVE EVALUATION AND COMPARISON
+2025-06-03 20:49:27,455 - INFO - logger_surgical_rl_comparison_129829966042784 - ============================================================
+2025-06-03 20:49:27,455 - INFO - logger_surgical_rl_comparison_129829966042784 - 📊 Running comprehensive three-way evaluation...
+2025-06-03 20:49:29,105 - INFO - logger_surgical_rl_comparison_129829966042784 - ✅ Loaded IL model for evaluation
+2025-06-03 20:49:29,116 - INFO - logger_surgical_rl_comparison_129829966042784 - ✅ Loaded PPO model for evaluation
+2025-06-03 20:49:29,133 - INFO - logger_surgical_rl_comparison_129829966042784 - ✅ Loaded A2C model for evaluation
+2025-06-03 20:49:29,762 - INFO - logger_surgical_rl_comparison_129829966042784 - 🔧 Evaluation framework using device: cuda
+2025-06-03 20:49:29,762 - INFO - logger_surgical_rl_comparison_129829966042784 - 📊 Starting Comprehensive Dual Evaluation...
+2025-06-03 20:49:29,762 - INFO - logger_surgical_rl_comparison_129829966042784 - 🔍 Including BOTH traditional and outcome-based metrics
+2025-06-03 20:49:29,762 - INFO - logger_surgical_rl_comparison_129829966042784 - 🎓 Evaluating Imitation Learning...
+2025-06-03 20:49:29,762 - INFO - logger_surgical_rl_comparison_129829966042784 - 🔧 Model device: cuda:0
+2025-06-03 20:49:29,763 - INFO - logger_surgical_rl_comparison_129829966042784 - 🔧 Evaluating video VID02
+2025-06-03 20:49:30,117 - INFO - logger_surgical_rl_comparison_129829966042784 - 🔧 Batch shapes - States: torch.Size([16, 20, 1024]), Actions: torch.Size([16, 20, 100])
+2025-06-03 20:49:32,001 - INFO - logger_surgical_rl_comparison_129829966042784 - 🔧 Final shapes - Predictions: (2839, 20, 100), Targets: (2839, 20, 100)
+2025-06-03 20:49:38,073 - INFO - logger_surgical_rl_comparison_129829966042784 - 🤖 Evaluating RL_WM_PPO...
+2025-06-03 20:49:38,073 - INFO - logger_surgical_rl_comparison_129829966042784 - 🔧 Model device: cuda
+2025-06-03 20:49:38,830 - INFO - logger_surgical_rl_comparison_129829966042784 - 🔧 Final shapes - Predictions: (1, 512, 100), Targets: (1, 512, 100)
+2025-06-03 20:49:39,601 - INFO - logger_surgical_rl_comparison_129829966042784 - 🤖 Evaluating RL_WM_A2C...
+2025-06-03 20:49:39,601 - INFO - logger_surgical_rl_comparison_129829966042784 - 🔧 Model device: cuda
+2025-06-03 20:49:40,350 - INFO - logger_surgical_rl_comparison_129829966042784 - 🔧 Final shapes - Predictions: (1, 512, 100), Targets: (1, 512, 100)
+2025-06-03 20:49:41,126 - INFO - logger_surgical_rl_comparison_129829966042784 - 🔍 Analyzing evaluation bias...
+2025-06-03 20:49:41,126 - INFO - logger_surgical_rl_comparison_129829966042784 - ⚖️ Creating comprehensive comparison...
+2025-06-03 20:49:41,127 - INFO - logger_surgical_rl_comparison_129829966042784 - ============================================================
+2025-06-03 20:49:41,127 - INFO - logger_surgical_rl_comparison_129829966042784 - STEP 6: GENERATING RESEARCH PAPER RESULTS
+2025-06-03 20:49:41,127 - INFO - logger_surgical_rl_comparison_129829966042784 - ============================================================
+2025-06-03 20:49:41,127 - INFO - logger_surgical_rl_comparison_129829966042784 - 📝 Generating research paper results...
+2025-06-03 20:49:41,127 - INFO - logger_surgical_rl_comparison_129829966042784 - 📄 Experiment summary saved to: logs/2025-06-03_20-47/surgical_rl_results/experiment_summary.md
+2025-06-03 20:49:41,127 - INFO - logger_surgical_rl_comparison_129829966042784 - 📄 Paper results saved to: logs/2025-06-03_20-47/surgical_rl_results/paper_results.json
+2025-06-03 20:49:41,128 - INFO - logger_surgical_rl_comparison_129829966042784 - 💾 Complete results saved to: logs/2025-06-03_20-47/surgical_rl_results/complete_surgical_rl_results.json
+2025-06-03 20:49:41,128 - INFO - logger_surgical_rl_comparison_129829966042784 - 📁 All results available in: logs/2025-06-03_20-47/surgical_rl_results
+2025-06-03 20:49:41,128 - INFO - logger_surgical_rl_comparison_129829966042784 - ✅ SURGICAL RL COMPARISON COMPLETED SUCCESSFULLY!
