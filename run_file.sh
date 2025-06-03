@@ -29,4 +29,4 @@ echo "✅ OpenCV fix attempted. Try running your script again."
 echo "If this doesn't work, use the fallback solution below."
 
 # Run the training script with the specified configuration
-python run_main_experiment_v4.py
+python main.py

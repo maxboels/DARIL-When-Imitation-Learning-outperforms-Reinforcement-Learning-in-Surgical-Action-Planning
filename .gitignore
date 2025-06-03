@@ -1,13 +1,13 @@
 *.pyc
 
-archive_and_fixes/*/*/*.pt
-archive_and_fixes/*/*.pt
-archive_and_fixes/*/events.*
-archive_and_fixes/*/tensorboard/*
-archive_and_fixes/*/checkpoints/*/*.pt
-archive_and_fixes/*/checkpoints/*/events.*
-archive_and_fixes/*/checkpoints/*/tensorboard/*
-archive_and_fixes/*/checkpoints/*/best_model_*.pt
+archive/*/*/*.pt
+archive/*/*.pt
+archive/*/events.*
+archive/*/tensorboard/*
+archive/*/checkpoints/*/*.pt
+archive/*/checkpoints/*/events.*
+archive/*/checkpoints/*/tensorboard/*
+archive/*/checkpoints/*/best_model_*.pt
 
 checkpoints/*/*.pt
 logs/*/events.*
@@ -25,3 +25,4 @@ logs/*/*.pt
 results/*/*.pt
 models_backup/world_model_best_epoch_2.pt
 clinical_evaluation_results/phase_recognizer.pt
+models_saved/*.pt

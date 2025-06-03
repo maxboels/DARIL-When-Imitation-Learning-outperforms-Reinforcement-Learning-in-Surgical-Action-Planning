@@ -16,12 +16,12 @@ import yaml
 import os
 from datetime import datetime
 
-from .preprocess_progression import add_progression_scores
-from .preprocess_phase_completion import compute_phase_completion_rewards
-from .preprocess_phase_transition import compute_phase_transition_rewards
-from .preprocess_risk_scores import add_risk_scores
-from .preprocess_action_scores import precompute_action_based_rewards
-from .preprocess_action_scores import compute_action_phase_distribution
+from .preprocessing.progression import add_progression_scores
+from .preprocessing.phase_completion import compute_phase_completion_rewards
+from .preprocessing.phase_transition import compute_phase_transition_rewards
+from .preprocessing.risk_scores import add_risk_scores
+from .preprocessing.action_scores import precompute_action_based_rewards
+from .preprocessing.action_scores import compute_action_phase_distribution
 
 
 
