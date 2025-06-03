@@ -20,13 +20,13 @@ class SimpleLogger:
         if use_shared_timestamp:
             # Use shared timestamp for all loggers in the same experiment
             if SimpleLogger._shared_timestamp is None:
-                SimpleLogger._shared_timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+                SimpleLogger._shared_timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
                 SimpleLogger._base_log_dir = os.path.join(log_dir, SimpleLogger._shared_timestamp)
             
             self.log_dir = SimpleLogger._base_log_dir
         else:
             # Create individual timestamp (for separate experiments)
-            datetime_now = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+            datetime_now = datetime.now().strftime('%Y-%m-%d_%H-%M')
             self.log_dir = os.path.join(log_dir, datetime_now)
         
         self.name = name if name else 'exp'
@@ -43,7 +43,7 @@ class SimpleLogger:
         # Console handler
         ch = logging.StreamHandler(sys.stdout)
         ch.setLevel(logging.INFO)
-        console_formatter = logging.Formatter('%(asctime)s - %(name)s - %(message)s', datefmt='%H:%M:%S')
+        console_formatter = logging.Formatter('%(message)s')
         ch.setFormatter(console_formatter)
         self.logger.addHandler(ch)
         

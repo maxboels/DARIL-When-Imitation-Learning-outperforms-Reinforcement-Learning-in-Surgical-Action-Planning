@@ -34,7 +34,7 @@ from trainer.dual_trainer import DualTrainer, train_dual_world_model
 from evaluation.dual_evaluator import DualModelEvaluator
 
 # UPDATED: Import the WORKING RL trainer instead of the broken one
-from final_fixed_trainer import FinalFixedSB3Trainer
+from final_fixed_trainer import SB3Trainer
 
 # Suppress warnings
 import warnings
@@ -395,7 +395,7 @@ class UpdatedComparisonExperiment:
         return il_model_path
     
     def _train_rl_models_working(self, train_data, world_model_path):
-        """Train RL models using the WORKING FinalFixedSB3Trainer."""
+        """Train RL models using the WORKING SB3Trainer."""
         
         # Load world model for RL training
         if world_model_path and os.path.exists(world_model_path):
@@ -408,7 +408,7 @@ class UpdatedComparisonExperiment:
             self.logger.info("🔧 Created new world model for RL training")
         
         # Create WORKING SB3 trainer
-        sb3_trainer = FinalFixedSB3Trainer(world_model, self.config, self.logger, self.device)
+        sb3_trainer = SB3Trainer(world_model, self.config, self.logger, self.device)
         
         rl_results = {}
         timesteps = self.config.get('experiment', {}).get('rl_experiments', {}).get('timesteps', 10000)
@@ -595,7 +595,7 @@ def main():
     print("🔧 UPDATED IL vs RL Comparison for Surgical Action Prediction")
     print("=" * 80)
     print("✅ Action space issue resolved")
-    print("✅ Using WORKING FinalFixedSB3Trainer")
+    print("✅ Using WORKING SB3Trainer")
     print("✅ Continuous Box(0,1,(100,)) → binary thresholding")
     print("✅ Enhanced error handling and monitoring")
     print()
@@ -642,7 +642,7 @@ def main():
             
             print("\n✅ Key Improvements:")
             print("• Action space: MultiBinary → Box (SB3 compatible)")
-            print("• RL trainer: Broken → FinalFixedSB3Trainer (working)")
+            print("• RL trainer: Broken → SB3Trainer (working)")
             print("• Monitoring: Enhanced progress tracking and statistics")
             print("• Error handling: Comprehensive debugging and recovery")
             

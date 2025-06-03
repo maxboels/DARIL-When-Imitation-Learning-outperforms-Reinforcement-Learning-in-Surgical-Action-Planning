@@ -10,7 +10,7 @@ import yaml
 from pathlib import Path
 
 # Import the final fixed components
-from final_fixed_trainer import FinalFixedSB3Trainer
+from final_fixed_trainer import SB3Trainer
 from datasets.cholect50 import load_cholect50_data, NextFramePredictionDataset, create_video_dataloaders
 from utils.logger import SimpleLogger
 from models.dual_world_model import DualWorldModel
@@ -102,7 +102,7 @@ class WorkingComparisonExperiment:
             world_model = DualWorldModel(**model_config).to(self.device)
         
         # Create WORKING trainer
-        trainer = FinalFixedSB3Trainer(world_model, self.config, self.logger, self.device)
+        trainer = SB3Trainer(world_model, self.config, self.logger, self.device)
         
         rl_results = {}
         

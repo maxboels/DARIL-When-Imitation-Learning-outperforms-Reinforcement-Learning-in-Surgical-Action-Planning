@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Complete Three-Way Experimental Comparison for Research Paper:
+Complete Experimental Comparison for Research Paper:
 1. Imitation Learning (Baseline)
 2. RL with World Model Simulation (Our Main Approach) 
 3. RL with Offline Video Episodes (Ablation Study)
@@ -30,16 +30,26 @@ from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.vec_env import DummyVecEnv
 from stable_baselines3.common.evaluation import evaluate_policy
 
-class ThreeWayExperimentalComparison:
+# Suppress warnings
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="sklearn")
+
+# Set random seed for reproducibility
+np.random.seed(42)
+torch.manual_seed(42)
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+class SurgicalRLComparison:
     """
-    Complete experimental setup for research paper comparing:
+    Experimental comparison for research paper comparing:
     1. Method 1: Imitation Learning (Baseline)
     2. Method 2: RL with World Model Simulation (Our Main Approach)
     3. Method 3: RL with Offline Video Episodes (Ablation Study)
     """
     
     def __init__(self, config_path: str = 'config_local_debug.yaml'):
-        """Initialize the three-way experimental comparison."""
+        """Initialize the surgical RL comparison experiment."""
         
         # Reset logger timestamp for clean experiment
         SimpleLogger.reset_shared_timestamp()
@@ -49,7 +59,7 @@ class ThreeWayExperimentalComparison:
             self.config = yaml.safe_load(f)
         
         # Setup logging with shared timestamp
-        self.logger = SimpleLogger(log_dir="logs", name="three_way_experiment")
+        self.logger = SimpleLogger(log_dir="logs", name="surgical_rl_comparison")
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         
         # Results storage
@@ -68,10 +78,10 @@ class ThreeWayExperimentalComparison:
         }
         
         # Create results directory
-        self.results_dir = Path(self.logger.log_dir) / 'three_way_results'
+        self.results_dir = Path(self.logger.log_dir) / 'surgical_rl_results'
         self.results_dir.mkdir(exist_ok=True)
         
-        self.logger.info("🚀 THREE-WAY EXPERIMENTAL COMPARISON INITIALIZED")
+        self.logger.info("🚀 SURGICAL RL COMPARISON INITIALIZED")
         self.logger.info("Method 1: Imitation Learning (Baseline)")
         self.logger.info("Method 2: RL with World Model Simulation")
         self.logger.info("Method 3: RL with Offline Video Episodes")
@@ -79,53 +89,53 @@ class ThreeWayExperimentalComparison:
         self.logger.info(f"Results will be saved to: {self.results_dir}")
     
     def run_complete_comparison(self) -> Dict[str, Any]:
-        """Run the complete three-way experimental comparison."""
+        """Run the complete surgical RL comparison."""
         
         try:
             # Step 1: Load data
-            self.logger.info("=" * 80)
+            self.logger.info("=" * 60)
             self.logger.info("STEP 1: LOADING DATASET")
-            self.logger.info("=" * 80)
+            self.logger.info("=" * 60)
             train_data, test_data = self._load_data()
             
             # Step 2: Method 1 - Imitation Learning Baseline
-            self.logger.info("=" * 80) 
+            self.logger.info("=" * 60) 
             self.logger.info("STEP 2: METHOD 1 - IMITATION LEARNING BASELINE")
-            self.logger.info("=" * 80)
+            self.logger.info("=" * 60)
             method1_results = self._run_method1_imitation_learning(train_data, test_data)
             self.results['method_1_il_baseline'] = method1_results
             
             # Step 3: Method 2 - RL with World Model Simulation
-            self.logger.info("=" * 80)
+            self.logger.info("=" * 60)
             self.logger.info("STEP 3: METHOD 2 - RL WITH WORLD MODEL SIMULATION")
-            self.logger.info("=" * 80)
+            self.logger.info("=" * 60)
             method2_results = self._run_method2_rl_world_model(train_data, test_data)
             self.results['method_2_rl_world_model'] = method2_results
             
             # Step 4: Method 3 - RL with Offline Video Episodes
-            self.logger.info("=" * 80)
+            self.logger.info("=" * 60)
             self.logger.info("STEP 4: METHOD 3 - RL WITH OFFLINE VIDEO EPISODES")
-            self.logger.info("=" * 80)
+            self.logger.info("=" * 60)
             method3_results = self._run_method3_rl_offline_videos(train_data, test_data)
             self.results['method_3_rl_offline_videos'] = method3_results
             
             # Step 5: Comprehensive Evaluation and Comparison
-            self.logger.info("=" * 80)
+            self.logger.info("=" * 60)
             self.logger.info("STEP 5: COMPREHENSIVE EVALUATION AND COMPARISON")
-            self.logger.info("=" * 80)
+            self.logger.info("=" * 60)
             comparative_results = self._run_comprehensive_evaluation(test_data)
             self.results['comparative_analysis'] = comparative_results
             
             # Step 6: Generate Research Paper Results
-            self.logger.info("=" * 80)
+            self.logger.info("=" * 60)
             self.logger.info("STEP 6: GENERATING RESEARCH PAPER RESULTS")
-            self.logger.info("=" * 80)
+            self.logger.info("=" * 60)
             self._generate_paper_results()
             
             # Step 7: Save all results
             self._save_complete_results()
             
-            self.logger.info("✅ THREE-WAY EXPERIMENTAL COMPARISON COMPLETED SUCCESSFULLY!")
+            self.logger.info("✅ SURGICAL RL COMPARISON COMPLETED SUCCESSFULLY!")
             return self.results
             
         except Exception as e:
@@ -238,7 +248,7 @@ class ThreeWayExperimentalComparison:
                 self.results['model_paths']['world_model'] = world_model_path
             
             # Create world model-based RL trainer
-            rl_trainer = FinalFixedSB3Trainer(world_model, self.config, self.logger, self.device)
+            rl_trainer = SB3Trainer(world_model, self.config, self.logger, self.device)
             
             # Train RL algorithms using world model simulation
             timesteps = self.config.get('experiment', {}).get('rl_experiments', {}).get('timesteps', 10000)
@@ -291,7 +301,7 @@ class ThreeWayExperimentalComparison:
         
         try:
             # Create offline video environment
-            from environment import DirectVideoEnvironment  # You'll need to implement this
+            from environment.direct_video_env import DirectVideoEnvironment  # You'll need to implement this
             
             # This is a simplified version - you'd implement the full DirectVideoEnvironment
             # For now, we'll use a placeholder that shows the concept
@@ -632,7 +642,7 @@ class ThreeWayExperimentalComparison:
         converted_results = convert_numpy_types(self.results)
         
         # Save complete results
-        results_path = self.results_dir / 'complete_three_way_results.json'
+        results_path = self.results_dir / 'complete_surgical_rl_results.json'
         with open(results_path, 'w') as f:
             json.dump(converted_results, f, indent=2)
         
@@ -641,10 +651,10 @@ class ThreeWayExperimentalComparison:
 
 
 def main():
-    """Main function to run the three-way experimental comparison."""
+    """Main function to run the surgical RL comparison."""
     
-    print("🔬 THREE-WAY EXPERIMENTAL COMPARISON")
-    print("=" * 80)
+    print("🔬 SURGICAL RL COMPARISON")
+    print("=" * 60)
     print("Research Paper: IL vs RL for Surgical Action Prediction")
     print()
     print("Method 1: Imitation Learning (Baseline)")
@@ -661,12 +671,12 @@ def main():
         print(f"✅ Using config: {config_path}")
     
     try:
-        experiment = ThreeWayExperimentalComparison(config_path)
+        experiment = SurgicalRLComparison(config_path)
         results = experiment.run_complete_comparison()
         
         if 'error' not in results:
-            print("\n🎉 THREE-WAY COMPARISON COMPLETED!")
-            print("=" * 50)
+            print("\n🎉 SURGICAL RL COMPARISON COMPLETED!")
+            print("=" * 40)
             
             # Print summary
             print("📊 EXPERIMENT SUMMARY:")

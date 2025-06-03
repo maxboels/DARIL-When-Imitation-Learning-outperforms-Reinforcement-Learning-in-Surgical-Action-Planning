@@ -335,7 +335,7 @@ def test_direct_video_environment():
     """Test the direct video environment."""
     
     print("🧪 TESTING DIRECT VIDEO ENVIRONMENT")
-    print("=" * 50)
+    print("=" * 40)
     
     # This would be called with your actual video data
     print("✅ Key Features of DirectVideoEnvironment:")
@@ -346,7 +346,7 @@ def test_direct_video_environment():
     print("5. Direct interaction with real surgical data")
     print()
     
-    print("🎯 This completes your three-way comparison!")
+    print("🎯 This completes your surgical RL comparison!")
     print("Method 1: IL (expert action mimicry)")
     print("Method 2: RL + World Model (simulation-based)")
     print("Method 3: RL + Direct Videos (real data, no simulation)")

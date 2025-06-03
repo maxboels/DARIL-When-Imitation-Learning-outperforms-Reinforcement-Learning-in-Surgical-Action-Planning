@@ -42,7 +42,7 @@ def test_final_fix():
             print("-" * 30)
             
             # Test actual RL training
-            from final_fixed_trainer import FinalFixedSB3Trainer
+            from final_fixed_trainer import SB3Trainer
             from models.dual_world_model import DualWorldModel
             
             # Load or create world model
@@ -54,7 +54,7 @@ def test_final_fix():
                 world_model = DualWorldModel(**model_config)
             
             # Create trainer
-            trainer = FinalFixedSB3Trainer(world_model, config, logger, device='cpu')
+            trainer = SB3Trainer(world_model, config, logger, device='cpu')
             
             # Test very short training
             print("🔧 Testing PPO with 1000 timesteps...")
@@ -87,12 +87,12 @@ if __name__ == "__main__":
         print("✅ Environment working correctly")
         print("✅ RL training functioning")
         print("\n📋 Next Steps:")
-        print("1. Use FinalFixedSB3Trainer in your main experiment")
+        print("1. Use SB3Trainer in your main experiment")
         print("2. Increase timesteps for longer training")
         print("3. Monitor tensorboard for training curves")
         print("\n🔧 Usage:")
-        print("from final_fixed_trainer import FinalFixedSB3Trainer")
-        print("trainer = FinalFixedSB3Trainer(world_model, config, logger)")
+        print("from final_fixed_trainer import SB3Trainer")
+        print("trainer = SB3Trainer(world_model, config, logger)")
         print("results = trainer.train_ppo_final(train_data, timesteps=10000)")
     else:
         print("\n❌ FINAL FIX FAILED")
