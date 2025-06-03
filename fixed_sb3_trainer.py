@@ -166,8 +166,8 @@ class FixedSurgicalActionEnv(gym.Env):
         self.current_step += 1
         
         # Debug action
-        if self.current_step <= 3:  # Debug first few steps
-            print(f"🔧 Step {self.current_step}: Action type: {type(action)}, shape: {getattr(action, 'shape', 'no shape')}")
+        # if self.current_step <= 3:  # Debug first few steps
+        #     print(f"🔧 Step {self.current_step}: Action type: {type(action)}, shape: {getattr(action, 'shape', 'no shape')}")
         
         # FIXED: Proper action handling
         if isinstance(action, (list, tuple)):
@@ -197,8 +197,8 @@ class FixedSurgicalActionEnv(gym.Env):
         
         done = step_limit_reached or frames_remaining <= 0
         
-        if self.current_step <= 3:  # Debug first few steps
-            print(f"🔧 Step {self.current_step}: Frames remaining: {frames_remaining}, Step limit: {step_limit_reached}")
+        # if self.current_step <= 3:  # Debug first few steps
+        #     print(f"🔧 Step {self.current_step}: Frames remaining: {frames_remaining}, Step limit: {step_limit_reached}")
         
         if done:
             reward = 0.0
@@ -207,8 +207,8 @@ class FixedSurgicalActionEnv(gym.Env):
             # Episode completion bonus
             if step_limit_reached:
                 reward += self.reward_weights['completion_bonus']
-                if self.current_step <= 3:
-                    print(f"🔧 Episode completed - giving completion bonus: {reward}")
+                # if self.current_step <= 3:
+                #     print(f"🔧 Episode completed - giving completion bonus: {reward}")
         else:
             # Move to next frame
             self.current_frame_idx += 1
@@ -230,8 +230,8 @@ class FixedSurgicalActionEnv(gym.Env):
             # FIXED: Calculate reward properly (only once!)
             reward = self._calculate_reward_fixed(binary_action, video)
             
-            if self.current_step <= 3:  # Debug first few steps
-                print(f"🔧 Step {self.current_step}: Calculated reward: {reward}")
+            # if self.current_step <= 3:  # Debug first few steps
+            #     print(f"🔧 Step {self.current_step}: Calculated reward: {reward}")
         
         # Update state
         self.current_state = next_state.copy()
