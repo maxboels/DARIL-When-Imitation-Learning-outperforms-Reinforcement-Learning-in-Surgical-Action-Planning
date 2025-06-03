@@ -30,11 +30,9 @@ from utils.logger import SimpleLogger
 
 # Import model components
 from models.dual_world_model import DualWorldModel
-from trainer.dual_trainer import DualTrainer, train_dual_world_model
+from training.dual_trainer import DualTrainer, train_dual_world_model
+from training.trainer import FinalFixedSB3Trainer
 from evaluation.dual_evaluator import DualModelEvaluator
-
-# FIXED: Import the WORKING RL trainer instead of the broken one
-from final_fixed_trainer import FinalFixedSB3Trainer
 
 # FIXED: Import the corrected evaluation framework (embedded)
 from dataclasses import dataclass
@@ -726,7 +724,7 @@ class FixedComparisonExperiment:
             return {'error': str(e)}
     
     def run_complete_comparison(self) -> Dict[str, Any]:
-        """Run the complete IL vs RL comparison with WORKING RL trainer."""
+        """Run the complete IL vs RL comparison with WORKING RL training."""
         
         try:
             # Step 1: Load data
