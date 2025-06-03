@@ -1034,7 +1034,7 @@ def main():
     print()
     
     # Choose config file here:
-    config_path = 'config_dgx_debug.yaml'
+    config_path = 'config_dgx_all.yaml'
 
     # Check if config file exists
     if not os.path.exists(config_path):

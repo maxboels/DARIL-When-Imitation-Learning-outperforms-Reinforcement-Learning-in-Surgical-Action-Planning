@@ -1,0 +1,71 @@
+2025-06-03 13:58:52,039 - INFO - Log file: logs/2025-06-03_13-58-52/fixed_il_vs_rl_comparison.log
+2025-06-03 13:58:52,041 - INFO - 🚀 Starting FIXED IL vs RL Comparison Experiment
+2025-06-03 13:58:52,041 - INFO - Device: cuda
+2025-06-03 13:58:52,041 - INFO - Action Space: Continuous Box(0,1,(100,)) with binary thresholding
+2025-06-03 13:58:52,041 - INFO - Results will be saved to: logs/2025-06-03_13-58-52/comparison_results
+2025-06-03 13:58:52,041 - INFO - 📊 Loading dataset...
+2025-06-03 13:58:52,041 - INFO - Loading train data from /nfs/home/mboels/datasets/CholecT50 with fold 0
+2025-06-03 13:58:53,532 - INFO - [Train] Start processing metadata file /nfs/home/mboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 13:58:53,532 - INFO - [Train] Rewards extraction skipped, using metadata file /nfs/home/mboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 13:58:53,537 - INFO - [Train] Found 40 videos in metadata file
+2025-06-03 13:58:53,537 - INFO - [Train] Loading data for 40 videos
+2025-06-03 14:00:26,814 - INFO - Loading test data from /nfs/home/mboels/datasets/CholecT50 with fold 0
+2025-06-03 14:00:27,288 - INFO - [Test] Start processing metadata file /nfs/home/mboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 14:00:27,288 - INFO - [Test] Rewards extraction skipped, using metadata file /nfs/home/mboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-03 14:00:27,289 - INFO - [Test] Found 10 videos in metadata file
+2025-06-03 14:00:27,289 - INFO - [Test] Loading data for 10 videos
+2025-06-03 14:00:54,969 - INFO - Loaded 40 training videos and 10 test videos
+2025-06-03 14:00:54,970 - INFO - 🎓 Training Imitation Learning Model...
+2025-06-03 14:00:54,970 - INFO - Training supervised imitation learning model
+2025-06-03 14:01:19,234 - INFO - Model parameters: 48,924,145 total, 48,924,145 trainable
+2025-06-03 14:01:19,244 - INFO - Starting supervised training for autoregressive action prediction
+2025-06-03 14:01:20,953 - INFO - Batch 0/4933 | Loss: 3.2355
+2025-06-03 14:01:24,789 - INFO - Batch 100/4933 | Loss: 0.8056
+2025-06-03 14:01:28,756 - INFO - Batch 200/4933 | Loss: 0.5615
+2025-06-03 14:01:32,344 - INFO - Batch 300/4933 | Loss: 0.5676
+2025-06-03 14:01:36,156 - INFO - Batch 400/4933 | Loss: 0.5626
+2025-06-03 14:01:39,763 - INFO - Batch 500/4933 | Loss: 0.4033
+2025-06-03 14:01:43,491 - INFO - Batch 600/4933 | Loss: 0.4680
+2025-06-03 14:01:47,335 - INFO - Batch 700/4933 | Loss: 0.3856
+2025-06-03 14:01:50,923 - INFO - Batch 800/4933 | Loss: 0.3523
+2025-06-03 14:01:54,468 - INFO - Batch 900/4933 | Loss: 0.2948
+2025-06-03 14:01:58,221 - INFO - Batch 1000/4933 | Loss: 0.3657
+2025-06-03 14:02:01,848 - INFO - Batch 1100/4933 | Loss: 0.2373
+2025-06-03 14:02:05,496 - INFO - Batch 1200/4933 | Loss: 0.3108
+2025-06-03 14:02:09,267 - INFO - Batch 1300/4933 | Loss: 0.4467
+2025-06-03 14:02:12,960 - INFO - Batch 1400/4933 | Loss: 0.2635
+2025-06-03 14:02:16,543 - INFO - Batch 1500/4933 | Loss: 0.2302
+2025-06-03 14:02:20,192 - INFO - Batch 1600/4933 | Loss: 0.3083
+2025-06-03 14:02:23,782 - INFO - Batch 1700/4933 | Loss: 0.2233
+2025-06-03 14:02:27,451 - INFO - Batch 1800/4933 | Loss: 0.2382
+2025-06-03 14:02:31,222 - INFO - Batch 1900/4933 | Loss: 0.2206
+2025-06-03 14:02:35,190 - INFO - Batch 2000/4933 | Loss: 0.2320
+2025-06-03 14:02:38,949 - INFO - Batch 2100/4933 | Loss: 0.2379
+2025-06-03 14:02:42,658 - INFO - Batch 2200/4933 | Loss: 0.3813
+2025-06-03 14:02:46,144 - INFO - Batch 2300/4933 | Loss: 0.2265
+2025-06-03 14:02:49,813 - INFO - Batch 2400/4933 | Loss: 0.2232
+2025-06-03 14:02:53,453 - INFO - Batch 2500/4933 | Loss: 0.3504
+2025-06-03 14:02:57,060 - INFO - Batch 2600/4933 | Loss: 0.2675
+2025-06-03 14:03:00,716 - INFO - Batch 2700/4933 | Loss: 0.1881
+2025-06-03 14:03:04,521 - INFO - Batch 2800/4933 | Loss: 0.2263
+2025-06-03 14:03:08,279 - INFO - Batch 2900/4933 | Loss: 0.2039
+2025-06-03 14:03:12,236 - INFO - Batch 3000/4933 | Loss: 0.2400
+2025-06-03 14:03:16,020 - INFO - Batch 3100/4933 | Loss: 0.2745
+2025-06-03 14:03:19,732 - INFO - Batch 3200/4933 | Loss: 0.2331
+2025-06-03 14:03:23,454 - INFO - Batch 3300/4933 | Loss: 0.1943
+2025-06-03 14:03:26,819 - INFO - Batch 3400/4933 | Loss: 0.2272
+2025-06-03 14:03:30,341 - INFO - Batch 3500/4933 | Loss: 0.2051
+2025-06-03 14:03:34,016 - INFO - Batch 3600/4933 | Loss: 0.2272
+2025-06-03 14:03:37,704 - INFO - Batch 3700/4933 | Loss: 0.1986
+2025-06-03 14:03:41,246 - INFO - Batch 3800/4933 | Loss: 0.2037
+2025-06-03 14:03:44,674 - INFO - Batch 3900/4933 | Loss: 0.1740
+2025-06-03 14:03:48,145 - INFO - Batch 4000/4933 | Loss: 0.2595
+2025-06-03 14:03:51,731 - INFO - Batch 4100/4933 | Loss: 0.1603
+2025-06-03 14:03:55,327 - INFO - Batch 4200/4933 | Loss: 0.2096
+2025-06-03 14:03:58,953 - INFO - Batch 4300/4933 | Loss: 0.2179
+2025-06-03 14:04:02,835 - INFO - Batch 4400/4933 | Loss: 0.1767
+2025-06-03 14:04:06,567 - INFO - Batch 4500/4933 | Loss: 0.2023
+2025-06-03 14:04:09,999 - INFO - Batch 4600/4933 | Loss: 0.2213
+2025-06-03 14:04:13,521 - INFO - Batch 4700/4933 | Loss: 0.1685
+2025-06-03 14:04:17,188 - INFO - Batch 4800/4933 | Loss: 0.1925
+2025-06-03 14:04:20,676 - INFO - Batch 4900/4933 | Loss: 0.1734

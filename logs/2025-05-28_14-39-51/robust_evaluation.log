@@ -1,6 +1,0 @@
-2025-05-28 14:39:51,477 - INFO - Log file: logs/2025-05-28_14-39-51/robust_evaluation.log
-2025-05-28 14:39:51,477 - INFO - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
-2025-05-28 14:39:51,572 - INFO - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
-2025-05-28 14:39:51,572 - INFO - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
-2025-05-28 14:39:51,573 - INFO - [Test] Found 5 videos in metadata file
-2025-05-28 14:39:51,573 - INFO - [Test] Loading data for 5 videos

@@ -182,7 +182,7 @@ data:
     video_global_outcome_file: "embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv"
   
   risk_score_path: null
-  max_videos: 2  # Use all videos
+  max_videos: null  # Use all videos
   frame_risk_agg: 'max'
 
 # Model configurations

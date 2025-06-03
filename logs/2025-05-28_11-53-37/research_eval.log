@@ -1,6 +1,0 @@
-2025-05-28 11:53:37,897 - INFO - Log file: logs/2025-05-28_11-53-37/research_eval.log
-2025-05-28 11:53:37,897 - INFO - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
-2025-05-28 11:53:37,996 - INFO - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
-2025-05-28 11:53:37,996 - INFO - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
-2025-05-28 11:53:37,997 - INFO - [Test] Found 5 videos in metadata file
-2025-05-28 11:53:37,997 - INFO - [Test] Loading data for 5 videos
