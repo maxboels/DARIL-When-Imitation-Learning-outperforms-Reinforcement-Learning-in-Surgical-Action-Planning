@@ -50,7 +50,7 @@ class SurgicalRLComparison:
     3. Method 3: RL with Offline Video Episodes (Ablation Study)
     """
     
-    def __init__(self, config_path: str = 'config_local_debug.yaml'):
+    def __init__(self, config_path: str = 'config_dgx_all.yaml'):
         """Initialize the surgical RL comparison experiment."""
         
         # Reset logger timestamp for clean experiment
@@ -80,7 +80,7 @@ class SurgicalRLComparison:
         }
         
         # Create results directory
-        self.results_dir = Path(self.logger.log_dir) / 'surgical_rl_results'
+        self.results_dir = Path(self.logger.log_dir) / 'results'
         self.results_dir.mkdir(exist_ok=True)
         
         self.logger.info("🚀 SURGICAL RL COMPARISON INITIALIZED")
@@ -725,7 +725,7 @@ class SurgicalRLComparison:
         converted_results = convert_numpy_types(self.results)
         
         # Save complete results
-        results_path = self.results_dir / 'complete_surgical_rl_results.json'
+        results_path = self.results_dir / 'complete_results.json'
         with open(results_path, 'w') as f:
             json.dump(converted_results, f, indent=2)
         
@@ -746,7 +746,7 @@ def main():
     print()
     
     # Choose config file
-    config_path = 'config_local_debug.yaml'
+    config_path = 'config_dgx_all.yaml'
     if not os.path.exists(config_path):
         config_path = 'config.yaml'
         print(f"⚠️ Using fallback config: {config_path}")

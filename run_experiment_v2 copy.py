@@ -80,7 +80,7 @@ class SurgicalRLComparison:
         }
         
         # Create results directory
-        self.results_dir = Path(self.logger.log_dir) / 'surgical_rl_results'
+        self.results_dir = Path(self.logger.log_dir) / 'results'
         self.results_dir.mkdir(exist_ok=True)
         
         self.logger.info("🚀 SURGICAL RL COMPARISON INITIALIZED")
@@ -702,7 +702,7 @@ class SurgicalRLComparison:
         converted_results = convert_numpy_types(self.results)
         
         # Save complete results
-        results_path = self.results_dir / 'complete_surgical_rl_results.json'
+        results_path = self.results_dir / 'complete_results.json'
         with open(results_path, 'w') as f:
             json.dump(converted_results, f, indent=2)
         

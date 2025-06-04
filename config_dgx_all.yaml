@@ -7,7 +7,7 @@
 debug: false
 
 # Training mode: 'supervised', 'rl', or 'mixed'
-training_mode: 'mixed'  # Train both IL and RL for comparison
+training_mode: 'rl'  # Train both IL and RL for comparison
 
 # Data preprocessing
 preprocess:
@@ -40,6 +40,11 @@ experiment:
     inference: true
     best_model_path: null  # Will be set after training
   
+  # Imitation Learning (ENABLED for IL vs RL comparison)
+  il_experiments:
+    enabled: true  # ✅ ENABLED for IL vs RL comparison
+    il_model_path: null  # Path to the best IL model
+  
   # RL Experiments (ENABLED for comparison)
   rl_experiments:
     enabled: true  # ✅ ENABLED for IL vs RL comparison
@@ -58,7 +63,7 @@ experiment:
 
 # Training parameters
 training:
-  epochs: 5  # Reduced for faster iteration
+  epochs: 3  # Reduced for faster iteration
   batch_size: 16
   learning_rate: 0.0001  # Start with lower LR for stability
   log_every_n_steps: 100
@@ -367,7 +372,7 @@ hardware:
 training_phases:
   # Phase 1: Supervised pre-training
   supervised:
-    epochs: 5  # Reduced for faster iteration
+    epochs: 1  # Reduced for faster iteration
     learning_rate: 0.0001
     focus_on: ['state_prediction', 'action_prediction']
     loss_weights:
@@ -389,7 +394,7 @@ training_phases:
   
   # Phase 3: Mixed training (optional)
   mixed:
-    epochs: 2
+    epochs: 1
     learning_rate: 0.00002
     alternating_batches: true
     supervised_ratio: 0.7

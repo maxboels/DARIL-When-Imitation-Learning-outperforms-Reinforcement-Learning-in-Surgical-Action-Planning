@@ -1,0 +1,62 @@
+{
+  "title": "SAGAA - Surgical Action Generation for Agentic Assistance: IL vs RL with World Model vs RL with Offline Videos",
+  "experiment_summary": {
+    "method_1": "Imitation Learning (Baseline) - Supervised learning on expert demonstrations",
+    "method_2": "RL with World Model Simulation - Uses learned dynamics for exploration",
+    "method_3": "RL with Offline Videos - Direct RL on video sequences (ablation study)"
+  },
+  "key_findings": [
+    "\u2705 Method 1 (IL): Successfully trained and evaluated",
+    "\u2705 Method 2 (RL + World Model): Successfully demonstrates model-based RL",
+    "\u2705 Method 3 (RL + Offline Videos): Successfully demonstrates model-free RL on real data"
+  ],
+  "method_performance": {
+    "IL_Baseline": {
+      "mAP": 0.2480283742454904,
+      "exact_match": 0.374793237377199,
+      "status": "success",
+      "strength": "Action mimicry"
+    },
+    "RL_WorldModel": {
+      "algorithms": [
+        "ppo",
+        "a2c"
+      ],
+      "successful_training": [
+        "ppo",
+        "a2c"
+      ],
+      "algorithm_performance": {
+        "ppo": 110.41067100000001,
+        "a2c": 89.8437352
+      },
+      "status": "success",
+      "strength": "Exploration via simulation"
+    },
+    "RL_OfflineVideos": {
+      "algorithms": [
+        "ppo",
+        "a2c"
+      ],
+      "successful_training": [
+        "ppo",
+        "a2c"
+      ],
+      "algorithm_performance": {
+        "ppo": 76.4047042,
+        "a2c": 78.04297840000001
+      },
+      "status": "success",
+      "strength": "Direct interaction with real data",
+      "uses_world_model": false,
+      "uses_real_frames": true
+    }
+  },
+  "research_contributions": [
+    "First systematic experiment of IL vs model-based RL vs model-free RL in surgery",
+    "Demonstration of world model effectiveness vs direct video interaction for surgical action prediction",
+    "Comprehensive evaluation framework addressing different RL paradigms",
+    "Novel comparison of simulation-based vs real-data-based RL approaches",
+    "Open-source implementation for reproducible surgical RL research"
+  ]
+}

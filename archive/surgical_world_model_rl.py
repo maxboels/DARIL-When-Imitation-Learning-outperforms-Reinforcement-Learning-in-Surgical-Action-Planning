@@ -302,7 +302,7 @@ def train_rl_policy():
         env = create_surgical_environment("pretrained_world_model.pth")
         
         # Train PPO policy
-        model = PPO("MlpPolicy", env, verbose=1, tensorboard_log="./surgical_rl_logs/")
+        model = PPO("MlpPolicy", env, verbose=1, tensorboard_log="./logs/")
         model.learn(total_timesteps=100000)
         
         # Save trained policy
