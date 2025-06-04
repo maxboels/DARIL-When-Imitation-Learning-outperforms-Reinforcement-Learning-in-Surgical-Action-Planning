@@ -64,36 +64,65 @@ class WorldModelDataset(Dataset):
             rewards = video.get('next_rewards', {})
             
             num_frames = len(frame_embeddings)
+            embedding_dim = frame_embeddings.shape[1]
             
-            # Create state-action-next_state-reward tuples
-            for start_idx in range(num_frames - self.context_length):
+            # Create state-action-next_state-reward tuples starting from frame 0
+            for current_idx in range(num_frames):
                 
-                end_idx = start_idx + self.context_length
-                if end_idx >= num_frames:
+                # Calculate sequence indices [current_idx - context_length + 1, ..., current_idx]
+                seq_start = current_idx - self.context_length + 1
+                seq_end = current_idx + 1
+                
+                # Skip if we don't have a next frame
+                if current_idx + 1 >= num_frames:
                     continue
                 
-                # Current states sequence [start_idx, ..., start_idx + context_length - 1]
-                current_states = frame_embeddings[start_idx:end_idx]
+                # Build current states sequence with padding
+                current_states = []
+                action_sequence = []
+                current_phases = []
                 
-                # Action sequence (actions taken at each state)
-                action_sequence = action_binaries[start_idx:end_idx]
+                for i in range(seq_start, seq_end):
+                    if i < 0:
+                        # Padding for positions before video start
+                        current_states.append(np.full(embedding_dim, self.padding_value, dtype=np.float32))
+                        action_sequence.append(np.zeros(action_binaries.shape[1], dtype=np.float32))
+                        current_phases.append(np.zeros(phase_binaries.shape[1], dtype=np.float32))
+                    else:
+                        current_states.append(frame_embeddings[i])
+                        action_sequence.append(action_binaries[i])
+                        current_phases.append(phase_binaries[i])
                 
-                # Next states sequence [start_idx + 1, ..., start_idx + context_length]
-                if end_idx < num_frames:
-                    next_states = frame_embeddings[start_idx + 1:end_idx + 1]
-                else:
-                    continue  # Skip if we don't have enough next states
+                # Build next states sequence with padding  
+                next_states = []
+                next_phases = []
                 
-                # Phase sequences
-                current_phases = phase_binaries[start_idx:end_idx]
-                next_phases = phase_binaries[start_idx + 1:end_idx + 1]
+                for i in range(seq_start + 1, seq_end + 1):
+                    if i < 0:
+                        # Padding for positions before video start
+                        next_states.append(np.full(embedding_dim, self.padding_value, dtype=np.float32))
+                        next_phases.append(np.zeros(phase_binaries.shape[1], dtype=np.float32))
+                    elif i >= num_frames:
+                        # This shouldn't happen with our bounds checking above
+                        continue
+                    else:
+                        next_states.append(frame_embeddings[i])
+                        next_phases.append(phase_binaries[i])
                 
                 # Extract reward sequences for each reward type
                 reward_sequences = {}
                 for reward_type, reward_values in rewards.items():
-                    if len(reward_values) > end_idx:
-                        # Get rewards for next states
-                        reward_seq = reward_values[start_idx + 1:end_idx + 1]
+                    reward_seq = []
+                    for i in range(seq_start + 1, seq_end + 1):
+                        if i < 0:
+                            # Default reward for padding
+                            reward_seq.append(0.0)
+                        elif i < len(reward_values):
+                            reward_seq.append(reward_values[i])
+                        else:
+                            reward_seq.append(0.0)
+                    
+                    if len(reward_seq) == self.context_length:
                         reward_sequences[reward_type.replace('_r_', '')] = reward_seq
                 
                 # Ensure all sequences have the correct length
@@ -107,7 +136,7 @@ class WorldModelDataset(Dataset):
                     
                     self.samples.append({
                         'video_id': video_id,
-                        'start_idx': start_idx,
+                        'current_idx': current_idx,
                         'current_states': np.array(current_states, dtype=np.float32),
                         'actions': np.array(action_sequence, dtype=np.float32),
                         'next_states': np.array(next_states, dtype=np.float32),
@@ -116,8 +145,8 @@ class WorldModelDataset(Dataset):
                         'rewards': {k: np.array(v, dtype=np.float32) for k, v in reward_sequences.items()},
                         'sequence_info': {
                             'video_length': num_frames,
-                            'context_start': start_idx,
-                            'context_end': end_idx
+                            'current_frame': current_idx,
+                            'padding_frames': max(0, -seq_start)
                         }
                     })
     

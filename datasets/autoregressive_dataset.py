@@ -64,26 +64,50 @@ class AutoregressiveDataset(Dataset):
             phase_binaries = video['phase_binaries']
             
             num_frames = len(frame_embeddings)
+            embedding_dim = frame_embeddings.shape[1]
             
-            # Create overlapping sequences for autoregressive training
-            for start_idx in range(num_frames - self.context_length):
+            # Create sequences starting from frame 0 (use padding for early frames)
+            for target_idx in range(num_frames):
                 
-                # Check if we have enough frames for target sequence
-                end_idx = start_idx + self.context_length
-                if end_idx >= num_frames:
+                # Calculate input sequence indices [target_idx - context_length + 1, ..., target_idx]
+                input_start = target_idx - self.context_length + 1
+                input_end = target_idx + 1
+                
+                # Calculate target sequence indices [target_idx - context_length + 2, ..., target_idx + 1]
+                target_start = target_idx - self.context_length + 2
+                target_end = target_idx + 2
+                
+                # Skip if we don't have a next frame for target
+                if target_end > num_frames:
                     continue
                 
-                # Input frame sequence [start_idx, ..., start_idx + context_length - 1]
-                input_frames = frame_embeddings[start_idx:end_idx]
+                # Build input frame sequence with padding
+                input_frames = []
+                for i in range(input_start, input_end):
+                    if i < 0:
+                        # Padding for positions before video start
+                        input_frames.append(np.full(embedding_dim, self.padding_value, dtype=np.float32))
+                    else:
+                        input_frames.append(frame_embeddings[i])
                 
-                # Target next frame sequence [start_idx + 1, ..., start_idx + context_length]
-                target_next_frames = frame_embeddings[start_idx + 1:end_idx + 1]
+                # Build target next frame sequence with padding
+                target_next_frames = []
+                target_actions = []
+                target_phases = []
                 
-                # Target actions aligned with target frames
-                target_actions = action_binaries[start_idx + 1:end_idx + 1]
-                
-                # Target phases aligned with target frames  
-                target_phases = phase_binaries[start_idx + 1:end_idx + 1]
+                for i in range(target_start, target_end):
+                    if i < 0:
+                        # Padding for positions before video start
+                        target_next_frames.append(np.full(embedding_dim, self.padding_value, dtype=np.float32))
+                        target_actions.append(np.zeros(action_binaries.shape[1], dtype=np.float32))
+                        target_phases.append(np.zeros(phase_binaries.shape[1], dtype=np.float32))
+                    elif i >= num_frames:
+                        # This shouldn't happen with our bounds checking above
+                        continue
+                    else:
+                        target_next_frames.append(frame_embeddings[i])
+                        target_actions.append(action_binaries[i])  
+                        target_phases.append(phase_binaries[i])
                 
                 # Ensure all sequences have the correct length
                 if (len(input_frames) == self.context_length and 
@@ -96,15 +120,15 @@ class AutoregressiveDataset(Dataset):
                     
                     self.samples.append({
                         'video_id': video_id,
-                        'start_idx': start_idx,
+                        'target_idx': target_idx,
                         'input_frames': np.array(input_frames, dtype=np.float32),
                         'target_next_frames': np.array(target_next_frames, dtype=np.float32),
                         'target_actions': np.array(target_actions, dtype=np.float32),
                         'target_phases': phase_indices.astype(np.int64),
                         'sequence_info': {
                             'video_length': num_frames,
-                            'context_start': start_idx,
-                            'context_end': end_idx
+                            'target_frame': target_idx,
+                            'padding_frames': max(0, -input_start)
                         }
                     })
     

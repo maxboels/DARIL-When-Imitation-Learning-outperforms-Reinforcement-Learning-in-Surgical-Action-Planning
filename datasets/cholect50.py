@@ -1,4 +1,3 @@
-
 import os
 import json
 import numpy as np
@@ -295,7 +294,7 @@ class NextFramePredictionDataset(Dataset):
             reward_dim = 1
             embedding_dim = len(embeddings[0])
 
-            for i in range(len(embeddings) - 1):
+            for i in range(len(embeddings)):  # Process all frames, not len(embeddings) - 1
                 # For position i, take context_length frames from the left (previous frames)
                 # This means frames from (i-context_length+1) to i, inclusive
                 z_seq = []
@@ -317,10 +316,15 @@ class NextFramePredictionDataset(Dataset):
                 # outcomes
                 q_seq = []
 
-                # current
-                c_a = actions[i]
-                c_i = instruments[i]
-                
+                # current (only if not the last frame)
+                if i < len(embeddings) - 1:
+                    c_a = actions[i]
+                    c_i = instruments[i]
+                else:
+                    # For the last frame, we can't have current action/instrument
+                    # Skip this sample or use padding
+                    continue
+
                 # Add previous frames, using padding if needed
                 for j in range(i - context_length + 1, i + 1):
                     if j < 0:
