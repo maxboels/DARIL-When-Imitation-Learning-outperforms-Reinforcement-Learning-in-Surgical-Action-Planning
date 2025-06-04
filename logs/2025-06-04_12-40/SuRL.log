@@ -1,0 +1,30 @@
+2025-06-04 12:40:22,249 - INFO - SuRL_126365893902704 - Shared experiment log directory: logs/2025-06-04_12-40
+2025-06-04 12:40:22,250 - INFO - SuRL_126365893902704 - 🚀 SURGICAL RL COMPARISON INITIALIZED
+2025-06-04 12:40:22,250 - INFO - SuRL_126365893902704 - Method 1: Imitation Learning (Baseline)
+2025-06-04 12:40:22,250 - INFO - SuRL_126365893902704 - Method 2: RL with World Model Simulation
+2025-06-04 12:40:22,250 - INFO - SuRL_126365893902704 - Method 3: RL with Offline Video Episodes
+2025-06-04 12:40:22,250 - INFO - SuRL_126365893902704 - Device: cuda
+2025-06-04 12:40:22,250 - INFO - SuRL_126365893902704 - Results will be saved to: logs/2025-06-04_12-40/results
+2025-06-04 12:40:22,250 - INFO - SuRL_126365893902704 - ============================================================
+2025-06-04 12:40:22,250 - INFO - SuRL_126365893902704 - STEP 1: LOADING DATASET
+2025-06-04 12:40:22,250 - INFO - SuRL_126365893902704 - ============================================================
+2025-06-04 12:40:22,250 - INFO - SuRL_126365893902704 - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-04 12:40:22,654 - INFO - SuRL_126365893902704 - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-04 12:40:22,654 - INFO - SuRL_126365893902704 - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-04 12:40:22,656 - INFO - SuRL_126365893902704 - [Train] Found 2 videos in metadata file
+2025-06-04 12:40:22,656 - INFO - SuRL_126365893902704 - [Train] Loading data for 2 videos
+2025-06-04 12:40:22,789 - INFO - SuRL_126365893902704 - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-04 12:40:22,881 - INFO - SuRL_126365893902704 - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-04 12:40:22,881 - INFO - SuRL_126365893902704 - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-04 12:40:22,882 - INFO - SuRL_126365893902704 - [Test] Found 1 videos in metadata file
+2025-06-04 12:40:22,882 - INFO - SuRL_126365893902704 - [Test] Loading data for 1 videos
+2025-06-04 12:40:22,991 - INFO - SuRL_126365893902704 - ✅ Loaded 2 training videos and 1 test videos
+2025-06-04 12:40:22,991 - INFO - SuRL_126365893902704 - ============================================================
+2025-06-04 12:40:22,991 - INFO - SuRL_126365893902704 - STEP 2: METHOD 1 - IMITATION LEARNING BASELINE
+2025-06-04 12:40:22,991 - INFO - SuRL_126365893902704 - ============================================================
+2025-06-04 12:40:22,991 - INFO - SuRL_126365893902704 - 🎓 Training Imitation Learning Baseline...
+2025-06-04 12:40:22,991 - INFO - SuRL_126365893902704 - 📋 Approach: Supervised learning on expert demonstrations
+2025-06-04 12:40:24,667 - INFO - SuRL_126365893902704 - Starting the Imitation Learning training for autoregressive action prediction
+2025-06-04 12:40:25,049 - INFO - SuRL_126365893902704 - Batch 0/204 | Loss: 3.3123
+2025-06-04 12:40:29,507 - INFO - SuRL_126365893902704 - Batch 100/204 | Loss: 0.5414
+2025-06-04 12:40:33,931 - INFO - SuRL_126365893902704 - Batch 200/204 | Loss: 0.3646

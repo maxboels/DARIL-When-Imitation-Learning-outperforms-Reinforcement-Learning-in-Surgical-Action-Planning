@@ -1,0 +1,137 @@
+2025-06-04 12:42:02,243 - INFO - SuRL_123986509202592 - Shared experiment log directory: logs/2025-06-04_12-42
+2025-06-04 12:42:02,243 - INFO - SuRL_123986509202592 - 🚀 SURGICAL RL COMPARISON INITIALIZED
+2025-06-04 12:42:02,243 - INFO - SuRL_123986509202592 - Method 1: Imitation Learning (Baseline)
+2025-06-04 12:42:02,243 - INFO - SuRL_123986509202592 - Method 2: RL with World Model Simulation
+2025-06-04 12:42:02,243 - INFO - SuRL_123986509202592 - Method 3: RL with Offline Video Episodes
+2025-06-04 12:42:02,243 - INFO - SuRL_123986509202592 - Device: cuda
+2025-06-04 12:42:02,243 - INFO - SuRL_123986509202592 - Results will be saved to: logs/2025-06-04_12-42/results
+2025-06-04 12:42:02,244 - INFO - SuRL_123986509202592 - ============================================================
+2025-06-04 12:42:02,244 - INFO - SuRL_123986509202592 - STEP 1: LOADING DATASET
+2025-06-04 12:42:02,244 - INFO - SuRL_123986509202592 - ============================================================
+2025-06-04 12:42:02,244 - INFO - SuRL_123986509202592 - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-04 12:42:02,680 - INFO - SuRL_123986509202592 - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-04 12:42:02,680 - INFO - SuRL_123986509202592 - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-04 12:42:02,681 - INFO - SuRL_123986509202592 - [Train] Found 2 videos in metadata file
+2025-06-04 12:42:02,682 - INFO - SuRL_123986509202592 - [Train] Loading data for 2 videos
+2025-06-04 12:42:02,816 - INFO - SuRL_123986509202592 - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-04 12:42:02,917 - INFO - SuRL_123986509202592 - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-04 12:42:02,917 - INFO - SuRL_123986509202592 - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-04 12:42:02,918 - INFO - SuRL_123986509202592 - [Test] Found 1 videos in metadata file
+2025-06-04 12:42:02,918 - INFO - SuRL_123986509202592 - [Test] Loading data for 1 videos
+2025-06-04 12:42:03,026 - INFO - SuRL_123986509202592 - ✅ Loaded 2 training videos and 1 test videos
+2025-06-04 12:42:03,026 - INFO - SuRL_123986509202592 - ============================================================
+2025-06-04 12:42:03,026 - INFO - SuRL_123986509202592 - STEP 2: METHOD 1 - IMITATION LEARNING BASELINE
+2025-06-04 12:42:03,026 - INFO - SuRL_123986509202592 - ============================================================
+2025-06-04 12:42:03,026 - INFO - SuRL_123986509202592 - 🎓 Training Imitation Learning Baseline...
+2025-06-04 12:42:03,026 - INFO - SuRL_123986509202592 - 📋 Approach: Supervised learning on expert demonstrations
+2025-06-04 12:42:04,654 - INFO - SuRL_123986509202592 - Starting the Imitation Learning training for autoregressive action prediction
+2025-06-04 12:42:05,058 - INFO - SuRL_123986509202592 - Batch 0/204 | Loss: 3.3123
+2025-06-04 12:42:09,500 - INFO - SuRL_123986509202592 - Batch 100/204 | Loss: 0.5414
+2025-06-04 12:42:13,926 - INFO - SuRL_123986509202592 - Batch 200/204 | Loss: 0.3646
+2025-06-04 12:43:11,568 - INFO - SuRL_123986509202592 - New best model saved: logs/2025-06-04_12-42/checkpoints/supervised_best_epoch_1.pt
+2025-06-04 12:43:11,568 - INFO - SuRL_123986509202592 - Epoch 1/1 | Train Loss: 0.7761 | Val Loss: 0.4113 | Val Action Acc: 0.0000
+2025-06-04 12:43:12,002 - INFO - SuRL_123986509202592 - Training plots saved to logs/2025-06-04_12-42
+2025-06-04 12:43:12,111 - INFO - SuRL_123986509202592 - Training completed. Best model: logs/2025-06-04_12-42/checkpoints/supervised_best_epoch_1.pt
+2025-06-04 12:43:12,111 - INFO - SuRL_123986509202592 - Final model: logs/2025-06-04_12-42/checkpoints/final_model.pt
+2025-06-04 12:43:15,101 - INFO - SuRL_123986509202592 - ✅ Method 1 (IL) completed successfully
+2025-06-04 12:43:15,101 - INFO - SuRL_123986509202592 - 📊 IL mAP: 0.2378
+2025-06-04 12:43:15,166 - INFO - SuRL_123986509202592 - ============================================================
+2025-06-04 12:43:15,167 - INFO - SuRL_123986509202592 - STEP 3: METHOD 2 - RL WITH WORLD MODEL SIMULATION
+2025-06-04 12:43:15,167 - INFO - SuRL_123986509202592 - ============================================================
+2025-06-04 12:43:15,167 - INFO - SuRL_123986509202592 - 🌍 Training RL with World Model Simulation...
+2025-06-04 12:43:15,167 - INFO - SuRL_123986509202592 - 📋 Approach: World model as RL environment simulator
+2025-06-04 12:43:15,782 - INFO - SuRL_123986509202592 - ✅ Using world model from Method 1: logs/2025-06-04_12-42/checkpoints/supervised_best_epoch_1.pt
+2025-06-04 12:43:15,783 - INFO - SuRL_123986509202592 - 🤖 Training PPO with world model simulation...
+2025-06-04 12:43:27,141 - INFO - SuRL_123986509202592 - 🤖 Training A2C with world model simulation...
+2025-06-04 12:43:36,256 - INFO - SuRL_123986509202592 - ✅ Method 2 (RL + World Model) completed successfully
+2025-06-04 12:43:36,256 - INFO - SuRL_123986509202592 - 📊 Successful RL models: ['ppo', 'a2c']
+2025-06-04 12:43:36,256 - INFO - SuRL_123986509202592 - ============================================================
+2025-06-04 12:43:36,256 - INFO - SuRL_123986509202592 - STEP 4: METHOD 3 - RL WITH OFFLINE VIDEO EPISODES
+2025-06-04 12:43:36,256 - INFO - SuRL_123986509202592 - ============================================================
+2025-06-04 12:43:36,256 - INFO - SuRL_123986509202592 - 📹 Training RL with Offline Video Episodes...
+2025-06-04 12:43:36,256 - INFO - SuRL_123986509202592 - 📋 Approach: Direct RL on video sequences (no world model)
+2025-06-04 12:43:36,256 - INFO - SuRL_123986509202592 - 🧪 Testing Direct Video Environment...
+2025-06-04 12:43:36,258 - INFO - SuRL_123986509202592 - 🚀 Training RL algorithms on direct video sequences for 10000 timesteps...
+2025-06-04 12:43:54,265 - INFO - SuRL_123986509202592 - ✅ ppo Direct Video evaluation completed
+2025-06-04 12:43:54,265 - INFO - SuRL_123986509202592 - ✅ a2c Direct Video evaluation completed
+2025-06-04 12:43:54,265 - INFO - SuRL_123986509202592 - ✅ Method 3 (RL + Offline Videos) completed successfully
+2025-06-04 12:43:54,265 - INFO - SuRL_123986509202592 - 📊 Successful Direct Video RL models: ['ppo', 'a2c']
+2025-06-04 12:43:54,266 - INFO - SuRL_123986509202592 - ============================================================
+2025-06-04 12:43:54,266 - INFO - SuRL_123986509202592 - STEP 5: COMPREHENSIVE EVALUATION AND COMPARISON
+2025-06-04 12:43:54,266 - INFO - SuRL_123986509202592 - ============================================================
+2025-06-04 12:43:54,266 - INFO - SuRL_123986509202592 - 📊 Running Integrated Evaluation with Rollout Saving...
+2025-06-04 12:43:54,433 - INFO - SuRL_123986509202592 - 🔬 Integrated Evaluation Framework initialized
+2025-06-04 12:43:54,433 - INFO - SuRL_123986509202592 - 📁 Results will be saved to: logs/2025-06-04_12-42/results/integrated_evaluation
+2025-06-04 12:43:55,063 - INFO - SuRL_123986509202592 - ✅ IL model loaded for evaluation
+2025-06-04 12:43:55,073 - INFO - SuRL_123986509202592 - ✅ RL+WorldModel PPO loaded
+2025-06-04 12:43:55,081 - INFO - SuRL_123986509202592 - ✅ RL+WorldModel A2C loaded
+2025-06-04 12:43:55,092 - INFO - SuRL_123986509202592 - ✅ RL+OfflineVideos PPO loaded
+2025-06-04 12:43:55,101 - INFO - SuRL_123986509202592 - ✅ RL+OfflineVideos A2C loaded
+2025-06-04 12:43:55,101 - INFO - SuRL_123986509202592 - 📊 Loaded 5 models for integrated evaluation
+2025-06-04 12:43:55,101 - INFO - SuRL_123986509202592 - 🎯 Running Integrated Evaluation with Rollout Saving
+2025-06-04 12:43:55,102 - INFO - SuRL_123986509202592 - 📊 Evaluating 5 models on 1 videos
+2025-06-04 12:43:55,102 - INFO - SuRL_123986509202592 - ⏱️ Prediction horizon: 15 timesteps
+2025-06-04 12:43:55,102 - INFO - SuRL_123986509202592 - ============================================================
+2025-06-04 12:43:55,102 - INFO - SuRL_123986509202592 - 📹 Video 1/1
+2025-06-04 12:43:55,102 - INFO - SuRL_123986509202592 - 📹 Evaluating VID02 with rollouts (horizon: 15)
+2025-06-04 12:43:55,102 - INFO - SuRL_123986509202592 -   🤖 Evaluating IL_Baseline with rollouts
+2025-06-04 12:43:55,309 - INFO - SuRL_123986509202592 -     📊 Final mAP: 1.000
+2025-06-04 12:43:55,309 - INFO - SuRL_123986509202592 -   🤖 Evaluating RL_WorldModel_PPO with rollouts
+2025-06-04 12:43:55,354 - INFO - SuRL_123986509202592 -     📊 Final mAP: 1.000
+2025-06-04 12:43:55,355 - INFO - SuRL_123986509202592 -   🤖 Evaluating RL_WorldModel_A2C with rollouts
+2025-06-04 12:43:55,398 - INFO - SuRL_123986509202592 -     📊 Final mAP: 1.000
+2025-06-04 12:43:55,398 - INFO - SuRL_123986509202592 -   🤖 Evaluating RL_OfflineVideos_PPO with rollouts
+2025-06-04 12:43:55,441 - INFO - SuRL_123986509202592 -     📊 Final mAP: 0.960
+2025-06-04 12:43:55,441 - INFO - SuRL_123986509202592 -   🤖 Evaluating RL_OfflineVideos_A2C with rollouts
+2025-06-04 12:43:55,485 - INFO - SuRL_123986509202592 -     📊 Final mAP: 1.000
+2025-06-04 12:43:55,506 - INFO - SuRL_123986509202592 - 📊 Visualization data saved to: logs/2025-06-04_12-42/results/integrated_evaluation/visualization_data.json
+2025-06-04 12:43:55,506 - INFO - SuRL_123986509202592 - 💾 Saving integrated evaluation results...
+2025-06-04 12:43:55,738 - INFO - SuRL_123986509202592 - 📊 Integrated results saved to: logs/2025-06-04_12-42/results/integrated_evaluation
+2025-06-04 12:43:55,738 - INFO - SuRL_123986509202592 - 🎉 INTEGRATED EVALUATION COMPLETED!
+2025-06-04 12:43:55,738 - INFO - SuRL_123986509202592 - ==================================================
+2025-06-04 12:43:55,738 - INFO - SuRL_123986509202592 - 📊 Key Features:
+2025-06-04 12:43:55,738 - INFO - SuRL_123986509202592 -   ✅ Unified mAP metrics for all methods
+2025-06-04 12:43:55,738 - INFO - SuRL_123986509202592 -   ✅ Detailed rollout saving at every timestep
+2025-06-04 12:43:55,738 - INFO - SuRL_123986509202592 -   ✅ Planning horizon visualization data
+2025-06-04 12:43:55,738 - INFO - SuRL_123986509202592 -   ✅ Thinking process capture
+2025-06-04 12:43:55,738 - INFO - SuRL_123986509202592 -   ✅ Statistical significance testing
+2025-06-04 12:43:55,738 - INFO - SuRL_123986509202592 -   ✅ Visualization-ready data export
+2025-06-04 12:43:55,739 - INFO - SuRL_123986509202592 - ✅ Integrated evaluation completed successfully!
+2025-06-04 12:43:55,739 - INFO - SuRL_123986509202592 - 
+📊 METHOD COMPARISON (Unified mAP Metrics)
+2025-06-04 12:43:55,739 - INFO - SuRL_123986509202592 - ============================================================
+2025-06-04 12:43:55,739 - INFO - SuRL_123986509202592 - 1. RL OfflineVideos A2C:
+2025-06-04 12:43:55,739 - INFO - SuRL_123986509202592 -    📈 mAP: 1.0000 ± 0.0000
+2025-06-04 12:43:55,739 - INFO - SuRL_123986509202592 -    📉 Degradation: 0.0000
+2025-06-04 12:43:55,739 - INFO - SuRL_123986509202592 -    🎯 Stability: -0.0000
+2025-06-04 12:43:55,739 - INFO - SuRL_123986509202592 - 
+2025-06-04 12:43:55,739 - INFO - SuRL_123986509202592 - 2. IL Baseline:
+2025-06-04 12:43:55,739 - INFO - SuRL_123986509202592 -    📈 mAP: 1.0000 ± 0.0000
+2025-06-04 12:43:55,739 - INFO - SuRL_123986509202592 -    📉 Degradation: 0.0000
+2025-06-04 12:43:55,740 - INFO - SuRL_123986509202592 -    🎯 Stability: -0.0000
+2025-06-04 12:43:55,740 - INFO - SuRL_123986509202592 - 
+2025-06-04 12:43:55,740 - INFO - SuRL_123986509202592 - 3. RL WorldModel PPO:
+2025-06-04 12:43:55,740 - INFO - SuRL_123986509202592 -    📈 mAP: 1.0000 ± 0.0000
+2025-06-04 12:43:55,740 - INFO - SuRL_123986509202592 -    📉 Degradation: 0.0000
+2025-06-04 12:43:55,740 - INFO - SuRL_123986509202592 -    🎯 Stability: -0.0000
+2025-06-04 12:43:55,740 - INFO - SuRL_123986509202592 - 
+2025-06-04 12:43:55,740 - INFO - SuRL_123986509202592 - 4. RL WorldModel A2C:
+2025-06-04 12:43:55,740 - INFO - SuRL_123986509202592 -    📈 mAP: 1.0000 ± 0.0000
+2025-06-04 12:43:55,740 - INFO - SuRL_123986509202592 -    📉 Degradation: 0.0000
+2025-06-04 12:43:55,740 - INFO - SuRL_123986509202592 -    🎯 Stability: -0.0000
+2025-06-04 12:43:55,740 - INFO - SuRL_123986509202592 - 
+2025-06-04 12:43:55,740 - INFO - SuRL_123986509202592 - 5. RL OfflineVideos PPO:
+2025-06-04 12:43:55,740 - INFO - SuRL_123986509202592 -    📈 mAP: 0.9600 ± 0.0000
+2025-06-04 12:43:55,740 - INFO - SuRL_123986509202592 -    📉 Degradation: 0.0000
+2025-06-04 12:43:55,740 - INFO - SuRL_123986509202592 -    🎯 Stability: -0.0000
+2025-06-04 12:43:55,740 - INFO - SuRL_123986509202592 - 
+2025-06-04 12:43:55,740 - INFO - SuRL_123986509202592 - 🔬 STATISTICAL SIGNIFICANCE TESTS
+2025-06-04 12:43:55,740 - INFO - SuRL_123986509202592 - ========================================
+2025-06-04 12:43:55,740 - INFO - SuRL_123986509202592 - No statistically significant differences found
+2025-06-04 12:43:55,740 - INFO - SuRL_123986509202592 - ============================================================
+2025-06-04 12:43:55,740 - INFO - SuRL_123986509202592 - STEP 6: GENERATING RESEARCH PAPER RESULTS
+2025-06-04 12:43:55,740 - INFO - SuRL_123986509202592 - ============================================================
+2025-06-04 12:43:55,740 - INFO - SuRL_123986509202592 - 📝 Generating enhanced research paper results...
+2025-06-04 12:43:55,740 - INFO - SuRL_123986509202592 - 📄 Integrated experiment summary saved to: logs/2025-06-04_12-42/results/integrated_experiment_summary.md
+2025-06-04 12:43:55,740 - INFO - SuRL_123986509202592 - 📄 Integrated paper results saved to: logs/2025-06-04_12-42/results/integrated_paper_results.json
+2025-06-04 12:43:55,740 - ERROR - SuRL_123986509202592 - ❌ Experimental comparison failed: name '_convert_numpy_types' is not defined

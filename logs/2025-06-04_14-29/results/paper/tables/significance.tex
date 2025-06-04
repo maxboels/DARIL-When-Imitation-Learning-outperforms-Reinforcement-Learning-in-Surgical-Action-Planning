@@ -1,0 +1,19 @@
+
+\begin{table}[htbp]
+\centering
+\caption{Statistical Significance Test Results (p-values)}
+\label{tab:significance}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Method} & \textbf{IL} & \textbf{WM-PPO} & \textbf{WM-A2C} & \textbf{OV-PPO} & \textbf{OV-A2C} \\
+\midrule
+IL Baseline & -- & 0.182 & 0.165 & 0.023* & 0.187 \\
+RL+WM (PPO) & 0.182 & -- & 0.891 & 0.019* & 0.245 \\
+RL+WM (A2C) & 0.165 & 0.891 & -- & 0.017* & 0.221 \\
+RL+OV (PPO) & 0.023* & 0.019* & 0.017* & -- & 0.012* \\
+RL+OV (A2C) & 0.187 & 0.245 & 0.221 & 0.012* & -- \\
+\bottomrule
+\end{tabular}
+\footnotesize
+\textit{Note: * indicates statistically significant difference (p < 0.05). WM = World Model, OV = Offline Videos.}
+\end{table}

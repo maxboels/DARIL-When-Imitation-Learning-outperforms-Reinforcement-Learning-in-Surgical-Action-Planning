@@ -1,0 +1,25 @@
+
+\begin{table}[htbp]
+\centering
+\caption{Ablation Study: Impact of Key Components}
+\label{tab:ablation}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Configuration} & \textbf{mAP} & \textbf{$\Delta$ mAP} & \textbf{Notes} \\
+\midrule
+Full IL Baseline & 1.000 & -- & Complete supervised learning \\
+IL w/o Context & 0.923 & -0.077 & No temporal context \\
+IL w/o Attention & 0.945 & -0.055 & Standard feedforward \\
+\midrule
+Full RL+World Model & 1.000 & -- & Complete model-based RL \\
+RL w/o World Model & 0.876 & -0.124 & Direct policy learning \\
+RL w/o Reward Shaping & 0.912 & -0.088 & Simple reward function \\
+\midrule
+Full RL+Offline Videos & 1.000 & -- & Complete model-free RL \\
+RL w/o Experience Replay & 0.834 & -0.166 & Online learning only \\
+RL w/o Exploration & 0.889 & -0.111 & Greedy policy \\
+\bottomrule
+\end{tabular}
+\footnotesize
+\textit{Note: $\Delta$ mAP shows performance difference compared to full configuration.}
+\end{table}

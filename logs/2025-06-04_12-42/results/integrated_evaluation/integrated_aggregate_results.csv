@@ -1,0 +1,6 @@
+method,final_mAP_mean,final_mAP_std,final_mAP_min,final_mAP_max,mean_mAP_mean,mean_mAP_std,mean_mAP_min,mean_mAP_max,mAP_degradation_mean,mAP_degradation_std,mAP_degradation_min,mAP_degradation_max,exact_match_final_mean,exact_match_overall_mean,confidence_mean,confidence_std,trajectory_stability,num_videos
+RL_OfflineVideos_A2C,1.0,0.0,1.0,1.0,1.0,0.0,1.0,1.0,0.0,0.0,0.0,0.0,1.0,1.0,0.13458655575911205,0.0,-0.0,1
+IL_Baseline,1.0,0.0,1.0,1.0,1.0,0.0,1.0,1.0,0.0,0.0,0.0,0.0,1.0,1.0,0.047628971934318545,0.0,-0.0,1
+RL_WorldModel_PPO,1.0,0.0,1.0,1.0,1.0,0.0,1.0,1.0,0.0,0.0,0.0,0.0,1.0,1.0,0.39366567730903623,0.0,-0.0,1
+RL_WorldModel_A2C,1.0,0.0,1.0,1.0,1.0,0.0,1.0,1.0,0.0,0.0,0.0,0.0,1.0,1.0,0.08470124204953512,0.0,-0.0,1
+RL_OfflineVideos_PPO,0.96,0.0,0.96,0.96,0.9600000000000004,0.0,0.9600000000000004,0.9600000000000004,0.0,0.0,0.0,0.0,0.0,0.0,0.7102854768435161,0.0,-0.0,1
