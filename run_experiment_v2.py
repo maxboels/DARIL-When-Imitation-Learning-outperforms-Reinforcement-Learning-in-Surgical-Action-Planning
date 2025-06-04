@@ -25,6 +25,7 @@ from torch.utils.data import DataLoader
 
 from environment.direct_video_env import DirectVideoSB3Trainer, test_direct_video_environment
 from evaluation.dual_evaluation_framework import DualEvaluationFramework
+from evaluation.integrated_evaluation_framework import run_integrated_evaluation
 from evaluation.paper_generator import generate_research_paper
 
 
@@ -515,9 +516,6 @@ class SurgicalRLComparison:
         self.logger.info("📊 Running Integrated Evaluation with Rollout Saving...")
         
         try:
-            # Import the integrated evaluation framework
-            from evaluation.integrated_evaluation_framework import run_integrated_evaluation
-            
             # Run integrated evaluation
             evaluation_config = self.config.get('evaluation', {})
             horizon = evaluation_config.get('horizon', 15)
