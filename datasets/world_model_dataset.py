@@ -73,24 +73,28 @@ class WorldModelDataset(Dataset):
                 seq_start = current_idx - self.context_length + 1
                 seq_end = current_idx + 1
                 
-                # Skip if we don't have a next frame
+                # Skip if we don't have a next frame or next action
                 if current_idx + 1 >= num_frames:
                     continue
                 
                 # Build current states sequence with padding
                 current_states = []
-                action_sequence = []
+                next_action_sequence = []  # FIXED: Use next actions as conditional input
                 current_phases = []
                 
                 for i in range(seq_start, seq_end):
                     if i < 0:
                         # Padding for positions before video start
                         current_states.append(np.full(embedding_dim, self.padding_value, dtype=np.float32))
-                        action_sequence.append(np.zeros(action_binaries.shape[1], dtype=np.float32))
+                        next_action_sequence.append(np.zeros(action_binaries.shape[1], dtype=np.float32))
                         current_phases.append(np.zeros(phase_binaries.shape[1], dtype=np.float32))
                     else:
                         current_states.append(frame_embeddings[i])
-                        action_sequence.append(action_binaries[i])
+                        # FIXED: Use action at next timestep (i+1) as conditional input
+                        if i + 1 < num_frames:
+                            next_action_sequence.append(action_binaries[i + 1])
+                        else:
+                            next_action_sequence.append(np.zeros(action_binaries.shape[1], dtype=np.float32))
                         current_phases.append(phase_binaries[i])
                 
                 # Build next states sequence with padding  
@@ -128,7 +132,7 @@ class WorldModelDataset(Dataset):
                 # Ensure all sequences have the correct length
                 if (len(current_states) == self.context_length and 
                     len(next_states) == self.context_length and
-                    len(action_sequence) == self.context_length):
+                    len(next_action_sequence) == self.context_length):
                     
                     # Convert phase binaries to class indices
                     current_phase_indices = np.argmax(current_phases, axis=1)
@@ -138,7 +142,7 @@ class WorldModelDataset(Dataset):
                         'video_id': video_id,
                         'current_idx': current_idx,
                         'current_states': np.array(current_states, dtype=np.float32),
-                        'actions': np.array(action_sequence, dtype=np.float32),
+                        'next_actions': np.array(next_action_sequence, dtype=np.float32),  # FIXED: Renamed for clarity
                         'next_states': np.array(next_states, dtype=np.float32),
                         'current_phases': current_phase_indices.astype(np.int64),
                         'next_phases': next_phase_indices.astype(np.int64),
@@ -159,14 +163,14 @@ class WorldModelDataset(Dataset):
         Get a single sample for world model training.
         
         Returns:
-            Dictionary with current states, actions, targets
+            Dictionary with current states, next actions, targets
         """
         
         sample = self.samples[idx]
         
         # Convert to tensors
         current_states = torch.tensor(sample['current_states'], dtype=torch.float32)
-        actions = torch.tensor(sample['actions'], dtype=torch.float32)
+        next_actions = torch.tensor(sample['next_actions'], dtype=torch.float32)  # FIXED: Use next actions
         next_states = torch.tensor(sample['next_states'], dtype=torch.float32)
         current_phases = torch.tensor(sample['current_phases'], dtype=torch.long)
         next_phases = torch.tensor(sample['next_phases'], dtype=torch.long)
@@ -182,7 +186,7 @@ class WorldModelDataset(Dataset):
         return {
             'video_id': sample['video_id'],
             'current_states': current_states,  # [context_length, embedding_dim]
-            'actions': actions,  # [context_length, num_actions]
+            'next_actions': next_actions,  # [context_length, num_actions] - FIXED: Next actions as conditioning
             'next_states': next_states,  # [context_length, embedding_dim]
             'current_phases': current_phases,  # [context_length]
             'next_phases': next_phases,  # [context_length]

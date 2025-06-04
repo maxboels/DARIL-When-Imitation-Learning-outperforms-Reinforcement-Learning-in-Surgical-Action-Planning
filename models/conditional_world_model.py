@@ -159,7 +159,7 @@ class ConditionalWorldModel(nn.Module):
     
     def forward(self,
                 current_states: torch.Tensor,
-                actions: torch.Tensor,
+                next_actions: torch.Tensor,  # FIXED: Renamed to clarify this should be next actions
                 target_next_states: Optional[torch.Tensor] = None,
                 target_rewards: Optional[Dict[str, torch.Tensor]] = None,
                 target_phases: Optional[torch.Tensor] = None,
@@ -169,7 +169,7 @@ class ConditionalWorldModel(nn.Module):
         
         Args:
             current_states: [batch_size, seq_len, embedding_dim]
-            actions: [batch_size, seq_len, num_action_classes]
+            next_actions: [batch_size, seq_len, num_action_classes] - Actions that cause state transitions
             target_next_states: [batch_size, seq_len, embedding_dim] (for training)
             target_rewards: Dict of [batch_size, seq_len, 1] (for training)
             target_phases: [batch_size, seq_len] (for training)
@@ -185,8 +185,8 @@ class ConditionalWorldModel(nn.Module):
         # Project states to hidden space
         state_features = self.state_projection(current_states)
         
-        # Embed actions
-        action_features = self.action_embedding(actions)
+        # Embed next actions (the actions that will cause the state transitions)
+        action_features = self.action_embedding(next_actions)
         
         # Combine state and action features
         combined_features = torch.cat([state_features, action_features], dim=-1)
@@ -202,7 +202,7 @@ class ConditionalWorldModel(nn.Module):
             src_key_padding_mask=src_key_padding_mask
         )
         
-        # Predict next states (action-conditioned)
+        # Predict next states (conditioned on next actions)
         next_state_pred = self.next_state_head(hidden_states)
         
         # Predict rewards for each type
@@ -275,14 +275,14 @@ class ConditionalWorldModel(nn.Module):
     
     def simulate_step(self, 
                      current_state: torch.Tensor, 
-                     action: torch.Tensor,
+                     next_action: torch.Tensor,  # FIXED: Renamed to clarify this is the next action
                      return_hidden: bool = False) -> Tuple[torch.Tensor, Dict[str, float], Optional[torch.Tensor]]:
         """
         Single step simulation for RL environment.
         
         Args:
             current_state: [batch_size, embedding_dim] or [embedding_dim]
-            action: [batch_size, num_action_classes] or [num_action_classes]
+            next_action: [batch_size, num_action_classes] or [num_action_classes] - Action to take
             return_hidden: Whether to return hidden states
             
         Returns:
@@ -296,19 +296,19 @@ class ConditionalWorldModel(nn.Module):
             # Ensure correct shapes
             if current_state.dim() == 1:
                 current_state = current_state.unsqueeze(0)  # [1, embedding_dim]
-            if action.dim() == 1:
-                action = action.unsqueeze(0)  # [1, num_action_classes]
+            if next_action.dim() == 1:
+                next_action = next_action.unsqueeze(0)  # [1, num_action_classes]
             
             batch_size = current_state.size(0)
             
             # Add sequence dimension
             state_seq = current_state.unsqueeze(1)  # [batch_size, 1, embedding_dim]
-            action_seq = action.unsqueeze(1)  # [batch_size, 1, num_action_classes]
+            action_seq = next_action.unsqueeze(1)  # [batch_size, 1, num_action_classes]
             
             # Forward simulation
             outputs = self.forward(
                 current_states=state_seq,
-                actions=action_seq,
+                next_actions=action_seq,  # FIXED: Use next_actions parameter
                 return_hidden_states=return_hidden
             )
             

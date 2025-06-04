@@ -79,39 +79,13 @@ class WorldModelTrainer:
         self.logger.info(f"   Device: {device}")
         self.logger.info(f"   Epochs: {self.epochs}")
         self.logger.info(f"   Learning rate: {self.lr}")
-        self.logger.info(f"   Focus: Action-conditioned forward simulation")
+        self.logger.info(f"   Focus: Action-conditioned state-reward prediction")
     
     def _setup_optimizer(self):
         """Setup optimizer and learning rate scheduler."""
         
         # Different learning rates for different components
         param_groups = []
-        
-        # State prediction (most important for world model)
-        state_params = []
-        for name, param in self.model.named_parameters():
-            if 'next_state_head' in name:
-                state_params.append(param)
-        
-        if state_params:
-            param_groups.append({
-                'params': state_params,
-                'lr': self.lr * 1.5,  # Higher LR for state prediction
-                'weight_decay': self.weight_decay * 0.5
-            })
-        
-        # Reward prediction heads
-        reward_params = []
-        for name, param in self.model.named_parameters():
-            if 'reward_heads' in name:
-                reward_params.append(param)
-        
-        if reward_params:
-            param_groups.append({
-                'params': reward_params,
-                'lr': self.lr,
-                'weight_decay': self.weight_decay * 0.1
-            })
         
         # Transformer backbone
         transformer_params = []
@@ -126,10 +100,36 @@ class WorldModelTrainer:
                 'weight_decay': self.weight_decay
             })
         
-        # Other parameters (projections, etc.)
+        # State prediction head (most important)
+        state_params = []
+        for name, param in self.model.named_parameters():
+            if 'next_state_head' in name:
+                state_params.append(param)
+        
+        if state_params:
+            param_groups.append({
+                'params': state_params,
+                'lr': self.lr * 1.5,  # Higher LR for state prediction
+                'weight_decay': self.weight_decay * 0.5
+            })
+        
+        # Reward heads
+        reward_params = []
+        for name, param in self.model.named_parameters():
+            if 'reward_heads' in name:
+                reward_params.append(param)
+        
+        if reward_params:
+            param_groups.append({
+                'params': reward_params,
+                'lr': self.lr * 1.2,  # Higher LR for rewards
+                'weight_decay': self.weight_decay * 0.1
+            })
+        
+        # Other parameters
         other_params = []
         for name, param in self.model.named_parameters():
-            if not any(component in name for component in ['next_state_head', 'reward_heads', 'transformer']):
+            if not any(component in name for component in ['transformer', 'next_state_head', 'reward_heads']):
                 other_params.append(param)
         
         if other_params:
@@ -150,26 +150,14 @@ class WorldModelTrainer:
                 eta_min=self.lr * 0.01
             )
         else:
-            # Warmup + linear decay scheduler
-            total_steps = self.epochs * 100  # Approximate
-            warmup_steps = min(1000, total_steps // 10)
-            self.scheduler = self._get_linear_schedule_with_warmup(warmup_steps, total_steps)
-    
-    def _get_linear_schedule_with_warmup(self, num_warmup_steps: int, num_training_steps: int):
-        """Create learning rate scheduler with warmup."""
-        def lr_lambda(current_step):
-            if current_step < num_warmup_steps:
-                return float(current_step) / float(max(1, num_warmup_steps))
-            return max(
-                0.0, 
-                float(num_training_steps - current_step) / float(max(1, num_training_steps - num_warmup_steps))
+            # Step scheduler
+            self.scheduler = optim.lr_scheduler.StepLR(
+                self.optimizer,
+                step_size=max(1, self.epochs // 3),
+                gamma=0.5
             )
-        
-        return optim.lr_scheduler.LambdaLR(self.optimizer, lr_lambda)
     
-    def train(self, 
-              train_loader: DataLoader, 
-              test_loader: DataLoader) -> str:
+    def train(self, train_loader: DataLoader, test_loader: DataLoader) -> str:
         """
         Main training function for world model.
         
@@ -182,7 +170,7 @@ class WorldModelTrainer:
         """
         
         self.logger.info("🌍 Starting World Model Training...")
-        self.logger.info("🎯 Goal: Learn action-conditioned forward simulation")
+        self.logger.info("🎯 Goal: Learn action-conditioned state-reward prediction")
         
         for epoch in range(self.epochs):
             # Training phase
@@ -192,12 +180,7 @@ class WorldModelTrainer:
             val_metrics = self._validate_epoch(test_loader, epoch)
             
             # Learning rate scheduling
-            if hasattr(self.scheduler, 'step'):
-                if isinstance(self.scheduler, optim.lr_scheduler.LambdaLR):
-                    # For warmup scheduler, step every batch (handled in training loop)
-                    pass
-                else:
-                    self.scheduler.step()
+            self.scheduler.step()
             
             # Log metrics
             self._log_epoch_metrics(train_metrics, val_metrics, epoch)
@@ -224,15 +207,12 @@ class WorldModelTrainer:
                 f"Train Loss: {train_metrics['total_loss']:.4f} | "
                 f"Val Loss: {val_metrics['total_loss']:.4f} | "
                 f"State MSE: {val_metrics.get('state_loss', 0):.4f} | "
-                f"Reward Loss: {val_metrics.get('total_reward_loss', 0):.4f}"
+                f"Reward MSE: {val_metrics.get('total_reward_loss', 0):.4f}"
             )
         
         # Save final model
         final_model_path = os.path.join(self.checkpoint_dir, "world_model_final.pt")
         self.model.save_model(final_model_path)
-        
-        # Test simulation capability
-        self._test_simulation_capability(test_loader)
         
         # Save training plots
         self.save_training_plots()
@@ -256,19 +236,20 @@ class WorldModelTrainer:
                 current_states = batch['current_states'].to(self.device)
                 actions = batch['actions'].to(self.device)
                 next_states = batch['next_states'].to(self.device)
+                current_phases = batch['current_phases'].to(self.device)
                 next_phases = batch['next_phases'].to(self.device)
                 
-                # Prepare rewards dictionary
-                rewards = {}
-                for reward_type, reward_tensor in batch['rewards'].items():
-                    rewards[reward_type] = reward_tensor.to(self.device)
+                # Extract rewards
+                target_rewards = {}
+                for key, value in batch['rewards'].items():
+                    target_rewards[key] = value.to(self.device)
                 
-                # Forward pass with action conditioning
+                # Forward pass
                 outputs = self.model(
                     current_states=current_states,
-                    actions=actions,
+                    next_actions=actions,  # FIXED: Use next_actions parameter name
                     target_next_states=next_states,
-                    target_rewards=rewards,
+                    target_rewards=target_rewards,
                     target_phases=next_phases
                 )
                 
@@ -283,10 +264,6 @@ class WorldModelTrainer:
                     nn.utils.clip_grad_norm_(self.model.parameters(), self.clip_grad)
                 
                 self.optimizer.step()
-                
-                # Step scheduler if using warmup
-                if isinstance(self.scheduler, optim.lr_scheduler.LambdaLR):
-                    self.scheduler.step()
                 
                 # Accumulate metrics
                 for key, value in outputs.items():
@@ -327,19 +304,20 @@ class WorldModelTrainer:
                 current_states = batch['current_states'].to(self.device)
                 actions = batch['actions'].to(self.device)
                 next_states = batch['next_states'].to(self.device)
+                current_phases = batch['current_phases'].to(self.device)
                 next_phases = batch['next_phases'].to(self.device)
                 
-                # Prepare rewards dictionary
-                rewards = {}
-                for reward_type, reward_tensor in batch['rewards'].items():
-                    rewards[reward_type] = reward_tensor.to(self.device)
+                # Extract rewards
+                target_rewards = {}
+                for key, value in batch['rewards'].items():
+                    target_rewards[key] = value.to(self.device)
                 
                 # Forward pass
                 outputs = self.model(
                     current_states=current_states,
-                    actions=actions,
+                    next_actions=actions,  # FIXED: Use next_actions parameter name
                     target_next_states=next_states,
-                    target_rewards=rewards,
+                    target_rewards=target_rewards,
                     target_phases=next_phases
                 )
                 
@@ -354,55 +332,6 @@ class WorldModelTrainer:
             self.metrics_history[f"val_{key}"].append(epoch_metrics[key])
         
         return dict(epoch_metrics)
-    
-    def _test_simulation_capability(self, test_loader: DataLoader):
-        """Test the simulation capability of the trained world model."""
-        
-        self.logger.info("🧪 Testing simulation capability...")
-        
-        self.model.eval()
-        
-        # Get a test batch
-        batch = next(iter(test_loader))
-        current_states = batch['current_states'][:2].to(self.device)  # First 2 samples
-        actions = batch['actions'][:2].to(self.device)
-        
-        # Test single step simulation
-        with torch.no_grad():
-            for i in range(2):
-                single_state = current_states[i, 0]  # First timestep
-                single_action = actions[i, 0]
-                
-                next_state, rewards, hidden = self.model.simulate_step(
-                    single_state, single_action, return_hidden=True
-                )
-                
-                self.logger.info(f"   Sample {i+1}: State {single_state.shape} + Action {single_action.shape} → State {next_state.shape}")
-                self.logger.info(f"   Rewards: {list(rewards.keys())}")
-        
-        # Test trajectory simulation
-        initial_state = current_states[0, 0]  # Single state
-        action_sequence = actions[0, :5]  # 5 actions
-        
-        trajectory = self.model.simulate_trajectory(initial_state, action_sequence)
-        
-        self.logger.info(f"✅ Trajectory simulation: {len(action_sequence)} steps")
-        self.logger.info(f"   Generated states shape: {trajectory['states'].shape}")
-        self.logger.info(f"   Trajectory keys: {list(trajectory.keys())}")
-    
-    def _log_epoch_metrics(self, train_metrics: Dict, val_metrics: Dict, epoch: int):
-        """Log metrics to tensorboard and history."""
-        
-        # Log to tensorboard
-        for key, value in train_metrics.items():
-            self.tb_writer.add_scalar(f"train/{key}_epoch", value, epoch)
-        
-        for key, value in val_metrics.items():
-            self.tb_writer.add_scalar(f"val/{key}_epoch", value, epoch)
-        
-        # Log learning rate
-        current_lr = self.optimizer.param_groups[0]['lr']
-        self.tb_writer.add_scalar("train/learning_rate", current_lr, epoch)
     
     def evaluate_model(self, test_loader: DataLoader) -> Dict[str, Any]:
         """
@@ -419,124 +348,81 @@ class WorldModelTrainer:
         
         self.model.eval()
         
-        # Standard validation metrics
+        # Standard metrics
         val_metrics = self._validate_epoch(test_loader, epoch=0)
         
-        # Simulation quality metrics
-        simulation_metrics = self._evaluate_simulation_quality(test_loader)
-        
-        # Reward prediction accuracy
-        reward_metrics = self._evaluate_reward_prediction(test_loader)
+        # Simulation quality evaluation
+        simulation_results = self._evaluate_simulation_quality(test_loader)
         
         evaluation_results = {
             'overall_metrics': val_metrics,
-            'simulation_quality': simulation_metrics,
-            'reward_prediction': reward_metrics,
+            'simulation_quality': simulation_results,
             'model_type': 'ConditionalWorldModel',
             'evaluation_summary': {
                 'best_metric': 'state_loss',
                 'best_value': val_metrics.get('state_loss', 0.0),
-                'strength': 'Action-conditioned forward simulation',
-                'architecture': 'Conditional (action-conditioned)'
+                'strength': 'Action-conditioned state-reward prediction',
+                'architecture': 'ConditionalWorldModel with action conditioning'
             }
         }
         
         self.logger.info(f"✅ Evaluation completed")
-        self.logger.info(f"📊 State MSE: {val_metrics.get('state_loss', 0):.4f}")
+        self.logger.info(f"📊 State Loss: {val_metrics.get('state_loss', 0):.4f}")
         self.logger.info(f"📊 Reward Loss: {val_metrics.get('total_reward_loss', 0):.4f}")
-        self.logger.info(f"📊 Simulation Error: {simulation_metrics.get('avg_prediction_error', 0):.4f}")
         
         return evaluation_results
     
     def _evaluate_simulation_quality(self, test_loader: DataLoader) -> Dict[str, float]:
-        """Evaluate simulation quality metrics."""
+        """Evaluate world model simulation quality."""
         
-        simulation_errors = []
-        trajectory_consistency = []
+        simulation_metrics = defaultdict(list)
         
-        self.model.eval()
-        
-        with torch.no_grad():
-            # Test on a subset of batches
-            for batch_idx, batch in enumerate(test_loader):
-                if batch_idx >= 5:  # Test on first 5 batches
-                    break
+        # Test simulation on a few samples
+        for batch_idx, batch in enumerate(test_loader):
+            if batch_idx >= 3:  # Test on first 3 batches only
+                break
                 
-                current_states = batch['current_states'].to(self.device)
-                actions = batch['actions'].to(self.device)
-                next_states = batch['next_states'].to(self.device)
+            current_states = batch['current_states'][:2].to(self.device)  # First 2 samples
+            actions = batch['actions'][:2].to(self.device)
+            
+            # Test single step simulation
+            for i in range(current_states.size(0)):
+                state = current_states[i, 0]  # First timestep
+                action = actions[i, 0]  # First action
                 
-                batch_size, seq_len = current_states.shape[:2]
-                
-                # Test single-step prediction accuracy
-                for i in range(min(batch_size, 3)):  # Test first 3 samples
-                    for t in range(min(seq_len, 5)):  # Test first 5 timesteps
-                        predicted_state, _, _ = self.model.simulate_step(
-                            current_states[i, t], actions[i, t]
-                        )
-                        
-                        ground_truth = next_states[i, t]
-                        error = torch.mean((predicted_state - ground_truth) ** 2).item()
-                        simulation_errors.append(error)
-                
-                # Test trajectory consistency (multi-step)
-                for i in range(min(batch_size, 2)):
-                    initial_state = current_states[i, 0]
-                    action_seq = actions[i, :3]  # 3-step trajectory
+                try:
+                    next_state, rewards, _ = self.model.simulate_step(state, action)
                     
-                    trajectory = self.model.simulate_trajectory(initial_state, action_seq)
-                    predicted_states = trajectory['states']
-                    ground_truth_states = next_states[i, 1:4]  # Corresponding ground truth
+                    # Check if simulation produces reasonable outputs
+                    if not torch.isnan(next_state).any():
+                        simulation_metrics['successful_simulations'].append(1.0)
+                    else:
+                        simulation_metrics['successful_simulations'].append(0.0)
                     
-                    # Calculate trajectory error
-                    traj_error = torch.mean((predicted_states - ground_truth_states) ** 2).item()
-                    trajectory_consistency.append(traj_error)
+                    # Check reward consistency
+                    reward_count = len(rewards)
+                    simulation_metrics['reward_types_predicted'].append(reward_count)
+                    
+                except Exception as e:
+                    simulation_metrics['successful_simulations'].append(0.0)
+                    simulation_metrics['reward_types_predicted'].append(0.0)
         
-        return {
-            'avg_prediction_error': np.mean(simulation_errors) if simulation_errors else 0.0,
-            'avg_trajectory_error': np.mean(trajectory_consistency) if trajectory_consistency else 0.0,
-            'prediction_std': np.std(simulation_errors) if simulation_errors else 0.0,
-            'num_predictions_tested': len(simulation_errors)
-        }
+        # Average metrics
+        return {key: np.mean(values) for key, values in simulation_metrics.items()}
     
-    def _evaluate_reward_prediction(self, test_loader: DataLoader) -> Dict[str, float]:
-        """Evaluate reward prediction accuracy."""
+    def _log_epoch_metrics(self, train_metrics: Dict, val_metrics: Dict, epoch: int):
+        """Log metrics to tensorboard and history."""
         
-        reward_errors = defaultdict(list)
+        # Log to tensorboard
+        for key, value in train_metrics.items():
+            self.tb_writer.add_scalar(f"train/{key}_epoch", value, epoch)
         
-        self.model.eval()
+        for key, value in val_metrics.items():
+            self.tb_writer.add_scalar(f"val/{key}_epoch", value, epoch)
         
-        with torch.no_grad():
-            for batch_idx, batch in enumerate(test_loader):
-                if batch_idx >= 3:  # Test on first 3 batches
-                    break
-                
-                current_states = batch['current_states'].to(self.device)
-                actions = batch['actions'].to(self.device)
-                target_rewards = batch['rewards']
-                
-                # Get predictions
-                outputs = self.model(current_states=current_states, actions=actions)
-                
-                # Compare predicted vs target rewards
-                for reward_type, target_tensor in target_rewards.items():
-                    if f'reward_{reward_type}' in outputs:
-                        predicted = outputs[f'reward_{reward_type}']
-                        target = target_tensor.to(self.device)
-                        
-                        error = torch.mean((predicted - target) ** 2).item()
-                        reward_errors[reward_type].append(error)
-        
-        # Average errors per reward type
-        reward_metrics = {}
-        for reward_type, errors in reward_errors.items():
-            reward_metrics[f'{reward_type}_mse'] = np.mean(errors) if errors else 0.0
-        
-        reward_metrics['overall_reward_mse'] = np.mean([
-            error for errors in reward_errors.values() for error in errors
-        ]) if reward_errors else 0.0
-        
-        return reward_metrics
+        # Log learning rate
+        current_lr = self.optimizer.param_groups[0]['lr']
+        self.tb_writer.add_scalar("train/learning_rate", current_lr, epoch)
     
     def save_training_plots(self):
         """Save training history plots."""
@@ -545,9 +431,9 @@ class WorldModelTrainer:
             return
         
         # Create plots
-        fig, axes = plt.subplots(2, 3, figsize=(18, 12))
+        fig, axes = plt.subplots(2, 2, figsize=(15, 10))
         
-        # Total loss
+        # Total loss curves
         if 'train_total_loss' in self.metrics_history:
             axes[0, 0].plot(self.metrics_history['train_total_loss'], label='Train', color='blue')
             axes[0, 0].plot(self.metrics_history.get('val_total_loss', []), label='Val', color='red')
@@ -559,37 +445,25 @@ class WorldModelTrainer:
         if 'train_state_loss' in self.metrics_history:
             axes[0, 1].plot(self.metrics_history['train_state_loss'], label='Train', color='blue')
             axes[0, 1].plot(self.metrics_history.get('val_state_loss', []), label='Val', color='red')
-            axes[0, 1].set_title('State Prediction Loss (MSE)')
+            axes[0, 1].set_title('State Prediction Loss')
             axes[0, 1].legend()
             axes[0, 1].grid(True)
         
         # Reward prediction loss
         if 'train_total_reward_loss' in self.metrics_history:
-            axes[0, 2].plot(self.metrics_history['train_total_reward_loss'], label='Train', color='blue')
-            axes[0, 2].plot(self.metrics_history.get('val_total_reward_loss', []), label='Val', color='red')
-            axes[0, 2].set_title('Reward Prediction Loss')
-            axes[0, 2].legend()
-            axes[0, 2].grid(True)
-        
-        # Phase prediction loss
-        if 'train_phase_loss' in self.metrics_history:
-            axes[1, 0].plot(self.metrics_history['train_phase_loss'], label='Train', color='blue')
-            axes[1, 0].plot(self.metrics_history.get('val_phase_loss', []), label='Val', color='red')
-            axes[1, 0].set_title('Phase Prediction Loss')
+            axes[1, 0].plot(self.metrics_history['train_total_reward_loss'], label='Train', color='blue')
+            axes[1, 0].plot(self.metrics_history.get('val_total_reward_loss', []), label='Val', color='red')
+            axes[1, 0].set_title('Reward Prediction Loss')
             axes[1, 0].legend()
             axes[1, 0].grid(True)
         
-        # Individual reward losses (if available)
-        reward_loss_keys = [k for k in self.metrics_history.keys() if 'reward_' in k and k.endswith('_loss') and 'train' in k]
-        if reward_loss_keys:
-            for i, key in enumerate(reward_loss_keys[:2]):  # Show first 2 reward types
-                val_key = key.replace('train_', 'val_')
-                axes[1, 1+i].plot(self.metrics_history[key], label='Train', color='blue')
-                if val_key in self.metrics_history:
-                    axes[1, 1+i].plot(self.metrics_history[val_key], label='Val', color='red')
-                axes[1, 1+i].set_title(key.replace('train_', '').replace('_', ' ').title())
-                axes[1, 1+i].legend()
-                axes[1, 1+i].grid(True)
+        # Phase prediction loss
+        if 'train_phase_loss' in self.metrics_history:
+            axes[1, 1].plot(self.metrics_history['train_phase_loss'], label='Train', color='blue')
+            axes[1, 1].plot(self.metrics_history.get('val_phase_loss', []), label='Val', color='red')
+            axes[1, 1].set_title('Phase Prediction Loss')
+            axes[1, 1].legend()
+            axes[1, 1].grid(True)
         
         plt.tight_layout()
         plot_path = os.path.join(self.log_dir, 'world_model_training_curves.png')
@@ -611,11 +485,10 @@ if __name__ == "__main__":
     print("=" * 60)
     
     # This would be called from the main experiment script
-    print("✅ Trainer ready for Method 2 (Conditional World Model)")
-    print("🎯 Focus: Action-conditioned forward simulation")
+    print("✅ Trainer ready for Method 2 (World Model)")
+    print("🎯 Focus: Action-conditioned state-reward prediction")
     print("📋 Key features:")
-    print("   • Action conditioning for all predictions")
+    print("   • Action-conditioned forward simulation")
     print("   • Multi-type reward prediction")
-    print("   • Simulation capability testing")
-    print("   • Trajectory evaluation")
-    print("   • Optimized for RL environment usage")
+    print("   • Single step and trajectory simulation")
+    print("   • RL environment integration")

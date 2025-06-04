@@ -22,6 +22,10 @@ from .preprocessing.risk_scores import add_risk_scores
 from .preprocessing.action_scores import precompute_action_based_rewards
 from .preprocessing.action_scores import compute_action_phase_distribution
 
+# Add compatibility imports for new trainers
+import torch
+import numpy as np
+
 
 
 # Step 1: Data Loading from CholecT50 Dataset
@@ -254,8 +258,8 @@ class NextFramePredictionDataset(Dataset):
         Initialize the dataset with sequences of frame embeddings
 
         Lexic:
-            "_" prefix indicates next frame
-            "f" prefix indicates future frame
+            "_" prefix indicates next frame/action/reward (what we want to predict)
+            "f" prefix indicates future frame/action (beyond immediate next)
         
         Args:
             data: List of video dictionaries containing frame_embeddings and actions_binaries
@@ -275,25 +279,23 @@ class NextFramePredictionDataset(Dataset):
             actions = video['actions_binaries']
             instruments = video['instruments_binaries']
             phases = video['phase_binaries']
-
-            # rewards and outcomes
-            rewards = video['next_rewards']
-            phase_completion = rewards['_r_phase_completion']
-            phase_initiation = rewards['_r_phase_initiation']
-            phase_progression = rewards['_r_phase_progression']
-            global_progression = rewards['_r_global_progression']
-            action_probability = rewards['_r_action_probability']
-            _r_risk_penalty = rewards['_r_risk_penalty']
-
-            # outcomes
-            q = video['outcomes']
+            rewards = video.get('next_rewards', {})
             
-            num_actions = len(actions[0])
-            num_instruments = len(instruments[0])
-            num_phases = len(phases[0])
+            # Extract individual reward types
+            phase_completion = rewards.get('_r_phase_completion', np.zeros(len(embeddings)))
+            phase_initiation = rewards.get('_r_phase_initiation', np.zeros(len(embeddings)))
+            phase_progression = rewards.get('_r_phase_progression', np.zeros(len(embeddings)))
+            global_progression = rewards.get('_r_global_progression', np.zeros(len(embeddings)))
+            action_probability = rewards.get('_r_action_probability', np.zeros(len(embeddings)))
+            _r_risk_penalty = rewards.get('_r_risk_penalty', np.ones(len(embeddings)))
+            
+            num_frames = len(embeddings)
+            embedding_dim = embeddings.shape[1]
+            num_actions = actions.shape[1]
+            num_phases = phases.shape[1]
             reward_dim = 1
-            embedding_dim = len(embeddings[0])
 
+            # Process all frames (improved approach)
             for i in range(len(embeddings)):  # Process all frames, not len(embeddings) - 1
                 # For position i, take context_length frames from the left (previous frames)
                 # This means frames from (i-context_length+1) to i, inclusive
@@ -301,7 +303,7 @@ class NextFramePredictionDataset(Dataset):
                 _z_seq = []
                 f_z_seq = [] # future states from i+1 to i+max_horizon
                 # a_seq: We already trained the vision backbone to recognise the actions but we need to evaluate it again
-                _a_seq = []
+                _a_seq = []  # CORRECT: next actions that cause state transitions
                 _p_seq = [] # next phases from i+1 to i+max_horizon
                 f_a_seq = [] # future actions from i+1 to i+max_horizon
 
@@ -363,7 +365,7 @@ class NextFramePredictionDataset(Dataset):
                         _r_risk_seq.append([1.0] * reward_dim) # 1.0 is the minimum risk score
                     else:
                         _z_seq.append(embeddings[k])
-                        _a_seq.append(actions[k])
+                        _a_seq.append(actions[k])  # CORRECT: This is the next action
                         _p_seq.append(phases[k])
                         # rewards (make sure it is a list of lists)
                         _r_p_comp_seq.append([phase_completion[k]])
@@ -385,28 +387,30 @@ class NextFramePredictionDataset(Dataset):
                         f_a_seq.append([0] * num_actions)
                         f_z_seq.append([padding_value] * embedding_dim)
 
-                # Add the sequence to the samples list
-                self.samples.append({
-                    'v_id': video_id,
-                    'z': z_seq,     # Sequence of frames from (i-context_length+1) to i
-                    '_z': _z_seq,   # Sequence of frames from (i-context_length+2) to i+1
-                    'f_z': f_z_seq,   # Future states from (i+1) to (i+max_horizon)
-                    '_a': _a_seq,    # Sequence of actions from (i-context_length+2) to i+1
-                    'f_a': f_a_seq,
-                    '_p': _p_seq,    # Sequence of phases from (i-context_length+2) to i+1
-                    'c_a': c_a,     # Current Action at position i
-                    'c_i': c_i,     # Current Instrument at position i
-                    # rewards
-                    '_r': {
-                        '_r_phase_completion': _r_p_comp_seq,
-                        '_r_phase_initiation': _r_p_init_seq,
-                        '_r_phase_progression': _r_p_prog_seq,
-                        '_r_global_progression': _r_g_prog_seq,
-                        '_r_action_probability': _r_a_prob_seq,
-                        '_r_risk': _r_risk_seq,
-                    },
-                    # outcomes
-                })
+                # Ensure all sequences have the right length
+                if (len(z_seq) == context_length and len(_z_seq) == context_length 
+                    and len(_a_seq) == context_length and len(f_z_seq) == max_horizon):
+                    
+                    self.samples.append({
+                        'video_id': video_id,
+                        'frame_idx': i,
+                        'z': z_seq,
+                        '_z': _z_seq,  # next states
+                        'f_z': f_z_seq,  # future states
+                        '_a': _a_seq,  # CORRECT: next actions (cause transitions)
+                        'f_a': f_a_seq,  # future actions
+                        '_p': _p_seq,  # next phases
+                        '_r': {
+                            '_r_phase_completion': _r_p_comp_seq,
+                            '_r_phase_initiation': _r_p_init_seq,
+                            '_r_phase_progression': _r_p_prog_seq,
+                            '_r_global_progression': _r_g_prog_seq,
+                            '_r_action_probability': _r_a_prob_seq,
+                            '_r_risk': _r_risk_seq,
+                        },
+                        'c_a': c_a,  # current action
+                        'c_i': c_i,  # current instrument
+                    })
     
     def __len__(self):
         return len(self.samples)
@@ -415,13 +419,12 @@ class NextFramePredictionDataset(Dataset):
         sample = self.samples[idx]
 
         # Convert lists to numpy arrays first, then to tensors
-        # v_id = torch.tensor(np.array(sample['v_id']), dtype=torch.float32)  # Shape: [context_length, embedding_dim]
-        z = torch.tensor(np.array(sample['z']), dtype=torch.float32)  # Shape: [context_length, embedding_dim]
-        _z = torch.tensor(np.array(sample['_z']), dtype=torch.float32)
-        f_z = torch.tensor(np.array(sample['f_z']), dtype=torch.float32)  # Shape: [max_horizon, embedding_dim]
-        _a = torch.tensor(np.array(sample['_a']), dtype=torch.float32)
-        f_a = torch.tensor(np.array(sample['f_a']), dtype=torch.float32)
-        _p = torch.tensor(np.array(sample['_p']), dtype=torch.float32)  # Shape: [max_horizon, num_phases]
+        z = torch.tensor(np.array(sample['z']), dtype=torch.float32)  # [context_length, embedding_dim]
+        _z = torch.tensor(np.array(sample['_z']), dtype=torch.float32)  # next states
+        f_z = torch.tensor(np.array(sample['f_z']), dtype=torch.float32)  # future states
+        _a = torch.tensor(np.array(sample['_a']), dtype=torch.float32)  # next actions
+        f_a = torch.tensor(np.array(sample['f_a']), dtype=torch.float32)  # future actions
+        _p = torch.tensor(np.array(sample['_p']), dtype=torch.float32)  # next phases
 
         # rewards
         _r = sample['_r']
@@ -432,15 +435,13 @@ class NextFramePredictionDataset(Dataset):
         _r_a_prob = torch.tensor(np.array(_r['_r_action_probability']), dtype=torch.float32)
         _r_risk = torch.tensor(np.array(_r['_r_risk']), dtype=torch.float32)
         _r_dict = {
-            '_r_phase_completion': _r_p_comp,
-            '_r_phase_initiation': _r_p_init,
-            '_r_phase_progression': _r_p_prog,
-            '_r_global_progression': _r_g_prog,
-            '_r_action_probability': _r_a_prob,
-            '_r_risk': _r_risk,
+            'phase_completion': _r_p_comp,  # Cleaned names for new trainers
+            'phase_initiation': _r_p_init,
+            'phase_progression': _r_p_prog,
+            'global_progression': _r_g_prog,
+            'action_probability': _r_a_prob,
+            'risk_penalty': _r_risk,
         }
-        q_dict = {}
-
 
         # current action and instrument
         c_a = torch.tensor(sample['c_a'], dtype=torch.float32)
@@ -449,17 +450,136 @@ class NextFramePredictionDataset(Dataset):
         # convert the binary phase to single integer class
         _p = torch.argmax(_p, dim=1)  # Convert to class integer
 
-        # create dictiornary for batch
+        # UPDATED: Create dictionary compatible with new trainers
         data = {
-            'current_states': z,
-            'next_states': _z,
-            'future_states': f_z,
-            'next_actions': _a,
-            'future_actions': f_a,
-            'next_phases': _p,
-            'next_rewards': _r_dict,
-            'outcomes': q_dict,
-            'current_actions': c_a,
-            'current_instruments': c_i,
+            # For AutoregressiveILModel (Method 1)
+            'input_frames': z,  # [context_length, embedding_dim]
+            'target_next_frames': _z,  # [context_length, embedding_dim]
+            'target_actions': _a,  # [context_length, num_actions] - for IL training
+            'target_phases': _p,  # [context_length]
+            
+            # For ConditionalWorldModel (Method 2)
+            'current_states': z,  # [context_length, embedding_dim]
+            'next_actions': _a,  # [context_length, num_actions] - CORRECT: actions that cause transitions
+            'next_states': _z,  # [context_length, embedding_dim]
+            'current_phases': _p,  # [context_length]
+            'next_phases': _p,  # [context_length] (could be different if needed)
+            'rewards': _r_dict,  # Dict of [context_length, 1] tensors
+            
+            # For DirectVideoRL (Method 3)
+            'current_actions': c_a,  # [num_actions] - current timestep action
+            'current_instruments': c_i,  # [num_instruments]
+            
+            # Future sequences for evaluation
+            'future_states': f_z,  # [max_horizon, embedding_dim]
+            'future_actions': f_a,  # [max_horizon, num_actions]
+            
+            # Metadata
+            'video_id': sample['video_id'],
+            'frame_idx': sample['frame_idx'],
         }
         return data
+
+# Add factory function for compatibility with new trainers
+def create_cholect50_dataloaders(config: Dict, 
+                                train_data: List[Dict], 
+                                test_data: List[Dict],
+                                batch_size: int = 32,
+                                num_workers: int = 4) -> Tuple[Any, Any]:
+    """
+    Create unified dataloaders compatible with all three methods.
+    
+    Returns:
+        train_loader: Training dataloader
+        test_loaders: Dict of test dataloaders (per video or combined)
+    """
+    
+    print("🔧 Creating CholecT50 dataloaders compatible with all methods...")
+    
+    # Training dataset and loader
+    train_dataset = NextFramePredictionDataset(config['data'], train_data)
+    train_loader = torch.utils.data.DataLoader(
+        train_dataset,
+        batch_size=batch_size,
+        shuffle=True,
+        num_workers=num_workers,
+        pin_memory=True,
+        drop_last=True
+    )
+    
+    # Test datasets (can be per video or combined)
+    test_loaders = {}
+    
+    # Option 1: Combined test loader
+    test_dataset = NextFramePredictionDataset(config['data'], test_data)
+    test_loaders['combined'] = torch.utils.data.DataLoader(
+        test_dataset,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=num_workers,
+        pin_memory=True
+    )
+    
+    # Option 2: Per-video test loaders
+    for video in test_data:
+        video_dataset = NextFramePredictionDataset(config['data'], [video])
+        test_loaders[video['video_id']] = torch.utils.data.DataLoader(
+            video_dataset,
+            batch_size=batch_size,
+            shuffle=False,
+            num_workers=num_workers,
+            pin_memory=True
+        )
+    
+    print(f"✅ Created CholecT50 dataloaders")
+    print(f"   Training samples: {len(train_dataset)}")
+    print(f"   Test loaders: {len(test_loaders)} (including combined)")
+    
+    return train_loader, test_loaders
+
+# Add adapter function for backwards compatibility
+def adapt_cholect50_for_method(data_batch: Dict, method: str) -> Dict:
+    """
+    Adapt CholecT50 data batch for specific method requirements.
+    
+    Args:
+        data_batch: Batch from NextFramePredictionDataset
+        method: 'autoregressive_il', 'conditional_world_model', or 'direct_video_rl'
+    
+    Returns:
+        Adapted batch for the specific method
+    """
+    
+    if method == 'autoregressive_il':
+        # Method 1: AutoregressiveILModel
+        return {
+            'frame_embeddings': data_batch['input_frames'],
+            'target_next_frames': data_batch['target_next_frames'],
+            'target_actions': data_batch['target_actions'],
+            'target_phases': data_batch['target_phases']
+        }
+    
+    elif method == 'conditional_world_model':
+        # Method 2: ConditionalWorldModel
+        return {
+            'current_states': data_batch['current_states'],
+            'next_actions': data_batch['next_actions'],  # CORRECT: next actions
+            'next_states': data_batch['next_states'],
+            'current_phases': data_batch['current_phases'],
+            'next_phases': data_batch['next_phases'],
+            'rewards': data_batch['rewards']
+        }
+    
+    elif method == 'direct_video_rl':
+        # Method 3: DirectVideoRL
+        return {
+            'current_states': data_batch['current_states'],
+            'current_actions': data_batch['current_actions'],
+            'current_instruments': data_batch['current_instruments'],
+            'next_states': data_batch['next_states'],
+            'future_states': data_batch['future_states'],
+            'future_actions': data_batch['future_actions']
+        }
+    
+    else:
+        raise ValueError(f"Unknown method: {method}")

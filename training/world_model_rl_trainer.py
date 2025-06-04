@@ -176,7 +176,7 @@ class WorldModelSimulationEnv(gym.Env):
         
         return self.current_state.copy(), reward, done, False, info
 
-    def _predict_with_world_model(self, action: np.ndarray) -> Tuple[np.ndarray, Dict[str, float]]:
+    def _predict_with_world_model(self, next_action: np.ndarray) -> Tuple[np.ndarray, Dict[str, float]]:
         """Use ConditionalWorldModel to predict next state and rewards."""
         
         try:
@@ -184,13 +184,13 @@ class WorldModelSimulationEnv(gym.Env):
             current_state_tensor = torch.tensor(
                 self.current_state, dtype=torch.float32, device=self.device
             )
-            action_tensor = torch.tensor(
-                action, dtype=torch.float32, device=self.device
+            next_action_tensor = torch.tensor(
+                next_action, dtype=torch.float32, device=self.device
             )
             
-            # Use world model for simulation
+            # Use world model for simulation with the action we want to take
             next_state, rewards, _ = self.world_model.simulate_step(
-                current_state_tensor, action_tensor, return_hidden=False
+                current_state_tensor, next_action_tensor, return_hidden=False
             )
             
             # Convert back to numpy
