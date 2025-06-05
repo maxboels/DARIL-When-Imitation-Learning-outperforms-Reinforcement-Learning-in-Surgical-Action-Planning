@@ -1,6 +1,0 @@
-2025-06-04 21:13:53,720 - INFO - SeparateModelsComparison_138099822748224 - 🎯 Experiment: separate_models_comparison_20250604_211353
-2025-06-04 21:13:53,720 - INFO - SeparateModelsComparison_138099822748224 - 📁 Results dir: results/separate_models_comparison_20250604_211353
-2025-06-04 21:13:53,720 - INFO - SeparateModelsComparison_138099822748224 - 🚀 Starting Complete Separate Models Comparison
-2025-06-04 21:13:53,721 - INFO - SeparateModelsComparison_138099822748224 - ============================================================
-2025-06-04 21:13:53,721 - INFO - SeparateModelsComparison_138099822748224 - 📂 Loading CholecT50 data...
-2025-06-04 21:13:53,721 - ERROR - SeparateModelsComparison_138099822748224 - ❌ Experiment failed: load_cholect50_data() missing 1 required positional argument: 'logger'

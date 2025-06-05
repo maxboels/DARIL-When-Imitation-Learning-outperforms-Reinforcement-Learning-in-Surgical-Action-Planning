@@ -43,7 +43,7 @@ torch.manual_seed(42)
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-class SeparateModelsSurgicalComparison:
+class ExperimentRunner:
     """
     UPDATED Experimental comparison using separate models for each method:
     1. Method 1: AutoregressiveILModel (frames → causal generation → actions)
@@ -59,16 +59,16 @@ class SeparateModelsSurgicalComparison:
             self.config = yaml.safe_load(f)
         
         # Create experiment directory with timestamp
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        self.experiment_name = f"separate_models_comparison_{timestamp}"
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        self.experiment_name = f"{timestamp}"
         self.results_dir = Path("results") / self.experiment_name
         self.results_dir.mkdir(parents=True, exist_ok=True)
         
         # Initialize logger
         self.logger = SimpleLogger(
             log_dir=str(self.results_dir),
-            name="SeparateModelsComparison",
-            use_shared_timestamp=False  # Each experiment gets its own timestamp
+            name="SuRL",
+            use_shared_timestamp=True  # Each experiment gets its own timestamp
         )
         
         # Results storage
@@ -607,12 +607,12 @@ def main():
     
     try:
         # Run comparison
-        comparison = SeparateModelsSurgicalComparison(config_path)
-        results = comparison.run_complete_comparison()
+        experiment = ExperimentRunner(config_path)
+        results = experiment.run_complete_comparison()
         
         print("\n🎉 EXPERIMENT COMPLETED SUCCESSFULLY!")
         print("=" * 50)
-        print(f"📁 Results saved to: {comparison.results_dir}")
+        print(f"📁 Results saved to: {experiment.results_dir}")
         print(f"📊 Methods compared: 3")
         print(f"🎯 Focus: Architectural differences in surgical RL")
         
