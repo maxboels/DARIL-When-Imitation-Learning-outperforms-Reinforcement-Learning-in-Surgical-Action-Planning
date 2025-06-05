@@ -298,7 +298,7 @@ class AutoregressiveILTrainer:
                 video_metrics = defaultdict(float)
                 num_batches = len(test_loader)
                 
-                for batch in test_loader:
+                for batch in tqdm(test_loader, desc=f"Validating {video_id}"):
                     # Move data to device
                     input_frames = batch['input_frames'].to(self.device)
                     target_next_frames = batch['target_next_frames'].to(self.device)
@@ -481,11 +481,13 @@ class AutoregressiveILTrainer:
         """Evaluate autoregressive generation quality."""
         
         generation_metrics = defaultdict(list)
+
+        self.logger.info("📊 Evaluating generation quality...")
         
         # Test generation on a few samples
         for video_id, test_loader in list(test_loaders.items())[:3]:  # Test on 3 videos
             batch = next(iter(test_loader))
-            input_frames = batch['input_frames'][:2].to(self.device)  # First 2 samples
+            input_frames = batch['input_frames'][:10].to(self.device)  # First 2 samples
             
             # Generate sequences
             generation_results = self.model.generate_sequence(
@@ -515,12 +517,20 @@ class AutoregressiveILTrainer:
         
         video_predictions = []
         video_targets = []
-        
         with torch.no_grad():
-            for batch in test_loader:
+            for batch in tqdm(test_loader, desc=f"Evaluating video {video_id}:"):
+                
                 input_frames = batch['input_frames'].to(self.device)
                 target_actions = batch['target_actions'].to(self.device)
+
+                # Get input dimensions
+                batch_size, context_length, dim = input_frames.shape
                 
+                # Make sure we pass mutliple frames as context_length
+                if context_length < 2:
+                    raise ValueError("We want to pass multiple frames as context_length.")
+
+                # Forward pass
                 outputs = self.model(frame_embeddings=input_frames)
                 action_probs = outputs['action_pred']
                 

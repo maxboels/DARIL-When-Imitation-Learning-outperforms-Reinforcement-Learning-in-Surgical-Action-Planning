@@ -800,7 +800,7 @@ class SurgicalRLComparison:
             json.dump(paper_results, f, indent=2, default=str)
         
         # Generate enhanced paper summary
-        self._generate_enhanced_paper_summary(paper_results)
+        # self._generate_enhanced_paper_summary(paper_results)
         
         # 🆕 NEW: Generate complete research paper with LaTeX and figures
         paper_dir = generate_research_paper(self.results_dir, self.logger)

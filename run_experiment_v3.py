@@ -30,7 +30,9 @@ from training.world_model_rl_trainer import WorldModelRLTrainer
 # Import existing components for Method 3 and evaluation
 from datasets.cholect50 import load_cholect50_data
 from environment.direct_video_env import DirectVideoSB3Trainer, test_direct_video_environment
-from evaluation.integrated_evaluation_framework import run_integrated_evaluation
+
+# Import evaluation framework
+from evaluation.integrated_evaluation import IntegratedEvaluationFramework, run_integrated_evaluation
 from evaluation.paper_generator import generate_research_paper
 from utils.logger import SimpleLogger
 
@@ -88,58 +90,39 @@ class ExperimentRunner:
         self.logger.info("🚀 Starting Complete Separate Models Comparison")
         self.logger.info("=" * 60)
         
-        try:
-            # Load data
-            train_data, test_data = self._load_data()
-            
-            # Method 1: Autoregressive IL
-            self.logger.info("🎓 Running Method 1: Autoregressive IL")
-            method1_results = self._run_method1_autoregressive_il(train_data, test_data)
-            self.results['method_1_autoregressive_il'] = method1_results
-            
-            # Method 2: Conditional World Model + RL
-            self.logger.info("🌍 Running Method 2: Conditional World Model + RL")
-            method2_results = self._run_method2_conditional_world_model(train_data, test_data)
-            self.results['method_2_conditional_world_model'] = method2_results
-            
-            # Method 3: Direct Video RL
-            self.logger.info("📹 Running Method 3: Direct Video RL")
-            method3_results = self._run_method3_direct_video_rl(train_data, test_data)
-            self.results['method_3_direct_video_rl'] = method3_results
-            
-            # Comprehensive evaluation
-            self.logger.info("📊 Running Comprehensive Evaluation")
-            evaluation_results = self._run_comprehensive_evaluation(test_data)
-            self.results['comprehensive_evaluation'] = evaluation_results
-            
-            # Analysis and comparison
-            self._print_method_comparison(self.results)
-            self._print_architectural_insights()
-            
-            # Save results
-            self._save_complete_results()
-            
-            return self.results
-            
-        except Exception as e:
-            self.logger.error(f"❌ Experiment failed: {e}")
-            import traceback
-            traceback.print_exc()
-            return {'status': 'failed', 'error': str(e)}
-    
-    # def _load_data(self) -> Tuple[List[Dict], List[Dict]]:
-    #     """Load and prepare data for all methods."""
+        # Load data
+        train_data, test_data = self._load_data()
         
-    #     self.logger.info("📂 Loading CholecT50 data...")
+        # Method 1: Autoregressive IL
+        self.logger.info("🎓 Running Method 1: Autoregressive IL")
+        method1_results = self._run_method1_autoregressive_il(train_data, test_data)
+        self.results['method_1_autoregressive_il'] = method1_results
         
-    #     # Load using existing function with logger argument
-    #     train_data, test_data = load_cholect50_data(self.config, self.logger)
+        # Method 2: Conditional World Model + RL
+        self.logger.info("🌍 Running Method 2: Conditional World Model + RL")
+        method2_results = self._run_method2_conditional_world_model(train_data, test_data)
+        self.results['method_2_conditional_world_model'] = method2_results
         
-    #     self.logger.info(f"✅ Data loaded successfully")
-    #     self.logger.info(f"   Training videos: {len(train_data)}")
-    #     self.logger.info(f"   Test videos: {len(test_data)}")
+        # Method 3: Direct Video RL
+        self.logger.info("📹 Running Method 3: Direct Video RL")
+        method3_results = self._run_method3_direct_video_rl(train_data, test_data)
+        self.results['method_3_direct_video_rl'] = method3_results
         
-    #     return train_data, test_data
+        # Comprehensive evaluation
+        self.logger.info("📊 Running Comprehensive Evaluation")
+        evaluation_results = self._run_comprehensive_evaluation(self.test_loaders)
+        self.results['comprehensive_evaluation'] = evaluation_results
+        
+        # Analysis and comparison
+        self.logger.info("🏆 Analyzing Results and Architectural Insights")
+        self._print_method_comparison(self.results)
+        self._print_architectural_insights()
+        
+        # Save results
+        self._save_complete_results()
+        
+        return self.results
+            
     
     def _load_data(self) -> Tuple[List[Dict], List[Dict]]:
         """Load and prepare training and test data."""
@@ -238,6 +221,10 @@ class ExperimentRunner:
                 batch_size=self.config['training']['batch_size'],
                 num_workers=self.config['training']['num_workers']
             )
+
+            # We need to instantiate the train and test loaders for the evaluation
+            self.logger.info(f"✅ Instantiate the test loaders for the final evaluation")
+            self.test_loaders = test_loader
             
             # Step 1: Train world model
             world_model_trainer = WorldModelTrainer(
@@ -247,7 +234,12 @@ class ExperimentRunner:
                 device=DEVICE
             )
             
+            # Train world model
+            self.logger.info("🌍 Training world model...")
             best_world_model_path = world_model_trainer.train(train_loader, test_loader)
+
+            # Evaluate world model
+            self.logger.info("🌍 Evaluating world model...")
             world_model_evaluation = world_model_trainer.evaluate_model(test_loader)
             
             # Step 2: Train RL agents using world model
@@ -320,21 +312,16 @@ class ExperimentRunner:
         self.logger.info("📊 Running Comprehensive Cross-Method Evaluation")
         self.logger.info("-" * 50)
         
-        try:
-            # Use the integrated evaluation framework
-            evaluation_results = run_integrated_evaluation(
-                experiment_results=self.results,
-                test_data=test_data,
-                results_dir=str(self.results_dir),
-                logger=self.logger,
-                horizon=self.config['evaluation']['prediction_horizon']
-            )
-            
-            return evaluation_results
-            
-        except Exception as e:
-            self.logger.error(f"❌ Comprehensive evaluation failed: {e}")
-            return {'status': 'failed', 'error': str(e)}
+        # Use the integrated evaluation framework
+        evaluation_results = run_integrated_evaluation(
+            experiment_results=self.results,
+            test_data=test_data,
+            results_dir=str(self.results_dir),
+            logger=self.logger,
+            horizon=self.config['evaluation']['prediction_horizon']
+        )
+        
+        return evaluation_results
     
     def _print_method_comparison(self, aggregate_results: Dict):
         """Print comparison of all three methods."""
@@ -523,13 +510,9 @@ class ExperimentRunner:
         try:
             summary = self._create_evaluation_summary(self.results)
             
-            paper_path = generate_research_paper(
-                results=self.results,
-                summary=summary,
-                output_dir=str(self.results_dir)
-            )
+            paper_dir = generate_research_paper(self.results_dir, self.logger)
             
-            self.logger.info(f"📄 Research paper generated: {paper_path}")
+            self.logger.info(f"📄 Research paper generated: {paper_dir}")
             
         except Exception as e:
             self.logger.warning(f"⚠️ Paper generation failed: {e}")

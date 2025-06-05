@@ -27,3 +27,7 @@ models_backup/world_model_best_epoch_2.pt
 clinical_evaluation_results/phase_recognizer.pt
 models_saved/*.pt
 results/*/*/checkpoints/*.pt
+results/*/paper/*
+results/*/*/*/*.zip
+results/*/*/*.zip
+

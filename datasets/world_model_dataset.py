@@ -407,15 +407,18 @@ def create_world_model_dataloaders(config: Dict,
         drop_last=True
     )
     
-    # Test dataset and loader
-    test_dataset = WorldModelDataset(config, test_data)
-    test_loader = DataLoader(
-        test_dataset,
-        batch_size=batch_size,
-        shuffle=False,
-        num_workers=num_workers,
-        pin_memory=True
-    )
+
+    # Test dataset and loader (one dataloader per video)
+    test_loaders = {}
+    for test_video in test_data:
+        video_dataset = WorldModelDataset(config, [test_video])
+        test_loaders[test_video['video_id']] = DataLoader(
+            video_dataset,
+            batch_size=batch_size,
+            shuffle=False,
+            num_workers=num_workers,
+            pin_memory=True
+        )
     
     # Simulation dataset for RL training
     simulation_dataset = WorldModelSimulationDataset(config, train_data)
@@ -428,9 +431,11 @@ def create_world_model_dataloaders(config: Dict,
     )
     
     print(f"✅ Created world model dataloaders")
-    print(f"   Training samples: {len(train_dataset)}")
+    print(f"   Training videos: {len(train_data)}")
     print(f"   Training batches: {len(train_loader)}")
-    print(f"   Test samples: {len(test_dataset)}")
+    print(f"   Test videos: {len(test_loaders)}")
+    for video_id, loader in test_loaders.items():
+        print(f"   Test video {video_id}: {len(loader)} batches")
     print(f"   Simulation starts: {len(simulation_dataset)}")
     
     # Print dataset statistics
@@ -446,7 +451,7 @@ def create_world_model_dataloaders(config: Dict,
         else:
             print(f"   {key}: {value}")
     
-    return train_loader, test_loader, simulation_loader
+    return train_loader, test_loaders, simulation_loader
 
 
 # Testing and example usage

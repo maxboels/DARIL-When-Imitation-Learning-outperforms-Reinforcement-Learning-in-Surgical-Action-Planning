@@ -256,7 +256,7 @@ class AutoregressiveILModel(nn.Module):
                 # Forward pass (no action conditioning!)
                 outputs = self.forward(current_context)
                 
-                # Get predictions for the last timestep
+                # Get predictions for the last timestep (causal next token prediction)
                 next_frame = outputs['next_frame_pred'][:, -1:, :]  # [batch_size, 1, embedding_dim]
                 action_logits = outputs['action_logits'][:, -1, :]  # [batch_size, num_action_classes]
                 phase_logits = outputs['phase_logits'][:, -1, :]  # [batch_size, num_phase_classes]
@@ -322,7 +322,11 @@ class AutoregressiveILModel(nn.Module):
         Returns:
             action_probs: [batch_size, num_action_classes]
         """
-        
+        # Check input shape
+        batch_size, seq_len, _ = frame_sequence.shape
+        if seq_len < 2:
+            raise ValueError("Frame sequence must have at least 2 frames for action prediction.")
+
         self.eval()
         with torch.no_grad():
             outputs = self.forward(frame_sequence)
@@ -372,57 +376,4 @@ class AutoregressiveILModel(nn.Module):
 # Example usage and testing
 if __name__ == "__main__":
     print("🎓 AUTOREGRESSIVE IMITATION LEARNING MODEL")
-    print("=" * 60)
     
-    # Test model creation
-    model = AutoregressiveILModel(
-        hidden_dim=512,
-        embedding_dim=1024,
-        n_layer=4,
-        num_action_classes=100,
-        dropout=0.1
-    )
-    
-    # Test forward pass
-    batch_size, seq_len, embedding_dim = 2, 10, 1024
-    
-    frame_embeddings = torch.randn(batch_size, seq_len, embedding_dim)
-    target_next_frames = torch.randn(batch_size, seq_len, embedding_dim)
-    target_actions = torch.randint(0, 2, (batch_size, seq_len, 100)).float()
-    target_phases = torch.randint(0, 7, (batch_size, seq_len))
-    
-    print(f"\n🧪 Testing forward pass...")
-    print(f"Input shape: {frame_embeddings.shape}")
-    
-    outputs = model(
-        frame_embeddings=frame_embeddings,
-        target_next_frames=target_next_frames,
-        target_actions=target_actions,
-        target_phases=target_phases
-    )
-    
-    print(f"✅ Forward pass successful!")
-    print(f"Next frame pred shape: {outputs['next_frame_pred'].shape}")
-    print(f"Action pred shape: {outputs['action_pred'].shape}")
-    print(f"Total loss: {outputs['total_loss'].item():.4f}")
-    
-    # Test autoregressive generation
-    print(f"\n🧪 Testing autoregressive generation...")
-    initial_frames = frame_embeddings[:, :5, :]  # Use first 5 frames as context
-    
-    generation_results = model.generate_sequence(
-        initial_frames=initial_frames,
-        horizon=10,
-        temperature=0.8
-    )
-    
-    print(f"✅ Generation successful!")
-    print(f"Generated frames shape: {generation_results['generated_frames'].shape}")
-    print(f"Predicted actions shape: {generation_results['predicted_actions'].shape}")
-    
-    print(f"\n🎯 KEY FEATURES:")
-    print(f"✅ Pure autoregressive frame generation (no action conditioning)")
-    print(f"✅ Actions predicted from generated frame representations")
-    print(f"✅ Causal attention for temporal modeling")
-    print(f"✅ Temperature and nucleus sampling for diversity")
-    print(f"✅ Ready for Method 1 in three-way comparison")

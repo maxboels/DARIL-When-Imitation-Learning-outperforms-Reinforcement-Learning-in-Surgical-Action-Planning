@@ -123,9 +123,9 @@ def create_autoregressive_dataloaders(config: Dict,
     
     # Test datasets (one dataloader per video)
     test_loaders = {}
-    for video in test_data:
-        video_dataset = AutoregressiveDataset(config, [video])
-        test_loaders[video['video_id']] = DataLoader(
+    for test_video in test_data:
+        video_dataset = AutoregressiveDataset(config, [test_video])
+        test_loaders[test_video['video_id']] = DataLoader(
             video_dataset,
             batch_size=batch_size,
             shuffle=False,
@@ -133,4 +133,11 @@ def create_autoregressive_dataloaders(config: Dict,
             pin_memory=True
         )
     
+    print(f"✅ Created autoreg IL dataloaders:")
+    print(f"   Training samples: {len(train_dataset)}")
+    print(f"   Training batch size: {batch_size}")
+    print(f"   Test videos: {len(test_loaders)}")
+    for video_id, loader in test_loaders.items():
+        print(f"   Test video {video_id}: {len(loader)} batches")
+
     return train_loader, test_loaders

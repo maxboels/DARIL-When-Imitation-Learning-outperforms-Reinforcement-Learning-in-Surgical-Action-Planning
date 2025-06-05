@@ -165,9 +165,11 @@ class WorldModelSimulationEnv(gym.Env):
             self.episode_lengths.append(self.current_step)
             self.episode_rewards.append(self.episode_reward)
             
-            print(f"📊 Episode complete - Length: {self.current_step}, "
-                  f"Reward: {self.episode_reward:.3f}, "
-                  f"WM predictions: {self.world_model_predictions}")
+            # Only print every 10th episode
+            if len(self.episode_lengths) % 100 == 0:
+                print(f"📊 Episode {len(self.episode_lengths)} complete - Length: {self.current_step}, "
+                    f"Reward: {self.episode_reward:.3f}, "
+                    f"WM predictions: {self.world_model_predictions}")
             
             # Keep only last 100 episodes
             if len(self.episode_lengths) > 100:
@@ -576,9 +578,11 @@ def test_world_model_simulation_environment(world_model, train_data: List[Dict],
             if info.get('uses_world_model', False):
                 world_model_uses += 1
             
-            print(f"Step {step+1}: Reward={reward:.3f}, Done={done}, "
-                  f"WM predictions={info.get('world_model_predictions', 0)}, "
-                  f"Method={info.get('method', 'unknown')}")
+            # Print step info
+            if step % 2 == 0:  # Print every 2 steps
+                print(f"Step {step+1}: Reward={reward:.3f}, Done={done}, "
+                    f"WM predictions={info.get('world_model_predictions', 0)}, "
+                    f"Method={info.get('method', 'unknown')}")
             
             if done:
                 print(f"Episode ended at step {step+1}")

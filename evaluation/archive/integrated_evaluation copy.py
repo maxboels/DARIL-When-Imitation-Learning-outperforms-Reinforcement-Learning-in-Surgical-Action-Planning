@@ -39,7 +39,7 @@ class IntegratedEvaluationFramework:
         self.logger.info(f"📁 Results will be saved to: {self.eval_dir}")
     
     def load_all_models(self, experiment_results: Dict) -> Dict:
-        """Load all trained models from experiment results"""
+        """Load all trained models from experiment results - CORRECTED VERSION"""
         
         models = {}
         
@@ -54,36 +54,24 @@ class IntegratedEvaluationFramework:
             except Exception as e:
                 self.logger.error(f"❌ Failed to load AutoregressiveIL model: {e}")
         
-        # 2. Load Conditional World Model + RL models
+        # 2. Load RL POLICIES trained with World Model (NOT the world model itself)
         method2 = experiment_results.get('method_2_conditional_world_model', {})
-        if method2.get('status') == 'success':
-            # Load world model
-            if 'world_model_path' in method2:
-                try:
-                    from models.conditional_world_model import ConditionalWorldModel
-                    world_model = ConditionalWorldModel.load_model(method2['world_model_path'], device=self.device)
-                    models['ConditionalWorldModel'] = world_model
-                    self.logger.info(f"✅ Loaded ConditionalWorldModel")
-                except Exception as e:
-                    self.logger.error(f"❌ Failed to load ConditionalWorldModel: {e}")
-            
-            # Load RL models trained with world model
-            if 'rl_models' in method2:
-                for alg_name, alg_result in method2['rl_models'].items():
-                    if alg_result.get('status') == 'success' and 'model_path' in alg_result:
-                        try:
-                            from stable_baselines3 import PPO, A2C
-                            if 'ppo' in alg_name.lower():
-                                rl_model = PPO.load(alg_result['model_path'])
-                            elif 'a2c' in alg_name.lower():
-                                rl_model = A2C.load(alg_result['model_path'])
-                            else:
-                                continue
-                            
-                            models[f"WorldModelRL_{alg_name}"] = rl_model
-                            self.logger.info(f"✅ Loaded {alg_name} model from world model training")
-                        except Exception as e:
-                            self.logger.error(f"❌ Failed to load {alg_name} model: {e}")
+        if method2.get('status') == 'success' and 'rl_models' in method2:
+            for alg_name, alg_result in method2['rl_models'].items():
+                if alg_result.get('status') == 'success' and 'model_path' in alg_result:
+                    try:
+                        from stable_baselines3 import PPO, A2C
+                        if 'ppo' in alg_name.lower():
+                            rl_model = PPO.load(alg_result['model_path'])
+                        elif 'a2c' in alg_name.lower():
+                            rl_model = A2C.load(alg_result['model_path'])
+                        else:
+                            continue
+                        
+                        models[f"WorldModelRL_{alg_name}"] = rl_model
+                        self.logger.info(f"✅ Loaded {alg_name} RL policy (trained with world model)")
+                    except Exception as e:
+                        self.logger.error(f"❌ Failed to load {alg_name} RL policy: {e}")
         
         # 3. Load Direct Video RL models
         method3 = experiment_results.get('method_3_direct_video_rl', {})
@@ -100,22 +88,26 @@ class IntegratedEvaluationFramework:
                             continue
                         
                         models[f"DirectVideoRL_{alg_name}"] = rl_model
-                        self.logger.info(f"✅ Loaded {alg_name} model from direct video training")
+                        self.logger.info(f"✅ Loaded {alg_name} RL policy (trained on direct video)")
                     except Exception as e:
-                        self.logger.error(f"❌ Failed to load {alg_name} model: {e}")
+                        self.logger.error(f"❌ Failed to load {alg_name} RL policy: {e}")
+        
+        # NOTE: We do NOT load the ConditionalWorldModel for direct evaluation
+        # because world models predict dynamics (state transitions), not actions
         
         self.logger.info(f"📊 Loaded {len(models)} models for integrated evaluation")
+        self.logger.info("🎯 World Model RL evaluation uses the trained RL policies, not the world model directly")
         return models
     
     def predict_actions_with_rollout(self, model, video_embeddings: np.ndarray, 
                                    method_name: str, horizon: int = 15) -> Tuple[np.ndarray, Dict]:
         """
-        Predict actions and save detailed rollout information for visualization
+        Predict actions and save detailed rollout information - CORRECTED VERSION
         """
         
         predictions = []
         rollout_info = {
-            'timestep_rollouts': {},  # Rollout at each timestep
+            'timestep_rollouts': {},
             'confidence_scores': [],
             'thinking_process': [],
             'action_probabilities': []
@@ -124,7 +116,6 @@ class IntegratedEvaluationFramework:
         video_length = len(video_embeddings)
         
         for t in range(min(video_length - 1, horizon)):
-            # Current state at timestep t
             current_state = torch.tensor(
                 video_embeddings[t], dtype=torch.float32, device=self.device
             ).unsqueeze(0)  # [1, embedding_dim]
@@ -140,17 +131,30 @@ class IntegratedEvaluationFramework:
             }
             
             with torch.no_grad():
-                if 'IL_Baseline' in method_name:
-                    # IL model prediction with rollout
+                if 'AutoregressiveIL' in method_name:
+                    # IL model prediction
                     action_pred, rollout = self._predict_il_with_rollout(
                         model, current_state, video_embeddings, t, horizon
                     )
                     timestep_rollout.update(rollout)
-                else:
-                    # RL model prediction with rollout
+                
+                elif 'WorldModelRL' in method_name or 'DirectVideoRL' in method_name:
+                    # RL policy prediction (regardless of training method)
                     action_pred, rollout = self._predict_rl_with_rollout(
                         model, current_state, video_embeddings, t, horizon
                     )
+                    timestep_rollout.update(rollout)
+                
+                else:
+                    self.logger.warning(f"Unknown method type: {method_name}")
+                    action_pred = np.zeros(100)
+                    rollout = {
+                        'selected_action': action_pred.tolist(),
+                        'confidence': 0.0,
+                        'planning_horizon': [],
+                        'thinking_steps': ["Unknown method type"],
+                        'action_candidates': []
+                    }
                     timestep_rollout.update(rollout)
                 
                 predictions.append(action_pred)
@@ -160,82 +164,88 @@ class IntegratedEvaluationFramework:
         return np.array(predictions), rollout_info
     
     def _predict_il_with_rollout(self, il_model, current_state, video_embeddings, 
-                               timestep, horizon):
-        """IL prediction with detailed rollout for planning visualization"""
+                            timestep, horizon):
+        """IL prediction with detailed rollout for planning visualization - FIXED"""
         
-        # Forward pass through IL model
-        outputs = il_model(frame_embeddings=current_state.unsqueeze(1))
-        
-        if 'action_pred' in outputs:
-            action_probs = outputs['action_pred'][:, -1, :]  # [1, 100]
+        # FIXED: Use the correct method from AutoregressiveILModel
+        if hasattr(il_model, 'predict_next_action'):
+            # Use the predict_next_action method
+            action_probs = il_model.predict_next_action(current_state.unsqueeze(1))  # Add sequence dim
             action_pred = action_probs.cpu().numpy().flatten()
-            
-            # Generate planning horizon (simulate future with IL model)
-            planning_horizon = []
-            current_planning_state = current_state.clone()
-            
-            for h in range(min(5, horizon - timestep)):
-                try:
-                    # Use the autoregressive generation capability
-                    generation_results = il_model.generate_sequence(
-                        initial_frames=current_planning_state.unsqueeze(0).unsqueeze(1),
-                        horizon=1,
-                        temperature=0.8
-                    )
-                    
-                    next_frame = generation_results['generated_frames'][0, 0]  # [embedding_dim]
-                    next_action = generation_results['predicted_actions'][0, 0]  # [num_actions]
-                    
-                    planning_horizon.append({
-                        'step': h + 1,
-                        'predicted_frame': next_frame.cpu().numpy().tolist(),
-                        'predicted_action': next_action.cpu().numpy().tolist(),
-                        'confidence': float(torch.max(next_action))
-                    })
-                    
-                    current_planning_state = next_frame
-                    
-                except Exception as e:
-                    self.logger.warning(f"IL planning failed at step {h}: {e}")
-                    break
-            
-            # Extract thinking process
-            thinking_steps = [
-                f"Analyzed current surgical context with autoregressive model",
-                f"Generated {len(planning_horizon)} future frame predictions",
-                f"Identified {int(np.sum(action_pred > 0.5))} potential actions",
-                f"Confidence: {np.max(action_pred):.3f}"
-            ]
-            
-            rollout = {
-                'selected_action': action_pred.tolist(),
-                'confidence': float(np.max(action_pred)),
-                'planning_horizon': planning_horizon,
-                'thinking_steps': thinking_steps,
-                'action_candidates': self._get_top_actions(action_pred, k=5),
-                'method_specific': {
-                    'model_type': 'AutoregressiveIL',
-                    'generation_used': True,
-                    'causal_modeling': True
-                }
-            }
+        elif hasattr(il_model, 'forward'):
+            # Fallback to forward pass
+            outputs = il_model(frame_embeddings=current_state.unsqueeze(1))
+            if 'action_pred' in outputs:
+                action_probs = outputs['action_pred'][:, -1, :]  # [1, 100]
+                action_pred = action_probs.cpu().numpy().flatten()
+            else:
+                action_pred = np.zeros(100)
         else:
             action_pred = np.zeros(100)
-            rollout = {
-                'selected_action': action_pred.tolist(),
-                'confidence': 0.0,
-                'planning_horizon': [],
-                'thinking_steps': ["Model output unavailable"],
-                'action_candidates': []
+        
+        # FIXED: Generate planning horizon with proper error handling
+        planning_horizon = []
+        if hasattr(il_model, 'generate_sequence'):
+            try:
+                generation_results = il_model.generate_sequence(
+                    initial_frames=current_state.unsqueeze(0).unsqueeze(1),
+                    horizon=min(5, horizon - timestep),
+                    temperature=0.8
+                )
+                
+                if 'predicted_actions' in generation_results:
+                    pred_actions = generation_results['predicted_actions']
+                    
+                    # FIXED: Handle tensor dimensions properly
+                    if pred_actions.dim() == 3:  # [batch, seq, actions]
+                        pred_actions = pred_actions[0]  # Remove batch dim
+                    
+                    for h in range(min(pred_actions.size(0), 5)):  # Use .size(0) instead of len()
+                        try:
+                            next_action_tensor = pred_actions[h]  # This is a tensor
+                            next_action = next_action_tensor.cpu().numpy()  # Convert to numpy
+                            
+                            planning_horizon.append({
+                                'step': h + 1,
+                                'predicted_action': next_action.tolist(),
+                                'confidence': float(np.max(next_action)),
+                                'active_actions': int(np.sum(next_action > 0.5))
+                            })
+                        except Exception as e:
+                            self.logger.warning(f"IL planning step {h} failed: {e}")
+                            break
+            
+            except Exception as e:
+                self.logger.warning(f"IL planning failed at step {timestep}: {e}")
+        
+        # Extract thinking process
+        thinking_steps = [
+            f"Analyzed current surgical context with autoregressive model",
+            f"Generated {len(planning_horizon)} future predictions",
+            f"Identified {int(np.sum(action_pred > 0.5))} potential actions",
+            f"Confidence: {np.max(action_pred):.3f}"
+        ]
+        
+        rollout = {
+            'selected_action': action_pred.tolist(),
+            'confidence': float(np.max(action_pred)),
+            'planning_horizon': planning_horizon,
+            'thinking_steps': thinking_steps,
+            'action_candidates': self._get_top_actions(action_pred, k=5),
+            'method_specific': {
+                'model_type': 'AutoregressiveIL',
+                'generation_used': len(planning_horizon) > 0,
+                'causal_modeling': True
             }
+        }
         
         return action_pred, rollout
     
     def _predict_rl_with_rollout(self, rl_model, current_state, video_embeddings, 
                                timestep, horizon):
-        """RL prediction with detailed rollout for decision visualization"""
+        """RL policy prediction - works for both WorldModelRL and DirectVideoRL"""
         
-        # Get action from RL policy
+        # Get action from RL policy (this is the same regardless of how the policy was trained)
         state_input = current_state.cpu().numpy().reshape(1, -1)
         action_pred, _ = rl_model.predict(state_input, deterministic=True)
         
@@ -261,13 +271,13 @@ class IntegratedEvaluationFramework:
                 binary_action[:min(len(action_pred), 100)] = (action_pred[:100] > 0.5).astype(float)
                 action_probs[:min(len(action_pred), 100)] = action_pred[:100]
         
-        # Generate RL planning rollout (multiple action predictions)
+        # Generate RL planning rollout (multiple future action predictions)
         planning_horizon = []
         current_planning_state = state_input.copy()
         
         for h in range(min(5, horizon - timestep)):
             try:
-                # Predict multiple candidate actions
+                # Predict multiple candidate actions for future planning
                 future_action, _ = rl_model.predict(current_planning_state, deterministic=False)
                 
                 if isinstance(future_action, np.ndarray):
@@ -284,10 +294,9 @@ class IntegratedEvaluationFramework:
                         future_binary[:min(len(future_action), 100)] = (future_action[:100] > 0.5).astype(float)
                         future_probs[:min(len(future_action), 100)] = future_action[:100]
                 
-                # Simulate next state (simple approach)
-                if timestep + h + 1 < len(video_embeddings):
-                    next_state_embedding = video_embeddings[timestep + h + 1]
-                    current_planning_state = next_state_embedding.reshape(1, -1)
+                # For world model RL, we could note that this policy was trained in simulation
+                # For direct video RL, this policy was trained on real video episodes
+                # But the prediction mechanism is the same
                 
                 planning_horizon.append({
                     'step': h + 1,
@@ -295,16 +304,23 @@ class IntegratedEvaluationFramework:
                     'confidence': float(np.max(future_probs)) if len(future_probs) > 0 else 0.0,
                     'active_actions': int(np.sum(future_binary > 0.5))
                 })
+                
+                # Simulate next state (simple approach for planning visualization)
+                if timestep + h + 1 < len(video_embeddings):
+                    next_state_embedding = video_embeddings[timestep + h + 1]
+                    current_planning_state = next_state_embedding.reshape(1, -1)
             
             except Exception as e:
                 self.logger.warning(f"RL planning step {h} failed: {e}")
                 break
         
-        # RL thinking process
+        # Determine training method for thinking process
+        training_method = "world model simulation" if "WorldModelRL" in str(type(rl_model)) else "direct video episodes"
+        
         thinking_steps = [
-            f"Evaluated current state with RL policy",
-            f"Selected {int(np.sum(binary_action > 0.5))} actions via policy gradient",
-            f"Explored {len(planning_horizon)} future decisions",
+            f"Used RL policy trained on {training_method}",
+            f"Selected {int(np.sum(binary_action > 0.5))} actions via learned policy",
+            f"Explored {len(planning_horizon)} future policy decisions",
             f"Policy confidence: {np.max(action_probs):.3f}"
         ]
         
@@ -316,6 +332,7 @@ class IntegratedEvaluationFramework:
             'action_candidates': self._get_top_actions(action_probs, k=5),
             'method_specific': {
                 'rl_algorithm': type(rl_model).__name__,
+                'training_environment': training_method,
                 'policy_info': {
                     'deterministic_action': action_pred.tolist() if hasattr(action_pred, 'tolist') else [float(action_pred)],
                     'exploration_used': False
@@ -337,15 +354,176 @@ class IntegratedEvaluationFramework:
             for i, idx in enumerate(top_indices)
         ]
     
+    def compute_trajectory_metrics(self, predictions: np.ndarray, ground_truth: np.ndarray) -> Dict[str, List[float]]:
+        """Compute metrics over trajectory with IMPROVED evaluation"""
+        
+        metrics = {
+            'cumulative_mAP': [],
+            'cumulative_exact_match': [],
+            'cumulative_hamming_accuracy': [],
+            'cumulative_precision': [],
+            'cumulative_recall': [],
+            'cumulative_f1': []
+        }
+        
+        self.logger.info(f"📊 Computing trajectory metrics:")
+        self.logger.info(f"   Predictions shape: {predictions.shape}")
+        self.logger.info(f"   Ground truth shape: {ground_truth.shape}")
+        
+        for t in range(1, len(predictions) + 1):
+            # Cumulative predictions and ground truth up to timestep t
+            pred_cumulative = predictions[:t]
+            gt_cumulative = ground_truth[:t]
+            
+            # Flatten for metric calculation
+            pred_flat = pred_cumulative.reshape(-1, pred_cumulative.shape[-1])
+            gt_flat = gt_cumulative.reshape(-1, gt_cumulative.shape[-1])
+            
+            # FIXED: Add validation checks
+            if pred_flat.shape[1] != gt_flat.shape[1]:
+                self.logger.warning(f"Shape mismatch at timestep {t}: pred {pred_flat.shape} vs gt {gt_flat.shape}")
+                continue
+                
+            # FIXED: Convert predictions to binary with proper thresholding
+            binary_pred = (pred_flat > 0.5).astype(int)
+            
+            # FIXED: Add debugging for suspiciously high scores
+            self.logger.debug(f"Timestep {t}: pred_range=[{pred_flat.min():.3f}, {pred_flat.max():.3f}]")
+            self.logger.debug(f"Timestep {t}: gt_range=[{gt_flat.min():.3f}, {gt_flat.max():.3f}]")
+            
+            # 1. IMPROVED mAP calculation with better handling
+            ap_scores = []
+            valid_actions = 0
+            perfect_predictions = 0
+            
+            for action_idx in range(gt_flat.shape[1]):
+                gt_column = gt_flat[:, action_idx]
+                pred_column = pred_flat[:, action_idx]
+                
+                # Check if this action appears in ground truth
+                if np.sum(gt_column) > 0:
+                    valid_actions += 1
+                    try:
+                        ap = average_precision_score(gt_column, pred_column)
+                        ap_scores.append(ap)
+                        
+                        # FIXED: Flag perfect predictions for investigation
+                        if ap == 1.0:
+                            perfect_predictions += 1
+                            
+                    except Exception as e:
+                        self.logger.warning(f"AP calculation failed for action {action_idx}: {e}")
+                        ap_scores.append(0.0)
+                else:
+                    # No positive examples - check if model correctly predicts no actions
+                    if np.sum(binary_pred[:, action_idx]) == 0:
+                        ap_scores.append(1.0)  # Correct negative prediction
+                        perfect_predictions += 1
+                    else:
+                        ap_scores.append(0.0)  # False positive prediction
+            
+            current_mAP = np.mean(ap_scores) if ap_scores else 0.0
+            
+            # FIXED: Log suspicious results for debugging
+            if current_mAP > 0.95:
+                self.logger.warning(f"⚠️ Suspiciously high mAP at timestep {t}: {current_mAP:.3f}")
+                self.logger.warning(f"   Perfect predictions: {perfect_predictions}/{len(ap_scores)}")
+                self.logger.warning(f"   Valid actions: {valid_actions}")
+                
+            metrics['cumulative_mAP'].append(current_mAP)
+            
+            # 2. IMPROVED exact match calculation
+            exact_match = np.mean(np.all(binary_pred == gt_flat, axis=1))
+            metrics['cumulative_exact_match'].append(exact_match)
+            
+            # 3. Hamming accuracy
+            hamming_acc = np.mean(binary_pred == gt_flat)
+            metrics['cumulative_hamming_accuracy'].append(hamming_acc)
+            
+            # 4. IMPROVED Precision, Recall, F1 with better error handling
+            try:
+                # Use macro averaging to handle class imbalance better
+                precision, recall, f1, _ = precision_recall_fscore_support(
+                    gt_flat.flatten(), binary_pred.flatten(), 
+                    average='macro', zero_division=0
+                )
+                metrics['cumulative_precision'].append(precision)
+                metrics['cumulative_recall'].append(recall)
+                metrics['cumulative_f1'].append(f1)
+            except Exception as e:
+                self.logger.warning(f"Precision/Recall calculation failed: {e}")
+                metrics['cumulative_precision'].append(0.0)
+                metrics['cumulative_recall'].append(0.0)
+                metrics['cumulative_f1'].append(0.0)
+        
+        # FIXED: Log final metrics summary for debugging
+        if metrics['cumulative_mAP']:
+            final_mAP = metrics['cumulative_mAP'][-1]
+            mean_mAP = np.mean(metrics['cumulative_mAP'])
+            self.logger.info(f"📊 Final trajectory metrics:")
+            self.logger.info(f"   Final mAP: {final_mAP:.3f}")
+            self.logger.info(f"   Mean mAP: {mean_mAP:.3f}")
+            self.logger.info(f"   mAP trend: {metrics['cumulative_mAP'][:3]}...{metrics['cumulative_mAP'][-3:]}")
+        
+        return metrics
+    
+    def _validate_evaluation_data(self, predictions: np.ndarray, ground_truth: np.ndarray, 
+                                 video_id: str) -> bool:
+        """Validate evaluation data to catch potential issues"""
+        
+        issues = []
+        
+        # Check shapes
+        if predictions.shape != ground_truth.shape:
+            issues.append(f"Shape mismatch: pred {predictions.shape} vs gt {ground_truth.shape}")
+        
+        # Check value ranges
+        pred_min, pred_max = predictions.min(), predictions.max()
+        gt_min, gt_max = ground_truth.min(), ground_truth.max()
+        
+        if pred_min < 0 or pred_max > 1:
+            issues.append(f"Prediction values out of range [0,1]: [{pred_min:.3f}, {pred_max:.3f}]")
+        
+        if gt_min < 0 or gt_max > 1:
+            issues.append(f"Ground truth values out of range [0,1]: [{gt_min:.3f}, {gt_max:.3f}]")
+        
+        # Check for potential data leakage (predictions too similar to ground truth)
+        if predictions.shape == ground_truth.shape:
+            similarity = np.mean(np.abs(predictions - ground_truth))
+            if similarity < 0.1:  # Very high similarity might indicate leakage
+                issues.append(f"Suspiciously high similarity: {1-similarity:.3f}")
+        
+        # Check action density
+        gt_action_density = np.mean(np.sum(ground_truth > 0.5, axis=-1))
+        pred_action_density = np.mean(np.sum(predictions > 0.5, axis=-1))
+        
+        self.logger.info(f"📊 Data validation for {video_id}:")
+        self.logger.info(f"   GT action density: {gt_action_density:.2f} actions/frame")
+        self.logger.info(f"   Pred action density: {pred_action_density:.2f} actions/frame")
+        
+        if issues:
+            self.logger.warning(f"⚠️ Evaluation data issues for {video_id}:")
+            for issue in issues:
+                self.logger.warning(f"   - {issue}")
+            return False
+        
+        return True
+    
     def evaluate_single_video_with_rollouts(self, models: Dict, video: Dict, 
                                           horizon: int = 15) -> Dict:
-        """Evaluate all models on a single video with detailed rollout saving"""
+        """Evaluate all models on a single video with IMPROVED validation"""
         
         video_id = video['video_id']
         video_embeddings = video['frame_embeddings'][:horizon+1]
         ground_truth_actions = video['actions_binaries'][:horizon+1]
         
         self.logger.info(f"📹 Evaluating {video_id} with rollouts (horizon: {horizon})")
+        
+        # FIXED: Add data validation
+        self.logger.info(f"📊 Video info:")
+        self.logger.info(f"   Embeddings shape: {video_embeddings.shape}")
+        self.logger.info(f"   Actions shape: {ground_truth_actions.shape}")
+        self.logger.info(f"   Action range: [{ground_truth_actions.min():.3f}, {ground_truth_actions.max():.3f}]")
         
         # Ground truth for evaluation
         gt_for_evaluation = ground_truth_actions[1:horizon+1]
@@ -357,6 +535,7 @@ class IntegratedEvaluationFramework:
             'rollouts': {},
             'metrics': {},
             'summary': {},
+            'data_validation': {},
             'visualization_data': {
                 'ground_truth': {
                     'actions': [actions.tolist() for actions in ground_truth_actions],
@@ -386,6 +565,13 @@ class IntegratedEvaluationFramework:
                 predictions = predictions[:min_len]
                 gt_adjusted = gt_for_evaluation[:min_len]
                 
+                # FIXED: Validate data before computing metrics
+                is_valid = self._validate_evaluation_data(predictions, gt_adjusted, f"{video_id}_{method_name}")
+                video_result['data_validation'][method_name] = is_valid
+                
+                if not is_valid:
+                    self.logger.warning(f"⚠️ Data validation failed for {method_name}, metrics may be unreliable")
+                
                 # Compute trajectory metrics
                 trajectory_metrics = self.compute_trajectory_metrics(predictions, gt_adjusted)
                 
@@ -395,13 +581,17 @@ class IntegratedEvaluationFramework:
                 video_result['metrics'][method_name] = trajectory_metrics
                 
                 # Summary statistics
+                final_mAP = trajectory_metrics['cumulative_mAP'][-1] if trajectory_metrics['cumulative_mAP'] else 0.0
+                mean_mAP = np.mean(trajectory_metrics['cumulative_mAP']) if trajectory_metrics['cumulative_mAP'] else 0.0
+                
                 video_result['summary'][method_name] = {
-                    'final_mAP': trajectory_metrics['cumulative_mAP'][-1] if trajectory_metrics['cumulative_mAP'] else 0.0,
-                    'mean_mAP': np.mean(trajectory_metrics['cumulative_mAP']) if trajectory_metrics['cumulative_mAP'] else 0.0,
-                    'mAP_degradation': (trajectory_metrics['cumulative_mAP'][0] - trajectory_metrics['cumulative_mAP'][-1]) if len(trajectory_metrics['cumulative_mAP']) > 1 else 0.0,
+                    'final_mAP': final_mAP,
+                    'mean_mAP': mean_mAP,
+                    'mAP_degradation': (trajectory_metrics['cumulative_mAP'][0] - final_mAP) if len(trajectory_metrics['cumulative_mAP']) > 1 else 0.0,
                     'final_exact_match': trajectory_metrics['cumulative_exact_match'][-1] if trajectory_metrics['cumulative_exact_match'] else 0.0,
                     'mean_exact_match': np.mean(trajectory_metrics['cumulative_exact_match']) if trajectory_metrics['cumulative_exact_match'] else 0.0,
-                    'avg_confidence': np.mean(rollout_info['confidence_scores']) if rollout_info['confidence_scores'] else 0.0
+                    'avg_confidence': np.mean(rollout_info['confidence_scores']) if rollout_info['confidence_scores'] else 0.0,
+                    'data_valid': is_valid
                 }
                 
                 # Add to visualization data
@@ -423,7 +613,7 @@ class IntegratedEvaluationFramework:
                     }
                 }
                 
-                self.logger.info(f"    📊 Final mAP: {video_result['summary'][method_name]['final_mAP']:.3f}")
+                self.logger.info(f"    📊 Final mAP: {final_mAP:.3f} (valid: {is_valid})")
                 
             except Exception as e:
                 self.logger.error(f"    ❌ Error evaluating {method_name}: {e}")
@@ -431,153 +621,6 @@ class IntegratedEvaluationFramework:
                 traceback.print_exc()
         
         return video_result
-    
-    def compute_trajectory_metrics(self, predictions: np.ndarray, ground_truth: np.ndarray) -> Dict[str, List[float]]:
-        """Compute metrics over trajectory with cumulative evaluation"""
-        
-        metrics = {
-            'cumulative_mAP': [],
-            'cumulative_exact_match': [],
-            'cumulative_hamming_accuracy': [],
-            'cumulative_precision': [],
-            'cumulative_recall': [],
-            'cumulative_f1': []
-        }
-        
-        for t in range(1, len(predictions) + 1):
-            # Cumulative predictions and ground truth up to timestep t
-            pred_cumulative = predictions[:t]
-            gt_cumulative = ground_truth[:t]
-            
-            # Flatten for metric calculation
-            pred_flat = pred_cumulative.reshape(-1, 100)
-            gt_flat = gt_cumulative.reshape(-1, 100)
-            binary_pred = (pred_flat > 0.5).astype(int)
-            
-            # 1. mAP calculation
-            ap_scores = []
-            for action_idx in range(100):
-                if np.sum(gt_flat[:, action_idx]) > 0:
-                    try:
-                        ap = average_precision_score(gt_flat[:, action_idx], pred_flat[:, action_idx])
-                        ap_scores.append(ap)
-                    except:
-                        ap_scores.append(0.0)
-                else:
-                    ap_scores.append(1.0 if np.sum(binary_pred[:, action_idx]) == 0 else 0.0)
-            
-            metrics['cumulative_mAP'].append(np.mean(ap_scores))
-            
-            # 2. Exact match accuracy
-            exact_match = np.mean(np.all(binary_pred == gt_flat, axis=1))
-            metrics['cumulative_exact_match'].append(exact_match)
-            
-            # 3. Hamming accuracy
-            hamming_acc = np.mean(binary_pred == gt_flat)
-            metrics['cumulative_hamming_accuracy'].append(hamming_acc)
-            
-            # 4. Precision, Recall, F1
-            try:
-                precision, recall, f1, _ = precision_recall_fscore_support(
-                    gt_flat.flatten(), binary_pred.flatten(), average='binary', zero_division=0
-                )
-                metrics['cumulative_precision'].append(precision)
-                metrics['cumulative_recall'].append(recall)
-                metrics['cumulative_f1'].append(f1)
-            except:
-                metrics['cumulative_precision'].append(0.0)
-                metrics['cumulative_recall'].append(0.0)
-                metrics['cumulative_f1'].append(0.0)
-        
-        return metrics
-    
-    def run_integrated_evaluation(self, models: Dict, test_data: List[Dict], 
-                                horizon: int = 15) -> Dict:
-        """Run integrated evaluation with rollout saving"""
-        
-        self.logger.info("🎯 Running Integrated Evaluation with Rollout Saving")
-        self.logger.info(f"📊 Evaluating {len(models)} models on {len(test_data)} videos")
-        self.logger.info(f"⏱️ Prediction horizon: {horizon} timesteps")
-        self.logger.info("=" * 60)
-        
-        # Evaluate each video with rollouts
-        for video_idx, video in enumerate(test_data):
-            self.logger.info(f"📹 Video {video_idx + 1}/{len(test_data)}")
-            
-            video_result = self.evaluate_single_video_with_rollouts(models, video, horizon)
-            self.video_results[video['video_id']] = video_result
-        
-        # Compute aggregate statistics
-        self.aggregate_results = self.compute_aggregate_statistics()
-        
-        # Perform statistical tests
-        self.statistical_tests = self.perform_statistical_tests()
-        
-        # Save visualization data
-        self.save_visualization_data()
-        
-        return {
-            'video_results': self.video_results,
-            'aggregate_results': self.aggregate_results,
-            'statistical_tests': self.statistical_tests,
-            'evaluation_config': {
-                'horizon': horizon,
-                'num_videos': len(test_data),
-                'num_models': len(models),
-                'models_evaluated': list(models.keys())
-            }
-        }
-    
-    def save_visualization_data(self):
-        """Save data in format compatible with the HTML visualization"""
-        
-        visualization_data = {
-            'ground_truth': {},
-            'predictions': {},
-            'metadata': {
-                'methods': list(self.aggregate_results.keys()),
-                'videos': list(self.video_results.keys()),
-                'evaluation_timestamp': str(pd.Timestamp.now()),
-                'per_method': {}
-            }
-        }
-        
-        # Collect data for each video
-        for video_id, video_result in self.video_results.items():
-            # Ground truth
-            visualization_data['ground_truth'][video_id] = video_result['visualization_data']['ground_truth']
-            
-            # Predictions for each method
-            for method_name in video_result['visualization_data']['predictions']:
-                if method_name not in visualization_data['predictions']:
-                    visualization_data['predictions'][method_name] = {}
-                
-                visualization_data['predictions'][method_name][video_id] = video_result['visualization_data']['predictions'][method_name]
-        
-        # Add method-level metadata
-        for method_name, stats in self.aggregate_results.items():
-            visualization_data['metadata']['per_method'][method_name] = {
-                'avg_confidence': stats.get('final_mAP', {}).get('mean', 0.0),
-                'performance_rank': 0,  # Will be computed
-                'method_type': 'IL' if 'IL' in method_name else 'RL'
-            }
-        
-        # Compute performance rankings
-        method_performances = [(method, stats['final_mAP']['mean']) 
-                             for method, stats in self.aggregate_results.items()]
-        method_performances.sort(key=lambda x: x[1], reverse=True)
-        
-        for rank, (method, _) in enumerate(method_performances):
-            visualization_data['metadata']['per_method'][method]['performance_rank'] = rank + 1
-        
-        # Save visualization data
-        viz_path = self.eval_dir / 'visualization_data.json'
-        with open(viz_path, 'w') as f:
-            json.dump(visualization_data, f, indent=2, default=str)
-        
-        self.logger.info(f"📊 Visualization data saved to: {viz_path}")
-        
-        return viz_path
     
     def compute_aggregate_statistics(self) -> Dict:
         """Compute aggregate statistics across all videos"""
@@ -775,7 +818,6 @@ class IntegratedEvaluationFramework:
         }
 
 
-# Integration function for run_experiment_v2.py
 def run_integrated_evaluation(experiment_results: Dict, test_data: List[Dict], 
                             results_dir: str, logger, horizon: int = 15):
     """

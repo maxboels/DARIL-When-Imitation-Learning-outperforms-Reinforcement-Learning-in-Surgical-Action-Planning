@@ -32,7 +32,7 @@ experiment:
   train:
     max_videos: 2  # Increase for full training
   test:
-    max_videos: 1   # Test on more videos
+    max_videos: 2   # Test on more videos
   
   # Dual World Model Training
   dual_world_model:
@@ -101,7 +101,7 @@ rl_training:
   reward_mode: 'dense'  # 'dense' or 'sparse'
   normalize_rewards: true
   early_termination: true
-  timesteps: 10000  # Default timesteps for RL training
+  timesteps: 1000  # Default timesteps for RL training
   
   # Reward weights for environment
   reward_weights:
