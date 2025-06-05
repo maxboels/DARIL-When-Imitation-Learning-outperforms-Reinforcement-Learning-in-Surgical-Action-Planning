@@ -37,7 +37,6 @@ experiment:
   # Dual World Model Training
   dual_world_model:
     train: true
-    inference: true
     best_model_path: null  # Will be set after training
   
   # Imitation Learning (ENABLED for IL vs RL comparison)
@@ -48,9 +47,6 @@ experiment:
   # RL Experiments (ENABLED for comparison)
   rl_experiments:
     enabled: true  # ✅ ENABLED for IL vs RL comparison
-    run_after_supervised: true
-    algorithms: ['ppo', 'dqn']
-    timesteps: 10000  # Reduced for faster experimentation
     eval_episodes: 20
   
   # Legacy settings (keep for compatibility)
@@ -95,8 +91,6 @@ fair_evaluation:
   
   clinical_outcome_weights:
     phase_progression: 2.0
-    safety: 3.0  
-    efficiency: 1.5
     innovation: 0.5
 
 # RL Training Configuration (UPDATED)
@@ -107,65 +101,21 @@ rl_training:
   reward_mode: 'dense'  # 'dense' or 'sparse'
   normalize_rewards: true
   early_termination: true
+  timesteps: 10000  # Default timesteps for RL training
   
   # Reward weights for environment
   reward_weights:
     phase_completion: 1.0
-    phase_initiation: 0.5
-    phase_progression: 1.0
-    global_progression: 0.8
-    action_probability: 0.3
     risk_penalty: -0.5
   
   # Algorithm-specific settings
   ppo:
     learning_rate: 0.0003
-    n_steps: 2048
-    batch_size: 64
-    n_epochs: 10
-    gamma: 0.99
-    gae_lambda: 0.95
-    clip_range: 0.2
-    entropy_coef: 0.01
     value_coef: 0.5
     
   sac:
     learning_rate: 0.0003
-    buffer_size: 100000
-    learning_starts: 1000
-    batch_size: 256
-    tau: 0.005
-    gamma: 0.99
     alpha: 0.2
-
-# Evaluation configuration
-evaluation:
-  # Supervised evaluation
-  supervised:
-    action_prediction:
-      top_ks: [1, 3, 5, 10]
-      horizons: [1, 3, 5, 10, 15]
-      temperature: 1.0
-      nucleus_p: 0.9
-    
-  # RL evaluation
-  rl:
-    rollout_horizon: 15
-    eval_horizons: [1, 3, 5, 10, 15]
-    eval_episodes: 20  # More episodes for better statistics
-    use_best_actions: true
-  
-  # Comparison metrics
-  comparison:
-    statistical_tests: true
-    significance_level: 0.05
-    effect_size_threshold: 0.2  # Cohen's d
-    
-  # General evaluation
-  world_model:
-    use_memory: false
-    max_horizon: 15
-    overall_horizon: 1
 
 # Data configuration
 data:
@@ -174,6 +124,7 @@ data:
   padding_value: 0.0
   max_horizon: 15
   
+
   paths:
     data_dir: "/home/maxboels/datasets/CholecT50"
     class_labels_file_path: "./data/labels.json"
@@ -181,241 +132,79 @@ data:
     metadata_file: "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv"
     video_global_outcome_file: "embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv"
   
-  risk_score_path: null
-  max_videos: 2  # Use all videos
   frame_risk_agg: 'max'
 
-# Model configurations
+# Model configurations (ADDED MISSING SECTION)
 models:
-  # Dual World Model (UPDATED)
-  dual_world_model:
-    # Architecture
+  # Method 1: Autoregressive IL Model
+  autoregressive_il:
+    hidden_dim: 768
+    embedding_dim: 1024
+    n_layer: 6
+    num_action_classes: 100
+    num_phase_classes: 7
+    dropout: 0.1
+    max_length: 1024
+  
+  # Method 2: Conditional World Model  
+  conditional_world_model:
     hidden_dim: 768
     embedding_dim: 1024
     action_embedding_dim: 128
     n_layer: 6
-    max_length: 1024
+    num_action_classes: 100
+    num_phase_classes: 7
     dropout: 0.1
-    
-    # Model capabilities
-    enable_autoregressive_prediction: true
-    enable_rl_prediction: true
-    enable_reward_prediction: true
-    
-    # Dimensions
-    num_action_classes: 100
-    num_phase_classes: 7
-    
-    # Loss weights (will be adjusted based on training mode)
-    loss_weights:
-      state: 1.0
-      action: 1.0
-      reward: 0.5
-      phase: 0.3
+    max_sequence_length: 512
+
+# Evaluation configuration
+evaluation:
+  prediction_horizon: 15  # Added missing key
   
-  # RL Agent architectures
-  rl_agents:
-    ppo:
-      hidden_dim: 256
-      learning_rate: 0.0003
-      clip_ratio: 0.2
-      entropy_coef: 0.01
-      value_coef: 0.5
+  # Supervised evaluation
+  supervised:
+    action_prediction: true
     
-    sac:
-      hidden_dim: 256
-      learning_rate: 0.0003
-      tau: 0.005
-      alpha: 0.2
+  # RL evaluation
+  rl:
+    rollout_horizon: 15
+    use_best_actions: true
   
-  # Legacy model configs (keep for compatibility)
-  recognition:
-    transformer:
-      embedding_dim: 1024
-      hidden_dim: 768
-      num_action_classes: 100
-      num_instrument_classes: 6
-      dropout: 0.1
-      num_heads: 8
-      num_layers: 2
-      
+  # Comparison metrics
+  comparison:
+    statistical_tests: true
+    effect_size_threshold: 0.2  # Cohen's d
+    
+  # General evaluation
   world_model:
-    hidden_dim: 768
-    embedding_dim: 1024
-    action_embedding_dim: 100
-    n_layer: 6
-    use_head: true
-    action_conditioning: true
-    imitation_learning: true
-    action_learning: true
-    phase_learning: true
-    reward_learning: true
-    num_action_classes: 100
-    num_phase_classes: 7
-    num_outcomes: 1
-    targets_dims:
-      _z: 512
-      _a: 100
-      _r: 1
-      _q: 1
-      _R: 1
-    target_heads: ['_a']
-    loss_weights:
-      w_z: 1.0
-      w_a: 1.0
-      w_r: 1.0
-      w_q: null
-      w_R: null
+    use_memory: false
+    overall_horizon: 1
 
 # Supervised Learning Configuration
 supervised_learning:
   # Data augmentation for better generalization
-  augmentation:
-    noise_std: 0.01  # Add small noise to states
-    action_dropout: 0.1  # Randomly drop some actions
-    temporal_shift: 0.1  # Small temporal shifts
-  
-  # Sequence modeling
-  autoregressive:
-    context_length: 20
-    prediction_horizon: 15
-    use_teacher_forcing: true  # Use ground truth during training
-    teacher_forcing_ratio: 0.8  # Ratio of teacher forcing vs. model predictions
-  
-  # Action prediction specific
-  action_prediction:
-    loss_type: 'bce'  # 'bce' or 'focal'
-    class_weights: null  # Can be computed from data
-    label_smoothing: 0.1
+  data_augmentation: true
 
 # Research comparison settings
 research_comparison:
   # Methods to compare
-  methods:
-    - name: "Imitation Learning"
-      type: "supervised"
-      model_type: "dual_world_model"
-      mode: "supervised"
-    
-    - name: "PPO (World Model)"
-      type: "rl"
-      algorithm: "ppo"
-      world_model: true
-    
-    - name: "SAC (World Model)"
-      type: "rl"
-      algorithm: "sac"
-      world_model: true
-    
-    - name: "Random Baseline"
-      type: "baseline"
-      algorithm: "random"
-  
-  # Evaluation metrics
-  evaluation_metrics:
-    primary: "mAP"  # Mean Average Precision
-    secondary: ["top_1_accuracy", "top_3_accuracy", "f1_score", "exact_match"]
-    clinical: ["critical_action_performance", "phase_awareness", "risk_assessment"]
-    planning: ["trajectory_coherence", "horizon_degradation", "planning_efficiency"]
-  
-  # Statistical analysis
-  statistical_analysis:
-    perform_tests: true
-    tests: ["t_test", "wilcoxon", "bootstrap"]
-    multiple_comparison_correction: "bonferroni"
-    confidence_level: 0.95
+  methods: ['autoregressive_il', 'conditional_world_model', 'direct_video_rl']
 
 # Advanced configurations
 advanced:
   # Memory and optimization
-  mixed_precision: true  # Use automatic mixed precision
-  gradient_accumulation_steps: 1
-  find_unused_parameters: false
-  
-  # Distributed training (if available)
-  distributed: false
-  world_size: 1
-  rank: 0
-  
-  # Reproducibility
-  seed: 42
-  deterministic: false  # Set to true for full reproducibility (slower)
-  
-  # Monitoring
-  wandb:
-    enabled: false
-    project: "surgical_world_model_comparison"
-    entity: null
-    tags: ["world_model", "surgical_robotics", "il_vs_rl"]
-  
-  # Model analysis
-  analysis:
-    save_attention_maps: false
-    save_hidden_states: false
-    analyze_action_patterns: true
-    generate_trajectory_videos: false
+  mixed_precision: false
 
 # Hardware optimization
 hardware:
   # GPU settings
-  gpu_memory_fraction: 0.9
-  allow_growth: true
-  
-  # CPU settings
-  num_threads: 4
-  
-  # Data loading
-  prefetch_factor: 2
   persistent_workers: true
 
 # Specific configurations for different training phases
 training_phases:
   # Phase 1: Supervised pre-training
-  supervised:
-    epochs: 1  # Reduced for faster iteration
-    learning_rate: 0.0001
-    focus_on: ['state_prediction', 'action_prediction']
-    loss_weights:
-      state: 1.0
-      action: 1.0
-      reward: 0.1
-      phase: 0.1
-  
-  # Phase 2: RL fine-tuning
-  rl:
-    episodes: 2000  # RL episodes instead of epochs
-    learning_rate: 0.00005  # Lower LR for fine-tuning
-    focus_on: ['state_prediction', 'reward_prediction']
-    loss_weights:
-      state: 1.0
-      action: 0.5
-      reward: 1.0
-      phase: 0.3
-  
-  # Phase 3: Mixed training (optional)
-  mixed:
-    epochs: 1
-    learning_rate: 0.00002
-    alternating_batches: true
-    supervised_ratio: 0.7
+  supervised_pretraining: true
 
 # Results and visualization
 results:
   save_predictions: true
-  create_visualizations: true
-  generate_report: true
-  latex_tables: true
-  
-  # Visualization settings
-  visualization:
-    create_interactive: true
-    save_trajectories: true
-    plot_attention: false
-    plot_performance_curves: true
-  
-  # Report generation
-  report:
-    include_statistical_analysis: true
-    include_clinical_insights: true
-    include_method_comparison: true
-    format: ["markdown", "latex", "html"]

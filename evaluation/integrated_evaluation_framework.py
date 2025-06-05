@@ -7,14 +7,12 @@ Combines the enhanced evaluation framework with rollout saving for visualization
 import torch
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-from pathlib import Path
 import json
+import warnings
+from pathlib import Path
 from typing import Dict, List, Any, Tuple
 from sklearn.metrics import average_precision_score, precision_recall_fscore_support
 from scipy import stats
-import warnings
 warnings.filterwarnings('ignore')
 
 class IntegratedEvaluationFramework:
@@ -45,48 +43,66 @@ class IntegratedEvaluationFramework:
         
         models = {}
         
-        # 1. Load IL model
-        method1 = experiment_results.get('method_1_il_baseline', {})
+        # 1. Load Autoregressive IL model
+        method1 = experiment_results.get('method_1_autoregressive_il', {})
         if method1.get('status') == 'success' and 'model_path' in method1:
             try:
-                from models.dual_world_model import DualWorldModel
-                il_model = DualWorldModel.load_model(method1['model_path'], self.device)
-                models['IL_Baseline'] = il_model
-                self.logger.info("✅ IL model loaded for evaluation")
+                from models.autoregressive_il_model import AutoregressiveILModel
+                model = AutoregressiveILModel.load_model(method1['model_path'], device=self.device)
+                models['AutoregressiveIL'] = model
+                self.logger.info(f"✅ Loaded AutoregressiveIL model")
             except Exception as e:
-                self.logger.warning(f"⚠️ Could not load IL model: {e}")
+                self.logger.error(f"❌ Failed to load AutoregressiveIL model: {e}")
         
-        # 2. Load RL + World Model models
-        method2 = experiment_results.get('method_2_rl_world_model', {})
-        if method2.get('status') == 'success' and 'rl_models' in method2:
-            for alg_name, alg_result in method2['rl_models'].items():
-                if alg_result.get('status') == 'success' and 'model_path' in alg_result:
-                    try:
-                        if alg_name.lower() == 'ppo':
-                            from stable_baselines3 import PPO
-                            models[f'RL_WorldModel_PPO'] = PPO.load(alg_result['model_path'])
-                        elif alg_name.lower() == 'a2c':
-                            from stable_baselines3 import A2C
-                            models[f'RL_WorldModel_A2C'] = A2C.load(alg_result['model_path'])
-                        self.logger.info(f"✅ RL+WorldModel {alg_name.upper()} loaded")
-                    except Exception as e:
-                        self.logger.warning(f"⚠️ Could not load RL+WorldModel {alg_name}: {e}")
+        # 2. Load Conditional World Model + RL models
+        method2 = experiment_results.get('method_2_conditional_world_model', {})
+        if method2.get('status') == 'success':
+            # Load world model
+            if 'world_model_path' in method2:
+                try:
+                    from models.conditional_world_model import ConditionalWorldModel
+                    world_model = ConditionalWorldModel.load_model(method2['world_model_path'], device=self.device)
+                    models['ConditionalWorldModel'] = world_model
+                    self.logger.info(f"✅ Loaded ConditionalWorldModel")
+                except Exception as e:
+                    self.logger.error(f"❌ Failed to load ConditionalWorldModel: {e}")
+            
+            # Load RL models trained with world model
+            if 'rl_models' in method2:
+                for alg_name, alg_result in method2['rl_models'].items():
+                    if alg_result.get('status') == 'success' and 'model_path' in alg_result:
+                        try:
+                            from stable_baselines3 import PPO, A2C
+                            if 'ppo' in alg_name.lower():
+                                rl_model = PPO.load(alg_result['model_path'])
+                            elif 'a2c' in alg_name.lower():
+                                rl_model = A2C.load(alg_result['model_path'])
+                            else:
+                                continue
+                            
+                            models[f"WorldModelRL_{alg_name}"] = rl_model
+                            self.logger.info(f"✅ Loaded {alg_name} model from world model training")
+                        except Exception as e:
+                            self.logger.error(f"❌ Failed to load {alg_name} model: {e}")
         
-        # 3. Load RL + Offline Videos models
-        method3 = experiment_results.get('method_3_rl_offline_videos', {})
+        # 3. Load Direct Video RL models
+        method3 = experiment_results.get('method_3_direct_video_rl', {})
         if method3.get('status') == 'success' and 'rl_models' in method3:
             for alg_name, alg_result in method3['rl_models'].items():
                 if alg_result.get('status') == 'success' and 'model_path' in alg_result:
                     try:
-                        if alg_name.lower() == 'ppo':
-                            from stable_baselines3 import PPO
-                            models[f'RL_OfflineVideos_PPO'] = PPO.load(alg_result['model_path'])
-                        elif alg_name.lower() == 'a2c':
-                            from stable_baselines3 import A2C
-                            models[f'RL_OfflineVideos_A2C'] = A2C.load(alg_result['model_path'])
-                        self.logger.info(f"✅ RL+OfflineVideos {alg_name.upper()} loaded")
+                        from stable_baselines3 import PPO, A2C
+                        if 'ppo' in alg_name.lower():
+                            rl_model = PPO.load(alg_result['model_path'])
+                        elif 'a2c' in alg_name.lower():
+                            rl_model = A2C.load(alg_result['model_path'])
+                        else:
+                            continue
+                        
+                        models[f"DirectVideoRL_{alg_name}"] = rl_model
+                        self.logger.info(f"✅ Loaded {alg_name} model from direct video training")
                     except Exception as e:
-                        self.logger.warning(f"⚠️ Could not load RL+OfflineVideos {alg_name}: {e}")
+                        self.logger.error(f"❌ Failed to load {alg_name} model: {e}")
         
         self.logger.info(f"📊 Loaded {len(models)} models for integrated evaluation")
         return models
@@ -148,55 +164,46 @@ class IntegratedEvaluationFramework:
         """IL prediction with detailed rollout for planning visualization"""
         
         # Forward pass through IL model
-        outputs = il_model(current_states=current_state.unsqueeze(1))
+        outputs = il_model(frame_embeddings=current_state.unsqueeze(1))
         
         if 'action_pred' in outputs:
-            action_probs = torch.sigmoid(outputs['action_pred'][:, -1, :])  # [1, 100]
+            action_probs = outputs['action_pred'][:, -1, :]  # [1, 100]
             action_pred = action_probs.cpu().numpy().flatten()
             
             # Generate planning horizon (simulate future with IL model)
             planning_horizon = []
             current_planning_state = current_state.clone()
             
-            for h in range(min(5, horizon - timestep)):  # Plan 5 steps ahead
+            for h in range(min(5, horizon - timestep)):
                 try:
-                    # Use IL model to predict next state and action
-                    planning_outputs = il_model(current_states=current_planning_state.unsqueeze(1))
+                    # Use the autoregressive generation capability
+                    generation_results = il_model.generate_sequence(
+                        initial_frames=current_planning_state.unsqueeze(0).unsqueeze(1),
+                        horizon=1,
+                        temperature=0.8
+                    )
                     
-                    if 'action_pred' in planning_outputs:
-                        future_action_probs = torch.sigmoid(planning_outputs['action_pred'][:, -1, :])
-                        future_action = future_action_probs.cpu().numpy().flatten()
-                        
-                        # Use world model to predict next state (if available)
-                        if hasattr(il_model, 'predict_next_state'):
-                            next_state = il_model.predict_next_state(
-                                current_planning_state, future_action_probs
-                            )
-                            current_planning_state = next_state
-                        else:
-                            # Fallback: use next frame if available
-                            if timestep + h + 1 < len(video_embeddings):
-                                next_state_embedding = video_embeddings[timestep + h + 1]
-                                current_planning_state = torch.tensor(
-                                    next_state_embedding, dtype=torch.float32, device=self.device
-                                ).unsqueeze(0)
-                        
-                        planning_horizon.append({
-                            'step': h + 1,
-                            'predicted_action': future_action.tolist(),
-                            'confidence': float(torch.max(future_action_probs)),
-                            'active_actions': int(np.sum(future_action > 0.5))
-                        })
-                
+                    next_frame = generation_results['generated_frames'][0, 0]  # [embedding_dim]
+                    next_action = generation_results['predicted_actions'][0, 0]  # [num_actions]
+                    
+                    planning_horizon.append({
+                        'step': h + 1,
+                        'predicted_frame': next_frame.cpu().numpy().tolist(),
+                        'predicted_action': next_action.cpu().numpy().tolist(),
+                        'confidence': float(torch.max(next_action))
+                    })
+                    
+                    current_planning_state = next_frame
+                    
                 except Exception as e:
-                    self.logger.warning(f"Planning step {h} failed: {e}")
+                    self.logger.warning(f"IL planning failed at step {h}: {e}")
                     break
             
             # Extract thinking process
             thinking_steps = [
-                f"Analyzed current surgical context",
+                f"Analyzed current surgical context with autoregressive model",
+                f"Generated {len(planning_horizon)} future frame predictions",
                 f"Identified {int(np.sum(action_pred > 0.5))} potential actions",
-                f"Planning {len(planning_horizon)} steps ahead",
                 f"Confidence: {np.max(action_pred):.3f}"
             ]
             
@@ -207,8 +214,9 @@ class IntegratedEvaluationFramework:
                 'thinking_steps': thinking_steps,
                 'action_candidates': self._get_top_actions(action_pred, k=5),
                 'method_specific': {
-                    'model_outputs': {k: v.cpu().numpy().tolist() if isinstance(v, torch.Tensor) 
-                                    else v for k, v in outputs.items() if k != 'action_pred'}
+                    'model_type': 'AutoregressiveIL',
+                    'generation_used': True,
+                    'causal_modeling': True
                 }
             }
         else:

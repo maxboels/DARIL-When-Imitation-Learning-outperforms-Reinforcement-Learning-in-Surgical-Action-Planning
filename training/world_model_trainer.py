@@ -234,7 +234,7 @@ class WorldModelTrainer:
             for batch_idx, batch in enumerate(pbar):
                 # Move data to device
                 current_states = batch['current_states'].to(self.device)
-                actions = batch['actions'].to(self.device)
+                next_actions = batch['next_actions'].to(self.device)  # FIXED: Use next_actions
                 next_states = batch['next_states'].to(self.device)
                 current_phases = batch['current_phases'].to(self.device)
                 next_phases = batch['next_phases'].to(self.device)
@@ -247,7 +247,7 @@ class WorldModelTrainer:
                 # Forward pass
                 outputs = self.model(
                     current_states=current_states,
-                    next_actions=actions,  # FIXED: Use next_actions parameter name
+                    next_actions=next_actions,  # FIXED: Use next_actions parameter name
                     target_next_states=next_states,
                     target_rewards=target_rewards,
                     target_phases=next_phases
@@ -302,7 +302,7 @@ class WorldModelTrainer:
             for batch in test_loader:
                 # Move data to device
                 current_states = batch['current_states'].to(self.device)
-                actions = batch['actions'].to(self.device)
+                next_actions = batch['next_actions'].to(self.device)  # FIXED: Use next_actions
                 next_states = batch['next_states'].to(self.device)
                 current_phases = batch['current_phases'].to(self.device)
                 next_phases = batch['next_phases'].to(self.device)
@@ -315,7 +315,7 @@ class WorldModelTrainer:
                 # Forward pass
                 outputs = self.model(
                     current_states=current_states,
-                    next_actions=actions,  # FIXED: Use next_actions parameter name
+                    next_actions=next_actions,  # FIXED: Use next_actions parameter name
                     target_next_states=next_states,
                     target_rewards=target_rewards,
                     target_phases=next_phases
@@ -383,12 +383,12 @@ class WorldModelTrainer:
                 break
                 
             current_states = batch['current_states'][:2].to(self.device)  # First 2 samples
-            actions = batch['actions'][:2].to(self.device)
+            next_actions = batch['next_actions'][:2].to(self.device)  # FIXED: Use next_actions
             
             # Test single step simulation
             for i in range(current_states.size(0)):
                 state = current_states[i, 0]  # First timestep
-                action = actions[i, 0]  # First action
+                action = next_actions[i, 0]  # First action
                 
                 try:
                     next_state, rewards, _ = self.model.simulate_step(state, action)

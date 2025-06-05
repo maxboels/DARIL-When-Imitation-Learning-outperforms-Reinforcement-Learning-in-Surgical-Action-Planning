@@ -8,7 +8,7 @@ class SimpleLogger:
     _shared_timestamp = None
     _base_log_dir = None
     
-    def __init__(self, log_dir='logs', name=None, use_shared_timestamp=True):
+    def __init__(self, log_dir='logs', name=None, use_shared_timestamp=True, log_file=None):
         """
         Initialize a logger with shared timestamp to avoid multiple folders.
         
@@ -16,6 +16,7 @@ class SimpleLogger:
             log_dir: Base directory to store log files
             name: Logger name. If None, timestamp will be used
             use_shared_timestamp: If True, all loggers share the same timestamp folder
+            log_file: Optional specific log file path (overrides auto-generation)
         """
         if use_shared_timestamp:
             # Use shared timestamp for all loggers in the same experiment
@@ -26,8 +27,13 @@ class SimpleLogger:
             self.log_dir = SimpleLogger._base_log_dir
         else:
             # Create individual timestamp (for separate experiments)
-            datetime_now = datetime.now().strftime('%Y-%m-%d_%H-%M')
-            self.log_dir = os.path.join(log_dir, datetime_now)
+            if not os.path.isabs(log_dir):
+                # If relative path, create timestamped subdirectory
+                datetime_now = datetime.now().strftime('%Y-%m-%d_%H-%M')
+                self.log_dir = os.path.join(log_dir, datetime_now)
+            else:
+                # If absolute path, use as-is
+                self.log_dir = log_dir
         
         self.name = name if name else 'exp'
         
@@ -49,8 +55,21 @@ class SimpleLogger:
         
         # File handler
         os.makedirs(self.log_dir, exist_ok=True)
-        log_file = os.path.join(self.log_dir, f'{self.name}.log')
-        fh = logging.FileHandler(log_file, mode='a')
+        
+        # Use provided log_file or generate one
+        if log_file:
+            # If absolute path, use as-is; if relative, make it relative to log_dir
+            if os.path.isabs(log_file):
+                final_log_file = log_file
+            else:
+                final_log_file = os.path.join(self.log_dir, log_file)
+        else:
+            final_log_file = os.path.join(self.log_dir, f'{self.name}.log')
+        
+        # Ensure log file directory exists
+        os.makedirs(os.path.dirname(final_log_file), exist_ok=True)
+        
+        fh = logging.FileHandler(final_log_file, mode='a')
         fh.setLevel(logging.INFO)
         file_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s')
         fh.setFormatter(file_formatter)

@@ -1,0 +1,6 @@
+2025-06-05 11:13:29,740 - INFO - SeparateModelsComparison_132640340573408 - 🎯 Experiment: separate_models_comparison_20250605_111329
+2025-06-05 11:13:29,740 - INFO - SeparateModelsComparison_132640340573408 - 📁 Results dir: results/separate_models_comparison_20250605_111329
+2025-06-05 11:13:29,740 - INFO - SeparateModelsComparison_132640340573408 - 🚀 Starting Complete Separate Models Comparison
+2025-06-05 11:13:29,740 - INFO - SeparateModelsComparison_132640340573408 - ============================================================
+2025-06-05 11:13:29,740 - INFO - SeparateModelsComparison_132640340573408 - 📂 Loading CholecT50 data...
+2025-06-05 11:13:29,740 - ERROR - SeparateModelsComparison_132640340573408 - ❌ Experiment failed: 'metadata_file'

@@ -1,0 +1,137 @@
+2025-06-04 21:59:49,760 - INFO - SeparateModelsComparison_135705743857408 - 🎯 Experiment: separate_models_comparison_20250604_215949
+2025-06-04 21:59:49,760 - INFO - SeparateModelsComparison_135705743857408 - 📁 Results dir: results/separate_models_comparison_20250604_215949
+2025-06-04 21:59:49,760 - INFO - SeparateModelsComparison_135705743857408 - 🚀 Starting Complete Separate Models Comparison
+2025-06-04 21:59:49,760 - INFO - SeparateModelsComparison_135705743857408 - ============================================================
+2025-06-04 21:59:49,760 - INFO - SeparateModelsComparison_135705743857408 - 📂 Loading CholecT50 data...
+2025-06-04 21:59:49,760 - INFO - SeparateModelsComparison_135705743857408 - 📂 Loading CholecT50 dataset...
+2025-06-04 21:59:49,760 - ERROR - SeparateModelsComparison_135705743857408 - ❌ Data file not found: /home/maxboels/datasets/CholecT50/embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv
+2025-06-04 21:59:49,760 - WARNING - SeparateModelsComparison_135705743857408 - ⚠️ Creating dummy data for testing
+2025-06-04 21:59:49,770 - INFO - SeparateModelsComparison_135705743857408 - ✅ Created 2 dummy training and 1 dummy test videos
+2025-06-04 21:59:49,770 - INFO - SeparateModelsComparison_135705743857408 - ✅ Data loaded successfully
+2025-06-04 21:59:49,770 - INFO - SeparateModelsComparison_135705743857408 -    Training videos: 2
+2025-06-04 21:59:49,770 - INFO - SeparateModelsComparison_135705743857408 -    Test videos: 1
+2025-06-04 21:59:49,770 - INFO - SeparateModelsComparison_135705743857408 - 🎓 Running Method 1: Autoregressive IL
+2025-06-04 21:59:49,770 - INFO - SeparateModelsComparison_135705743857408 - 🎓 Method 1: Autoregressive IL Training
+2025-06-04 21:59:49,770 - INFO - SeparateModelsComparison_135705743857408 - ----------------------------------------
+2025-06-04 21:59:50,326 - INFO - SeparateModelsComparison_135705743857408 - 🎓 Autoregressive IL Trainer initialized
+2025-06-04 21:59:50,326 - INFO - SeparateModelsComparison_135705743857408 -    Device: cuda
+2025-06-04 21:59:50,326 - INFO - SeparateModelsComparison_135705743857408 -    Epochs: 1
+2025-06-04 21:59:50,326 - INFO - SeparateModelsComparison_135705743857408 -    Learning rate: 0.0001
+2025-06-04 21:59:50,326 - INFO - SeparateModelsComparison_135705743857408 -    Focus: Causal frame generation → action prediction
+2025-06-04 21:59:50,326 - INFO - SeparateModelsComparison_135705743857408 - 🎓 Starting Autoregressive IL Training...
+2025-06-04 21:59:50,326 - INFO - SeparateModelsComparison_135705743857408 - 🎯 Goal: Learn causal frame generation → action prediction
+2025-06-04 21:59:50,405 - ERROR - SeparateModelsComparison_135705743857408 - ❌ Method 1 failed: Caught RuntimeError in DataLoader worker process 0.
+Original Traceback (most recent call last):
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/utils/data/_utils/worker.py", line 351, in _worker_loop
+    data = fetcher.fetch(index)  # type: ignore[possibly-undefined]
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/utils/data/_utils/fetch.py", line 55, in fetch
+    return self.collate_fn(data)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/utils/data/_utils/collate.py", line 398, in default_collate
+    return collate(batch, collate_fn_map=default_collate_fn_map)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/utils/data/_utils/collate.py", line 172, in collate
+    key: collate(
+         ^^^^^^^^
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/utils/data/_utils/collate.py", line 155, in collate
+    return collate_fn_map[elem_type](batch, collate_fn_map=collate_fn_map)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/utils/data/_utils/collate.py", line 271, in collate_tensor_fn
+    out = elem.new(storage).resize_(len(batch), *list(elem.size()))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Trying to resize storage that is not resizable
+
+2025-06-04 21:59:50,405 - INFO - SeparateModelsComparison_135705743857408 - 🌍 Running Method 2: Conditional World Model + RL
+2025-06-04 21:59:50,405 - INFO - SeparateModelsComparison_135705743857408 - 🌍 Method 2: Conditional World Model + RL
+2025-06-04 21:59:50,405 - INFO - SeparateModelsComparison_135705743857408 - ----------------------------------------
+2025-06-04 21:59:50,688 - INFO - SeparateModelsComparison_135705743857408 - 🌍 World Model Trainer initialized
+2025-06-04 21:59:50,688 - INFO - SeparateModelsComparison_135705743857408 -    Device: cuda
+2025-06-04 21:59:50,688 - INFO - SeparateModelsComparison_135705743857408 -    Epochs: 1
+2025-06-04 21:59:50,688 - INFO - SeparateModelsComparison_135705743857408 -    Learning rate: 0.0001
+2025-06-04 21:59:50,688 - INFO - SeparateModelsComparison_135705743857408 -    Focus: Action-conditioned state-reward prediction
+2025-06-04 21:59:50,688 - INFO - SeparateModelsComparison_135705743857408 - 🌍 Starting World Model Training...
+2025-06-04 21:59:50,688 - INFO - SeparateModelsComparison_135705743857408 - 🎯 Goal: Learn action-conditioned state-reward prediction
+2025-06-04 21:59:50,768 - ERROR - SeparateModelsComparison_135705743857408 - ❌ Method 2 failed: 'actions'
+2025-06-04 21:59:50,770 - INFO - SeparateModelsComparison_135705743857408 - 📹 Running Method 3: Direct Video RL
+2025-06-04 21:59:50,770 - INFO - SeparateModelsComparison_135705743857408 - 📹 Method 3: Direct Video RL
+2025-06-04 21:59:50,770 - INFO - SeparateModelsComparison_135705743857408 - ----------------------------------------
+2025-06-04 21:59:50,773 - INFO - SeparateModelsComparison_135705743857408 - 📊 Running Comprehensive Evaluation
+2025-06-04 21:59:50,773 - INFO - SeparateModelsComparison_135705743857408 - 📊 Running Comprehensive Cross-Method Evaluation
+2025-06-04 21:59:50,773 - INFO - SeparateModelsComparison_135705743857408 - --------------------------------------------------
+2025-06-04 21:59:50,773 - INFO - SeparateModelsComparison_135705743857408 - 🔬 Integrated Evaluation Framework initialized
+2025-06-04 21:59:50,773 - INFO - SeparateModelsComparison_135705743857408 - 📁 Results will be saved to: results/separate_models_comparison_20250604_215949/integrated_evaluation
+2025-06-04 21:59:50,773 - INFO - SeparateModelsComparison_135705743857408 - 📊 Loaded 0 models for integrated evaluation
+2025-06-04 21:59:50,773 - ERROR - SeparateModelsComparison_135705743857408 - ❌ No models available for integrated evaluation
+2025-06-04 21:59:50,773 - INFO - SeparateModelsComparison_135705743857408 - 🏆 THREE-METHOD COMPARISON RESULTS
+2025-06-04 21:59:50,773 - INFO - SeparateModelsComparison_135705743857408 - ============================================================
+2025-06-04 21:59:50,773 - INFO - SeparateModelsComparison_135705743857408 - 🎓 Method 1: ❌ Failed - Caught RuntimeError in DataLoader worker process 0.
+Original Traceback (most recent call last):
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/utils/data/_utils/worker.py", line 351, in _worker_loop
+    data = fetcher.fetch(index)  # type: ignore[possibly-undefined]
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/utils/data/_utils/fetch.py", line 55, in fetch
+    return self.collate_fn(data)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/utils/data/_utils/collate.py", line 398, in default_collate
+    return collate(batch, collate_fn_map=default_collate_fn_map)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/utils/data/_utils/collate.py", line 172, in collate
+    key: collate(
+         ^^^^^^^^
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/utils/data/_utils/collate.py", line 155, in collate
+    return collate_fn_map[elem_type](batch, collate_fn_map=collate_fn_map)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/utils/data/_utils/collate.py", line 271, in collate_tensor_fn
+    out = elem.new(storage).resize_(len(batch), *list(elem.size()))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Trying to resize storage that is not resizable
+
+2025-06-04 21:59:50,773 - INFO - SeparateModelsComparison_135705743857408 - 🌍 Method 2: ❌ Failed - 'actions'
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 - 📹 Method 3 (Direct Video RL):
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -    Status: ✅ Success
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -    RL Algorithms: []
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -    Approach: Model-free RL on real video frames
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 - 
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 - 🎯 Successful Methods: ['Method 3 (Direct RL)']
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 - 📊 Total Methods Tested: 3
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 - ✅ Success Rate: 1/3
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 - 
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 - 🏗️ ARCHITECTURAL INSIGHTS
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 - ==================================================
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 - 🎓 Method 1 (Autoregressive IL):
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -    • Pure causal modeling without action conditioning
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -    • Actions emerge from learned frame representations
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -    • Good for capturing temporal patterns in demonstrations
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -    • Limited exploration beyond expert behavior
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 - 🌍 Method 2 (Conditional World Model):
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -    • Explicit action conditioning enables true simulation
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -    • Can explore beyond expert demonstrations
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -    • Learns forward dynamics: state + action → next_state
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -    • Enables model-based RL and planning
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 - 📹 Method 3 (Direct Video RL):
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -    • Model-free approach using real video frames
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -    • No simulation, limited to existing video sequences
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -    • Direct policy optimization on offline data
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -    • Baseline for comparison with model-based approaches
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 - 
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 - 🔬 RESEARCH IMPLICATIONS:
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -    Autoregressive IL:
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -      • Simple training objective (supervised learning)
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -      • Leverages pre-trained language model knowledge
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -      • Good for dense action sequence modeling
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -      • Interpretable causal generation process
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -    Conditional World Model:
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -      • Enables true counterfactual simulation
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -      • Can explore beyond expert demonstrations
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -      • Supports model-based planning and control
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -      • Explicit action conditioning for controllability
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -    Direct Video RL:
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -      • No model bias or simulation errors
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -      • Direct optimization on real data
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -      • Simple implementation and debugging
+2025-06-04 21:59:50,774 - INFO - SeparateModelsComparison_135705743857408 -      • Good baseline for model-based comparisons
+2025-06-04 21:59:50,775 - WARNING - SeparateModelsComparison_135705743857408 - ⚠️ Paper generation failed: generate_research_paper() got an unexpected keyword argument 'results'
+2025-06-04 21:59:50,775 - INFO - SeparateModelsComparison_135705743857408 - 💾 All results saved to: results/separate_models_comparison_20250604_215949
+2025-06-04 21:59:50,775 - INFO - SeparateModelsComparison_135705743857408 - 📄 Complete results: results/separate_models_comparison_20250604_215949/complete_results.json
+2025-06-04 21:59:50,775 - INFO - SeparateModelsComparison_135705743857408 - 📄 Summary: results/separate_models_comparison_20250604_215949/experiment_summary.json

@@ -61,7 +61,7 @@ class WorldModelDataset(Dataset):
             phase_binaries = video['phase_binaries']
             
             # Extract reward signals
-            rewards = video.get('next_rewards', {})
+            rewards = video.get('next_rewards', video.get('rewards', {}))
             
             num_frames = len(frame_embeddings)
             embedding_dim = frame_embeddings.shape[1]
@@ -122,12 +122,16 @@ class WorldModelDataset(Dataset):
                             # Default reward for padding
                             reward_seq.append(0.0)
                         elif i < len(reward_values):
-                            reward_seq.append(reward_values[i])
+                            if isinstance(reward_values[i], (list, np.ndarray)):
+                                reward_seq.append(reward_values[i][0] if len(reward_values[i]) > 0 else 0.0)
+                            else:
+                                reward_seq.append(reward_values[i])
                         else:
                             reward_seq.append(0.0)
                     
                     if len(reward_seq) == self.context_length:
-                        reward_sequences[reward_type.replace('_r_', '')] = reward_seq
+                        reward_key = reward_type.replace('_r_', '').replace('r_', '')
+                        reward_sequences[reward_key] = reward_seq
                 
                 # Ensure all sequences have the correct length
                 if (len(current_states) == self.context_length and 
@@ -217,11 +221,15 @@ class WorldModelDataset(Dataset):
         
         # Extract rewards if available
         rewards = {}
-        if 'next_rewards' in video:
-            for reward_type, reward_values in video['next_rewards'].items():
-                if frame_idx + 1 < len(reward_values):
-                    reward_key = reward_type.replace('_r_', '')
-                    rewards[reward_key] = torch.tensor([reward_values[frame_idx + 1]], dtype=torch.float32)
+        reward_data = video.get('next_rewards', video.get('rewards', {}))
+        for reward_type, reward_values in reward_data.items():
+            if frame_idx + 1 < len(reward_values):
+                reward_key = reward_type.replace('_r_', '').replace('r_', '')
+                reward_val = reward_values[frame_idx + 1]
+                if isinstance(reward_val, (list, np.ndarray)):
+                    rewards[reward_key] = torch.tensor([reward_val[0] if len(reward_val) > 0 else 0.0], dtype=torch.float32)
+                else:
+                    rewards[reward_key] = torch.tensor([reward_val], dtype=torch.float32)
         
         return {
             'current_state': current_state,  # [embedding_dim]
@@ -246,12 +254,17 @@ class WorldModelDataset(Dataset):
         # Reward statistics
         reward_stats = {}
         for video in self.video_data:
-            if 'next_rewards' in video:
-                for reward_type, reward_values in video['next_rewards'].items():
-                    reward_key = reward_type.replace('_r_', '')
-                    if reward_key not in reward_stats:
-                        reward_stats[reward_key] = []
-                    reward_stats[reward_key].extend(reward_values)
+            reward_data = video.get('next_rewards', video.get('rewards', {}))
+            for reward_type, reward_values in reward_data.items():
+                reward_key = reward_type.replace('_r_', '').replace('r_', '')
+                if reward_key not in reward_stats:
+                    reward_stats[reward_key] = []
+                
+                for val in reward_values:
+                    if isinstance(val, (list, np.ndarray)):
+                        reward_stats[reward_key].append(val[0] if len(val) > 0 else 0.0)
+                    else:
+                        reward_stats[reward_key].append(val)
         
         reward_summary = {}
         for reward_type, values in reward_stats.items():
@@ -474,7 +487,7 @@ if __name__ == "__main__":
     sample = dataset[0]
     print(f"✅ Sample shapes:")
     print(f"   Current states: {sample['current_states'].shape}")
-    print(f"   Actions: {sample['actions'].shape}")
+    print(f"   Next actions: {sample['next_actions'].shape}")  # FIXED: Use next_actions
     print(f"   Next states: {sample['next_states'].shape}")
     print(f"   Rewards: {list(sample['rewards'].keys())}")
     for reward_type, reward_tensor in sample['rewards'].items():
@@ -487,7 +500,7 @@ if __name__ == "__main__":
     batch = next(iter(dataloader))
     print(f"✅ Batch shapes:")
     print(f"   Current states: {batch['current_states'].shape}")
-    print(f"   Actions: {batch['actions'].shape}")
+    print(f"   Next actions: {batch['next_actions'].shape}")  # FIXED: Use next_actions
     print(f"   Next states: {batch['next_states'].shape}")
     print(f"   Batch rewards: {list(batch['rewards'].keys())}")
     

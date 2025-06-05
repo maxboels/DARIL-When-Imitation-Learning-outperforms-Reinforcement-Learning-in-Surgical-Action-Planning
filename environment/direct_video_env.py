@@ -128,7 +128,9 @@ class DirectVideoEnvironment(gym.Env):
         frames_remaining = len(video['frame_embeddings']) - self.current_frame_idx - 1
         step_limit_reached = self.current_step >= self.max_episode_steps
         
-        done = step_limit_reached or frames_remaining <= 0
+        terminated = step_limit_reached  # Episode ended due to step limit
+        truncated = frames_remaining <= 0  # Episode ended due to video end
+        done = terminated or truncated
         
         if done:
             # Episode completion
@@ -159,7 +161,9 @@ class DirectVideoEnvironment(gym.Env):
             'episode_reward': self.episode_reward,
             'frames_remaining': frames_remaining,
             'binary_action_sum': int(np.sum(binary_action)),
-            'using_real_frames': True  # Key distinguisher from world model approach
+            'using_real_frames': True,  # Key distinguisher from world model approach
+            'method': 'direct_video_rl',
+            'simulation_based': False
         }
         
         # Log episode completion
@@ -172,7 +176,8 @@ class DirectVideoEnvironment(gym.Env):
                 self.episode_lengths = self.episode_lengths[-100:]
                 self.episode_rewards = self.episode_rewards[-100:]
         
-        return next_state, reward, done, False, info
+        # Return in gymnasium format: observation, reward, terminated, truncated, info
+        return next_state, float(reward), bool(terminated), bool(truncated), info
     
     def _calculate_reward(self, predicted_actions: np.ndarray, video: Dict) -> float:
         """Calculate reward based on expert actions and surgical progress."""
@@ -297,7 +302,16 @@ class DirectVideoSB3Trainer:
             print("🔧 Testing direct video environment...")
             obs = env.reset()
             test_action = env.action_space.sample()
-            obs, reward, done, info = env.step(test_action)
+            # obs, reward, terminated, truncated, info = env.step(test_action)  # Updated for gymnasium
+            step_result = env.step(test_action)
+            if len(step_result) == 4:
+                obs, reward, done, info = step_result
+                print(f"✅ Environment test successful (4-value format) - Reward: {reward}")
+            elif len(step_result) == 5:
+                obs, reward, terminated, truncated, info = step_result
+                print(f"✅ Environment test successful (5-value format) - Reward: {reward}")
+            
+            
             print(f"✅ Environment test successful - Reward: {reward}")
             env.reset()
             
@@ -365,6 +379,7 @@ class DirectVideoSB3Trainer:
                 'training_timesteps': timesteps,
                 'uses_world_model': False,
                 'uses_real_frames': True,
+                'simulation_based': False,
                 'episode_stats': episode_stats
             }
             
@@ -394,7 +409,15 @@ class DirectVideoSB3Trainer:
             print("🔧 Testing direct video environment...")
             obs = env.reset()
             test_action = env.action_space.sample()
-            obs, reward, done, info = env.step(test_action)
+            # obs, reward, terminated, truncated, info = env.step(test_action)  # Updated for gymnasium
+            step_result = env.step(test_action)
+            if len(step_result) == 4:
+                obs, reward, done, info = step_result
+                print(f"✅ Environment test successful (4-value format) - Reward: {reward}")
+            elif len(step_result) == 5:
+                obs, reward, terminated, truncated, info = step_result
+                print(f"✅ Environment test successful (5-value format) - Reward: {reward}")
+            
             print(f"✅ Environment test successful - Reward: {reward}")
             env.reset()
             
@@ -459,6 +482,7 @@ class DirectVideoSB3Trainer:
                 'training_timesteps': timesteps,
                 'uses_world_model': False,
                 'uses_real_frames': True,
+                'simulation_based': False,
                 'episode_stats': episode_stats
             }
             
@@ -527,12 +551,13 @@ def test_direct_video_environment(train_data: List[Dict], config: Dict):
         total_reward = 0
         for step in range(10):
             action = env.action_space.sample()
-            obs, reward, done, truncated, info = env.step(action)
+            obs, reward, terminated, truncated, info = env.step(action)  # Updated for gymnasium
             total_reward += reward
             
-            print(f"Step {step+1}: Reward={reward:.3f}, Done={done}, Action_sum={info.get('binary_action_sum', 'N/A')}")
+            print(f"Step {step+1}: Reward={reward:.3f}, Terminated={terminated}, Truncated={truncated}, "
+                  f"Action_sum={info.get('binary_action_sum', 'N/A')}")
             
-            if done:
+            if terminated or truncated:
                 print(f"Episode ended at step {step+1}")
                 break
         

@@ -1,0 +1,206 @@
+{
+  "experiment_name": "separate_models_comparison_20250604_215949",
+  "config": {
+    "debug": false,
+    "training_mode": "rl",
+    "preprocess": {
+      "extract_rewards": false,
+      "rewards": {
+        "imitation": {
+          "action_distribution": true
+        },
+        "expert_knowledge": {
+          "risk_score": true,
+          "frame_risk_agg": "max"
+        },
+        "grounded": {
+          "phase_progression": true,
+          "global_progression": true,
+          "phase_completion": true,
+          "phase_transition": true
+        }
+      },
+      "value": {
+        "global_outcome": true
+      }
+    },
+    "experiment": {
+      "max_videos": 2,
+      "train": {
+        "max_videos": 2
+      },
+      "test": {
+        "max_videos": 1
+      },
+      "dual_world_model": {
+        "train": true,
+        "best_model_path": null
+      },
+      "il_experiments": {
+        "enabled": true,
+        "il_model_path": "logs/2025-06-02_14-07-20/checkpoints/supervised_best_epoch_1.pt"
+      },
+      "rl_experiments": {
+        "enabled": true,
+        "eval_episodes": 20
+      },
+      "recognition": {
+        "train": false,
+        "inference": false
+      },
+      "world_model": {
+        "train": false,
+        "inference": false
+      }
+    },
+    "training": {
+      "epochs": 1,
+      "batch_size": 16,
+      "learning_rate": 0.0001,
+      "log_every_n_steps": 100,
+      "scheduler": {
+        "type": "cosine",
+        "warmup_steps": 1000
+      },
+      "weight_decay": 0.01,
+      "gradient_clip_val": 1.0,
+      "dropout": 0.1,
+      "num_workers": 4,
+      "pin_memory": true,
+      "log_dir": "logs",
+      "checkpoint_dir": "checkpoints",
+      "eval_epoch_interval": 1,
+      "save_model": true
+    },
+    "fair_evaluation": {
+      "enabled": true,
+      "include_traditional_metrics": true,
+      "include_clinical_metrics": true,
+      "clinical_outcome_weights": {
+        "phase_progression": 2.0,
+        "innovation": 0.5
+      }
+    },
+    "rl_training": {
+      "outcome_based_rewards": true,
+      "rl_horizon": 50,
+      "reward_mode": "dense",
+      "normalize_rewards": true,
+      "early_termination": true,
+      "timesteps": 10000,
+      "reward_weights": {
+        "phase_completion": 1.0,
+        "risk_penalty": -0.5
+      },
+      "ppo": {
+        "learning_rate": 0.0003,
+        "value_coef": 0.5
+      },
+      "sac": {
+        "learning_rate": 0.0003,
+        "alpha": 0.2
+      }
+    },
+    "data": {
+      "context_length": 20,
+      "train_shift": 1,
+      "padding_value": 0.0,
+      "max_horizon": 15,
+      "paths": {
+        "data_dir": "/home/maxboels/datasets/CholecT50",
+        "video_global_outcome_file": "embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv"
+      },
+      "frame_risk_agg": "max"
+    },
+    "models": {
+      "autoregressive_il": {
+        "hidden_dim": 768,
+        "embedding_dim": 1024,
+        "n_layer": 6,
+        "num_action_classes": 100,
+        "num_phase_classes": 7,
+        "dropout": 0.1,
+        "max_length": 1024
+      },
+      "conditional_world_model": {
+        "hidden_dim": 768,
+        "embedding_dim": 1024,
+        "action_embedding_dim": 128,
+        "n_layer": 6,
+        "num_action_classes": 100,
+        "num_phase_classes": 7,
+        "dropout": 0.1,
+        "max_sequence_length": 512
+      }
+    },
+    "evaluation": {
+      "prediction_horizon": 15,
+      "supervised": {
+        "action_prediction": true
+      },
+      "rl": {
+        "rollout_horizon": 15,
+        "use_best_actions": true
+      },
+      "comparison": {
+        "statistical_tests": true,
+        "effect_size_threshold": 0.2
+      },
+      "world_model": {
+        "use_memory": false,
+        "overall_horizon": 1
+      }
+    },
+    "supervised_learning": {
+      "data_augmentation": true
+    },
+    "research_comparison": {
+      "methods": [
+        "autoregressive_il",
+        "conditional_world_model",
+        "direct_video_rl"
+      ]
+    },
+    "advanced": {
+      "mixed_precision": false
+    },
+    "hardware": {
+      "persistent_workers": true
+    },
+    "training_phases": {
+      "supervised_pretraining": true
+    },
+    "results": {
+      "save_predictions": true
+    }
+  },
+  "timestamp": "20250604_215949",
+  "results_dir": "results/separate_models_comparison_20250604_215949",
+  "method_1_autoregressive_il": {
+    "status": "failed",
+    "error": "Caught RuntimeError in DataLoader worker process 0.\nOriginal Traceback (most recent call last):\n  File \"/home/maxboels/.venv/lib/python3.12/site-packages/torch/utils/data/_utils/worker.py\", line 351, in _worker_loop\n    data = fetcher.fetch(index)  # type: ignore[possibly-undefined]\n           ^^^^^^^^^^^^^^^^^^^^\n  File \"/home/maxboels/.venv/lib/python3.12/site-packages/torch/utils/data/_utils/fetch.py\", line 55, in fetch\n    return self.collate_fn(data)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/maxboels/.venv/lib/python3.12/site-packages/torch/utils/data/_utils/collate.py\", line 398, in default_collate\n    return collate(batch, collate_fn_map=default_collate_fn_map)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/maxboels/.venv/lib/python3.12/site-packages/torch/utils/data/_utils/collate.py\", line 172, in collate\n    key: collate(\n         ^^^^^^^^\n  File \"/home/maxboels/.venv/lib/python3.12/site-packages/torch/utils/data/_utils/collate.py\", line 155, in collate\n    return collate_fn_map[elem_type](batch, collate_fn_map=collate_fn_map)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/maxboels/.venv/lib/python3.12/site-packages/torch/utils/data/_utils/collate.py\", line 271, in collate_tensor_fn\n    out = elem.new(storage).resize_(len(batch), *list(elem.size()))\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: Trying to resize storage that is not resizable\n"
+  },
+  "method_2_conditional_world_model": {
+    "status": "failed",
+    "error": "'actions'"
+  },
+  "method_3_direct_video_rl": {
+    "status": "success",
+    "rl_models": {
+      "ppo": {
+        "algorithm": "PPO_DirectVideo",
+        "status": "failed",
+        "error": "not enough values to unpack (expected 5, got 4)"
+      },
+      "a2c": {
+        "algorithm": "A2C_DirectVideo",
+        "status": "failed",
+        "error": "not enough values to unpack (expected 5, got 4)"
+      }
+    },
+    "model_type": "DirectVideoRL",
+    "approach": "Direct RL on video sequences (no world model)",
+    "method_description": "Model-free RL on offline video episodes"
+  },
+  "comprehensive_evaluation": null
+}

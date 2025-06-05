@@ -1,0 +1,54 @@
+2025-06-04 22:10:08,505 - INFO - SeparateModelsComparison_129287568591760 - 🎯 Experiment: separate_models_comparison_20250604_221008
+2025-06-04 22:10:08,505 - INFO - SeparateModelsComparison_129287568591760 - 📁 Results dir: results/separate_models_comparison_20250604_221008
+2025-06-04 22:10:08,505 - INFO - SeparateModelsComparison_129287568591760 - 🚀 Starting Complete Separate Models Comparison
+2025-06-04 22:10:08,505 - INFO - SeparateModelsComparison_129287568591760 - ============================================================
+2025-06-04 22:10:08,505 - INFO - SeparateModelsComparison_129287568591760 - 📂 Loading CholecT50 data...
+2025-06-04 22:10:08,505 - INFO - SeparateModelsComparison_129287568591760 - 📂 Loading CholecT50 dataset...
+2025-06-04 22:10:08,505 - ERROR - SeparateModelsComparison_129287568591760 - ❌ Data file not found: /home/maxboels/datasets/CholecT50/embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv
+2025-06-04 22:10:08,505 - WARNING - SeparateModelsComparison_129287568591760 - ⚠️ Creating dummy data for testing
+2025-06-04 22:10:08,514 - INFO - SeparateModelsComparison_129287568591760 - ✅ Created 2 dummy training and 1 dummy test videos
+2025-06-04 22:10:08,514 - INFO - SeparateModelsComparison_129287568591760 - ✅ Data loaded successfully
+2025-06-04 22:10:08,514 - INFO - SeparateModelsComparison_129287568591760 -    Training videos: 2
+2025-06-04 22:10:08,514 - INFO - SeparateModelsComparison_129287568591760 -    Test videos: 1
+2025-06-04 22:10:08,514 - INFO - SeparateModelsComparison_129287568591760 - 🎓 Running Method 1: Autoregressive IL
+2025-06-04 22:10:08,514 - INFO - SeparateModelsComparison_129287568591760 - 🎓 Method 1: Autoregressive IL Training
+2025-06-04 22:10:08,514 - INFO - SeparateModelsComparison_129287568591760 - ----------------------------------------
+2025-06-04 22:10:09,058 - INFO - SeparateModelsComparison_129287568591760 - 🎓 Autoregressive IL Trainer initialized
+2025-06-04 22:10:09,058 - INFO - SeparateModelsComparison_129287568591760 -    Device: cuda
+2025-06-04 22:10:09,058 - INFO - SeparateModelsComparison_129287568591760 -    Epochs: 1
+2025-06-04 22:10:09,058 - INFO - SeparateModelsComparison_129287568591760 -    Learning rate: 0.0001
+2025-06-04 22:10:09,058 - INFO - SeparateModelsComparison_129287568591760 -    Focus: Causal frame generation → action prediction
+2025-06-04 22:10:09,058 - INFO - SeparateModelsComparison_129287568591760 - 🎓 Starting Autoregressive IL Training...
+2025-06-04 22:10:09,058 - INFO - SeparateModelsComparison_129287568591760 - 🎯 Goal: Learn causal frame generation → action prediction
+2025-06-04 22:10:09,126 - ERROR - SeparateModelsComparison_129287568591760 - ❌ Method 1 failed: Caught RuntimeError in DataLoader worker process 0.
+Original Traceback (most recent call last):
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/utils/data/_utils/worker.py", line 351, in _worker_loop
+    data = fetcher.fetch(index)  # type: ignore[possibly-undefined]
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/utils/data/_utils/fetch.py", line 55, in fetch
+    return self.collate_fn(data)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/utils/data/_utils/collate.py", line 398, in default_collate
+    return collate(batch, collate_fn_map=default_collate_fn_map)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/utils/data/_utils/collate.py", line 172, in collate
+    key: collate(
+         ^^^^^^^^
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/utils/data/_utils/collate.py", line 155, in collate
+    return collate_fn_map[elem_type](batch, collate_fn_map=collate_fn_map)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/utils/data/_utils/collate.py", line 271, in collate_tensor_fn
+    out = elem.new(storage).resize_(len(batch), *list(elem.size()))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Trying to resize storage that is not resizable
+
+2025-06-04 22:10:09,126 - INFO - SeparateModelsComparison_129287568591760 - 🌍 Running Method 2: Conditional World Model + RL
+2025-06-04 22:10:09,126 - INFO - SeparateModelsComparison_129287568591760 - 🌍 Method 2: Conditional World Model + RL
+2025-06-04 22:10:09,126 - INFO - SeparateModelsComparison_129287568591760 - ----------------------------------------
+2025-06-04 22:10:09,396 - INFO - SeparateModelsComparison_129287568591760 - 🌍 World Model Trainer initialized
+2025-06-04 22:10:09,396 - INFO - SeparateModelsComparison_129287568591760 -    Device: cuda
+2025-06-04 22:10:09,396 - INFO - SeparateModelsComparison_129287568591760 -    Epochs: 1
+2025-06-04 22:10:09,396 - INFO - SeparateModelsComparison_129287568591760 -    Learning rate: 0.0001
+2025-06-04 22:10:09,396 - INFO - SeparateModelsComparison_129287568591760 -    Focus: Action-conditioned state-reward prediction
+2025-06-04 22:10:09,396 - INFO - SeparateModelsComparison_129287568591760 - 🌍 Starting World Model Training...
+2025-06-04 22:10:09,396 - INFO - SeparateModelsComparison_129287568591760 - 🎯 Goal: Learn action-conditioned state-reward prediction
