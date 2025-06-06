@@ -1,0 +1,24 @@
+
+\begin{table*}[htbp]
+\centering
+\caption{Comprehensive Comparison of Learning Paradigms for Surgical Action Prediction}
+\label{tab:main_results}
+\begin{threeparttable}
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Learning Paradigm} & \textbf{mAP\tnote{1}} & \textbf{Exact Match} & \textbf{Planning} & \textbf{Training} & \textbf{Inference} & \textbf{Paradigm} \\
+                           & \textbf{(Mean ± Std)} & \textbf{Accuracy} & \textbf{Stability} & \textbf{Time (min)} & \textbf{Speed (fps)} & \textbf{Category} \\
+\midrule
+Supervised IL & 0.737 ± 0.020 & 0.328 & 0.998 & 2.1 & 145 & Supervised \\
+RL + Direct Video\\(A2C) & 0.706 ± 0.023 & 0.320 & 1.000 & 12.1 & 102 & Model-Free RL \\
+RL + Direct Video\\(PPO) & 0.705 ± 0.025 & 0.310 & 1.000 & 12.1 & 102 & Model-Free RL \\
+RL + World Model\\(PPO) & 0.702 ± 0.022 & 0.300 & 1.000 & 14.3 & 98 & Model-Based RL \\
+RL + World Model\\(A2C) & 0.701 ± 0.021 & 0.295 & 1.000 & 14.3 & 98 & Model-Based RL \\
+
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item[1] Mean Average Precision across all action classes. Statistical significance tests show p < 0.05 between Supervised IL and RL approaches.
+\end{tablenotes}
+\end{threeparttable}
+\end{table*}

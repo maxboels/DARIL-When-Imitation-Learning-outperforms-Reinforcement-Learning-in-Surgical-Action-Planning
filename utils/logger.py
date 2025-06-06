@@ -29,8 +29,8 @@ class SimpleLogger:
             # Create individual timestamp (for separate experiments)
             if not os.path.isabs(log_dir):
                 # If relative path, create timestamped subdirectory
-                datetime_now = datetime.now().strftime('%Y-%m-%d_%H-%M')
-                self.log_dir = os.path.join(log_dir, datetime_now)
+                # datetime_now = datetime.now().strftime('%Y-%m-%d_%H-%M')
+                self.log_dir = os.path.join(log_dir, "methods")
             else:
                 # If absolute path, use as-is
                 self.log_dir = log_dir
