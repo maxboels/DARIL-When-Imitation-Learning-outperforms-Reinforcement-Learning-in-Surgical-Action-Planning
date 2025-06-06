@@ -32,7 +32,7 @@ from datasets.cholect50 import load_cholect50_data
 from environment.direct_video_env import DirectVideoSB3Trainer, test_direct_video_environment
 
 # Import evaluation framework
-from evaluation.integrated_evaluation import IntegratedEvaluationFramework, run_integrated_evaluation
+from evaluation.integrated_evaluation import run_integrated_evaluation
 from evaluation.paper_generator import generate_research_paper
 from utils.logger import SimpleLogger
 
@@ -108,9 +108,9 @@ class ExperimentRunner:
         method3_results = self._run_method3_direct_video_rl(train_data, test_data)
         self.results['method_3_direct_video_rl'] = method3_results
         
-        # Comprehensive evaluation
+        # Comprehensive evaluation - NO PARAMETER NEEDED
         self.logger.info("📊 Running Comprehensive Evaluation")
-        evaluation_results = self._run_comprehensive_evaluation(self.test_loaders)
+        evaluation_results = self._run_comprehensive_evaluation()  # ✅ Fixed: no parameter
         self.results['comprehensive_evaluation'] = evaluation_results
         
         # Analysis and comparison
@@ -222,10 +222,10 @@ class ExperimentRunner:
                 num_workers=self.config['training']['num_workers']
             )
 
-            # We need to instantiate the train and test loaders for the evaluation
-            self.logger.info(f"✅ Instantiate the test loaders for the final evaluation")
-            self.test_loaders = test_loader
-            
+            # ✅ IMPORTANT: Store test loaders for comprehensive evaluation
+            self.test_loaders = test_loader  # Dict[video_id, DataLoader]
+            self.logger.info(f"✅ Stored test loaders for evaluation: {list(self.test_loaders.keys())}")
+        
             # Step 1: Train world model
             world_model_trainer = WorldModelTrainer(
                 model=world_model,
@@ -306,16 +306,17 @@ class ExperimentRunner:
             self.logger.error(f"❌ Method 3 failed: {e}")
             return {'status': 'failed', 'error': str(e)}
     
-    def _run_comprehensive_evaluation(self, test_data: List[Dict]) -> Dict[str, Any]:
-        """Run comprehensive evaluation across all methods."""
+    def _run_comprehensive_evaluation(self) -> Dict[str, Any]:
+        """Run corrected comprehensive evaluation."""
         
-        self.logger.info("📊 Running Comprehensive Cross-Method Evaluation")
-        self.logger.info("-" * 50)
+        if not hasattr(self, 'test_loaders') or not self.test_loaders:
+            self.logger.error("❌ No test loaders available for evaluation")
+            return {'status': 'failed', 'error': 'No test loaders available'}
         
-        # Use the integrated evaluation framework
+        # Use corrected evaluation
         evaluation_results = run_integrated_evaluation(
             experiment_results=self.results,
-            test_data=test_data,
+            test_data=self.test_loaders,
             results_dir=str(self.results_dir),
             logger=self.logger,
             horizon=self.config['evaluation']['prediction_horizon']
@@ -557,7 +558,6 @@ class ExperimentRunner:
             return str(obj)
         else:
             return obj
-
 
 def main():
     """Main function to run the separate models surgical RL comparison."""

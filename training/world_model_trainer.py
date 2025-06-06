@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 """
-World Model Trainer for Method 2
+FIXED World Model Trainer for Method 2
 Action-conditioned forward simulation training
 """
 
 import torch
 import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import DataLoader
-from torch.utils.tensorboard import SummaryWriter
+import torch.nn.functional as F
 import numpy as np
 import os
 import time
@@ -21,7 +19,7 @@ import json
 
 class WorldModelTrainer:
     """
-    Trainer for Conditional World Model (Method 2).
+    FIXED Trainer for Conditional World Model (Method 2).
     
     Focuses on:
     1. Action-conditioned state prediction
@@ -63,6 +61,7 @@ class WorldModelTrainer:
         os.makedirs(self.checkpoint_dir, exist_ok=True)
         
         # Tensorboard
+        from torch.utils.tensorboard import SummaryWriter
         tensorboard_dir = os.path.join(self.log_dir, 'tensorboard', 'world_model')
         os.makedirs(tensorboard_dir, exist_ok=True)
         self.tb_writer = SummaryWriter(log_dir=tensorboard_dir)
@@ -139,31 +138,31 @@ class WorldModelTrainer:
                 'weight_decay': self.weight_decay
             })
         
-        self.optimizer = optim.AdamW(param_groups)
+        self.optimizer = torch.optim.AdamW(param_groups)
         
         # Learning rate scheduler
         scheduler_config = self.train_config.get('scheduler', {})
         if scheduler_config.get('type') == 'cosine':
-            self.scheduler = optim.lr_scheduler.CosineAnnealingLR(
+            self.scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
                 self.optimizer, 
                 T_max=self.epochs,
                 eta_min=self.lr * 0.01
             )
         else:
             # Step scheduler
-            self.scheduler = optim.lr_scheduler.StepLR(
+            self.scheduler = torch.optim.lr_scheduler.StepLR(
                 self.optimizer,
                 step_size=max(1, self.epochs // 3),
                 gamma=0.5
             )
     
-    def train(self, train_loader: DataLoader, test_loader: DataLoader) -> str:
+    def train(self, train_loader, test_loaders: Dict[str, Any]) -> str:
         """
-        Main training function for world model.
+        FIXED: Main training function for world model.
         
         Args:
             train_loader: Training data loader
-            test_loader: Test data loader
+            test_loaders: Dictionary of test data loaders {video_id: DataLoader}
             
         Returns:
             Path to the best saved model
@@ -176,8 +175,8 @@ class WorldModelTrainer:
             # Training phase
             train_metrics = self._train_epoch(train_loader, epoch)
             
-            # Validation phase
-            val_metrics = self._validate_epoch(test_loader, epoch)
+            # FIXED: Validation phase with dictionary of test loaders
+            val_metrics = self._validate_epoch_fixed(test_loaders, epoch)
             
             # Learning rate scheduling
             self.scheduler.step()
@@ -215,7 +214,7 @@ class WorldModelTrainer:
         self.model.save_model(final_model_path)
         
         # Save training plots
-        self.save_training_plots()
+        # self.save_training_plots()
         
         self.logger.info("✅ World Model Training completed!")
         self.logger.info(f"📄 Best model: {self.best_model_path}")
@@ -223,7 +222,7 @@ class WorldModelTrainer:
         
         return self.best_model_path if self.best_model_path else final_model_path
     
-    def _train_epoch(self, train_loader: DataLoader, epoch: int) -> Dict[str, float]:
+    def _train_epoch(self, train_loader, epoch: int) -> Dict[str, float]:
         """Train for one epoch."""
         
         self.model.train()
@@ -234,7 +233,7 @@ class WorldModelTrainer:
             for batch_idx, batch in enumerate(pbar):
                 # Move data to device
                 current_states = batch['current_states'].to(self.device)
-                next_actions = batch['next_actions'].to(self.device)  # FIXED: Use next_actions
+                next_actions = batch['next_actions'].to(self.device)
                 next_states = batch['next_states'].to(self.device)
                 current_phases = batch['current_phases'].to(self.device)
                 next_phases = batch['next_phases'].to(self.device)
@@ -247,7 +246,7 @@ class WorldModelTrainer:
                 # Forward pass
                 outputs = self.model(
                     current_states=current_states,
-                    next_actions=next_actions,  # FIXED: Use next_actions parameter name
+                    next_actions=next_actions,
                     target_next_states=next_states,
                     target_rewards=target_rewards,
                     target_phases=next_phases
@@ -291,54 +290,67 @@ class WorldModelTrainer:
         
         return dict(epoch_metrics)
     
-    def _validate_epoch(self, test_loader: DataLoader, epoch: int) -> Dict[str, float]:
-        """Validate for one epoch."""
+    def _validate_epoch_fixed(self, test_loaders: Dict[str, Any], epoch: int) -> Dict[str, float]:
+        """FIXED: Validate for one epoch with dictionary of test loaders."""
         
         self.model.eval()
-        epoch_metrics = defaultdict(float)
-        num_batches = len(test_loader)
+        all_video_metrics = []
         
         with torch.no_grad():
-            for batch in test_loader:
-                # Move data to device
-                current_states = batch['current_states'].to(self.device)
-                next_actions = batch['next_actions'].to(self.device)  # FIXED: Use next_actions
-                next_states = batch['next_states'].to(self.device)
-                current_phases = batch['current_phases'].to(self.device)
-                next_phases = batch['next_phases'].to(self.device)
+            # Iterate over each video's test loader
+            for video_id, test_loader in test_loaders.items():
+                video_metrics = defaultdict(float)
+                num_batches = len(test_loader)
                 
-                # Extract rewards
-                target_rewards = {}
-                for key, value in batch['rewards'].items():
-                    target_rewards[key] = value.to(self.device)
+                for batch in tqdm(test_loader, desc=f"Validating {video_id}"):
+                    # Move data to device
+                    current_states = batch['current_states'].to(self.device)
+                    next_actions = batch['next_actions'].to(self.device)
+                    next_states = batch['next_states'].to(self.device)
+                    current_phases = batch['current_phases'].to(self.device)
+                    next_phases = batch['next_phases'].to(self.device)
+                    
+                    # Extract rewards
+                    target_rewards = {}
+                    for key, value in batch['rewards'].items():
+                        target_rewards[key] = value.to(self.device)
+                    
+                    # Forward pass
+                    outputs = self.model(
+                        current_states=current_states,
+                        next_actions=next_actions,
+                        target_next_states=next_states,
+                        target_rewards=target_rewards,
+                        target_phases=next_phases
+                    )
+                    
+                    # Accumulate metrics
+                    for key, value in outputs.items():
+                        if key.endswith('loss') and isinstance(value, torch.Tensor):
+                            video_metrics[key] += value.item()
                 
-                # Forward pass
-                outputs = self.model(
-                    current_states=current_states,
-                    next_actions=next_actions,  # FIXED: Use next_actions parameter name
-                    target_next_states=next_states,
-                    target_rewards=target_rewards,
-                    target_phases=next_phases
-                )
+                # Average over batches for this video
+                for key in video_metrics:
+                    video_metrics[key] /= num_batches
                 
-                # Accumulate metrics
-                for key, value in outputs.items():
-                    if key.endswith('loss') and isinstance(value, torch.Tensor):
-                        epoch_metrics[key] += value.item()
+                all_video_metrics.append(dict(video_metrics))
         
-        # Average metrics
-        for key in epoch_metrics:
-            epoch_metrics[key] /= num_batches
-            self.metrics_history[f"val_{key}"].append(epoch_metrics[key])
+        # Average over all videos
+        final_metrics = {}
+        if all_video_metrics:
+            for key in all_video_metrics[0].keys():
+                values = [vm[key] for vm in all_video_metrics]
+                final_metrics[key] = np.mean(values)
+                self.metrics_history[f"val_{key}"].append(final_metrics[key])
         
-        return dict(epoch_metrics)
+        return final_metrics
     
-    def evaluate_model(self, test_loader: DataLoader) -> Dict[str, Any]:
+    def evaluate_model(self, test_loaders: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Comprehensive evaluation of the trained world model.
+        FIXED: Comprehensive evaluation of the trained world model.
         
         Args:
-            test_loader: Test data loader
+            test_loaders: Dictionary of test data loaders
             
         Returns:
             Detailed evaluation results
@@ -349,10 +361,10 @@ class WorldModelTrainer:
         self.model.eval()
         
         # Standard metrics
-        val_metrics = self._validate_epoch(test_loader, epoch=0)
+        val_metrics = self._validate_epoch_fixed(test_loaders, epoch=0)
         
         # Simulation quality evaluation
-        simulation_results = self._evaluate_simulation_quality(test_loader)
+        simulation_results = self._evaluate_simulation_quality(test_loaders)
         
         evaluation_results = {
             'overall_metrics': val_metrics,
@@ -372,18 +384,16 @@ class WorldModelTrainer:
         
         return evaluation_results
     
-    def _evaluate_simulation_quality(self, test_loader: DataLoader) -> Dict[str, float]:
-        """Evaluate world model simulation quality."""
+    def _evaluate_simulation_quality(self, test_loaders: Dict[str, Any]) -> Dict[str, float]:
+        """FIXED: Evaluate world model simulation quality."""
         
         simulation_metrics = defaultdict(list)
         
-        # Test simulation on a few samples
-        for batch_idx, batch in enumerate(test_loader):
-            if batch_idx >= 3:  # Test on first 3 batches only
-                break
-                
+        # Test simulation on a few samples from each video
+        for video_id, test_loader in list(test_loaders.items())[:2]:  # Test on first 2 videos
+            batch = next(iter(test_loader))
             current_states = batch['current_states'][:2].to(self.device)  # First 2 samples
-            next_actions = batch['next_actions'][:2].to(self.device)  # FIXED: Use next_actions
+            next_actions = batch['next_actions'][:2].to(self.device)
             
             # Test single step simulation
             for i in range(current_states.size(0)):
@@ -404,11 +414,12 @@ class WorldModelTrainer:
                     simulation_metrics['reward_types_predicted'].append(reward_count)
                     
                 except Exception as e:
+                    self.logger.warning(f"Simulation failed: {e}")
                     simulation_metrics['successful_simulations'].append(0.0)
                     simulation_metrics['reward_types_predicted'].append(0.0)
         
         # Average metrics
-        return {key: np.mean(values) for key, values in simulation_metrics.items()}
+        return {key: np.mean(values) if values else 0.0 for key, values in simulation_metrics.items()}
     
     def _log_epoch_metrics(self, train_metrics: Dict, val_metrics: Dict, epoch: int):
         """Log metrics to tensorboard and history."""
@@ -477,18 +488,3 @@ class WorldModelTrainer:
         
         self.logger.info(f"📊 Training plots saved to: {plot_path}")
         self.logger.info(f"📊 Metrics saved to: {metrics_path}")
-
-
-# Example usage and testing
-if __name__ == "__main__":
-    print("🌍 WORLD MODEL TRAINER")
-    print("=" * 60)
-    
-    # This would be called from the main experiment script
-    print("✅ Trainer ready for Method 2 (World Model)")
-    print("🎯 Focus: Action-conditioned state-reward prediction")
-    print("📋 Key features:")
-    print("   • Action-conditioned forward simulation")
-    print("   • Multi-type reward prediction")
-    print("   • Single step and trajectory simulation")
-    print("   • RL environment integration")

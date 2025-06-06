@@ -218,7 +218,7 @@ class AutoregressiveILTrainer:
         self.model.save_model(final_model_path)
         
         # Save training plots
-        self.save_training_plots()
+        # self.save_training_plots()
         
         self.logger.info("✅ Autoregressive IL Training completed!")
         self.logger.info(f"📄 Best model: {self.best_model_path}")

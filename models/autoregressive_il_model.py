@@ -244,9 +244,7 @@ class AutoregressiveILModel(nn.Module):
         generated_frames = initial_frames.clone()
         predicted_actions = []
         predicted_phases = []
-        
-        print(f"🎓 Generating autoregressive sequence (horizon: {horizon})")
-        
+                
         with torch.no_grad():
             for step in range(horizon):
                 # Get current context (limit to reasonable length)
@@ -293,9 +291,6 @@ class AutoregressiveILModel(nn.Module):
                 # Append next frame for continued generation
                 generated_frames = torch.cat([generated_frames, next_frame], dim=1)
                 
-                if step % 5 == 0:
-                    print(f"   Step {step+1}/{horizon}: Generated frame and actions")
-        
         result = {
             'generated_frames': generated_frames[:, context_len:],  # Exclude initial context
             'predicted_actions': torch.stack(predicted_actions, dim=1),
@@ -309,7 +304,6 @@ class AutoregressiveILModel(nn.Module):
             }
         }
         
-        print(f"✅ Autoregressive generation completed")
         return result
     
     def predict_next_action(self, frame_sequence: torch.Tensor) -> torch.Tensor:
