@@ -5,10 +5,10 @@ echo "🔧 Compiling publication-ready conference paper..."
 
 # Compile main paper
 echo "📄 Building main paper..."
-pdflatex enhanced_paper.tex
-bibtex enhanced_paper
-pdflatex enhanced_paper.tex
-pdflatex enhanced_paper.tex
+pdflatex paper.tex
+bibtex paper
+pdflatex paper.tex
+pdflatex paper.tex
 
 # Compile supplementary
 echo "📚 Building supplementary materials..."
@@ -17,7 +17,7 @@ pdflatex supplementary.tex
 
 echo "✅ Paper compilation complete!"
 echo ""
-echo "📄 Main paper: enhanced_paper.pdf"
+echo "📄 Main paper: paper.pdf"
 echo "📚 Supplementary: supplementary.pdf"
 echo "📊 Figures: figures/"
 echo "📋 Tables: tables/"

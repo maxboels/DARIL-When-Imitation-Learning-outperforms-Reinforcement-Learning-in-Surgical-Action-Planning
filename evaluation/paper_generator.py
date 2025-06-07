@@ -519,7 +519,7 @@ class ResearchPaperGenerator:
         plt.savefig(self.figures_dir / 'paradigm_architectures.png', dpi=300, bbox_inches='tight')
         plt.close()
     
-    def _generate_enhanced_paper_tex(self):
+    def _generate_paper_tex(self):
         """Generate publication-ready LaTeX paper."""
         
         method_results = self._extract_method_results()
@@ -797,7 +797,7 @@ The authors thank the contributors to the CholecT50 dataset and the open-source 
 \end{{document}}
 """
         
-        with open(self.paper_dir / 'enhanced_paper.tex', 'w') as f:
+        with open(self.paper_dir / 'paper.tex', 'w') as f:
             f.write(paper_content)
     
     def _generate_real_results_table(self):
@@ -980,7 +980,7 @@ The authors thank the contributors to the CholecT50 dataset and the open-source 
         
         # 3. Generate enhanced paper LaTeX
         self.logger.info("📄 Writing enhanced paper content...")
-        self._generate_enhanced_paper_tex()
+        self._generate_paper_tex()
         
         # 4. Generate supplementary materials
         self.logger.info("📚 Creating supplementary materials...")
@@ -990,7 +990,7 @@ The authors thank the contributors to the CholecT50 dataset and the open-source 
         self._create_enhanced_compilation_script()
         
         self.logger.info(f"📄 Publication-ready paper generated in: {self.paper_dir}")
-        self.logger.info("🔧 Run compile_enhanced_paper.sh to build the PDF")
+        self.logger.info("🔧 Run compile_paper.sh to build the PDF")
         self.logger.info("✨ Paper reflects your actual experimental results!")
         
         return self.paper_dir
@@ -1005,10 +1005,10 @@ echo "🔧 Compiling publication-ready conference paper..."
 
 # Compile main paper
 echo "📄 Building main paper..."
-pdflatex enhanced_paper.tex
-bibtex enhanced_paper
-pdflatex enhanced_paper.tex
-pdflatex enhanced_paper.tex
+pdflatex paper.tex
+bibtex paper
+pdflatex paper.tex
+pdflatex paper.tex
 
 # Compile supplementary
 echo "📚 Building supplementary materials..."
@@ -1017,7 +1017,7 @@ pdflatex supplementary.tex
 
 echo "✅ Paper compilation complete!"
 echo ""
-echo "📄 Main paper: enhanced_paper.pdf"
+echo "📄 Main paper: paper.pdf"
 echo "📚 Supplementary: supplementary.pdf"
 echo "📊 Figures: figures/"
 echo "📋 Tables: tables/"
@@ -1033,7 +1033,7 @@ echo ""
 echo "🚀 Ready for conference submission!"
 """
         
-        script_path = self.paper_dir / 'compile_enhanced_paper.sh'
+        script_path = self.paper_dir / 'compile_paper.sh'
         with open(script_path, 'w') as f:
             f.write(script_content)
         

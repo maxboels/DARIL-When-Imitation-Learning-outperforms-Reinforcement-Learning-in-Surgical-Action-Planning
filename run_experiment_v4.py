@@ -586,8 +586,8 @@ def main():
     print("   → No model, no simulation")
     print()
     
-    # Choose config file
-    config_path = 'config_local_debug.yaml'
+    # Choose config file here
+    config_path = 'config_dgx_all.yaml'
     if not os.path.exists(config_path):
         print(f"❌ Config file not found: {config_path}")
         print("Please ensure config file exists or update the path")
