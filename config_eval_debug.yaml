@@ -17,9 +17,9 @@ preprocess:
 experiment:
   max_videos: 1  # Deprecated, use train/test specific
   train:
-    max_videos: 2  # Small for fast loading
+    max_videos: 1  # Small for fast loading
   test:
-    max_videos: 3  # Small but enough for metric debugging
+    max_videos: 5  # Small but enough for metric debugging
   
   # Dual World Model Training
   dual_world_model:

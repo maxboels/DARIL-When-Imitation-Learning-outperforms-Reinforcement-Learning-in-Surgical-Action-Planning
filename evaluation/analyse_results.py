@@ -20,7 +20,7 @@ from models.conditional_world_model import ConditionalWorldModel
 from datasets.cholect50 import load_cholect50_data
 from datasets.world_model_dataset import create_world_model_dataloaders
 from utils.logger import SimpleLogger
-from clinical_surgical_evaluator import ClinicalSurgicalEvaluator, generate_clinical_evaluation_report
+from .extended_clinical_evaluation import ClinicalSurgicalEvaluator, generate_clinical_evaluation_report
 
 plt.style.use('seaborn-v0_8-whitegrid')
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
