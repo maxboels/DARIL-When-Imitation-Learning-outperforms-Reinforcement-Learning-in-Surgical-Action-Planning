@@ -1,0 +1,46 @@
+🏥 CLINICAL SURGICAL ACTION EVALUATION REPORT
+============================================================
+📊 Clinical Performance Overview:
+   Standard mAP (inflated): 0.7168
+   Fair mAP (occurring only): 0.4023
+   Clinical Weighted mAP: 0.4654
+   Actions evaluated: 34/34
+
+🔧 Performance by Surgical Instrument:
+   Grasper: 0.3214 mAP (11 actions)
+   Bipolar: 0.3602 mAP (5 actions)
+   Hook: 0.5019 mAP (6 actions)
+   Scissors: 0.4333 mAP (4 actions)
+   Clipper: 0.5233 mAP (3 actions)
+   Irrigator: 0.4052 mAP (5 actions)
+
+🎯 Performance by Anatomical Target:
+   Cystic Artery: 0.4671 mAP (4 actions)
+   Cystic Duct: 0.5232 mAP (4 actions)
+   Gallbladder: 0.4474 mAP (4 actions)
+
+⚕️ Performance by Surgical Procedure:
+   Cut: 0.5154 mAP (3 actions)
+   Clip: 0.7477 mAP (2 actions)
+   Dissect: 0.6926 mAP (4 actions)
+   Coagulate: 0.3906 mAP (3 actions)
+
+📈 Performance by Surgical Complexity:
+   Basic: 0.2990 mAP (17 actions)
+   Intermediate: 0.4659 mAP (10 actions)
+   Advanced: 0.3184 mAP (3 actions)
+   Expert: 0.7449 mAP (4 actions)
+
+🚨 Performance by Clinical Criticality:
+   Routine: 0.3604 mAP (21 actions)
+   Important: 0.3476 mAP (9 actions)
+   Extremely Critical: 0.7449 mAP (4 actions)
+
+🔄 Performance by Surgical Phase:
+   Preparation: 0.2277 mAP (6 actions)
+   Calot Triangle Dissection: 0.2897 mAP (14 actions)
+   Clipping And Cutting: 0.7449 mAP (4 actions)
+   Gallbladder Dissection: 0.4676 mAP (2 actions)
+   Gallbladder Packaging: 0.8480 mAP (1 actions)
+   Cleaning And Coagulation: 0.4488 mAP (6 actions)
+   Gallbladder Extraction: 0.7987 mAP (1 actions)
