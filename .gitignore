@@ -31,3 +31,6 @@ results/*/paper/*
 results/*/*/*/*.zip
 results/*/*/*.zip
 
+*.zip
+*.npz
+results/*/complete_results.json
