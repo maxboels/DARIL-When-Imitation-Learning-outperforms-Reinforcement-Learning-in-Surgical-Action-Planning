@@ -1,7 +1,7 @@
 # Fdb version 4
-["pdflatex"] 1749468460.70806 "/home/maxboels/projects/surl/results/2025-06-07_18-44-58/publication_paper/paper.tex" "paper.pdf" "paper" 1749468461.78579 2
+["pdflatex"] 1749473775.34864 "/home/maxboels/projects/surl/results/2025-06-07_18-44-58/publication_paper/paper.tex" "paper.pdf" "paper" 1749473776.418 2
   "/etc/texmf/web2c/texmf.cnf" 1730199251.52305 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/maxboels/projects/surl/results/2025-06-07_18-44-58/publication_paper/paper.tex" 1749468248.66412 19533 63d700ea9a4c1ca407385fdaa6a6d192 ""
+  "/home/maxboels/projects/surl/results/2025-06-07_18-44-58/publication_paper/paper.tex" 1749473117.58996 19533 63d700ea9a4c1ca407385fdaa6a6d192 ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/adobe/times/ptmb7t.tfm" 1136768653 2172 fd0c924230362ff848a33632ed45dc23 ""
@@ -90,10 +90,10 @@
   "/usr/share/texmf/web2c/texmf.cnf" 1707919699 40399 f2c302f7d2af602abb742093540a5834 ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1746530043.52338 5472669 54eaf61a88b6b7896ebd0dac973cb29c ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1746530131 8214692 262f898aaa86ff062f19eebdfca17a6e ""
-  "figures/training_dynamics.png" 1749468248.66412 773455 1d55fab89a2a4385a94ae80ad699fa39 ""
-  "paper.aux" 1749468461.72447 5023 cbd2c9c70e92ebc7df1ccdb3f7d95dcb "pdflatex"
-  "paper.tex" 1749468248.66412 19533 63d700ea9a4c1ca407385fdaa6a6d192 ""
-  "tables/main_results_real.tex" 1749468248.66512 1206 315359c5c43744e468975681d7420b8e ""
+  "figures/training_dynamics.png" 1749473117.96797 773455 1d55fab89a2a4385a94ae80ad699fa39 ""
+  "paper.aux" 1749473776.3556 5023 cbd2c9c70e92ebc7df1ccdb3f7d95dcb "pdflatex"
+  "paper.tex" 1749473117.58996 19533 63d700ea9a4c1ca407385fdaa6a6d192 ""
+  "tables/main_results_real.tex" 1749473117.68496 1206 315359c5c43744e468975681d7420b8e ""
   (generated)
   "paper.aux"
   "paper.log"
