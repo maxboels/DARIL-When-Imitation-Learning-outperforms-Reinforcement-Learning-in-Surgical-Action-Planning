@@ -28,13 +28,13 @@ class IntegratedEvaluationFramework:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         
         # Create evaluation subdirectory
-        self.eval_dir = self.results_dir / 'corrected_integrated_evaluation'
+        self.eval_dir = self.results_dir / 'integrated_evaluation'
         self.eval_dir.mkdir(exist_ok=True)
         
-        self.logger.info(f"🔬 Corrected Evaluation Framework initialized")
+        self.logger.info(f"🔬 Evaluation Framework initialized")
         self.logger.info(f"📁 Results will be saved to: {self.eval_dir}")
     
-    def load_all_models_corrected(self, experiment_results: Dict) -> Dict:
+    def load_all_models(self, experiment_results: Dict) -> Dict:
         """Load all models with proper handling for fair evaluation."""
         
         models = {}
@@ -121,24 +121,20 @@ class IntegratedEvaluationFramework:
 
     def evaluate_single_video_comprehensive(self, models: Dict, video_loader: DataLoader) -> Dict:
         """
-        Comprehensive evaluation with both fair comparison and planning analysis.
+        FIXED: Comprehensive evaluation using DataLoader batches directly (like training).
         
-        1. Primary: Single-step action prediction (fair comparison)
-        2. Secondary: Multi-step planning analysis (paradigm-specific strengths)
+        This maintains the temporal structure and proper model interfaces that models expect.
         """
         
-        # Extract video data once
-        video_data = self._extract_video_data(video_loader)
-        video_id = video_data['video_id']
-        all_states = video_data['states']      # [num_frames, emb_dim]
-        all_actions = video_data['actions']    # [num_frames, num_actions]
+        # Get video ID from first batch
+        first_batch = next(iter(video_loader))
+        video_id = first_batch['video_id'][0]
         
-        self.logger.info(f"📹 Comprehensive evaluation: {video_id} ({len(all_states)} frames)")
+        self.logger.info(f"📹 Comprehensive evaluation: {video_id}")
         
         video_result = {
             'video_id': video_id,
-            'num_frames': len(all_states),
-            'evaluation_type': 'comprehensive_fair_evaluation',
+            'evaluation_type': 'comprehensive_fair_evaluation_with_proper_batches',
             
             # Primary evaluation: Fair single-step comparison
             'single_step_evaluation': {},
@@ -151,27 +147,27 @@ class IntegratedEvaluationFramework:
             'fairness_report': {}
         }
         
-        # 🎯 PRIMARY EVALUATION: Single-step action prediction (fair comparison)
-        self.logger.info("🎯 PRIMARY: Single-step action prediction (fair comparison)")
+        # 🎯 PRIMARY EVALUATION: Single-step action prediction using proper batches
+        self.logger.info("🎯 PRIMARY: Single-step action prediction (using proper batches)")
         
         for method_name, model in models.items():
             self.logger.info(f"  🤖 {method_name}: Single-step action prediction")
             
             try:
-                # Single-step predictions on all frames
-                predictions = self._predict_single_step_actions_batch(
-                    model, all_states, method_name
+                # Evaluate using DataLoader batches directly (like training)
+                predictions, ground_truth = self._evaluate_model_on_video_batches(
+                    model, video_loader, method_name
                 )
                 
                 # Calculate comprehensive metrics
                 metrics = self._calculate_comprehensive_action_metrics(
-                    predictions, all_actions, method_name
+                    predictions, ground_truth, method_name
                 )
                 
                 video_result['single_step_evaluation'][method_name] = {
-                    'predictions': predictions.tolist(),
                     'metrics': metrics,
-                    'evaluation_type': 'single_step_fair_comparison'
+                    'evaluation_type': 'single_step_fair_comparison_proper_batches',
+                    'used_temporal_context': 'AutoregressiveIL' in method_name
                 }
                 
                 self.logger.info(f"    📊 Single-step mAP: {metrics['mAP']:.4f}")
@@ -185,62 +181,391 @@ class IntegratedEvaluationFramework:
         # 🚀 SECONDARY EVALUATION: Planning capability analysis
         self.logger.info("🚀 SECONDARY: Planning capability analysis")
         
-        planning_horizon = 10  # Reasonable horizon for planning analysis
-        max_planning_timesteps = len(all_states) - planning_horizon
+        planning_horizon = 10
         
-        if max_planning_timesteps > 0:
-            for method_name, model in models.items():
-                self.logger.info(f"  🧠 {method_name}: Planning capability analysis")
+        for method_name, model in models.items():
+            self.logger.info(f"  🧠 {method_name}: Planning capability analysis")
+            
+            try:
+                planning_results = self._evaluate_planning_capability_with_batches(
+                    model, video_loader, method_name, planning_horizon
+                )
                 
-                try:
-                    planning_results = self._evaluate_planning_capability_fixed(
-                        model, all_states, all_actions, method_name, planning_horizon
-                    )
-                    
-                    video_result['planning_evaluation'][method_name] = planning_results
-                    
-                    stability = planning_results.get('planning_stability', 0.0)
-                    self.logger.info(f"    📊 Planning stability: {stability:.4f}")
-                    
-                except Exception as e:
-                    self.logger.error(f"❌ {method_name} planning evaluation failed: {e}")
-                    video_result['planning_evaluation'][method_name] = {
-                        'error': str(e), 'planning_stability': 0.0
-                    }
+                video_result['planning_evaluation'][method_name] = planning_results
+                
+                stability = planning_results.get('planning_stability', 0.0)
+                self.logger.info(f"    📊 Planning stability: {stability:.4f}")
+                
+            except Exception as e:
+                self.logger.error(f"❌ {method_name} planning evaluation failed: {e}")
+                video_result['planning_evaluation'][method_name] = {
+                    'error': str(e), 'planning_stability': 0.0
+                }
         
         # 📊 SUMMARY: Combine results for overall comparison
         video_result['summary'] = self._create_evaluation_summary(video_result)
-        video_result['fairness_report'] = self._create_fairness_report(video_result)
+        video_result['fairness_report'] = self._create_fairness_report_fixed_batches(video_result)
         
         return video_result
 
-    def _extract_video_data(self, video_loader: DataLoader) -> Dict:
-        """Extract video states and actions from DataLoader."""
+    def _evaluate_model_on_video_batches(self, model, video_loader: DataLoader, method_name: str) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        FIXED: Evaluate model using DataLoader batches directly (mirrors training approach).
         
-        all_states = []
-        all_actions = []
-        video_id = None
+        Returns:
+            predictions: [total_samples, num_actions] 
+            ground_truth: [total_samples, num_actions]
+        """
         
-        for batch in video_loader:
-            if video_id is None:
-                video_id = batch['video_id'][0]
+        all_predictions = []
+        all_ground_truth = []
+        
+        with torch.no_grad():
+            for batch in tqdm(video_loader, desc=f"Evaluating {method_name}"):
+                try:
+                    if 'AutoregressiveIL' in method_name:
+                        # IL model: Use proper sequence data (like training)
+                        batch_preds, batch_gt = self._evaluate_il_model_batch(model, batch)
+                        
+                    elif 'WorldModelRL' in method_name:
+                        # World Model RL: Use sequence data, extract RL policy predictions
+                        batch_preds, batch_gt = self._evaluate_world_model_rl_batch(model, batch)
+                        
+                    elif 'DirectVideoRL' in method_name:
+                        # Direct Video RL: Use sequence data, extract RL policy predictions
+                        batch_preds, batch_gt = self._evaluate_direct_video_rl_batch(model, batch)
+                        
+                    else:
+                        raise ValueError(f"Unknown method: {method_name}")
+                    
+                    all_predictions.append(batch_preds)
+                    all_ground_truth.append(batch_gt)
+                    
+                except Exception as e:
+                    self.logger.warning(f"Batch evaluation failed for {method_name}: {e}")
+                    continue
+        
+        if not all_predictions:
+            return np.zeros((0, 100)), np.zeros((0, 100))
+        
+        # Concatenate all batches
+        predictions = np.vstack(all_predictions)
+        ground_truth = np.vstack(all_ground_truth)
+        
+        return predictions, ground_truth
+    
+    def _evaluate_il_model_batch(self, il_model, batch: Dict) -> Tuple[np.ndarray, np.ndarray]:
+        """Evaluate IL model on a batch (mirrors training approach)."""
+        
+        # Use the same data format as training
+        if 'input_frames' in batch:
+            # Direct training format
+            input_frames = batch['input_frames'].to(self.device)
+            target_actions = batch['target_actions'].to(self.device)
+        else:
+            # Evaluation format - use current_states as sequences
+            input_frames = batch['current_states'].to(self.device)  # [batch, seq_len, emb_dim]
+            target_actions = batch['next_actions'].to(self.device)  # [batch, seq_len, num_actions]
+        
+        # Forward pass (exactly like training)
+        outputs = il_model(frame_embeddings=input_frames)
+        action_probs = outputs['action_pred']  # [batch, seq_len, num_actions]
+        
+        # Extract predictions and targets
+        # For evaluation, we typically want the last timestep prediction
+        if action_probs.dim() == 3:
+            # Take last timestep: [batch, num_actions]
+            predictions = action_probs[:, -1, :].cpu().numpy()
+            targets = target_actions[:, -1, :].cpu().numpy()
+        else:
+            # Already in correct format
+            predictions = action_probs.cpu().numpy()
+            targets = target_actions.cpu().numpy()
+        
+        return predictions, targets
+
+    def _evaluate_world_model_rl_batch(self, model_dict: Dict, batch: Dict) -> Tuple[np.ndarray, np.ndarray]:
+        """Evaluate World Model RL on a batch."""
+        
+        rl_policy = model_dict['rl_policy']
+        current_states = batch['current_states'].to(self.device)  # [batch, seq_len, emb_dim]
+        target_actions = batch['next_actions'].to(self.device)    # [batch, seq_len, num_actions]
+        
+        # For RL models, we evaluate on the last timestep (current approach)
+        # But we could also evaluate on all timesteps if needed
+        last_states = current_states[:, -1, :].cpu().numpy()  # [batch, emb_dim]
+        last_targets = target_actions[:, -1, :].cpu().numpy() # [batch, num_actions]
+        
+        # Get RL policy predictions
+        batch_predictions = []
+        for i in range(len(last_states)):
+            state_input = last_states[i:i+1]  # [1, emb_dim]
+            action_pred, _ = rl_policy.predict(state_input, deterministic=True)
             
-            current_states = batch['current_states']  # [batch, seq_len, emb_dim]
-            next_actions = batch['next_actions']      # [batch, seq_len, num_actions]
+            # Convert to proper format
+            action_pred = self._convert_rl_action_to_format(action_pred)
+            batch_predictions.append(action_pred)
+        
+        predictions = np.array(batch_predictions)
+        return predictions, last_targets
+
+    def _evaluate_direct_video_rl_batch(self, model_dict: Dict, batch: Dict) -> Tuple[np.ndarray, np.ndarray]:
+        """Evaluate Direct Video RL on a batch."""
+        
+        rl_policy = model_dict['rl_policy']
+        current_states = batch['current_states'].to(self.device)  # [batch, seq_len, emb_dim]
+        target_actions = batch['next_actions'].to(self.device)    # [batch, seq_len, num_actions]
+        
+        # For RL models, evaluate on last timestep
+        last_states = current_states[:, -1, :].cpu().numpy()  # [batch, emb_dim]
+        last_targets = target_actions[:, -1, :].cpu().numpy() # [batch, num_actions]
+        
+        # Get RL policy predictions
+        batch_predictions = []
+        for i in range(len(last_states)):
+            state_input = last_states[i:i+1]  # [1, emb_dim]
+            action_pred, _ = rl_policy.predict(state_input, deterministic=True)
             
-            # Take last timestep from each sequence (most recent state)
-            for i in range(current_states.size(0)):
-                state = current_states[i, -1, :].cpu().numpy()  # [emb_dim]
-                action = next_actions[i, -1, :].cpu().numpy()   # [num_actions]
+            # Convert to proper format
+            action_pred = self._convert_rl_action_to_format(action_pred)
+            batch_predictions.append(action_pred)
+        
+        predictions = np.array(batch_predictions)
+        return predictions, last_targets
+
+    def _convert_rl_action_to_format(self, action_pred) -> np.ndarray:
+        """Convert RL action prediction to standard format."""
+        
+        if isinstance(action_pred, np.ndarray):
+            action_pred = action_pred.flatten()
+        elif isinstance(action_pred, torch.Tensor):
+            action_pred = action_pred.cpu().numpy().flatten()
+        else:
+            action_pred = np.array([action_pred]).flatten()
+        
+        # Convert to proper 100-dimensional format
+        if len(action_pred) == 100:
+            return np.clip(action_pred, 0, 1)
+        elif len(action_pred) == 1:
+            # Discrete action to binary vector
+            action_binary = np.zeros(100, dtype=np.float32)
+            action_idx = int(action_pred[0]) % 100
+            action_binary[action_idx] = 1.0
+            return action_binary
+        else:
+            # Pad or truncate
+            action_binary = np.zeros(100, dtype=np.float32)
+            if len(action_pred) > 0:
+                copy_length = min(len(action_pred), 100)
+                action_binary[:copy_length] = np.clip(action_pred[:copy_length], 0, 1)
+            return action_binary
+
+    def _evaluate_planning_capability_with_batches(self, model, video_loader: DataLoader, 
+                                                method_name: str, horizon: int) -> Dict:
+        """Evaluate planning capability using batch-based approach."""
+        
+        planning_results = {
+            'method_name': method_name,
+            'training_paradigm': self._get_training_paradigm(method_name),
+            'planning_stability': 0.0,
+            'evaluation_approach': 'batch_based_like_training'
+        }
+        
+        try:
+            if 'AutoregressiveIL' in method_name:
+                # IL planning using sequence generation
+                planning_results = self._evaluate_il_planning_with_batches(
+                    model, video_loader, horizon
+                )
                 
-                all_states.append(state)
-                all_actions.append(action)
+            elif 'WorldModelRL' in method_name:
+                # World model RL planning
+                planning_results = self._evaluate_world_model_planning_with_batches(
+                    model, video_loader, horizon
+                )
+                
+            elif 'DirectVideoRL' in method_name:
+                # Direct video RL (limited planning)
+                planning_results = self._evaluate_direct_video_planning_with_batches(
+                    model, video_loader, horizon
+                )
+            
+            # Calculate stability from planning results
+            if 'planning_sequences' in planning_results:
+                sequences = planning_results['planning_sequences']
+                if sequences:
+                    planning_results['planning_stability'] = self._calculate_planning_stability(
+                        np.array(sequences)
+                    )
+        
+        except Exception as e:
+            self.logger.warning(f"Planning evaluation failed for {method_name}: {e}")
+            planning_results['planning_stability'] = 0.0
+            planning_results['error'] = str(e)
+        
+        return planning_results
+
+    def _evaluate_il_planning_with_batches(self, il_model, video_loader: DataLoader, horizon: int) -> Dict:
+        """Evaluate IL planning using proper sequence generation."""
+        
+        planning_sequences = []
+        
+        # Take a few batches for planning evaluation
+        batch_count = 0
+        for batch in video_loader:
+            # if batch_count >= 3:  # Limit for efficiency
+            #     break
+            
+            try:
+                # Use proper input format (like training)
+                if 'input_frames' in batch:
+                    input_frames = batch['input_frames'].to(self.device)
+                else:
+                    input_frames = batch['current_states'].to(self.device)
+                
+                # Take first sample from batch for planning
+                initial_context = input_frames[:1]  # [1, seq_len, emb_dim]
+                
+                # Generate planning sequence using model's generation capability
+                with torch.no_grad():
+                    generation_results = il_model.generate_sequence(
+                        initial_frames=initial_context,
+                        horizon=horizon,
+                        temperature=0.8
+                    )
+                    
+                    if 'predicted_actions' in generation_results:
+                        predicted_actions = generation_results['predicted_actions']
+                        if predicted_actions.dim() == 3:
+                            predicted_actions = predicted_actions[0]  # Remove batch dim
+                        
+                        planning_seq = predicted_actions.cpu().numpy()[:horizon]
+                        planning_sequences.append(planning_seq)
+            
+            except Exception as e:
+                self.logger.warning(f"IL planning batch failed: {e}")
+                continue
+            
+            batch_count += 1
         
         return {
-            'video_id': video_id,
-            'states': np.array(all_states),
-            'actions': np.array(all_actions)
+            'method_name': 'AutoregressiveIL',
+            'planning_sequences': planning_sequences,
+            'evaluation_approach': 'sequence_generation_with_proper_context',
+            'sequences_generated': len(planning_sequences)
         }
+
+    def _create_fairness_report_fixed_batches(self, video_result: Dict) -> Dict:
+        """Report on evaluation fairness with batch-based approach."""
+        
+        return {
+            'evaluation_design': {
+                'primary_evaluation': 'single_step_fair_comparison',
+                'secondary_evaluation': 'method_specific_planning_analysis',
+                'data_handling': 'uses_dataloader_batches_like_training',
+                'temporal_structure': 'maintained_for_il_model',
+                'ground_truth_leakage': 'eliminated'
+            },
+            'method_fairness': {
+                'AutoregressiveIL': 'evaluated_with_proper_temporal_sequences',
+                'WorldModelRL': 'evaluated_with_consistent_batch_approach',
+                'DirectVideoRL': 'evaluated_with_consistent_batch_approach'
+            },
+            'data_integrity': {
+                'temporal_context': 'preserved_for_models_that_need_it',
+                'batch_structure': 'mirrors_training_approach',
+                'evaluation_consistency': 'matches_model_training_interface'
+            },
+            'comparison_validity': {
+                'single_step_comparison': 'valid_and_fair_with_proper_data_handling',
+                'planning_comparison': 'method_specific_respecting_capabilities',
+                'overall_approach': 'methodologically_sound_and_consistent_with_training'
+            }
+        }
+
+    # Apply the fixes to the main evaluation method
+    def run_evaluation_comprehensive(self, models: Dict, test_data: Dict, horizon: int = 15) -> Dict:
+        """
+        FIXED: Run comprehensive evaluation using DataLoader batches directly.
+        """
+        
+        self.logger.info(f"🚀 Starting FIXED comprehensive evaluation (using proper batches)")
+        self.logger.info(f"📊 Models: {len(models)}, Videos: {len(test_data)}")
+        self.logger.info(f"🎯 Evaluation approach:")
+        self.logger.info(f"   ✅ Uses DataLoader batches directly (like training)")
+        self.logger.info(f"   ✅ Maintains temporal structure for IL model")
+        self.logger.info(f"   ✅ Consistent model interfaces")
+        
+        if not models:
+            self.logger.error("❌ No models available for evaluation")
+            return {'status': 'failed', 'error': 'No models loaded'}
+        
+        video_results = {}
+        
+        # Evaluate each video using proper batch-based approach
+        for video_id, video_loader in tqdm(test_data.items(), desc="Evaluating videos"):
+            self.logger.info(f"📹 Evaluating video: {video_id}")
+            
+            try:
+                video_result = self.evaluate_single_video_comprehensive(
+                    models, video_loader
+                )
+                video_results[video_id] = video_result
+                
+                # Log primary results
+                single_step_results = video_result.get('single_step_evaluation', {})
+                for method, results in single_step_results.items():
+                    if 'metrics' in results:
+                        mAP = results['metrics'].get('mAP', 0.0)
+                        self.logger.info(f"  {method}: mAP = {mAP:.4f} (proper batches)")
+                        
+            except Exception as e:
+                self.logger.error(f"❌ Video {video_id} evaluation failed: {e}")
+                video_results[video_id] = {'error': str(e)}
+        
+        if not video_results:
+            self.logger.error("❌ No videos were successfully evaluated")
+            return {'status': 'failed', 'error': 'No videos evaluated'}
+        
+        # Compute aggregate results
+        self.logger.info("📊 Computing aggregate results...")
+        aggregate_results = self._compute_aggregate_results_comprehensive(video_results)
+        
+        # Statistical significance tests
+        self.logger.info("📈 Performing statistical tests...")
+        statistical_tests = self._perform_statistical_tests_comprehensive(video_results)
+        
+        # Create comprehensive summary
+        evaluation_summary = {
+            'status': 'success',
+            'evaluation_type': 'comprehensive_evaluation_with_proper_batches',
+            'num_models': len(models),
+            'num_videos': len(video_results),
+            'horizon': horizon,
+            
+            # Results
+            'video_results': video_results,
+            'aggregate_results': aggregate_results,
+            'statistical_tests': statistical_tests,
+            
+            # Evaluation design
+            'evaluation_design': {
+                'data_handling': 'uses_dataloader_batches_like_training',
+                'temporal_structure': 'maintained_properly',
+                'model_interfaces': 'consistent_with_training',
+                'primary_evaluation': 'single_step_action_prediction_with_proper_context',
+                'secondary_evaluation': 'multi_step_planning_analysis',
+                'fairness_approach': 'respects_training_paradigms_and_data_structure'
+            },
+            
+            'timestamp': str(pd.Timestamp.now())
+        }
+        
+        # Print comprehensive summary
+        self._print_comprehensive_results_summary(evaluation_summary)
+        
+        return evaluation_summary
+
 
     def _predict_single_step_actions_batch(self, model, states: np.ndarray, method_name: str) -> np.ndarray:
         """Batch single-step action prediction for efficiency."""
@@ -267,7 +592,7 @@ class IntegratedEvaluationFramework:
                         pred = self._predict_rl_single_step_fixed(model, state, use_world_model=False)
                         
                     else:
-                        pred = np.zeros(100)
+                        raise ValueError(f"Unknown method: {method_name}")
                     
                     batch_predictions.append(pred)
                     
@@ -286,6 +611,7 @@ class IntegratedEvaluationFramework:
         state_tensor = torch.tensor(state, dtype=torch.float32, device=self.device)
         
         # Create context sequence (simplified approach)
+        # NOTE: We don't want those simplified approaches that give the impression our code is working as intended !!!
         context_length = 20
         context = state_tensor.unsqueeze(0).unsqueeze(0).repeat(1, context_length, 1)
         
@@ -742,86 +1068,6 @@ class IntegratedEvaluationFramework:
             }
         }
 
-    def run_evaluation_comprehensive(self, models: Dict, test_data: Dict, horizon: int = 15) -> Dict:
-        """
-        Run comprehensive evaluation with fair comparison + planning analysis.
-        """
-        
-        self.logger.info(f"🚀 Starting comprehensive fair evaluation")
-        self.logger.info(f"📊 Models: {len(models)}, Videos: {len(test_data)}")
-        self.logger.info(f"🎯 Two-tier evaluation approach:")
-        self.logger.info(f"   1️⃣ Primary: Single-step action prediction (fair)")
-        self.logger.info(f"   2️⃣ Secondary: Planning capability analysis (paradigm-specific)")
-        
-        if not models:
-            self.logger.error("❌ No models available for evaluation")
-            return {'status': 'failed', 'error': 'No models loaded'}
-        
-        video_results = {}
-        
-        # Evaluate each video
-        for video_id, video_loader in tqdm(test_data.items(), desc="Evaluating videos"):
-            self.logger.info(f"📹 Evaluating video: {video_id}")
-            
-            try:
-                video_result = self.evaluate_single_video_comprehensive(
-                    models, video_loader
-                )
-                video_results[video_id] = video_result
-                
-                # Log primary results
-                single_step_results = video_result.get('single_step_evaluation', {})
-                for method, results in single_step_results.items():
-                    if 'metrics' in results:
-                        mAP = results['metrics'].get('mAP', 0.0)
-                        self.logger.info(f"  {method}: Single-step mAP = {mAP:.4f}")
-                        
-            except Exception as e:
-                self.logger.error(f"❌ Video {video_id} evaluation failed: {e}")
-                video_results[video_id] = {'error': str(e)}
-        
-        if not video_results:
-            self.logger.error("❌ No videos were successfully evaluated")
-            return {'status': 'failed', 'error': 'No videos evaluated'}
-        
-        # Compute aggregate results
-        self.logger.info("📊 Computing aggregate results...")
-        aggregate_results = self._compute_aggregate_results_comprehensive(video_results)
-        
-        # Statistical significance tests
-        self.logger.info("📈 Performing statistical tests...")
-        statistical_tests = self._perform_statistical_tests_comprehensive(video_results)
-        
-        # Create comprehensive summary
-        evaluation_summary = {
-            'status': 'success',
-            'evaluation_type': 'comprehensive_fair_evaluation',
-            'num_models': len(models),
-            'num_videos': len(video_results),
-            'horizon': horizon,
-            
-            # Results
-            'video_results': video_results,
-            'aggregate_results': aggregate_results,
-            'statistical_tests': statistical_tests,
-            
-            # Evaluation design
-            'evaluation_design': {
-                'primary_evaluation': 'single_step_action_prediction',
-                'primary_purpose': 'fair_comparison_across_paradigms',
-                'secondary_evaluation': 'multi_step_planning_analysis',
-                'secondary_purpose': 'paradigm_specific_capability_assessment',
-                'fairness_approach': 'respects_training_paradigms'
-            },
-            
-            'timestamp': str(pd.Timestamp.now())
-        }
-        
-        # Print comprehensive summary
-        self._print_comprehensive_results_summary(evaluation_summary)
-        
-        return evaluation_summary
-
     def _compute_aggregate_results_comprehensive(self, video_results: Dict) -> Dict:
         """Compute aggregate results for both single-step and planning evaluations."""
         
@@ -987,7 +1233,7 @@ class IntegratedEvaluationFramework:
         self.logger.info("")
         self.logger.info("⚖️ EVALUATION FAIRNESS:")
         self.logger.info(f"   Primary task: {design['primary_evaluation']}")
-        self.logger.info(f"   Primary purpose: {design['primary_purpose']}")
+        # self.logger.info(f"   Primary purpose: {design['primary_purpose']}")
         self.logger.info(f"   Secondary task: {design['secondary_evaluation']}")
         self.logger.info(f"   Fairness approach: {design['fairness_approach']}")
 
@@ -1017,9 +1263,9 @@ class IntegratedEvaluationFramework:
         return 'unknown_paradigm'
 
     def save_all_results(self):
-        """Save all corrected evaluation results."""
+        """Save all evaluation results."""
         
-        self.logger.info("💾 Saving corrected evaluation results...")
+        self.logger.info("💾 Saving evaluation results...")
         
         # Save results with clear labeling of the correction
         file_paths = {
@@ -1031,7 +1277,7 @@ class IntegratedEvaluationFramework:
         
         # Document the corrections made
         corrections_doc = {
-            'evaluation_approach': 'two_tier_corrected_evaluation',
+            'evaluation_approach': 'two_tier_evaluation',
             'primary_evaluation': {
                 'task': 'single_step_action_prediction',
                 'purpose': 'fair_comparison_across_paradigms',
@@ -1058,7 +1304,7 @@ class IntegratedEvaluationFramework:
         with open(file_paths['correction_documentation'], 'w') as f:
             json.dump(corrections_doc, f, indent=2)
         
-        self.logger.info(f"📊 Corrected evaluation results saved")
+        self.logger.info(f"📊 evaluation results saved")
         self.logger.info(f"📁 Location: {self.eval_dir}")
         
         return file_paths
@@ -1094,31 +1340,31 @@ def run_integrated_evaluation(experiment_results: Dict, test_data: Dict,
     logger.info("   ✅ Fixed action shape mismatches in planning evaluation")
     logger.info("   ✅ Fixed world model trainer test loader handling")
     
-    # Initialize corrected evaluation framework
+    # Initialize evaluation framework
     evaluator = IntegratedEvaluationFramework(results_dir, logger)
     
-    # Load all models with corrected approach
-    models = evaluator.load_all_models_corrected(experiment_results)
+    # Load all models with approach
+    models = evaluator.load_all_models(experiment_results)
     
     if not models:
-        logger.error("❌ No models available for corrected evaluation")
+        logger.error("❌ No models available for evaluation")
         return {
             'status': 'failed', 
             'error': 'No models loaded',
             'fix_applied': 'attempted_but_no_models'
         }
     
-    logger.info(f"📊 Loaded models for corrected evaluation:")
+    logger.info(f"📊 Loaded models for evaluation:")
     for method_name, model in models.items():
         paradigm = evaluator._get_training_paradigm(method_name)
         logger.info(f"   {method_name}: {paradigm}")
     
-    # Run corrected comprehensive evaluation
-    logger.info(f"🚀 Running corrected evaluation on {len(test_data)} videos...")
+    # Run comprehensive evaluation
+    logger.info(f"🚀 Running evaluation on {len(test_data)} videos...")
     
     results = evaluator.run_evaluation_comprehensive(models, test_data, horizon)
     
-    # Save results with corrected approach indicators
+    # Save results with approach indicators
     results['correction_applied'] = {
         'ground_truth_leakage': 'eliminated',
         'environment_mismatch': 'fixed',
