@@ -26,8 +26,8 @@
         "77": "clipper,clip,blood_vessel", "78": "clipper,clip,cystic_artery", "79": "clipper,clip,cystic_duct", "80": "clipper,clip,cystic_pedicle", "81": "clipper,clip,cystic_plate", 
         "82": "irrigator,aspirate,fluid", "83": "irrigator,dissect,cystic_duct", "84": "irrigator,dissect,cystic_pedicle", "85": "irrigator,dissect,cystic_plate", 
         "86": "irrigator,dissect,gallbladder", "87": "irrigator,dissect,omentum", "88": "irrigator,irrigate,abdominal_wall_cavity", "89": "irrigator,irrigate,cystic_pedicle", 
-        "90": "irrigator,irrigate,liver", "91": "irrigator,retract,gallbladder", 
-        "92": "irrigator,retract,liver", "93": "irrigator,retract,omentum", "94": "grasper,null_verb,null_target", "95": "bipolar,null_verb,null_target", "96": "hook,null_verb,null_target", 
+        "90": "irrigator,irrigate,liver", "91": "irrigator,retract,gallbladder", "92": "irrigator,retract,liver", "93": "irrigator,retract,omentum", 
+        "94": "grasper,null_verb,null_target", "95": "bipolar,null_verb,null_target", "96": "hook,null_verb,null_target", 
         "97": "scissors,null_verb,null_target", "98": "clipper,null_verb,null_target", "99": "irrigator,null_verb,null_target"
     },
     "instrument": {

@@ -284,8 +284,11 @@ def create_surgical_environment(model_path: Optional[str] = None) -> SurgicalWor
     world_model = SurgicalWorldModel(config)
     
     if model_path:
-        world_model.load_state_dict(torch.load(model_path))
-        
+        checkpoint = torch.load(model_path, map_location=DEVICE)
+        if isinstance(checkpoint, dict) and 'model_state_dict' in checkpoint:
+            world_model.load_state_dict(checkpoint['model_state_dict'])
+        else:
+            world_model.load_state_dict(checkpoint)
     world_model.eval()  # Set to evaluation mode for RL training
     
     return SurgicalWorldModelGym(world_model, config)

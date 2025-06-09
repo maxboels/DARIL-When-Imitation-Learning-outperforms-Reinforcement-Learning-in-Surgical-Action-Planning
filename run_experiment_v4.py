@@ -596,17 +596,29 @@ def main():
         print(f"📄 Using config: {config_path}")
     
     try:
-        # Run comparison
-        experiment = ExperimentRunner(config_path)
-        results = experiment.run_complete_comparison()
-        
-        print("\n🎉 EXPERIMENT COMPLETED SUCCESSFULLY!")
-        print("=" * 50)
-        print(f"📁 Results saved to: {experiment.results_dir}")
-        print(f"📊 Methods compared: 3")
-        print(f"🎯 Focus: Architectural differences in surgical RL")
-        print(f"🔧 All technical issues resolved!")
-        
+        import argparse
+        parser = argparse.ArgumentParser(description="Run surgical RL experiment with separate models")
+        parser.add_argument('--eval-only', action='store_true')
+        parser.add_argument('--pretrained-dir', type=str)
+        parser.add_argument('--config', type=str, default=config_path, help="Path to config file")
+        args = parser.parse_args()
+        print(f"🔧 Arguments: {args}")
+
+        if args.eval_only:
+            evaluator = EvaluationOnlyRunner(args.config, args.pretrained_dir)
+            results = evaluator.run_evaluation_only()
+        else:    
+            # Run comparison
+            experiment = ExperimentRunner(config_path)
+            results = experiment.run_complete_comparison()
+            
+            print("\n🎉 EXPERIMENT COMPLETED SUCCESSFULLY!")
+            print("=" * 50)
+            print(f"📁 Results saved to: {experiment.results_dir}")
+            print(f"📊 Methods compared: 3")
+            print(f"🎯 Focus: Architectural differences in surgical RL")
+            print(f"🔧 All technical issues resolved!")
+            
     except Exception as e:
         print(f"\n❌ EXPERIMENT FAILED: {e}")
         import traceback

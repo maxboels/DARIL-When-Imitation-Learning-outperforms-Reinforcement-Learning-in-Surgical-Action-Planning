@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Dict, List, Any, Tuple
 from sklearn.metrics import average_precision_score, precision_recall_fscore_support
 from scipy import stats
+from tqdm import tqdm
 warnings.filterwarnings('ignore')
 
 class IntegratedEvaluationFramework:
@@ -99,6 +100,65 @@ class IntegratedEvaluationFramework:
         self.logger.info("🎯 World Model RL evaluation uses the trained RL policies, not the world model directly")
         return models
     
+    def run_evaluation(self, models: Dict, test_data: List[Dict], horizon: int = 15) -> Dict:
+        """
+        Main method to run the complete integrated evaluation.
+        This was the missing method that was being called!
+        """
+        
+        self.logger.info(f"🚀 Starting integrated evaluation with {len(models)} models")
+        self.logger.info(f"📊 Test videos (list of dataloaders): {len(test_data)}")
+        self.logger.info(f"🎯 Prediction horizon: {horizon}")
+        
+        if not models:
+            self.logger.error("❌ No models available for evaluation")
+            return {'status': 'failed', 'error': 'No models loaded'}
+        
+        # Evaluate each video on all models (each video should be a dataloader)
+        for video_id, video in tqdm(test_data.items(), desc="Evaluating videos:"):
+            self.logger.info(f"📹 Evaluating video: {video_id}")
+            
+            video_result = self.evaluate_single_video_with_rollouts(
+                models, video, horizon
+            )
+            self.video_results[video['video_id']] = video_result
+                        
+        if not self.video_results:
+            self.logger.error("❌ No videos were successfully evaluated")
+            return {'status': 'failed', 'error': 'No videos evaluated'}
+        
+        # Compute aggregate statistics
+        self.logger.info("📊 Computing aggregate statistics...")
+        self.aggregate_results = self.compute_aggregate_statistics()
+        
+        # Perform statistical tests
+        self.logger.info("📈 Performing statistical significance tests...")
+        self.statistical_tests = self.perform_statistical_tests()
+        
+        # Save all results
+        self.logger.info("💾 Saving all results...")
+        file_paths = self.save_all_results()
+        
+        # Create summary
+        results_summary = {
+            'status': 'success',
+            'evaluation_type': 'integrated_with_rollouts',
+            'num_models': len(models),
+            'num_videos': len(self.video_results),
+            'horizon': horizon,
+            'video_results': self.video_results,
+            'aggregate_results': self.aggregate_results,
+            'statistical_tests': self.statistical_tests,
+            'file_paths': file_paths,
+            'timestamp': str(pd.Timestamp.now())
+        }
+        
+        self.logger.info(f"✅ Integrated evaluation completed successfully!")
+        self.logger.info(f"📊 Models evaluated: {list(models.keys())}")
+        self.logger.info(f"📊 Videos processed: {len(self.video_results)}")
+        
+        return results_summary
+    
     def predict_actions_with_rollout(self, model, video_embeddings: np.ndarray, 
                                    method_name: str, horizon: int = 15) -> Tuple[np.ndarray, Dict]:
         """
@@ -114,8 +174,12 @@ class IntegratedEvaluationFramework:
         }
         
         video_length = len(video_embeddings)
+        if video_length == 1:
+            raise ValueError("Video embeddings must have more than one frame for prediction.")
+        elif video_length == horizon + 1:
+            raise ValueError("Video embeddings should not be exactly equal to the horizon + 1, adjust your horizon.")
         
-        for t in range(min(video_length - 1, horizon)):
+        for t in tqdm(range(min(video_length - 1, horizon)), desc=f"Predicting actions rollouts:"):
             current_state = torch.tensor(
                 video_embeddings[t], dtype=torch.float32, device=self.device
             ).unsqueeze(0)  # [1, embedding_dim]
@@ -166,58 +230,44 @@ class IntegratedEvaluationFramework:
     def _predict_il_with_rollout(self, il_model, current_state, video_embeddings, 
                             timestep, horizon):
         """IL prediction with detailed rollout for planning visualization - FIXED"""
+
+        # Check current_state with shape [batch, context_length, embedding_dim]
+        if current_state.dim() != 3:
+            raise ValueError(f"Expected current_state to have 3 dimensions, got {current_state.dim()}")
         
-        # FIXED: Use the correct method from AutoregressiveILModel
-        if hasattr(il_model, 'predict_next_action'):
-            # Use the predict_next_action method
-            action_probs = il_model.predict_next_action(current_state.unsqueeze(1))  # Add sequence dim
-            action_pred = action_probs.cpu().numpy().flatten()
-        elif hasattr(il_model, 'forward'):
-            # Fallback to forward pass
-            outputs = il_model(frame_embeddings=current_state.unsqueeze(1))
-            if 'action_pred' in outputs:
-                action_probs = outputs['action_pred'][:, -1, :]  # [1, 100]
-                action_pred = action_probs.cpu().numpy().flatten()
-            else:
-                action_pred = np.zeros(100)
-        else:
-            action_pred = np.zeros(100)
+        # Check it has context length larger than 1
+        if current_state.size(1) < 2:
+            raise ValueError(f"Expected current_state to have context length > 1, got {current_state.size(1)}")
+
+        # Use the predict_next_action method
+        action_probs = il_model.predict_next_action(current_state.unsqueeze(1))  # Add sequence dim
+        action_pred = action_probs.cpu().numpy().flatten()
         
         # FIXED: Generate planning horizon with proper error handling
         planning_horizon = []
-        if hasattr(il_model, 'generate_sequence'):
-            try:
-                generation_results = il_model.generate_sequence(
-                    initial_frames=current_state.unsqueeze(0).unsqueeze(1),
-                    horizon=min(5, horizon - timestep),
-                    temperature=0.8
-                )
-                
-                if 'predicted_actions' in generation_results:
-                    pred_actions = generation_results['predicted_actions']
-                    
-                    # FIXED: Handle tensor dimensions properly
-                    if pred_actions.dim() == 3:  # [batch, seq, actions]
-                        pred_actions = pred_actions[0]  # Remove batch dim
-                    
-                    for h in range(min(pred_actions.size(0), 5)):  # Use .size(0) instead of len()
-                        try:
-                            next_action_tensor = pred_actions[h]  # This is a tensor
-                            next_action = next_action_tensor.cpu().numpy()  # Convert to numpy
-                            
-                            planning_horizon.append({
-                                'step': h + 1,
-                                'predicted_action': next_action.tolist(),
-                                'confidence': float(np.max(next_action)),
-                                'active_actions': int(np.sum(next_action > 0.5))
-                            })
-                        except Exception as e:
-                            self.logger.warning(f"IL planning step {h} failed: {e}")
-                            break
-            
-            except Exception as e:
-                self.logger.warning(f"IL planning failed at step {timestep}: {e}")
+        generation_results = il_model.generate_sequence(
+            initial_frames=current_state,
+            horizon=min(5, horizon - timestep),
+            temperature=0.8
+        )
         
+        pred_actions = generation_results['predicted_actions']
+        
+        # FIXED: Handle tensor dimensions properly
+        if pred_actions.dim() == 3:  # [batch, seq, actions]
+            pred_actions = pred_actions[0]  # Remove batch dim
+        
+        for h in range(min(pred_actions.size(0), 5)):  # Use .size(0) instead of len()
+            next_action_tensor = pred_actions[h]  # This is a tensor
+            next_action = next_action_tensor.cpu().numpy()  # Convert to numpy
+            
+            planning_horizon.append({
+                'step': h + 1,
+                'predicted_action': next_action.tolist(),
+                'confidence': float(np.max(next_action)),
+                'active_actions': int(np.sum(next_action > 0.5))
+            })
+
         # Extract thinking process
         thinking_steps = [
             f"Analyzed current surgical context with autoregressive model",
@@ -511,50 +561,51 @@ class IntegratedEvaluationFramework:
     
     def evaluate_single_video_with_rollouts(self, models: Dict, video: Dict, 
                                           horizon: int = 15) -> Dict:
-        """Evaluate all models on a single video with IMPROVED validation"""
+        """Evaluate all models on a single video"""
         
-        video_id = video['video_id']
-        video_embeddings = video['frame_embeddings'][:horizon+1]
-        ground_truth_actions = video['actions_binaries'][:horizon+1]
-        
-        self.logger.info(f"📹 Evaluating {video_id} with rollouts (horizon: {horizon})")
-        
-        # FIXED: Add data validation
-        self.logger.info(f"📊 Video info:")
-        self.logger.info(f"   Embeddings shape: {video_embeddings.shape}")
-        self.logger.info(f"   Actions shape: {ground_truth_actions.shape}")
-        self.logger.info(f"   Action range: [{ground_truth_actions.min():.3f}, {ground_truth_actions.max():.3f}]")
-        
-        # Ground truth for evaluation
-        gt_for_evaluation = ground_truth_actions[1:horizon+1]
-        
-        video_result = {
-            'video_id': video_id,
-            'horizon': horizon,
-            'predictions': {},
-            'rollouts': {},
-            'metrics': {},
-            'summary': {},
-            'data_validation': {},
-            'visualization_data': {
-                'ground_truth': {
-                    'actions': [actions.tolist() for actions in ground_truth_actions],
-                    'phases': video.get('phase_binaries', [])[:horizon+1]
-                },
+        for batch in tqdm(video):
+            print(f"Debugging: {batch.keys()}")
+            
+            # video_embeddings = video['frame_embeddings']#[:horizon+1] # Why are we slicing here?
+            # ground_truth_actions = video['actions_binaries']#[:horizon+1] # Same here
+            
+            self.logger.info(f"📹 Evaluating {video_id} with rollouts (horizon: {horizon})")
+            
+            # Add data validation
+            self.logger.info(f"📊 Video info:")
+            self.logger.info(f"   Embeddings shape: {video_embeddings.shape}")
+            self.logger.info(f"   Actions shape: {ground_truth_actions.shape}")
+            self.logger.info(f"   Action range: [{ground_truth_actions.min():.3f}, {ground_truth_actions.max():.3f}]")
+            
+            # Ground truth for evaluation
+            gt_for_evaluation = ground_truth_actions#[1:horizon+1]
+            
+            video_result = {
+                'video_id': video_id,
+                'horizon': horizon,
                 'predictions': {},
-                'metadata': {
-                    'video_length': len(video_embeddings),
-                    'horizon': horizon,
-                    'timestamp': str(pd.Timestamp.now())
+                'rollouts': {},
+                'metrics': {},
+                'summary': {},
+                'data_validation': {},
+                'visualization_data': {
+                    'ground_truth': {
+                        'actions': [actions.tolist() for actions in ground_truth_actions],
+                        'phases': video.get('phase_binaries', [])[:horizon+1]
+                    },
+                    'predictions': {},
+                    'metadata': {
+                        'video_length': len(video_embeddings),
+                        'horizon': horizon,
+                        'timestamp': str(pd.Timestamp.now())
+                    }
                 }
             }
-        }
-        
-        # Evaluate each model
-        for method_name, model in models.items():
-            self.logger.info(f"  🤖 Evaluating {method_name} with rollouts")
             
-            try:
+            # Evaluate each model
+            for method_name, model in models.items():
+                self.logger.info(f"  🤖 Evaluating {method_name} with rollouts")
+                
                 # Get predictions with detailed rollouts
                 predictions, rollout_info = self.predict_actions_with_rollout(
                     model, video_embeddings, method_name, horizon
@@ -613,14 +664,9 @@ class IntegratedEvaluationFramework:
                     }
                 }
                 
-                self.logger.info(f"    📊 Final mAP: {final_mAP:.3f} (valid: {is_valid})")
-                
-            except Exception as e:
-                self.logger.error(f"    ❌ Error evaluating {method_name}: {e}")
-                import traceback
-                traceback.print_exc()
-        
-        return video_result
+                self.logger.info(f"    📊 Final mAP: {final_mAP:.3f} (valid: {is_valid})")   
+            
+            return video_result
     
     def compute_aggregate_statistics(self) -> Dict:
         """Compute aggregate statistics across all videos"""
@@ -837,7 +883,7 @@ def run_integrated_evaluation(experiment_results: Dict, test_data: List[Dict],
         return None
     
     # Run integrated evaluation with rollouts
-    results = evaluator.run_integrated_evaluation(models, test_data, horizon)
+    results = evaluator.run_evaluation(models, test_data, horizon)
     
     # Save all results including visualization data
     file_paths = evaluator.save_all_results()

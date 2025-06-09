@@ -1,0 +1,219 @@
+# ===================================================================
+# Debug Configuration for Evaluation-Only Mode
+# Optimized for fast evaluation and metric debugging
+# ===================================================================
+
+# Debug mode
+debug: true
+
+# Training mode: 'supervised', 'rl', or 'mixed'
+training_mode: 'rl'  # For compatibility with existing code
+
+# Data preprocessing (skip for evaluation-only)
+preprocess:
+  extract_rewards: false
+
+# Experiment configuration - SMALL DATASETS FOR DEBUGGING
+experiment:
+  max_videos: 1  # Deprecated, use train/test specific
+  train:
+    max_videos: 2  # Small for fast loading
+  test:
+    max_videos: 3  # Small but enough for metric debugging
+  
+  # Dual World Model Training
+  dual_world_model:
+    train: false  # Skip training in eval mode
+    best_model_path: null
+  
+  # Imitation Learning
+  il_experiments:
+    enabled: true
+    il_model_path: null  # Will be loaded from pretrained
+  
+  # RL Experiments
+  rl_experiments:
+    enabled: true
+    eval_episodes: 5  # Reduced for debugging
+
+# Training parameters (not used in eval-only mode)
+training:
+  epochs: 1
+  batch_size: 8  # Small batch for debugging
+  learning_rate: 0.0001
+  log_every_n_steps: 10  # More frequent logging
+  
+  # Learning rate scheduling
+  scheduler:
+    type: "cosine"
+    warmup_steps: 100
+    
+  # Regularization
+  weight_decay: 0.01
+  gradient_clip_val: 1.0
+  dropout: 0.1
+  
+  # Logging and checkpointing
+  num_workers: 0  # No multiprocessing for debugging
+  pin_memory: false  # Reduce memory usage
+  log_every_n_steps: 10
+  log_dir: "debug_logs"
+  checkpoint_dir: "debug_checkpoints"
+  eval_epoch_interval: 1
+  save_model: false  # Don't save in eval mode
+
+# Evaluation configuration - OPTIMIZED FOR DEBUGGING
+evaluation:
+  prediction_horizon: 10  # Reduced for faster evaluation
+  
+  # Supervised evaluation
+  supervised:
+    action_prediction: true
+    
+  # RL evaluation
+  rl:
+    rollout_horizon: 10  # Reduced
+    use_best_actions: true
+  
+  # Comparison metrics
+  comparison:
+    statistical_tests: true
+    effect_size_threshold: 0.2
+    
+  # General evaluation
+  world_model:
+    use_memory: false
+    overall_horizon: 1
+
+# RL Training Configuration
+rl_training:
+  outcome_based_rewards: true
+  rl_horizon: 25  # Reduced for debugging
+  reward_mode: 'dense'
+  normalize_rewards: true
+  early_termination: true
+  timesteps: 500  # Very small for eval-only mode
+  
+  # Reward weights for environment
+  reward_weights:
+    phase_completion: 1.0
+    risk_penalty: -0.5
+  
+  # Algorithm-specific settings
+  ppo:
+    learning_rate: 0.0003
+    value_coef: 0.5
+    
+  sac:
+    learning_rate: 0.0003
+    alpha: 0.2
+
+# Data configuration - SMALL CONTEXT FOR DEBUGGING
+data:
+  context_length: 10  # Reduced from 20
+  train_shift: 1
+  padding_value: 0.0
+  max_horizon: 10  # Reduced from 15
+  
+  paths:
+    data_dir: "/home/maxboels/datasets/CholecT50"
+    class_labels_file_path: "./data/labels.json"
+    fold: 0
+    metadata_file: "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv"
+    video_global_outcome_file: "embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv"
+  
+  frame_risk_agg: 'max'
+
+# Model configurations
+models:
+  # Method 1: Autoregressive IL Model
+  autoregressive_il:
+    hidden_dim: 768
+    embedding_dim: 1024
+    n_layer: 6
+    num_action_classes: 100
+    num_phase_classes: 7
+    dropout: 0.1
+    max_length: 512  # Reduced
+  
+  # Method 2: Conditional World Model  
+  conditional_world_model:
+    hidden_dim: 768
+    embedding_dim: 1024
+    action_embedding_dim: 128
+    n_layer: 6
+    num_action_classes: 100
+    num_phase_classes: 7
+    dropout: 0.1
+    max_sequence_length: 256  # Reduced
+
+# Fair evaluation with debugging features
+fair_evaluation:
+  enabled: true
+  include_traditional_metrics: true
+  include_clinical_metrics: true
+  
+  # Debug-specific settings
+  debug_mode: true
+  verbose_logging: true
+  save_intermediate_results: true
+  create_visualizations: true
+  
+  clinical_outcome_weights:
+    phase_progression: 2.0
+    innovation: 0.5
+
+# Supervised Learning Configuration
+supervised_learning:
+  data_augmentation: false  # Skip for debugging
+
+# Research comparison settings
+research_comparison:
+  methods: ['autoregressive_il', 'conditional_world_model', 'direct_video_rl']
+
+# Advanced configurations
+advanced:
+  mixed_precision: false  # Disable for debugging
+
+# Hardware optimization - DEBUG SETTINGS
+hardware:
+  persistent_workers: false  # Disable for debugging
+  
+# Debug-specific settings
+debug_settings:
+  # Metric computation debugging
+  detailed_metric_logging: true
+  save_prediction_samples: true
+  create_confusion_matrices: true
+  
+  # Per-sample analysis
+  analyze_worst_predictions: true
+  analyze_best_predictions: true
+  max_samples_to_analyze: 100
+  
+  # Visualization settings
+  create_distribution_plots: true
+  create_correlation_plots: true
+  save_attention_maps: false  # Set to true if model supports it
+  
+  # Statistical analysis
+  detailed_statistical_tests: true
+  bootstrap_confidence_intervals: true
+  effect_size_analysis: true
+  
+  # Performance profiling
+  profile_inference_time: true
+  memory_usage_tracking: true
+
+# Results and visualization - DEBUG OPTIMIZED
+results:
+  save_predictions: true
+  save_raw_outputs: true  # For debugging
+  create_detailed_reports: true
+  
+# Specific debug paths
+debug_paths:
+  predictions_dir: "debug_predictions"
+  visualizations_dir: "debug_visualizations"
+  analysis_dir: "debug_analysis"
+  logs_dir: "debug_logs"
