@@ -1281,10 +1281,15 @@ All paradigms show consistent performance across instruments:
         
         # Save main results
         import json
-        results_path = self.results_dir / 'enhanced_evaluation_results.json'
+        results_path = self.results_dir / 'all_evaluation_results.json'
         with open(results_path, 'w') as f:
             json.dump(json_results, f, indent=2, default=str)
         
+        # Save comprehensive_evaluation as a separate file
+        main_eval_path = self.results_dir / 'main_evaluation_results.json'
+        with open(main_eval_path, 'w') as f:
+            json.dump(json_results.get('comprehensive_evaluation', {}), f, indent=2, default=str)
+
         # Create index file
         index_content = f"""
 # Enhanced Evaluation Results Index

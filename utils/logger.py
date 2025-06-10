@@ -21,7 +21,8 @@ class SimpleLogger:
         if use_shared_timestamp:
             # Use shared timestamp for all loggers in the same experiment
             if SimpleLogger._shared_timestamp is None:
-                SimpleLogger._shared_timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
+                # SimpleLogger._shared_timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
+                SimpleLogger._shared_timestamp = 'logs'
                 SimpleLogger._base_log_dir = os.path.join(log_dir, SimpleLogger._shared_timestamp)
             
             self.log_dir = SimpleLogger._base_log_dir

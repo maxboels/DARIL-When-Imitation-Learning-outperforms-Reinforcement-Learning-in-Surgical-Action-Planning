@@ -1,0 +1,348 @@
+2025-06-10 12:52:35,048 - INFO - Extended_SuRL_Eval_137362153312704 - Shared experiment log directory: /home/maxboels/projects/surl/results/2025-06-07_18-44-58/eval_2025-06-10_12-52-35/2025-06-10_12-52
+2025-06-10 12:52:35,048 - INFO - Extended_SuRL_Eval_137362153312704 - 🏥 Clinical evaluator initialized
+2025-06-10 12:52:35,048 - INFO - Extended_SuRL_Eval_137362153312704 - 🔬 Enhanced Evaluation Experiment: eval_2025-06-10_12-52-35
+2025-06-10 12:52:35,048 - INFO - Extended_SuRL_Eval_137362153312704 - 📁 Loading models from: /home/maxboels/projects/surl/results/2025-06-07_18-44-58
+2025-06-10 12:52:35,048 - INFO - Extended_SuRL_Eval_137362153312704 - 📁 Saving results to: /home/maxboels/projects/surl/results/2025-06-07_18-44-58/eval_2025-06-10_12-52-35
+2025-06-10 12:52:35,048 - INFO - Extended_SuRL_Eval_137362153312704 - 🏥 Clinical evaluation: ENABLED
+2025-06-10 12:52:35,048 - INFO - Extended_SuRL_Eval_137362153312704 - 📊 Metric debugging: ENABLED
+2025-06-10 12:52:35,048 - INFO - Extended_SuRL_Eval_137362153312704 - 🚀 Starting ENHANCED EVALUATION with Clinical Analysis
+2025-06-10 12:52:35,049 - INFO - Extended_SuRL_Eval_137362153312704 - ======================================================================
+2025-06-10 12:52:35,049 - INFO - Extended_SuRL_Eval_137362153312704 - 🎯 Features:
+2025-06-10 12:52:35,049 - INFO - Extended_SuRL_Eval_137362153312704 -    ✅ Standard evaluation metrics
+2025-06-10 12:52:35,049 - INFO - Extended_SuRL_Eval_137362153312704 -    🏥 Clinical surgical evaluation
+2025-06-10 12:52:35,049 - INFO - Extended_SuRL_Eval_137362153312704 -    🔬 Detailed metric debugging
+2025-06-10 12:52:35,049 - INFO - Extended_SuRL_Eval_137362153312704 -    📊 Advanced visualizations
+2025-06-10 12:52:35,049 - INFO - Extended_SuRL_Eval_137362153312704 -    📋 Comprehensive reports
+2025-06-10 12:52:35,049 - INFO - Extended_SuRL_Eval_137362153312704 - 📂 Loading CholecT50 data for evaluation...
+2025-06-10 12:52:35,049 - INFO - Extended_SuRL_Eval_137362153312704 - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-10 12:52:35,458 - INFO - Extended_SuRL_Eval_137362153312704 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (78968, 156)
+2025-06-10 12:52:35,459 - INFO - Extended_SuRL_Eval_137362153312704 - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-10 12:52:35,459 - INFO - Extended_SuRL_Eval_137362153312704 - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-10 12:52:35,460 - INFO - Extended_SuRL_Eval_137362153312704 - [Train] Found 1 videos in metadata file
+2025-06-10 12:52:35,460 - INFO - Extended_SuRL_Eval_137362153312704 - [Train] Loading data for 1 videos
+2025-06-10 12:52:35,534 - INFO - Extended_SuRL_Eval_137362153312704 - ✅ Loaded video VID01: 1734 frames, 1024D embeddings
+2025-06-10 12:52:35,534 - INFO - Extended_SuRL_Eval_137362153312704 - ✅ Successfully loaded 1 videos for train
+2025-06-10 12:52:35,537 - INFO - Extended_SuRL_Eval_137362153312704 - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-10 12:52:35,618 - INFO - Extended_SuRL_Eval_137362153312704 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (21895, 156)
+2025-06-10 12:52:35,618 - INFO - Extended_SuRL_Eval_137362153312704 - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-10 12:52:35,618 - INFO - Extended_SuRL_Eval_137362153312704 - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-10 12:52:35,619 - INFO - Extended_SuRL_Eval_137362153312704 - [Test] Found 5 videos in metadata file
+2025-06-10 12:52:35,619 - INFO - Extended_SuRL_Eval_137362153312704 - [Test] Loading data for 5 videos
+2025-06-10 12:52:35,729 - INFO - Extended_SuRL_Eval_137362153312704 - ✅ Loaded video VID02: 2840 frames, 1024D embeddings
+2025-06-10 12:52:35,814 - INFO - Extended_SuRL_Eval_137362153312704 - ✅ Loaded video VID06: 2154 frames, 1024D embeddings
+2025-06-10 12:52:35,899 - INFO - Extended_SuRL_Eval_137362153312704 - ✅ Loaded video VID111: 2146 frames, 1024D embeddings
+2025-06-10 12:52:35,967 - INFO - Extended_SuRL_Eval_137362153312704 - ✅ Loaded video VID14: 1709 frames, 1024D embeddings
+2025-06-10 12:52:36,041 - INFO - Extended_SuRL_Eval_137362153312704 - ✅ Loaded video VID23: 1636 frames, 1024D embeddings
+2025-06-10 12:52:36,041 - INFO - Extended_SuRL_Eval_137362153312704 - ✅ Successfully loaded 5 videos for test
+2025-06-10 12:52:36,042 - INFO - Extended_SuRL_Eval_137362153312704 - ✅ Data loaded for evaluation
+2025-06-10 12:52:36,042 - INFO - Extended_SuRL_Eval_137362153312704 -    Training videos: 1 (for context)
+2025-06-10 12:52:36,042 - INFO - Extended_SuRL_Eval_137362153312704 -    Test videos: 5 (for evaluation)
+2025-06-10 12:52:36,042 - INFO - Extended_SuRL_Eval_137362153312704 - 📦 Loading Pre-trained Models
+2025-06-10 12:52:36,042 - INFO - Extended_SuRL_Eval_137362153312704 - 🎓 Loading Method 1: Autoregressive IL
+2025-06-10 12:52:36,042 - INFO - Extended_SuRL_Eval_137362153312704 - 📦 Loading AutoregressiveIL from: /home/maxboels/projects/surl/results/2025-06-07_18-44-58/2025-06-07_18-44/checkpoints/autoregressive_il_best_epoch_1.pt
+2025-06-10 12:52:36,586 - INFO - Extended_SuRL_Eval_137362153312704 - ✅ Method 1 loaded successfully
+2025-06-10 12:52:36,586 - INFO - Extended_SuRL_Eval_137362153312704 - 🌍 Loading Method 2: Conditional World Model + RL
+2025-06-10 12:52:36,586 - INFO - Extended_SuRL_Eval_137362153312704 - 📦 Loading ConditionalWorldModel from: /home/maxboels/projects/surl/results/2025-06-07_18-44-58/2025-06-07_18-44/checkpoints/world_model_best_epoch_2.pt
+2025-06-10 12:52:36,847 - INFO - Extended_SuRL_Eval_137362153312704 - ✅ World model loaded successfully
+2025-06-10 12:52:36,962 - INFO - Extended_SuRL_Eval_137362153312704 - ✅ PPO model loaded
+2025-06-10 12:52:36,970 - INFO - Extended_SuRL_Eval_137362153312704 - ✅ A2C model loaded
+2025-06-10 12:52:36,970 - INFO - Extended_SuRL_Eval_137362153312704 - 📹 Loading Method 3: Direct Video RL
+2025-06-10 12:52:36,985 - INFO - Extended_SuRL_Eval_137362153312704 - ✅ PPO model loaded
+2025-06-10 12:52:37,003 - INFO - Extended_SuRL_Eval_137362153312704 - ✅ A2C model loaded
+2025-06-10 12:52:37,003 - INFO - Extended_SuRL_Eval_137362153312704 - 🔧 Creating test data loaders...
+2025-06-10 12:52:38,092 - INFO - Extended_SuRL_Eval_137362153312704 - ✅ Created test loaders for 5 videos
+2025-06-10 12:52:38,092 - INFO - Extended_SuRL_Eval_137362153312704 - 📊 Running Standard Comprehensive Evaluation
+2025-06-10 12:52:38,093 - INFO - Extended_SuRL_Eval_137362153312704 - 🔬 Evaluation Framework initialized
+2025-06-10 12:52:38,093 - INFO - Extended_SuRL_Eval_137362153312704 - 📁 Results will be saved to: /home/maxboels/projects/surl/results/2025-06-07_18-44-58/eval_2025-06-10_12-52-35/integrated_evaluation
+2025-06-10 12:52:38,536 - INFO - Extended_SuRL_Eval_137362153312704 - ✅ Loaded AutoregressiveIL model
+2025-06-10 12:52:38,813 - INFO - Extended_SuRL_Eval_137362153312704 - ✅ Loaded ConditionalWorldModel (for planning analysis)
+2025-06-10 12:52:38,822 - INFO - Extended_SuRL_Eval_137362153312704 - ✅ Loaded ppo RL policy (trained with world model)
+2025-06-10 12:52:38,830 - INFO - Extended_SuRL_Eval_137362153312704 - ✅ Loaded a2c RL policy (trained with world model)
+2025-06-10 12:52:38,838 - INFO - Extended_SuRL_Eval_137362153312704 - ✅ Loaded ppo RL policy (trained on direct video)
+2025-06-10 12:52:38,845 - INFO - Extended_SuRL_Eval_137362153312704 - ✅ Loaded a2c RL policy (trained on direct video)
+2025-06-10 12:52:38,846 - INFO - Extended_SuRL_Eval_137362153312704 - 📊 Loaded 5 models for comprehensive evaluation
+2025-06-10 12:52:38,846 - INFO - Extended_SuRL_Eval_137362153312704 - 🎯 Evaluation approach:
+2025-06-10 12:52:38,846 - INFO - Extended_SuRL_Eval_137362153312704 -    Primary: Single-step action prediction (fair comparison)
+2025-06-10 12:52:38,846 - INFO - Extended_SuRL_Eval_137362153312704 -    Secondary: Multi-step planning analysis (paradigm-specific)
+2025-06-10 12:52:38,846 - INFO - Extended_SuRL_Eval_137362153312704 - 📊 Loaded models for evaluation:
+2025-06-10 12:52:38,846 - INFO - Extended_SuRL_Eval_137362153312704 -    AutoregressiveIL: supervised_imitation_learning
+2025-06-10 12:52:38,846 - INFO - Extended_SuRL_Eval_137362153312704 -    WorldModelRL_ppo: rl_with_world_model_simulation
+2025-06-10 12:52:38,846 - INFO - Extended_SuRL_Eval_137362153312704 -    WorldModelRL_a2c: rl_with_world_model_simulation
+2025-06-10 12:52:38,846 - INFO - Extended_SuRL_Eval_137362153312704 -    DirectVideoRL_ppo: rl_with_direct_video_episodes
+2025-06-10 12:52:38,846 - INFO - Extended_SuRL_Eval_137362153312704 -    DirectVideoRL_a2c: rl_with_direct_video_episodes
+2025-06-10 12:52:38,846 - INFO - Extended_SuRL_Eval_137362153312704 - 🚀 Running evaluation on 5 videos...
+2025-06-10 12:52:38,846 - INFO - Extended_SuRL_Eval_137362153312704 - 🚀 Starting FIXED comprehensive evaluation (using proper batches)
+2025-06-10 12:52:38,846 - INFO - Extended_SuRL_Eval_137362153312704 - 📊 Models: 5, Videos: 5
+2025-06-10 12:52:38,846 - INFO - Extended_SuRL_Eval_137362153312704 - 🎯 Evaluation approach:
+2025-06-10 12:52:38,846 - INFO - Extended_SuRL_Eval_137362153312704 -    ✅ Uses DataLoader batches directly (like training)
+2025-06-10 12:52:38,846 - INFO - Extended_SuRL_Eval_137362153312704 -    ✅ Maintains temporal structure for IL model
+2025-06-10 12:52:38,846 - INFO - Extended_SuRL_Eval_137362153312704 -    ✅ Consistent model interfaces
+2025-06-10 12:52:38,846 - INFO - Extended_SuRL_Eval_137362153312704 - 📹 Evaluating video: VID02
+2025-06-10 12:52:38,849 - INFO - Extended_SuRL_Eval_137362153312704 - 📹 Comprehensive evaluation: VID02
+2025-06-10 12:52:38,849 - INFO - Extended_SuRL_Eval_137362153312704 - 🎯 PRIMARY: Single-step action prediction
+2025-06-10 12:52:38,849 - INFO - Extended_SuRL_Eval_137362153312704 -   🤖 AutoregressiveIL: Single-step action prediction
+2025-06-10 12:52:40,292 - INFO - Extended_SuRL_Eval_137362153312704 -   AutoregressiveIL evaluation completed: 355 batches processed
+2025-06-10 12:52:41,146 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Single-step mAP: 0.3857
+2025-06-10 12:52:41,146 - INFO - Extended_SuRL_Eval_137362153312704 -   🤖 WorldModelRL_ppo: Single-step action prediction
+2025-06-10 12:52:43,044 - INFO - Extended_SuRL_Eval_137362153312704 -   WorldModelRL_ppo evaluation completed: 355 batches processed
+2025-06-10 12:52:43,884 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Single-step mAP: 0.0656
+2025-06-10 12:52:43,885 - INFO - Extended_SuRL_Eval_137362153312704 -   🤖 WorldModelRL_a2c: Single-step action prediction
+2025-06-10 12:52:45,127 - INFO - Extended_SuRL_Eval_137362153312704 -   WorldModelRL_a2c evaluation completed: 355 batches processed
+2025-06-10 12:52:45,970 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Single-step mAP: 0.0554
+2025-06-10 12:52:45,971 - INFO - Extended_SuRL_Eval_137362153312704 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-10 12:52:47,195 - INFO - Extended_SuRL_Eval_137362153312704 -   DirectVideoRL_ppo evaluation completed: 355 batches processed
+2025-06-10 12:52:48,070 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Single-step mAP: 0.0486
+2025-06-10 12:52:48,070 - INFO - Extended_SuRL_Eval_137362153312704 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-10 12:52:49,916 - INFO - Extended_SuRL_Eval_137362153312704 -   DirectVideoRL_a2c evaluation completed: 355 batches processed
+2025-06-10 12:52:50,801 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Single-step mAP: 0.0506
+2025-06-10 12:52:50,801 - INFO - Extended_SuRL_Eval_137362153312704 - 🚀 SECONDARY: Planning capability analysis
+2025-06-10 12:52:50,801 - INFO - Extended_SuRL_Eval_137362153312704 -   🧠 AutoregressiveIL: Planning capability analysis
+2025-06-10 12:52:58,670 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Planning stability: 0.9978
+2025-06-10 12:52:58,670 - INFO - Extended_SuRL_Eval_137362153312704 -   🧠 WorldModelRL_ppo: Planning capability analysis
+2025-06-10 12:53:08,156 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Planning stability: 0.9999
+2025-06-10 12:53:08,156 - INFO - Extended_SuRL_Eval_137362153312704 -   🧠 WorldModelRL_a2c: Planning capability analysis
+2025-06-10 12:53:18,458 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Planning stability: 1.0000
+2025-06-10 12:53:18,458 - INFO - Extended_SuRL_Eval_137362153312704 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-10 12:53:19,057 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Planning stability: 0.9987
+2025-06-10 12:53:19,058 - INFO - Extended_SuRL_Eval_137362153312704 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-10 12:53:19,658 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Planning stability: 0.9991
+2025-06-10 12:53:19,659 - INFO - Extended_SuRL_Eval_137362153312704 -   AutoregressiveIL: mAP = 0.3857
+2025-06-10 12:53:19,659 - INFO - Extended_SuRL_Eval_137362153312704 -   WorldModelRL_ppo: mAP = 0.0656
+2025-06-10 12:53:19,659 - INFO - Extended_SuRL_Eval_137362153312704 -   WorldModelRL_a2c: mAP = 0.0554
+2025-06-10 12:53:19,659 - INFO - Extended_SuRL_Eval_137362153312704 -   DirectVideoRL_ppo: mAP = 0.0486
+2025-06-10 12:53:19,659 - INFO - Extended_SuRL_Eval_137362153312704 -   DirectVideoRL_a2c: mAP = 0.0506
+2025-06-10 12:53:19,659 - INFO - Extended_SuRL_Eval_137362153312704 - 📹 Evaluating video: VID06
+2025-06-10 12:53:19,661 - INFO - Extended_SuRL_Eval_137362153312704 - 📹 Comprehensive evaluation: VID06
+2025-06-10 12:53:19,661 - INFO - Extended_SuRL_Eval_137362153312704 - 🎯 PRIMARY: Single-step action prediction
+2025-06-10 12:53:19,661 - INFO - Extended_SuRL_Eval_137362153312704 -   🤖 AutoregressiveIL: Single-step action prediction
+2025-06-10 12:53:20,808 - INFO - Extended_SuRL_Eval_137362153312704 -   AutoregressiveIL evaluation completed: 270 batches processed
+2025-06-10 12:53:21,673 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Single-step mAP: 0.5301
+2025-06-10 12:53:21,673 - INFO - Extended_SuRL_Eval_137362153312704 -   🤖 WorldModelRL_ppo: Single-step action prediction
+2025-06-10 12:53:23,117 - INFO - Extended_SuRL_Eval_137362153312704 -   WorldModelRL_ppo evaluation completed: 270 batches processed
+2025-06-10 12:53:23,887 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Single-step mAP: 0.0852
+2025-06-10 12:53:23,887 - INFO - Extended_SuRL_Eval_137362153312704 -   🤖 WorldModelRL_a2c: Single-step action prediction
+2025-06-10 12:53:25,186 - INFO - Extended_SuRL_Eval_137362153312704 -   WorldModelRL_a2c evaluation completed: 270 batches processed
+2025-06-10 12:53:25,972 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Single-step mAP: 0.1006
+2025-06-10 12:53:25,972 - INFO - Extended_SuRL_Eval_137362153312704 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-10 12:53:27,041 - INFO - Extended_SuRL_Eval_137362153312704 -   DirectVideoRL_ppo evaluation completed: 270 batches processed
+2025-06-10 12:53:27,829 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Single-step mAP: 0.0805
+2025-06-10 12:53:27,829 - INFO - Extended_SuRL_Eval_137362153312704 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-10 12:53:29,012 - INFO - Extended_SuRL_Eval_137362153312704 -   DirectVideoRL_a2c evaluation completed: 270 batches processed
+2025-06-10 12:53:29,806 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Single-step mAP: 0.0987
+2025-06-10 12:53:29,806 - INFO - Extended_SuRL_Eval_137362153312704 - 🚀 SECONDARY: Planning capability analysis
+2025-06-10 12:53:29,806 - INFO - Extended_SuRL_Eval_137362153312704 -   🧠 AutoregressiveIL: Planning capability analysis
+2025-06-10 12:53:36,643 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Planning stability: 0.9979
+2025-06-10 12:53:36,643 - INFO - Extended_SuRL_Eval_137362153312704 -   🧠 WorldModelRL_ppo: Planning capability analysis
+2025-06-10 12:53:44,045 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Planning stability: 0.9999
+2025-06-10 12:53:44,045 - INFO - Extended_SuRL_Eval_137362153312704 -   🧠 WorldModelRL_a2c: Planning capability analysis
+2025-06-10 12:53:52,054 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Planning stability: 1.0000
+2025-06-10 12:53:52,054 - INFO - Extended_SuRL_Eval_137362153312704 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-10 12:53:52,442 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Planning stability: 0.9987
+2025-06-10 12:53:52,442 - INFO - Extended_SuRL_Eval_137362153312704 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-10 12:53:52,841 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Planning stability: 0.9990
+2025-06-10 12:53:52,841 - INFO - Extended_SuRL_Eval_137362153312704 -   AutoregressiveIL: mAP = 0.5301
+2025-06-10 12:53:52,841 - INFO - Extended_SuRL_Eval_137362153312704 -   WorldModelRL_ppo: mAP = 0.0852
+2025-06-10 12:53:52,841 - INFO - Extended_SuRL_Eval_137362153312704 -   WorldModelRL_a2c: mAP = 0.1006
+2025-06-10 12:53:52,841 - INFO - Extended_SuRL_Eval_137362153312704 -   DirectVideoRL_ppo: mAP = 0.0805
+2025-06-10 12:53:52,841 - INFO - Extended_SuRL_Eval_137362153312704 -   DirectVideoRL_a2c: mAP = 0.0987
+2025-06-10 12:53:52,842 - INFO - Extended_SuRL_Eval_137362153312704 - 📹 Evaluating video: VID111
+2025-06-10 12:53:52,844 - INFO - Extended_SuRL_Eval_137362153312704 - 📹 Comprehensive evaluation: VID111
+2025-06-10 12:53:52,844 - INFO - Extended_SuRL_Eval_137362153312704 - 🎯 PRIMARY: Single-step action prediction
+2025-06-10 12:53:52,844 - INFO - Extended_SuRL_Eval_137362153312704 -   🤖 AutoregressiveIL: Single-step action prediction
+2025-06-10 12:53:53,962 - INFO - Extended_SuRL_Eval_137362153312704 -   AutoregressiveIL evaluation completed: 269 batches processed
+2025-06-10 12:53:54,610 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Single-step mAP: 0.4202
+2025-06-10 12:53:54,610 - INFO - Extended_SuRL_Eval_137362153312704 -   🤖 WorldModelRL_ppo: Single-step action prediction
+2025-06-10 12:53:55,712 - INFO - Extended_SuRL_Eval_137362153312704 -   WorldModelRL_ppo evaluation completed: 269 batches processed
+2025-06-10 12:53:56,381 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Single-step mAP: 0.0625
+2025-06-10 12:53:56,381 - INFO - Extended_SuRL_Eval_137362153312704 -   🤖 WorldModelRL_a2c: Single-step action prediction
+2025-06-10 12:53:57,880 - INFO - Extended_SuRL_Eval_137362153312704 -   WorldModelRL_a2c evaluation completed: 269 batches processed
+2025-06-10 12:53:58,588 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Single-step mAP: 0.0617
+2025-06-10 12:53:58,588 - INFO - Extended_SuRL_Eval_137362153312704 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-10 12:53:59,718 - INFO - Extended_SuRL_Eval_137362153312704 -   DirectVideoRL_ppo evaluation completed: 269 batches processed
+2025-06-10 12:54:00,342 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Single-step mAP: 0.0681
+2025-06-10 12:54:00,342 - INFO - Extended_SuRL_Eval_137362153312704 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-10 12:54:01,305 - INFO - Extended_SuRL_Eval_137362153312704 -   DirectVideoRL_a2c evaluation completed: 269 batches processed
+2025-06-10 12:54:02,068 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Single-step mAP: 0.0445
+2025-06-10 12:54:02,068 - INFO - Extended_SuRL_Eval_137362153312704 - 🚀 SECONDARY: Planning capability analysis
+2025-06-10 12:54:02,068 - INFO - Extended_SuRL_Eval_137362153312704 -   🧠 AutoregressiveIL: Planning capability analysis
+2025-06-10 12:54:08,867 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Planning stability: 0.9979
+2025-06-10 12:54:08,868 - INFO - Extended_SuRL_Eval_137362153312704 -   🧠 WorldModelRL_ppo: Planning capability analysis
+2025-06-10 12:54:16,504 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Planning stability: 0.9999
+2025-06-10 12:54:16,504 - INFO - Extended_SuRL_Eval_137362153312704 -   🧠 WorldModelRL_a2c: Planning capability analysis
+2025-06-10 12:54:23,869 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Planning stability: 1.0000
+2025-06-10 12:54:23,869 - INFO - Extended_SuRL_Eval_137362153312704 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-10 12:54:24,469 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Planning stability: 0.9987
+2025-06-10 12:54:24,469 - INFO - Extended_SuRL_Eval_137362153312704 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-10 12:54:24,957 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Planning stability: 0.9991
+2025-06-10 12:54:24,957 - INFO - Extended_SuRL_Eval_137362153312704 -   AutoregressiveIL: mAP = 0.4202
+2025-06-10 12:54:24,957 - INFO - Extended_SuRL_Eval_137362153312704 -   WorldModelRL_ppo: mAP = 0.0625
+2025-06-10 12:54:24,957 - INFO - Extended_SuRL_Eval_137362153312704 -   WorldModelRL_a2c: mAP = 0.0617
+2025-06-10 12:54:24,957 - INFO - Extended_SuRL_Eval_137362153312704 -   DirectVideoRL_ppo: mAP = 0.0681
+2025-06-10 12:54:24,957 - INFO - Extended_SuRL_Eval_137362153312704 -   DirectVideoRL_a2c: mAP = 0.0445
+2025-06-10 12:54:24,958 - INFO - Extended_SuRL_Eval_137362153312704 - 📹 Evaluating video: VID14
+2025-06-10 12:54:24,959 - INFO - Extended_SuRL_Eval_137362153312704 - 📹 Comprehensive evaluation: VID14
+2025-06-10 12:54:24,960 - INFO - Extended_SuRL_Eval_137362153312704 - 🎯 PRIMARY: Single-step action prediction
+2025-06-10 12:54:24,960 - INFO - Extended_SuRL_Eval_137362153312704 -   🤖 AutoregressiveIL: Single-step action prediction
+2025-06-10 12:54:25,890 - INFO - Extended_SuRL_Eval_137362153312704 -   AutoregressiveIL evaluation completed: 214 batches processed
+2025-06-10 12:54:26,476 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Single-step mAP: 0.3114
+2025-06-10 12:54:26,476 - INFO - Extended_SuRL_Eval_137362153312704 -   🤖 WorldModelRL_ppo: Single-step action prediction
+2025-06-10 12:54:27,442 - INFO - Extended_SuRL_Eval_137362153312704 -   WorldModelRL_ppo evaluation completed: 214 batches processed
+2025-06-10 12:54:28,012 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Single-step mAP: 0.0562
+2025-06-10 12:54:28,012 - INFO - Extended_SuRL_Eval_137362153312704 -   🤖 WorldModelRL_a2c: Single-step action prediction
+2025-06-10 12:54:28,997 - INFO - Extended_SuRL_Eval_137362153312704 -   WorldModelRL_a2c evaluation completed: 214 batches processed
+2025-06-10 12:54:29,566 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Single-step mAP: 0.0556
+2025-06-10 12:54:29,566 - INFO - Extended_SuRL_Eval_137362153312704 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-10 12:54:30,529 - INFO - Extended_SuRL_Eval_137362153312704 -   DirectVideoRL_ppo evaluation completed: 214 batches processed
+2025-06-10 12:54:31,101 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Single-step mAP: 0.0472
+2025-06-10 12:54:31,101 - INFO - Extended_SuRL_Eval_137362153312704 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-10 12:54:32,069 - INFO - Extended_SuRL_Eval_137362153312704 -   DirectVideoRL_a2c evaluation completed: 214 batches processed
+2025-06-10 12:54:32,646 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Single-step mAP: 0.0479
+2025-06-10 12:54:32,646 - INFO - Extended_SuRL_Eval_137362153312704 - 🚀 SECONDARY: Planning capability analysis
+2025-06-10 12:54:32,646 - INFO - Extended_SuRL_Eval_137362153312704 -   🧠 AutoregressiveIL: Planning capability analysis
+2025-06-10 12:54:38,518 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Planning stability: 0.9974
+2025-06-10 12:54:38,518 - INFO - Extended_SuRL_Eval_137362153312704 -   🧠 WorldModelRL_ppo: Planning capability analysis
+2025-06-10 12:54:46,056 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Planning stability: 0.9999
+2025-06-10 12:54:46,056 - INFO - Extended_SuRL_Eval_137362153312704 -   🧠 WorldModelRL_a2c: Planning capability analysis
+2025-06-10 12:54:52,854 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Planning stability: 1.0000
+2025-06-10 12:54:52,854 - INFO - Extended_SuRL_Eval_137362153312704 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-10 12:54:53,189 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Planning stability: 0.9987
+2025-06-10 12:54:53,190 - INFO - Extended_SuRL_Eval_137362153312704 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-10 12:54:53,558 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Planning stability: 0.9991
+2025-06-10 12:54:53,558 - INFO - Extended_SuRL_Eval_137362153312704 -   AutoregressiveIL: mAP = 0.3114
+2025-06-10 12:54:53,558 - INFO - Extended_SuRL_Eval_137362153312704 -   WorldModelRL_ppo: mAP = 0.0562
+2025-06-10 12:54:53,558 - INFO - Extended_SuRL_Eval_137362153312704 -   WorldModelRL_a2c: mAP = 0.0556
+2025-06-10 12:54:53,558 - INFO - Extended_SuRL_Eval_137362153312704 -   DirectVideoRL_ppo: mAP = 0.0472
+2025-06-10 12:54:53,558 - INFO - Extended_SuRL_Eval_137362153312704 -   DirectVideoRL_a2c: mAP = 0.0479
+2025-06-10 12:54:53,558 - INFO - Extended_SuRL_Eval_137362153312704 - 📹 Evaluating video: VID23
+2025-06-10 12:54:53,560 - INFO - Extended_SuRL_Eval_137362153312704 - 📹 Comprehensive evaluation: VID23
+2025-06-10 12:54:53,560 - INFO - Extended_SuRL_Eval_137362153312704 - 🎯 PRIMARY: Single-step action prediction
+2025-06-10 12:54:53,560 - INFO - Extended_SuRL_Eval_137362153312704 -   🤖 AutoregressiveIL: Single-step action prediction
+2025-06-10 12:54:54,475 - INFO - Extended_SuRL_Eval_137362153312704 -   AutoregressiveIL evaluation completed: 205 batches processed
+2025-06-10 12:54:55,287 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Single-step mAP: 0.3907
+2025-06-10 12:54:55,287 - INFO - Extended_SuRL_Eval_137362153312704 -   🤖 WorldModelRL_ppo: Single-step action prediction
+2025-06-10 12:54:56,201 - INFO - Extended_SuRL_Eval_137362153312704 -   WorldModelRL_ppo evaluation completed: 205 batches processed
+2025-06-10 12:54:56,919 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Single-step mAP: 0.0841
+2025-06-10 12:54:56,920 - INFO - Extended_SuRL_Eval_137362153312704 -   🤖 WorldModelRL_a2c: Single-step action prediction
+2025-06-10 12:54:57,772 - INFO - Extended_SuRL_Eval_137362153312704 -   WorldModelRL_a2c evaluation completed: 205 batches processed
+2025-06-10 12:54:58,458 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Single-step mAP: 0.0660
+2025-06-10 12:54:58,458 - INFO - Extended_SuRL_Eval_137362153312704 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-10 12:54:59,856 - INFO - Extended_SuRL_Eval_137362153312704 -   DirectVideoRL_ppo evaluation completed: 205 batches processed
+2025-06-10 12:55:00,582 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Single-step mAP: 0.0763
+2025-06-10 12:55:00,582 - INFO - Extended_SuRL_Eval_137362153312704 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-10 12:55:01,467 - INFO - Extended_SuRL_Eval_137362153312704 -   DirectVideoRL_a2c evaluation completed: 205 batches processed
+2025-06-10 12:55:02,207 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Single-step mAP: 0.0680
+2025-06-10 12:55:02,207 - INFO - Extended_SuRL_Eval_137362153312704 - 🚀 SECONDARY: Planning capability analysis
+2025-06-10 12:55:02,207 - INFO - Extended_SuRL_Eval_137362153312704 -   🧠 AutoregressiveIL: Planning capability analysis
+2025-06-10 12:55:08,241 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Planning stability: 0.9980
+2025-06-10 12:55:08,241 - INFO - Extended_SuRL_Eval_137362153312704 -   🧠 WorldModelRL_ppo: Planning capability analysis
+2025-06-10 12:55:14,675 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Planning stability: 0.9999
+2025-06-10 12:55:14,675 - INFO - Extended_SuRL_Eval_137362153312704 -   🧠 WorldModelRL_a2c: Planning capability analysis
+2025-06-10 12:55:21,706 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Planning stability: 1.0000
+2025-06-10 12:55:21,706 - INFO - Extended_SuRL_Eval_137362153312704 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-10 12:55:22,271 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Planning stability: 0.9987
+2025-06-10 12:55:22,271 - INFO - Extended_SuRL_Eval_137362153312704 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-10 12:55:22,906 - INFO - Extended_SuRL_Eval_137362153312704 -     📊 Planning stability: 0.9991
+2025-06-10 12:55:22,906 - INFO - Extended_SuRL_Eval_137362153312704 -   AutoregressiveIL: mAP = 0.3907
+2025-06-10 12:55:22,906 - INFO - Extended_SuRL_Eval_137362153312704 -   WorldModelRL_ppo: mAP = 0.0841
+2025-06-10 12:55:22,906 - INFO - Extended_SuRL_Eval_137362153312704 -   WorldModelRL_a2c: mAP = 0.0660
+2025-06-10 12:55:22,906 - INFO - Extended_SuRL_Eval_137362153312704 -   DirectVideoRL_ppo: mAP = 0.0763
+2025-06-10 12:55:22,906 - INFO - Extended_SuRL_Eval_137362153312704 -   DirectVideoRL_a2c: mAP = 0.0680
+2025-06-10 12:55:22,907 - INFO - Extended_SuRL_Eval_137362153312704 - 📂 Main video results saved to /home/maxboels/projects/surl/results/2025-06-07_18-44-58/eval_2025-06-10_12-52-35/integrated_evaluation/main_video_results.json
+2025-06-10 12:55:22,910 - INFO - Extended_SuRL_Eval_137362153312704 - 📂 Video results saved to /home/maxboels/projects/surl/results/2025-06-07_18-44-58/eval_2025-06-10_12-52-35/integrated_evaluation/videos_results.json
+2025-06-10 12:55:22,910 - INFO - Extended_SuRL_Eval_137362153312704 - 📊 Computing aggregate results...
+2025-06-10 12:55:22,910 - INFO - Extended_SuRL_Eval_137362153312704 - 📈 Performing statistical tests...
+2025-06-10 12:55:22,923 - INFO - Extended_SuRL_Eval_137362153312704 - 
+2025-06-10 12:55:22,923 - INFO - Extended_SuRL_Eval_137362153312704 - 🎉 COMPREHENSIVE EVALUATION COMPLETED!
+2025-06-10 12:55:22,923 - INFO - Extended_SuRL_Eval_137362153312704 - ============================================================
+2025-06-10 12:55:22,923 - INFO - Extended_SuRL_Eval_137362153312704 - 🎯 PRIMARY RESULTS: Single-step Action Prediction (Fair Comparison)
+2025-06-10 12:55:22,923 - INFO - Extended_SuRL_Eval_137362153312704 -    Supervised IL: 0.4076 ± 0.0710 mAP
+2025-06-10 12:55:22,923 - INFO - Extended_SuRL_Eval_137362153312704 -    RL + World Model (PPO): 0.0707 ± 0.0117 mAP
+2025-06-10 12:55:22,923 - INFO - Extended_SuRL_Eval_137362153312704 -    RL + World Model (A2C): 0.0678 ± 0.0169 mAP
+2025-06-10 12:55:22,923 - INFO - Extended_SuRL_Eval_137362153312704 -    RL + Direct Video (PPO): 0.0641 ± 0.0138 mAP
+2025-06-10 12:55:22,923 - INFO - Extended_SuRL_Eval_137362153312704 -    RL + Direct Video (A2C): 0.0619 ± 0.0201 mAP
+2025-06-10 12:55:22,923 - INFO - Extended_SuRL_Eval_137362153312704 - 
+2025-06-10 12:55:22,923 - INFO - Extended_SuRL_Eval_137362153312704 - 🚀 SECONDARY RESULTS: Planning Capability Analysis
+2025-06-10 12:55:22,923 - INFO - Extended_SuRL_Eval_137362153312704 - 
+2025-06-10 12:55:22,923 - INFO - Extended_SuRL_Eval_137362153312704 - 🔍 KEY INSIGHTS:
+2025-06-10 12:55:22,923 - INFO - Extended_SuRL_Eval_137362153312704 -    ✅ Fair single-step comparison shows paradigm performance
+2025-06-10 12:55:22,923 - INFO - Extended_SuRL_Eval_137362153312704 -    ✅ Planning analysis reveals paradigm-specific strengths
+2025-06-10 12:55:22,923 - INFO - Extended_SuRL_Eval_137362153312704 -    ✅ No ground truth leakage or environment mismatches
+2025-06-10 12:55:22,923 - INFO - Extended_SuRL_Eval_137362153312704 -    ✅ Each method evaluated according to its training paradigm
+2025-06-10 12:55:22,923 - INFO - Extended_SuRL_Eval_137362153312704 - 
+2025-06-10 12:55:22,923 - INFO - Extended_SuRL_Eval_137362153312704 - ⚖️ EVALUATION FAIRNESS:
+2025-06-10 12:55:22,923 - INFO - Extended_SuRL_Eval_137362153312704 -    Primary task: single_step_action_prediction_with_proper_context
+2025-06-10 12:55:22,923 - INFO - Extended_SuRL_Eval_137362153312704 -    Secondary task: multi_step_planning_analysis
+2025-06-10 12:55:22,923 - INFO - Extended_SuRL_Eval_137362153312704 -    Fairness approach: respects_training_paradigms_and_data_structure
+2025-06-10 12:55:22,923 - INFO - Extended_SuRL_Eval_137362153312704 - 💾 Saving evaluation results...
+2025-06-10 12:55:22,923 - INFO - Extended_SuRL_Eval_137362153312704 - 📊 evaluation results saved
+2025-06-10 12:55:22,923 - INFO - Extended_SuRL_Eval_137362153312704 - 📁 Location: /home/maxboels/projects/surl/results/2025-06-07_18-44-58/eval_2025-06-10_12-52-35/integrated_evaluation
+2025-06-10 12:55:22,924 - INFO - Extended_SuRL_Eval_137362153312704 - 🏥 Running Clinical Surgical Evaluation
+2025-06-10 12:55:22,924 - INFO - Extended_SuRL_Eval_137362153312704 - 🏥 Running Clinical Surgical Evaluation
+2025-06-10 12:55:22,924 - INFO - Extended_SuRL_Eval_137362153312704 - --------------------------------------------------
+2025-06-10 12:55:22,924 - INFO - Extended_SuRL_Eval_137362153312704 - 🏥 Clinical evaluation for method_1_autoregressive_il
+2025-06-10 12:55:25,584 - INFO - Extended_SuRL_Eval_137362153312704 - ✅ Clinical evaluation completed for method_1_autoregressive_il
+2025-06-10 12:55:25,584 - INFO - Extended_SuRL_Eval_137362153312704 - 📋 Report saved: /home/maxboels/projects/surl/results/2025-06-07_18-44-58/eval_2025-06-10_12-52-35/clinical_evaluation/method_1_autoregressive_il_clinical_report.txt
+2025-06-10 12:55:25,584 - INFO - Extended_SuRL_Eval_137362153312704 - 🏥 Clinical evaluation for method_2_conditional_world_model
+2025-06-10 12:55:26,167 - INFO - Extended_SuRL_Eval_137362153312704 - ✅ Clinical evaluation completed for method_2_conditional_world_model
+2025-06-10 12:55:26,167 - INFO - Extended_SuRL_Eval_137362153312704 - 📋 Report saved: /home/maxboels/projects/surl/results/2025-06-07_18-44-58/eval_2025-06-10_12-52-35/clinical_evaluation/method_2_conditional_world_model_clinical_report.txt
+2025-06-10 12:55:26,167 - INFO - Extended_SuRL_Eval_137362153312704 - 🏥 Clinical evaluation for method_3_direct_video_rl
+2025-06-10 12:55:26,167 - ERROR - Extended_SuRL_Eval_137362153312704 - ❌ Clinical evaluation failed for method_3_direct_video_rl: No model found for method_3_direct_video_rl
+2025-06-10 12:55:26,167 - INFO - Extended_SuRL_Eval_137362153312704 - 🔬 Running Detailed Metric Debugging
+2025-06-10 12:55:26,167 - INFO - Extended_SuRL_Eval_137362153312704 - 🔬 Running Detailed Metric Debugging
+2025-06-10 12:55:26,167 - INFO - Extended_SuRL_Eval_137362153312704 - --------------------------------------------------
+2025-06-10 12:55:26,167 - INFO - Extended_SuRL_Eval_137362153312704 - 🔬 Debugging metrics for method_1_autoregressive_il
+2025-06-10 12:55:27,780 - INFO - Extended_SuRL_Eval_137362153312704 - 📊 Debug visualization saved: /home/maxboels/projects/surl/results/2025-06-07_18-44-58/eval_2025-06-10_12-52-35/visualizations/method_1_autoregressive_il_debug_visualizations.png
+2025-06-10 12:55:27,780 - INFO - Extended_SuRL_Eval_137362153312704 - 🔬 Debugging metrics for method_2_conditional_world_model
+2025-06-10 12:55:28,920 - INFO - Extended_SuRL_Eval_137362153312704 - 📊 Debug visualization saved: /home/maxboels/projects/surl/results/2025-06-07_18-44-58/eval_2025-06-10_12-52-35/visualizations/method_2_conditional_world_model_debug_visualizations.png
+2025-06-10 12:55:28,920 - INFO - Extended_SuRL_Eval_137362153312704 - 🔬 Debugging metrics for method_3_direct_video_rl
+2025-06-10 12:55:30,130 - INFO - Extended_SuRL_Eval_137362153312704 - 📊 Debug visualization saved: /home/maxboels/projects/surl/results/2025-06-07_18-44-58/eval_2025-06-10_12-52-35/visualizations/method_3_direct_video_rl_debug_visualizations.png
+2025-06-10 12:55:30,131 - INFO - Extended_SuRL_Eval_137362153312704 - 📊 Creating Advanced Visualizations
+2025-06-10 12:55:30,131 - INFO - Extended_SuRL_Eval_137362153312704 - 📊 Creating advanced comparative visualizations...
+2025-06-10 12:55:30,846 - INFO - Extended_SuRL_Eval_137362153312704 - 📊 Method comparison visualization saved: /home/maxboels/projects/surl/results/2025-06-07_18-44-58/eval_2025-06-10_12-52-35/visualizations/method_comparison_overview.png
+2025-06-10 12:55:31,573 - INFO - Extended_SuRL_Eval_137362153312704 - 🏥 Clinical insights visualization saved: /home/maxboels/projects/surl/results/2025-06-07_18-44-58/eval_2025-06-10_12-52-35/visualizations/clinical_insights_overview.png
+2025-06-10 12:55:31,573 - INFO - Extended_SuRL_Eval_137362153312704 - 📋 Generating Comprehensive Reports
+2025-06-10 12:55:31,573 - INFO - Extended_SuRL_Eval_137362153312704 - 📋 Generating comprehensive evaluation reports...
+2025-06-10 12:55:31,573 - INFO - Extended_SuRL_Eval_137362153312704 - 📋 Executive summary saved: /home/maxboels/projects/surl/results/2025-06-07_18-44-58/eval_2025-06-10_12-52-35/executive_summary.md
+2025-06-10 12:55:31,573 - INFO - Extended_SuRL_Eval_137362153312704 - 📋 Technical report saved: /home/maxboels/projects/surl/results/2025-06-07_18-44-58/eval_2025-06-10_12-52-35/technical_report.md
+2025-06-10 12:55:31,573 - INFO - Extended_SuRL_Eval_137362153312704 - 🏥 Clinical summary saved: /home/maxboels/projects/surl/results/2025-06-07_18-44-58/eval_2025-06-10_12-52-35/clinical_evaluation/clinical_summary.md
+2025-06-10 12:55:31,573 - INFO - Extended_SuRL_Eval_137362153312704 - 🏆 Analyzing Results with Clinical Insights
+2025-06-10 12:55:31,573 - INFO - Extended_SuRL_Eval_137362153312704 - 🏆 ENHANCED EVALUATION ANALYSIS WITH CLINICAL INSIGHTS
+2025-06-10 12:55:31,573 - INFO - Extended_SuRL_Eval_137362153312704 - ======================================================================
+2025-06-10 12:55:31,573 - INFO - Extended_SuRL_Eval_137362153312704 - 📦 MODEL LOADING STATUS:
+2025-06-10 12:55:31,573 - INFO - Extended_SuRL_Eval_137362153312704 -    ✅ method_1_autoregressive_il: Loaded successfully
+2025-06-10 12:55:31,573 - INFO - Extended_SuRL_Eval_137362153312704 -    ✅ method_2_conditional_world_model: Loaded successfully
+2025-06-10 12:55:31,573 - INFO - Extended_SuRL_Eval_137362153312704 -    ✅ method_3_direct_video_rl: Loaded successfully
+2025-06-10 12:55:31,573 - INFO - Extended_SuRL_Eval_137362153312704 - 
+2025-06-10 12:55:31,573 - INFO - Extended_SuRL_Eval_137362153312704 - 🏥 CLINICAL EVALUATION STATUS:
+2025-06-10 12:55:31,573 - INFO - Extended_SuRL_Eval_137362153312704 -    ✅ method_1_autoregressive_il: Clinical evaluation completed
+2025-06-10 12:55:31,573 - INFO - Extended_SuRL_Eval_137362153312704 -    ✅ method_2_conditional_world_model: Clinical evaluation completed
+2025-06-10 12:55:31,573 - INFO - Extended_SuRL_Eval_137362153312704 -    ❌ method_3_direct_video_rl: Clinical evaluation failed
+2025-06-10 12:55:31,573 - INFO - Extended_SuRL_Eval_137362153312704 - 
+2025-06-10 12:55:31,573 - INFO - Extended_SuRL_Eval_137362153312704 - 🔬 METRIC DEBUGGING STATUS:
+2025-06-10 12:55:31,573 - INFO - Extended_SuRL_Eval_137362153312704 -    ✅ method_1_autoregressive_il: Metric debugging completed
+2025-06-10 12:55:31,573 - INFO - Extended_SuRL_Eval_137362153312704 -    ✅ method_2_conditional_world_model: Metric debugging completed
+2025-06-10 12:55:31,573 - INFO - Extended_SuRL_Eval_137362153312704 -    ✅ method_3_direct_video_rl: Metric debugging completed
+2025-06-10 12:55:31,573 - INFO - Extended_SuRL_Eval_137362153312704 - 
+2025-06-10 12:55:31,573 - INFO - Extended_SuRL_Eval_137362153312704 - 📊 PERFORMANCE SUMMARY:
+2025-06-10 12:55:31,573 - INFO - Extended_SuRL_Eval_137362153312704 -    🎯 Single-step Action Prediction Performance:
+2025-06-10 12:55:31,574 - INFO - Extended_SuRL_Eval_137362153312704 -       WorldModelRL_ppo: mAP=0.0707±0.0117, Exact=0.1084
+2025-06-10 12:55:31,574 - INFO - Extended_SuRL_Eval_137362153312704 -       DirectVideoRL_ppo: mAP=0.0641±0.0138, Exact=0.0000
+2025-06-10 12:55:31,574 - INFO - Extended_SuRL_Eval_137362153312704 -       DirectVideoRL_a2c: mAP=0.0619±0.0201, Exact=0.1084
+2025-06-10 12:55:31,574 - INFO - Extended_SuRL_Eval_137362153312704 -       WorldModelRL_a2c: mAP=0.0678±0.0169, Exact=0.1084
+2025-06-10 12:55:31,574 - INFO - Extended_SuRL_Eval_137362153312704 -       AutoregressiveIL: mAP=0.4076±0.0710, Exact=0.3943
+2025-06-10 12:55:31,574 - INFO - Extended_SuRL_Eval_137362153312704 - 
+2025-06-10 12:55:31,574 - INFO - Extended_SuRL_Eval_137362153312704 - 🔬 ENHANCED INSIGHTS:
+2025-06-10 12:55:31,574 - INFO - Extended_SuRL_Eval_137362153312704 -    📋 Comprehensive reports generated
+2025-06-10 12:55:31,574 - INFO - Extended_SuRL_Eval_137362153312704 -    📊 Advanced visualizations created
+2025-06-10 12:55:31,574 - INFO - Extended_SuRL_Eval_137362153312704 -    🏥 Clinical evaluation framework applied
+2025-06-10 12:55:31,574 - INFO - Extended_SuRL_Eval_137362153312704 -    🔍 Detailed metric debugging performed
+2025-06-10 12:55:31,574 - INFO - Extended_SuRL_Eval_137362153312704 - 
+2025-06-10 12:55:31,574 - INFO - Extended_SuRL_Eval_137362153312704 - 📁 OUTPUT LOCATIONS:
+2025-06-10 12:55:31,574 - INFO - Extended_SuRL_Eval_137362153312704 -    📊 Main results: /home/maxboels/projects/surl/results/2025-06-07_18-44-58/eval_2025-06-10_12-52-35
+2025-06-10 12:55:31,574 - INFO - Extended_SuRL_Eval_137362153312704 -    🏥 Clinical reports: /home/maxboels/projects/surl/results/2025-06-07_18-44-58/eval_2025-06-10_12-52-35/clinical_evaluation
+2025-06-10 12:55:31,574 - INFO - Extended_SuRL_Eval_137362153312704 -    🔬 Debug analysis: /home/maxboels/projects/surl/results/2025-06-07_18-44-58/eval_2025-06-10_12-52-35/metric_debugging
+2025-06-10 12:55:31,574 - INFO - Extended_SuRL_Eval_137362153312704 -    📈 Visualizations: /home/maxboels/projects/surl/results/2025-06-07_18-44-58/eval_2025-06-10_12-52-35/visualizations
+2025-06-10 12:55:31,579 - INFO - Extended_SuRL_Eval_137362153312704 - 💾 Enhanced evaluation results saved:
+2025-06-10 12:55:31,579 - INFO - Extended_SuRL_Eval_137362153312704 -    📄 Main results: /home/maxboels/projects/surl/results/2025-06-07_18-44-58/eval_2025-06-10_12-52-35/all_evaluation_results.json
+2025-06-10 12:55:31,579 - INFO - Extended_SuRL_Eval_137362153312704 -    📋 Index file: /home/maxboels/projects/surl/results/2025-06-07_18-44-58/eval_2025-06-10_12-52-35/README.md
+2025-06-10 12:55:31,579 - INFO - Extended_SuRL_Eval_137362153312704 -    📁 All outputs: /home/maxboels/projects/surl/results/2025-06-07_18-44-58/eval_2025-06-10_12-52-35

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-FIXED Integrated Evaluation for Surgical RL Comparison
+Integrated Evaluation for Surgical RL Comparison
 Two-tier fair evaluation: single-step comparison + planning analysis
 """
-
+import os
 import torch
 import numpy as np
 import pandas as pd
@@ -166,7 +166,7 @@ class IntegratedEvaluationFramework:
                 
                 video_result['single_step_evaluation'][method_name] = {
                     'metrics': metrics,
-                    'evaluation_type': 'single_step_fair_comparison_proper_batches',
+                    'evaluation_type': 'next_action_prediction',
                     'used_temporal_context': 'AutoregressiveIL' in method_name
                 }
                 
@@ -191,7 +191,7 @@ class IntegratedEvaluationFramework:
                     model, video_loader, method_name, planning_horizon
                 )
                 
-                video_result['planning_evaluation'][method_name] = planning_results
+                video_result['planning_evaluation'][method_name] = {}#planning_results
                 
                 stability = planning_results.get('planning_stability', 0.0)
                 self.logger.info(f"    📊 Planning stability: {stability:.4f}")
@@ -210,7 +210,7 @@ class IntegratedEvaluationFramework:
 
     def _evaluate_model_on_video_batches(self, model, video_loader: DataLoader, method_name: str) -> Tuple[np.ndarray, np.ndarray]:
         """
-        FIXED: Evaluate model using DataLoader batches directly (mirrors training approach).
+        Evaluate model using DataLoader batches directly (mirrors training approach).
         
         Returns:
             predictions: [total_samples, num_actions] 
@@ -244,6 +244,8 @@ class IntegratedEvaluationFramework:
                 except Exception as e:
                     self.logger.warning(f"Batch evaluation failed for {method_name}: {e}")
                     continue
+            
+            self.logger.info(f"  {method_name} evaluation completed: {len(all_predictions)} batches processed")
         
         if not all_predictions:
             return np.zeros((0, 100)), np.zeros((0, 100))
@@ -647,10 +649,29 @@ class IntegratedEvaluationFramework:
             }
         }
 
+    def _convert_for_json(self, obj):
+        """Convert objects to JSON-serializable format."""
+        if isinstance(obj, dict):
+            return {k: self._convert_for_json(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [self._convert_for_json(item) for item in obj]
+        elif isinstance(obj, (torch.Tensor, np.ndarray)):
+            return obj.tolist()
+        elif isinstance(obj, np.number):      # 🔧 ADD THIS
+            return obj.item()                 # 🔧 ADD THIS  
+        elif isinstance(obj, np.bool_):       # 🔧 ADD THIS
+            return bool(obj)                  # 🔧 ADD THIS
+        elif isinstance(obj, Path):
+            return str(obj)
+        elif hasattr(obj, '__dict__') and not callable(obj):
+            return str(obj)
+        else:
+            return obj
+    
     # Apply the fixes to the main evaluation method
     def run_evaluation_comprehensive(self, models: Dict, test_data: Dict, horizon: int = 15) -> Dict:
         """
-        FIXED: Run comprehensive evaluation using DataLoader batches directly.
+        Run comprehensive evaluation using DataLoader batches directly.
         """
         
         self.logger.info(f"🚀 Starting FIXED comprehensive evaluation (using proper batches)")
@@ -665,6 +686,7 @@ class IntegratedEvaluationFramework:
             return {'status': 'failed', 'error': 'No models loaded'}
         
         video_results = {}
+        main_video_results = {video_id: {} for video_id in test_data.keys()}
         
         # Evaluate each video using proper batch-based approach
         for video_id, video_loader in tqdm(test_data.items(), desc=f"Evaluating {len(test_data)} videos"):
@@ -682,10 +704,29 @@ class IntegratedEvaluationFramework:
                     if 'metrics' in results:
                         mAP = results['metrics'].get('mAP', 0.0)
                         self.logger.info(f"  {method}: mAP = {mAP:.4f}")
+                        main_video_results[video_id][method] = {
+                            'mAP': mAP,
+                            'evaluation_type': results.get('evaluation_type', 'unknown')
+                        }
                         
             except Exception as e:
                 self.logger.error(f"❌ Video {video_id} evaluation failed: {e}")
                 video_results[video_id] = {'error': str(e)}
+        
+        # Save main video results
+        main_video_results_path = os.path.join(self.eval_dir, 'main_video_results.json')
+        with open(main_video_results_path, 'w') as f:
+            json.dump(main_video_results, f, indent=4)
+        self.logger.info(f"📂 Main video results saved to {main_video_results_path}")
+
+        # convert type int64 to a json serializable type
+        video_results_json_format = self._convert_for_json(video_results)
+
+        # Save video results separately
+        video_results_path = os.path.join(self.eval_dir, 'videos_results.json')
+        with open(video_results_path, 'w') as f:
+            json.dump(video_results_json_format, f, indent=4)
+        self.logger.info(f"📂 Video results saved to {video_results_path}")
         
         if not video_results:
             self.logger.error("❌ No videos were successfully evaluated")
@@ -1599,40 +1640,10 @@ class IntegratedEvaluationFramework:
         
         # Save results with clear labeling of the correction
         file_paths = {
-            'corrected_evaluation': self.eval_dir / 'corrected_evaluation_results.json',
+            'evaluation': self.eval_dir / 'evaluation_results.json',
             'fair_comparison': self.eval_dir / 'fair_single_step_comparison.csv',
             'planning_analysis': self.eval_dir / 'planning_capability_analysis.csv',
-            'correction_documentation': self.eval_dir / 'evaluation_corrections.json'
         }
-        
-        # Document the corrections made
-        corrections_doc = {
-            'evaluation_approach': 'two_tier_evaluation',
-            'primary_evaluation': {
-                'task': 'single_step_action_prediction',
-                'purpose': 'fair_comparison_across_paradigms',
-                'fairness': 'all_methods_same_task',
-                'data_leakage': 'eliminated'
-            },
-            'secondary_evaluation': {
-                'task': 'multi_step_planning_analysis',
-                'purpose': 'paradigm_specific_capability_assessment',
-                'method_respect': 'training_paradigm_honored',
-                'world_model_usage': 'correct_for_method_2_planning_only'
-            },
-            'corrections_from_original': [
-                'eliminated_ground_truth_future_state_leakage',
-                'fixed_world_model_usage_for_method_2',
-                'implemented_fair_single_step_comparison',
-                'added_paradigm_specific_planning_analysis',
-                'ensured_evaluation_environment_consistency',
-                'fixed_action_shape_mismatches_in_planning',
-                'fixed_world_model_trainer_test_loader_handling'
-            ]
-        }
-        
-        with open(file_paths['correction_documentation'], 'w') as f:
-            json.dump(corrections_doc, f, indent=2)
         
         self.logger.info(f"📊 evaluation results saved")
         self.logger.info(f"📁 Location: {self.eval_dir}")
@@ -1643,7 +1654,7 @@ class IntegratedEvaluationFramework:
 def run_integrated_evaluation(experiment_results: Dict, test_data: Dict, 
                             results_dir: str, logger, horizon: int = 15):
     """
-    FIXED: Run fair integrated evaluation with proper paradigm respect.
+    Run fair integrated evaluation with proper paradigm respect.
     
     This replaces the previous evaluation that had ground truth leakage and 
     environment mismatches. Now we do:
@@ -1658,17 +1669,6 @@ def run_integrated_evaluation(experiment_results: Dict, test_data: Dict,
         logger: Logger instance
         horizon: Planning horizon for secondary analysis
     """
-    
-    logger.info("🎯 FIXED INTEGRATED EVALUATION")
-    logger.info("=" * 50)
-    logger.info("🔧 Fixed Issues:")
-    logger.info("   ✅ Eliminated ground truth future state leakage")
-    logger.info("   ✅ Proper world model usage for Method 2")
-    logger.info("   ✅ Fair single-step comparison as primary evaluation")
-    logger.info("   ✅ Method-specific planning analysis as secondary")
-    logger.info("   ✅ Respects each paradigm's training environment")
-    logger.info("   ✅ Fixed action shape mismatches in planning evaluation")
-    logger.info("   ✅ Fixed world model trainer test loader handling")
     
     # Initialize evaluation framework
     evaluator = IntegratedEvaluationFramework(results_dir, logger)
@@ -1694,73 +1694,12 @@ def run_integrated_evaluation(experiment_results: Dict, test_data: Dict,
     
     results = evaluator.run_evaluation_comprehensive(models, test_data, horizon)
     
-    # Save results with approach indicators
-    results['correction_applied'] = {
-        'ground_truth_leakage': 'eliminated',
-        'environment_mismatch': 'fixed',
-        'evaluation_fairness': 'implemented',
-        'paradigm_respect': 'ensured',
-        'evaluation_approach': 'two_tier_fair_comparison',
-        'action_shape_issues': 'resolved',
-        'world_model_trainer_issues': 'resolved'
-    }
-    
     # Save comprehensive results
     file_paths = evaluator.save_all_results()
-    
-    # Add correction documentation
-    correction_report = {
-        'original_issues': [
-            'World model not used in Method 2 evaluation',
-            'Ground truth future states leaked to RL methods',
-            'Unfair comparison across different paradigms',
-            'Environment mismatch between training and evaluation',
-            'Action shape mismatches in planning evaluation',
-            'World model trainer expecting single DataLoader vs dictionary'
-        ],
-        'corrections_applied': [
-            'Single-step action prediction as primary fair comparison',
-            'World model used only for Method 2 planning analysis',
-            'No future ground truth state access for any method',
-            'Method-specific evaluation respecting training paradigms',
-            'Two-tier evaluation: fair comparison + capability analysis',
-            'Fixed action shape handling in RL planning sequences',
-            'Fixed world model trainer to handle dictionary of test loaders'
-        ],
-        'evaluation_validity': {
-            'primary_comparison': 'fair_and_valid',
-            'secondary_analysis': 'paradigm_specific_insights',
-            'overall_approach': 'methodologically_sound',
-            'technical_issues': 'resolved'
-        }
-    }
-    
-    # Save correction report
-    import json
-    correction_path = Path(results_dir) / 'evaluation_correction_report.json'
-    with open(correction_path, 'w') as f:
-        json.dump(correction_report, f, indent=2)
-    
-    # Print summary
-    logger.info("🎉 FIXED EVALUATION COMPLETED!")
-    logger.info("=" * 50)
-    logger.info("📊 Key Improvements:")
-    logger.info("  ✅ Fair primary comparison: Single-step action prediction")
-    logger.info("  ✅ Insightful secondary analysis: Planning capabilities")
-    logger.info("  ✅ No ground truth leakage or environment mismatches")
-    logger.info("  ✅ Each paradigm evaluated according to its strengths")
-    logger.info("  ✅ Fixed all technical issues (shapes, loaders, etc.)")
-    logger.info("")
-    logger.info("📄 Results Structure:")
-    logger.info("  • Primary: single_step_evaluation (fair comparison)")
-    logger.info("  • Secondary: planning_evaluation (paradigm analysis)")
-    logger.info("  • Aggregate: combined statistical analysis")
-    logger.info("  • Fairness: evaluation validity reporting")
+
     
     return {
         'evaluator': evaluator,
         'results': results,
         'file_paths': file_paths,
-        'correction_report': correction_report,
-        'status': 'corrected_and_completed'
     }
