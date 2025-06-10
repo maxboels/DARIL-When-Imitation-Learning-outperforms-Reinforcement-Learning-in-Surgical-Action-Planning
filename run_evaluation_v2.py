@@ -74,7 +74,7 @@ class EnhancedEvaluationRunner:
         
         # Create evaluation directory with timestamp
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        self.experiment_name = f"ext_eval_{timestamp}"
+        self.experiment_name = f"eval_{timestamp}"
         self.results_dir = Path(pretrained_dir) / self.experiment_name
         self.results_dir.mkdir(parents=True, exist_ok=True)
         
