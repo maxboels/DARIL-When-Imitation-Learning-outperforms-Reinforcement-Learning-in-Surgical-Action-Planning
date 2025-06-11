@@ -186,29 +186,51 @@ class WorldModelRLTrainer:
             obs, reward, done, info = env.step(action)
             print(f"✅ Environment test: Reward={reward[0]:.3f}, Action shape={action.shape}")
             env.reset()
-            
-            # Optimized PPO hyperparameters for surgical tasks
+
             model = PPO(
                 "MlpPolicy",
                 env,
-                learning_rate=5e-5,      # Lower learning rate for stability
-                n_steps=512,             # More steps for better estimates
-                batch_size=64,           # Larger batch size
-                n_epochs=10,             # More epochs per update
-                gamma=0.95,              # Slightly lower gamma for immediate rewards
-                gae_lambda=0.9,          # GAE lambda for advantage estimation
-                clip_range=0.1,          # Lower clip range for stability
-                ent_coef=0.05,           # Higher entropy for exploration
+                learning_rate=1e-4,      # LOWER learning rate for stability
+                n_steps=256,             # SMALLER steps for more frequent updates
+                batch_size=32,           # SMALLER batch size
+                n_epochs=20,             # MORE epochs per update for better learning
+                gamma=0.98,              # HIGHER gamma for long-term rewards
+                gae_lambda=0.95,         # HIGHER lambda for advantage estimation
+                clip_range=0.1,          # LOWER clip range for stability
+                ent_coef=0.02,           # LOWER entropy for more focused actions
                 vf_coef=0.5,             # Value function coefficient
                 max_grad_norm=0.5,       # Gradient clipping
                 verbose=1,
                 device='cpu',
                 policy_kwargs={
-                    'net_arch': [256, 256, 128],  # Larger network
+                    'net_arch': [256, 256, 128],
                     'activation_fn': torch.nn.ReLU
                 },
                 tensorboard_log=str(self.save_dir / 'tensorboard')
             )
+
+            # # Optimized PPO hyperparameters for surgical tasks
+            # model = PPO(
+            #     "MlpPolicy",
+            #     env,
+            #     learning_rate=5e-5,      # Lower learning rate for stability
+            #     n_steps=512,             # More steps for better estimates
+            #     batch_size=64,           # Larger batch size
+            #     n_epochs=10,             # More epochs per update
+            #     gamma=0.95,              # Slightly lower gamma for immediate rewards
+            #     gae_lambda=0.9,          # GAE lambda for advantage estimation
+            #     clip_range=0.1,          # Lower clip range for stability
+            #     ent_coef=0.05,           # Higher entropy for exploration
+            #     vf_coef=0.5,             # Value function coefficient
+            #     max_grad_norm=0.5,       # Gradient clipping
+            #     verbose=1,
+            #     device='cpu',
+            #     policy_kwargs={
+            #         'net_arch': [256, 256, 128],  # Larger network
+            #         'activation_fn': torch.nn.ReLU
+            #     },
+            #     tensorboard_log=str(self.save_dir / 'tensorboard')
+            # )
             
             # Enhanced monitoring callback
             monitor_callback = RLMonitoringCallback(
@@ -226,6 +248,15 @@ class WorldModelRLTrainer:
                 tb_log_name="PPO_WorldModel",
                 progress_bar=True
             )
+
+            # ADD THIS OPTIMIZATION STEP HERE:
+            print("🎯 Optimizing action threshold...")
+            try:
+                optimal_threshold, threshold_map = self.optimize_action_threshold(model, train_data[:2])  # Use 2 videos for speed
+            except Exception as e:
+                print(f"⚠️ Threshold optimization failed: {e}")
+                optimal_threshold, threshold_map = 0.5, 0.0
+
             
             # Final evaluation
             mean_reward, std_reward = evaluate_policy(
@@ -250,7 +281,9 @@ class WorldModelRLTrainer:
                 'episode_stats': episode_stats,
                 'monitoring_data': monitor_callback.evaluations,
                 'expert_matching_enabled': True,
-                'reward_design': 'expert_demonstration_matching'
+                'reward_design': 'expert_demonstration_matching',
+                'optimal_threshold': optimal_threshold,
+                'threshold_map': threshold_map
             }
             
             print(f"✅ PPO World Model training completed!")
@@ -286,20 +319,19 @@ class WorldModelRLTrainer:
             print(f"✅ Environment test: Reward={reward[0]:.3f}, Action shape={action.shape}")
             env.reset()
             
-            # Optimized PPO hyperparameters
             model = PPO(
                 "MlpPolicy",
                 env,
-                learning_rate=3e-5,      # Lower learning rate
-                n_steps=512,
-                batch_size=64,
-                n_epochs=10,
-                gamma=0.95,
-                gae_lambda=0.9,
-                clip_range=0.1,
-                ent_coef=0.05,
-                vf_coef=0.5,
-                max_grad_norm=0.5,
+                learning_rate=1e-4,      # LOWER learning rate for stability
+                n_steps=256,             # SMALLER steps for more frequent updates
+                batch_size=32,           # SMALLER batch size
+                n_epochs=20,             # MORE epochs per update for better learning
+                gamma=0.98,              # HIGHER gamma for long-term rewards
+                gae_lambda=0.95,         # HIGHER lambda for advantage estimation
+                clip_range=0.1,          # LOWER clip range for stability
+                ent_coef=0.02,           # LOWER entropy for more focused actions
+                vf_coef=0.5,             # Value function coefficient
+                max_grad_norm=0.5,       # Gradient clipping
                 verbose=1,
                 device='cpu',
                 policy_kwargs={
@@ -308,6 +340,28 @@ class WorldModelRLTrainer:
                 },
                 tensorboard_log=str(self.save_dir / 'tensorboard')
             )
+            # Optimized PPO hyperparameters
+            # model = PPO(
+            #     "MlpPolicy",
+            #     env,
+            #     learning_rate=3e-5,      # Lower learning rate
+            #     n_steps=512,
+            #     batch_size=64,
+            #     n_epochs=10,
+            #     gamma=0.95,
+            #     gae_lambda=0.9,
+            #     clip_range=0.1,
+            #     ent_coef=0.05,
+            #     vf_coef=0.5,
+            #     max_grad_norm=0.5,
+            #     verbose=1,
+            #     device='cpu',
+            #     policy_kwargs={
+            #         'net_arch': [256, 256, 128],
+            #         'activation_fn': torch.nn.ReLU
+            #     },
+            #     tensorboard_log=str(self.save_dir / 'tensorboard')
+            # )
             
             # Enhanced monitoring
             monitor_callback = RLMonitoringCallback(
@@ -325,7 +379,15 @@ class WorldModelRLTrainer:
                 tb_log_name="PPO_DirectVideo",
                 progress_bar=True
             )
-            
+
+            # ADD THIS OPTIMIZATION STEP HERE:
+            print("🎯 Optimizing action threshold...")
+            try:
+                optimal_threshold, threshold_map = self.optimize_action_threshold(model, train_data[:2])  # Use 2 videos for speed
+            except Exception as e:
+                print(f"⚠️ Threshold optimization failed: {e}")
+                optimal_threshold, threshold_map = 0.5, 0.0
+
             # Final evaluation
             mean_reward, std_reward = evaluate_policy(
                 model, eval_env, n_eval_episodes=10, deterministic=True
@@ -349,7 +411,9 @@ class WorldModelRLTrainer:
                 'episode_stats': episode_stats,
                 'monitoring_data': monitor_callback.evaluations,
                 'expert_matching_enabled': True,
-                'reward_design': 'expert_demonstration_matching'
+                'reward_design': 'expert_demonstration_matching',
+                'optimal_threshold': optimal_threshold,
+                'threshold_map': threshold_map
             }
             
             print(f"✅ PPO Direct Video training completed!")
@@ -365,7 +429,73 @@ class WorldModelRLTrainer:
             import traceback
             traceback.print_exc()
             return {'algorithm': 'PPO_DirectVideo', 'status': 'failed', 'error': str(e)}
-    
+
+    def optimize_action_threshold(self, rl_model, test_data):
+        """Find optimal threshold for action prediction after training"""
+        
+        print("🎯 Optimizing action threshold for mAP...")
+        
+        best_threshold = 0.5
+        best_map = 0.0
+        
+        # Test different thresholds
+        thresholds = [0.3, 0.4, 0.5, 0.6, 0.7]
+        
+        for threshold in thresholds:
+            all_preds = []
+            all_targets = []
+            
+            # Collect predictions from test data
+            for video_data in test_data:
+                states = video_data['frame_embeddings'][:50]  # Sample frames
+                actions = video_data['actions_binaries'][:50]
+                
+                for i in range(len(states)):
+                    state = states[i].reshape(1, -1)
+                    action_pred, _ = rl_model.predict(state, deterministic=True)
+                    
+                    # Apply threshold
+                    if isinstance(action_pred, np.ndarray):
+                        action_pred = action_pred.flatten()
+                    
+                    # Ensure correct size
+                    if len(action_pred) != 100:
+                        padded_action = np.zeros(100)
+                        if len(action_pred) > 0:
+                            copy_len = min(len(action_pred), 100)
+                            padded_action[:copy_len] = action_pred[:copy_len]
+                        action_pred = padded_action
+                    
+                    binary_pred = (action_pred > threshold).astype(int)
+                    all_preds.append(binary_pred)
+                    all_targets.append(actions[i])
+            
+            # Calculate mAP
+            if all_preds and all_targets:
+                all_preds = np.array(all_preds)
+                all_targets = np.array(all_targets)
+                
+                from sklearn.metrics import average_precision_score
+                ap_scores = []
+                for action_idx in range(100):
+                    gt_action = all_targets[:, action_idx]
+                    if np.sum(gt_action) > 0:
+                        try:
+                            ap = average_precision_score(gt_action, all_preds[:, action_idx])
+                            ap_scores.append(ap)
+                        except:
+                            ap_scores.append(0.0)
+                
+                map_score = np.mean(ap_scores) if ap_scores else 0.0
+                print(f"   Threshold {threshold}: mAP = {map_score:.4f}")
+                
+                if map_score > best_map:
+                    best_map = map_score
+                    best_threshold = threshold
+        
+        print(f"✅ Best threshold: {best_threshold} (mAP: {best_map:.4f})")
+        return best_threshold, best_map
+
     def _plot_training_results(self, monitor_callback, method_name: str):
         """Plot comprehensive training results."""
         

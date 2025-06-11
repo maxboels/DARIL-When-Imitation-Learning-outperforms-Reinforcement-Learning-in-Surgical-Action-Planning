@@ -458,39 +458,11 @@ class DirectVideoEnvironment(gym.Env):
         self.current_video_idx = random.randint(0, len(self.video_data) - 1)
         video = self.video_data[self.current_video_idx]
         
-        # NEW: Balanced frame selection (favor frames with 1-3 actions)
-        if hasattr(self, 'expert_actions_sequence') and self.expert_actions_sequence is not None:
-            action_counts = [np.sum(actions > 0.5) for actions in self.expert_actions_sequence]
-            
-            # Create weights favoring 1-3 actions
-            frame_weights = []
-            for count in action_counts:
-                if 1 <= count <= 3:
-                    weight = 5.0  # High weight for ideal frames
-                elif count == 0:
-                    weight = 1.0  # Normal weight for no-action frames
-                elif count == 4:
-                    weight = 2.0  # Medium weight for close
-                else:
-                    weight = 0.5  # Low weight for too many actions
-                frame_weights.append(weight)
-            
-            # Weighted sampling for frame selection
-            if len(frame_weights) > self.max_episode_steps + 5:
-                frame_probs = np.array(frame_weights)
-                frame_probs = frame_probs / np.sum(frame_probs)
-                
-                max_start = len(frame_weights) - self.max_episode_steps - 5
-                self.current_frame_idx = np.random.choice(
-                    range(self.context_length, max_start), 
-                    p=frame_probs[self.context_length:max_start]
-                )
-            else:
-                # Select random starting frame with enough remaining frames
-                available_frames = len(video['frame_embeddings'])
-                max_start_frame = max(0, available_frames - self.max_episode_steps - 1)
-                self.current_frame_idx = random.randint(0, max_start_frame)
-                
+        # Select random starting frame with enough remaining frames
+        available_frames = len(video['frame_embeddings'])
+        max_start_frame = max(0, available_frames - self.max_episode_steps - 1)
+        self.current_frame_idx = random.randint(0, max_start_frame)
+        
         # Reset episode variables
         self.current_step = 0
         self.episode_reward = 0.0
@@ -511,10 +483,6 @@ class DirectVideoEnvironment(gym.Env):
     def step(self, action):
         """Step with meaningful reward calculation."""
         self.current_step += 1
-
-        # Process action with smart thresholding
-        action = self._process_action_with_smart_threshold(action)
-
         video = self.video_data[self.current_video_idx]
         
         # Process action
@@ -566,50 +534,6 @@ class DirectVideoEnvironment(gym.Env):
                       f"Expert Match: {np.mean(recent_expert_scores):.3f}")
         
         return next_state, reward, done, False, info
-
-    def _process_action_with_smart_threshold(self, action) -> np.ndarray:
-        """Process action with adaptive threshold to encourage 1-3 actions"""
-        if isinstance(action, torch.Tensor):
-            action = action.cpu().numpy()
-        
-        action = np.array(action, dtype=np.float32).flatten()
-        
-        # Ensure correct size
-        if len(action) != 100:
-            if len(action) < 100:
-                padded_action = np.zeros(100, dtype=np.float32)
-                padded_action[:len(action)] = action
-                action = padded_action
-            else:
-                action = action[:100]
-        
-        # Ensure [0,1] range
-        action = np.clip(action, 0.0, 1.0)
-        
-        # SMART THRESHOLDING: Adaptive threshold to get 1-3 actions
-        if np.max(action) > 0.1:  # If there's any signal
-            # Sort actions and find threshold that gives 1-3 actions
-            sorted_actions = np.sort(action)[::-1]  # Descending order
-            
-            # Try thresholds that would give 1, 2, or 3 actions
-            for target_count in [2, 1, 3]:  # Prefer 2, then 1, then 3
-                if target_count <= len(sorted_actions):
-                    threshold = sorted_actions[target_count - 1]
-                    if threshold > 0.3:  # Minimum confidence threshold
-                        binary_action = (action >= threshold).astype(np.float32)
-                        if np.sum(binary_action) == target_count:
-                            return binary_action
-            
-            # Fallback: use 0.5 threshold but ensure at least 1 action if there's strong signal
-            binary_action = (action > 0.5).astype(np.float32)
-            if np.sum(binary_action) == 0 and np.max(action) > 0.4:
-                # Force at least one action if there's reasonable confidence
-                best_idx = np.argmax(action)
-                binary_action[best_idx] = 1.0
-            return binary_action
-        else:
-            # Very low confidence, return zeros
-            return np.zeros(100, dtype=np.float32)
 
     def _calculate_meaningful_reward(self, action: np.ndarray, predicted_rewards: Dict[str, float]) -> float:
         """FIXED: Calculate reward that aligns with mAP evaluation"""
@@ -794,6 +718,265 @@ class DirectVideoEnvironment(gym.Env):
             })
         
         return stats
+
+
+class WorldModelSimulationEnv_v1(gym.Env):
+    """
+    RL Environment that uses ConditionalWorldModel for simulation.
+    This is the correct implementation of Method 2.
+    """
+    
+    def __init__(self, world_model, video_data: List[Dict], config: Dict, device: str = 'cuda'):
+        super().__init__()
+        
+        print(f"🌍 Initializing World Model Simulation Environment with {len(video_data)} videos")
+        
+        self.world_model = world_model
+        self.video_data = video_data
+        self.config = config
+        self.device = device
+        
+        # Validate that we have a world model
+        if self.world_model is None:
+            raise ValueError("❌ ConditionalWorldModel is required for Method 2!")
+        
+        # Environment parameters
+        self.max_episode_steps = config.get('rl_horizon', 50)
+        self.context_length = config.get('context_length', 20)
+        
+        # Current episode state
+        self.current_step = 0
+        self.current_video_idx = 0
+        self.current_frame_idx = 0
+        self.current_state = None
+        self.episode_reward = 0.0
+        
+        # Action and observation spaces
+        self.action_space = spaces.Box(
+            low=0, high=1, shape=(100,), dtype=np.float32
+        )
+        
+        self.observation_space = spaces.Box(
+            low=-np.inf, 
+            high=np.inf, 
+            shape=(1024,),
+            dtype=np.float32
+        )
+        
+        # Episode statistics
+        self.episode_lengths = []
+        self.episode_rewards = []
+        self.world_model_predictions = 0
+        self.real_frame_uses = 0
+        
+        # Reward weights for combining multiple reward types
+        self.reward_weights = {
+            'phase_progression': 2.0,
+            'phase_completion': 3.0,
+            'phase_initiation': 1.0,
+            'safety': 2.5,
+            'efficiency': 1.5,
+            'action_probability': 1.0,
+            'risk_penalty': -1.0
+        }
+        
+        print("✅ World Model Simulation Environment initialized")
+        print(f"📊 Max episode steps: {self.max_episode_steps}")
+        print(f"📊 Uses ConditionalWorldModel for simulation")
+
+    def reset(self, seed=None, options=None):
+        """Reset with initial real state, then use world model predictions."""
+        super().reset(seed=seed)
+        
+        # Select random video
+        self.current_video_idx = np.random.randint(0, len(self.video_data))
+        video = self.video_data[self.current_video_idx]
+        
+        # Start from a position where we have enough context
+        min_start = self.context_length
+        max_start = len(video['frame_embeddings']) - self.max_episode_steps - 10
+        max_start = max(min_start, max_start)
+        
+        self.current_frame_idx = np.random.randint(min_start, max_start + 1)
+        
+        # Get initial state from real video (this is the only real frame we use)
+        self.current_state = video['frame_embeddings'][self.current_frame_idx].astype(np.float32)
+        
+        # Reset counters
+        self.current_step = 0
+        self.episode_reward = 0.0
+        self.world_model_predictions = 0
+        self.real_frame_uses = 1  # Initial state is real
+        
+        # Ensure correct state shape
+        if self.current_state.shape[0] != 1024:
+            self.current_state = self._fix_state_shape(self.current_state)
+        
+        print(f"🔄 Reset: Video {self.current_video_idx}, Frame {self.current_frame_idx}")
+        
+        return self.current_state.copy(), {}
+
+    def step(self, action):
+        """Use world model to predict next state and rewards."""
+        self.current_step += 1
+        
+        # Process action
+        action = self._process_action(action)
+        
+        # Check termination
+        done = self.current_step >= self.max_episode_steps
+        
+        if done:
+            # Episode completed
+            reward = 5.0  # Completion bonus
+            next_state = self.current_state.copy()
+        else:
+            # 🌍 CORE: Use world model to predict next state and rewards
+            next_state, predicted_rewards = self._predict_with_world_model(action)
+            
+            # Calculate reward from world model predictions
+            reward = self._calculate_reward_from_predictions(predicted_rewards, action)
+            
+            self.world_model_predictions += 1
+        
+        # Update current state
+        self.current_state = next_state.copy()
+        self.episode_reward += reward
+        
+        # Info for debugging
+        info = {
+            'step': self.current_step,
+            'episode_reward': self.episode_reward,
+            'world_model_predictions': self.world_model_predictions,
+            'real_frame_uses': self.real_frame_uses,
+            'uses_world_model': True,
+            'simulation_based': True,
+            'method': 'world_model_simulation',
+            'simulation_ratio': self.world_model_predictions / max(1, self.current_step)
+        }
+        
+        # Log episode completion
+        if done:
+            self.episode_lengths.append(self.current_step)
+            self.episode_rewards.append(self.episode_reward)
+            
+            # Only print every 10th episode
+            if len(self.episode_lengths) % 100 == 0:
+                print(f"📊 Episode {len(self.episode_lengths)} complete - Length: {self.current_step}, "
+                    f"Reward: {self.episode_reward:.3f}, "
+                    f"WM predictions: {self.world_model_predictions}")
+            
+            # Keep only last 100 episodes
+            if len(self.episode_lengths) > 100:
+                self.episode_lengths = self.episode_lengths[-100:]
+                self.episode_rewards = self.episode_rewards[-100:]
+        
+        return self.current_state.copy(), reward, done, False, info
+
+    def _predict_with_world_model(self, next_action: np.ndarray) -> Tuple[np.ndarray, Dict[str, float]]:
+        """Use ConditionalWorldModel to predict next state and rewards."""
+        
+        try:
+            # Convert to tensors
+            current_state_tensor = torch.tensor(
+                self.current_state, dtype=torch.float32, device=self.device
+            )
+            next_action_tensor = torch.tensor(
+                next_action, dtype=torch.float32, device=self.device
+            )
+            
+            # Use world model for simulation with the action we want to take
+            next_state, rewards, _ = self.world_model.simulate_step(
+                current_state_tensor, next_action_tensor, return_hidden=False
+            )
+            
+            # Convert back to numpy
+            next_state_np = next_state.cpu().numpy().flatten()
+            next_state_np = self._fix_state_shape(next_state_np)
+            
+            return next_state_np, rewards
+                
+        except Exception as e:
+            print(f"❌ World model prediction failed: {e}")
+            # Fallback to current state
+            return self.current_state.copy(), {}
+
+    def _calculate_reward_from_predictions(self, predicted_rewards: Dict[str, float], action: np.ndarray) -> float:
+        """Calculate reward from world model predictions."""
+        
+        reward = 0.0
+        
+        # Combine predicted rewards using weights
+        for reward_type, reward_value in predicted_rewards.items():
+            if reward_type in self.reward_weights:
+                weighted_reward = self.reward_weights[reward_type] * reward_value
+                reward += weighted_reward
+        
+        # Additional reward for reasonable action selection
+        action_count = np.sum(action > 0.5)
+        if 1 <= action_count <= 5:
+            reward += 0.5
+        elif action_count == 0:
+            reward -= 1.0  # Penalty for no actions
+        elif action_count > 10:
+            reward -= 0.5  # Penalty for too many actions
+        
+        # Exploration bonus (small random component)
+        exploration_bonus = np.random.normal(0, 0.1)
+        reward += exploration_bonus
+        
+        return np.clip(reward, -10.0, 15.0)
+
+    def _process_action(self, action) -> np.ndarray:
+        """Process action to ensure correct format."""
+        
+        if isinstance(action, torch.Tensor):
+            action = action.cpu().numpy()
+        
+        action = np.array(action, dtype=np.float32).flatten()
+        
+        # Ensure correct size
+        if len(action) != 100:
+            if len(action) < 100:
+                padded_action = np.zeros(100, dtype=np.float32)
+                padded_action[:len(action)] = action
+                action = padded_action
+            else:
+                action = action[:100]
+        
+        return action
+
+    def _fix_state_shape(self, state: np.ndarray) -> np.ndarray:
+        """Ensure state has correct shape [1024]."""
+        
+        if len(state.shape) > 1:
+            state = state.flatten()
+        
+        if len(state) < 1024:
+            padded_state = np.zeros(1024, dtype=np.float32)
+            padded_state[:len(state)] = state
+            return padded_state
+        elif len(state) > 1024:
+            return state[:1024].astype(np.float32)
+        else:
+            return state.astype(np.float32)
+
+    def get_episode_stats(self):
+        """Get episode statistics including world model usage."""
+        if not self.episode_lengths:
+            return {"avg_length": 0, "avg_reward": 0, "episodes": 0}
+        
+        return {
+            "avg_length": np.mean(self.episode_lengths),
+            "avg_reward": np.mean(self.episode_rewards),
+            "episodes": len(self.episode_lengths),
+            "last_length": self.episode_lengths[-1],
+            "last_reward": self.episode_rewards[-1],
+            "uses_world_model": True,
+            "simulation_based": True,
+            "method": "world_model_simulation",
+            "can_explore_beyond_demos": True
+        }
 
 if __name__ == "__main__":
     print("🔧 RL ENVIRONMENTS")
