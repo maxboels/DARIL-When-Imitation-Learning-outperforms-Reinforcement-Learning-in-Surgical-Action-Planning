@@ -25,7 +25,7 @@ from datasets.world_model_dataset import create_world_model_dataloaders
 # Import UPDATED trainers with debugging
 from training.autoregressive_il_trainer import AutoregressiveILTrainer
 from training.world_model_trainer import WorldModelTrainer  
-from training.world_model_rl_trainer_debug import WorldModelRLTrainer  # UPDATED: Use debug version
+from training.world_model_rl_trainer import WorldModelRLTrainer  # UPDATED: Use debug version
 
 # Import existing components for Method 3 and evaluation
 from datasets.cholect50 import load_cholect50_data
@@ -85,19 +85,10 @@ class ExperimentRunner:
             'config': self.config,
             'timestamp': timestamp,
             'results_dir': str(self.results_dir),
-            'improvements': [
-                'Fixed RL reward functions with expert demonstration matching',
-                'Enhanced RL environments with proper action spaces', 
-                'Comprehensive RL debugging and monitoring',
-                'Optimized hyperparameters for surgical tasks'
-            ]
         }
         
         self.logger.info(f"🎯 FIXED RL Experiment: {self.experiment_name}")
         self.logger.info(f"📁 Results dir: {self.results_dir}")
-        self.logger.info("🔧 RL IMPROVEMENTS APPLIED:")
-        for improvement in self.results['improvements']:
-            self.logger.info(f"   ✅ {improvement}")
     
     def run_complete_comparison(self) -> Dict[str, Any]:
         """Run the complete three-method comparison with FIXED RL."""
@@ -158,58 +149,166 @@ class ExperimentRunner:
         self.logger.info(f"   Test videos: {len(test_data)}")
 
         return train_data, test_data
-    
+
     def _run_method1_autoregressive_il(self, train_data: List[Dict], test_data: List[Dict]) -> Dict[str, Any]:
-        """Method 1: Autoregressive IL (unchanged - was working well)."""
+        """Method 1: Autoregressive IL - supports pretrained models."""
         
-        self.logger.info("🎓 Method 1: Autoregressive IL Training")
+        self.logger.info("🎓 Method 1: Autoregressive IL")
         self.logger.info("-" * 40)
         
         try:
-            # Create model
-            model = AutoregressiveILModel(
-                hidden_dim=self.config['models']['autoregressive_il']['hidden_dim'],
-                embedding_dim=self.config['models']['autoregressive_il']['embedding_dim'],
-                n_layer=self.config['models']['autoregressive_il']['n_layer'],
-                num_action_classes=self.config['models']['autoregressive_il']['num_action_classes'],
-                dropout=self.config['models']['autoregressive_il']['dropout']
-            ).to(DEVICE)
+            # Check if pretrained model is configured
+            il_config = self.config.get('experiment', {}).get('autoregressive_il', {})
+            il_enabled = il_config.get('enabled', False)
+            il_model_path = il_config.get('il_model_path', None)
             
-            # Create datasets
-            train_loader, test_loaders = create_autoregressive_dataloaders(
-                config=self.config['data'],
-                train_data=train_data,
-                test_data=test_data,
-                batch_size=self.config['training']['batch_size'],
-                num_workers=self.config['training']['num_workers']
-            )
-            
-            # Create trainer
-            trainer = AutoregressiveILTrainer(
-                model=model,
-                config=self.config,
-                logger=self.logger,
-                device=DEVICE
-            )
-            
-            # Train model
-            best_model_path = trainer.train(train_loader, test_loaders)
-            
-            # Evaluate model
-            evaluation_results = trainer.evaluate_model(test_loaders)
-            
-            return {
-                'status': 'success',
-                'model_path': best_model_path,
-                'model_type': 'AutoregressiveILModel',
-                'approach': 'Pure causal frame generation → action prediction',
-                'evaluation': evaluation_results,
-                'method_description': 'Autoregressive IL without action conditioning'
-            }
-            
+            if il_enabled and il_model_path:
+                self.logger.info(f"📂 Loading pretrained IL model from: {il_model_path}")
+                
+                # Load pretrained model
+                model = AutoregressiveILModel.load_model(il_model_path, device=DEVICE)
+                self.logger.info("✅ Pretrained IL model loaded successfully")
+                
+                # Create test datasets for evaluation only
+                _, test_loaders = create_autoregressive_dataloaders(
+                    config=self.config['data'],
+                    train_data=None,  # No training data needed for evaluation
+                    test_data=test_data,
+                    batch_size=self.config['training']['batch_size'],
+                    num_workers=self.config['training']['num_workers']
+                )
+                
+                # Create trainer for evaluation only
+                trainer = AutoregressiveILTrainer(
+                    model=model,
+                    config=self.config,
+                    logger=self.logger,
+                    device=DEVICE
+                )
+                
+                # Evaluate pretrained model
+                self.logger.info("📊 Evaluating pretrained IL model...")
+                evaluation_results = trainer.evaluate_model(test_loaders)
+                
+                return {
+                    'status': 'success',
+                    'model_path': il_model_path,
+                    'model_type': 'AutoregressiveILModel',
+                    'approach': 'Pure causal frame generation → action prediction (PRETRAINED)',
+                    'evaluation': evaluation_results,
+                    'method_description': 'Pretrained Autoregressive IL without action conditioning',
+                    'pretrained': True
+                }
+                
+            else:
+                if il_enabled:
+                    if not il_model_path:
+                        self.logger.warning("⚠️ Pretrained model enabled but no path specified")
+                    elif not os.path.exists(il_model_path):
+                        self.logger.warning(f"⚠️ Pretrained model path does not exist: {il_model_path}")
+                    self.logger.info("🔄 Falling back to training from scratch...")
+                else:
+                    self.logger.info("🏋️ Training IL model from scratch...")
+                
+                # Original training code
+                model = AutoregressiveILModel(
+                    hidden_dim=self.config['models']['autoregressive_il']['hidden_dim'],
+                    embedding_dim=self.config['models']['autoregressive_il']['embedding_dim'],
+                    n_layer=self.config['models']['autoregressive_il']['n_layer'],
+                    num_action_classes=self.config['models']['autoregressive_il']['num_action_classes'],
+                    dropout=self.config['models']['autoregressive_il']['dropout']
+                ).to(DEVICE)
+                
+                # Create datasets
+                train_loader, test_loaders = create_autoregressive_dataloaders(
+                    config=self.config['data'],
+                    train_data=train_data,
+                    test_data=test_data,
+                    batch_size=self.config['training']['batch_size'],
+                    num_workers=self.config['training']['num_workers']
+                )
+                
+                # Create trainer
+                trainer = AutoregressiveILTrainer(
+                    model=model,
+                    config=self.config,
+                    logger=self.logger,
+                    device=DEVICE
+                )
+                
+                # Train model
+                best_model_path = trainer.train(train_loader, test_loaders)
+                
+                # Evaluate model
+                evaluation_results = trainer.evaluate_model(test_loaders)
+                
+                return {
+                    'status': 'success',
+                    'model_path': best_model_path,
+                    'model_type': 'AutoregressiveILModel',
+                    'approach': 'Pure causal frame generation → action prediction',
+                    'evaluation': evaluation_results,
+                    'method_description': 'Autoregressive IL without action conditioning',
+                    'pretrained': False
+                }
+                
         except Exception as e:
             self.logger.error(f"❌ Method 1 failed: {e}")
+            import traceback
+            self.logger.error(f"Full traceback: {traceback.format_exc()}")
             return {'status': 'failed', 'error': str(e)}
+
+    # def _run_method1_autoregressive_il(self, train_data: List[Dict], test_data: List[Dict]) -> Dict[str, Any]:
+    #     """Method 1: Autoregressive IL (unchanged - was working well)."""
+        
+    #     self.logger.info("🎓 Method 1: Autoregressive IL Training")
+    #     self.logger.info("-" * 40)
+        
+    #     try:
+    #         # Create model
+    #         model = AutoregressiveILModel(
+    #             hidden_dim=self.config['models']['autoregressive_il']['hidden_dim'],
+    #             embedding_dim=self.config['models']['autoregressive_il']['embedding_dim'],
+    #             n_layer=self.config['models']['autoregressive_il']['n_layer'],
+    #             num_action_classes=self.config['models']['autoregressive_il']['num_action_classes'],
+    #             dropout=self.config['models']['autoregressive_il']['dropout']
+    #         ).to(DEVICE)
+            
+    #         # Create datasets
+    #         train_loader, test_loaders = create_autoregressive_dataloaders(
+    #             config=self.config['data'],
+    #             train_data=train_data,
+    #             test_data=test_data,
+    #             batch_size=self.config['training']['batch_size'],
+    #             num_workers=self.config['training']['num_workers']
+    #         )
+            
+    #         # Create trainer
+    #         trainer = AutoregressiveILTrainer(
+    #             model=model,
+    #             config=self.config,
+    #             logger=self.logger,
+    #             device=DEVICE
+    #         )
+            
+    #         # Train model
+    #         best_model_path = trainer.train(train_loader, test_loaders)
+            
+    #         # Evaluate model
+    #         evaluation_results = trainer.evaluate_model(test_loaders)
+            
+    #         return {
+    #             'status': 'success',
+    #             'model_path': best_model_path,
+    #             'model_type': 'AutoregressiveILModel',
+    #             'approach': 'Pure causal frame generation → action prediction',
+    #             'evaluation': evaluation_results,
+    #             'method_description': 'Autoregressive IL without action conditioning'
+    #         }
+            
+    #     except Exception as e:
+    #         self.logger.error(f"❌ Method 1 failed: {e}")
+    #         return {'status': 'failed', 'error': str(e)}
     
     def _run_method2_fixed_rl(self, train_data: List[Dict], test_data: List[Dict]) -> Dict[str, Any]:
         """FIXED Method 2: Conditional World Model + Improved RL."""
@@ -625,13 +724,6 @@ def main():
     print("=" * 60)
     print("Research Paper: Optimal Architectures for IL vs RL in Surgery")
     print()
-    print("🔧 CRITICAL RL FIXES APPLIED:")
-    print("   ✅ Expert demonstration matching rewards (fixed -400 rewards)")
-    print("   ✅ Proper continuous action space [0,1]")
-    print("   ✅ Enhanced RL monitoring and debugging")
-    print("   ✅ Optimized hyperparameters for surgical tasks")
-    print("   ✅ Better episode termination and reward design")
-    print()
     print("🎓 Method 1: AutoregressiveILModel (unchanged - was working)")
     print("   → Pure causal frame generation → action prediction")
     print()
@@ -645,7 +737,7 @@ def main():
     print()
     
     # Choose config file here
-    config_path = 'config_improved_rl.yaml'
+    config_path = 'config_local_debug_v5.yaml'
     if not os.path.exists(config_path):
         print(f"❌ Config file not found: {config_path}")
         print("Please ensure config file exists or update the path")

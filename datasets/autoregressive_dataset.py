@@ -107,37 +107,85 @@ def create_autoregressive_dataloaders(config: Dict,
                                     train_data: List[Dict], 
                                     test_data: List[Dict],
                                     batch_size: int = 32,
-                                    num_workers: int = 4) -> Tuple[DataLoader, Dict[str, DataLoader]]:
-    """Create dataloaders for autoregressive IL."""
+                                    num_workers: int = 4) -> Tuple[Optional[DataLoader], Dict[str, DataLoader]]:
+    """
+    Create dataloaders for autoregressive IL.
+    
+    Args:
+        config: Dataset configuration
+        train_data: List of training video dictionaries
+        test_data: List of test video dictionaries
+        batch_size: Batch size for dataloaders
+        num_workers: Number of worker processes
+        
+    Returns:
+        Tuple of (train_loader, test_loaders_dict)
+    """
+    
+    # Validate inputs
+    if not isinstance(train_data, list) or not isinstance(test_data, list):
+        raise ValueError("train_data and test_data must be lists")
     
     # Training dataset
-    train_dataset = AutoregressiveDataset(config, train_data)
-    train_loader = DataLoader(
-        train_dataset,
-        batch_size=batch_size,
-        shuffle=True,
-        num_workers=num_workers,
-        pin_memory=True,
-        drop_last=True
-    )
+    train_loader = None
+    train_samples = 0
+    
+    if train_data:
+        try:
+            train_dataset = AutoregressiveDataset(config, train_data)
+            train_samples = len(train_dataset)
+            
+            if train_samples > 0:
+                train_loader = DataLoader(
+                    train_dataset,
+                    batch_size=batch_size,
+                    shuffle=True,
+                    num_workers=num_workers,
+                    pin_memory=True,
+                    drop_last=True
+                )
+            else:
+                print("⚠️ Training dataset is empty after processing.")
+        except Exception as e:
+            print(f"❌ Error creating training dataset: {e}")
+            raise
+    else:
+        print("⚠️ No training data provided.")
     
     # Test datasets (one dataloader per video)
     test_loaders = {}
-    for test_video in test_data:
-        video_dataset = AutoregressiveDataset(config, [test_video])
-        test_loaders[test_video['video_id']] = DataLoader(
-            video_dataset,
-            batch_size=batch_size,
-            shuffle=False,
-            num_workers=num_workers,
-            pin_memory=True
-        )
+    failed_videos = []
     
-    print(f"✅ Created autoreg IL dataloaders:")
-    print(f"   Training samples: {len(train_dataset)}")
-    print(f"   Training batch size: {batch_size}")
+    for test_video in test_data:
+        video_id = test_video.get('video_id', 'unknown')
+        try:
+            video_dataset = AutoregressiveDataset(config, [test_video])
+            
+            if len(video_dataset) > 0:
+                test_loaders[video_id] = DataLoader(
+                    video_dataset,
+                    batch_size=batch_size,
+                    shuffle=False,
+                    num_workers=num_workers,
+                    pin_memory=True
+                )
+            else:
+                print(f"⚠️ Empty dataset for test video {video_id}")
+                
+        except Exception as e:
+            print(f"❌ Failed to create dataset for test video {video_id}: {e}")
+            failed_videos.append(video_id)
+    
+    # Summary
+    print(f"✅ Created autoregressive IL dataloaders:")
+    print(f"   Training samples: {train_samples}")
+    print(f"   Training batches: {len(train_loader) if train_loader else 0}")
     print(f"   Test videos: {len(test_loaders)}")
+    
+    if failed_videos:
+        print(f"   Failed videos: {failed_videos}")
+    
     for video_id, loader in test_loaders.items():
-        print(f"   Test video {video_id}: {len(loader)} batches")
+        print(f"   Test video {video_id}: {len(loader.dataset)} samples, {len(loader)} batches")
 
     return train_loader, test_loaders

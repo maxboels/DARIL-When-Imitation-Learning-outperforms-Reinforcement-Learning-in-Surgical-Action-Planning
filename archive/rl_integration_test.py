@@ -16,7 +16,7 @@ try:
     from environment.rl_environments import WorldModelSimulationEnv, DirectVideoEnvironment
     from rl_debug_tools import RLDebugger
     from rl_diagnostic_script import diagnose_rl_training
-    from training.world_model_rl_trainer_debug import WorldModelRLTrainer
+    from training.world_model_rl_trainer import WorldModelRLTrainer
     print("✅ All new RL imports successful!")
 except ImportError as e:
     print(f"❌ Import failed: {e}")

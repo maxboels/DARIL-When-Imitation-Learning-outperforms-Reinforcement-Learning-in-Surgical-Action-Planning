@@ -1,0 +1,224 @@
+# Updated Configuration with IMPROVED RL Parameters
+# Based on config_dgx_all.yaml but with fixes for RL training
+
+# Debug mode
+debug: false
+
+# Training mode
+training_mode: 'rl'
+
+# Data preprocessing
+preprocess:
+  extract_rewards: false # already in the passed .csv file bellow
+  rewards:
+    grounded:
+      phase_completion: true
+      phase_transition: true  
+      phase_progression: true
+      global_progression: true
+    imitation:
+      action_distribution: true
+    expert_knowledge:
+      risk_score: true
+      frame_risk_agg: 'max'
+
+# Experiment configuration
+experiment:
+  max_videos: 50  # Deprecated, use train/test specific
+  train:
+    max_videos: 2  # INCREASED for better RL training
+  test:
+    max_videos: 2  # INCREASED for better evaluation
+  
+  # Dual World Model Training
+  dual_world_model:
+    train: true
+    best_model_path: null
+  
+  # Imitation Learning
+  autoregressive_il:
+    enabled: true
+    # il_model_path: null
+    il_model_path: "results/2025-06-10_19-45-51/logs/checkpoints/autoregressive_il_best_epoch_1.pt"  # Path to the best IL model
+  
+  # RL Experiments
+  rl_experiments:
+    enabled: true
+    eval_episodes: 10
+
+# Training parameters
+training:
+  epochs: 5  # INCREASED for better convergence
+  batch_size: 16  # OPTIMIZED batch size
+  learning_rate: 0.0001
+  log_every_n_steps: 50
+  
+  # Learning rate scheduling
+  scheduler:
+    type: "cosine"
+    warmup_steps: 100
+    
+  # Regularization
+  weight_decay: 0.01
+  gradient_clip_val: 1.0
+  dropout: 0.1
+  
+  # Logging and checkpointing
+  num_workers: 4
+  pin_memory: true
+  log_every_n_steps: 50
+  log_dir: "logs"
+  checkpoint_dir: "checkpoints"
+  eval_epoch_interval: 1
+  save_model: true
+
+# Evaluation configuration
+evaluation:
+  prediction_horizon: 15
+  
+  # Supervised evaluation
+  supervised:
+    action_prediction: true
+    
+  # RL evaluation
+  rl:
+    rollout_horizon: 15
+    use_best_actions: true
+  
+  # Comparison metrics
+  comparison:
+    statistical_tests: true
+    effect_size_threshold: 0.2
+    
+  # General evaluation
+  world_model:
+    use_memory: false
+    overall_horizon: 1
+
+# IMPROVED RL Training Configuration
+rl_training:
+  outcome_based_rewards: true
+  rl_horizon: 30  # INCREASED episode length
+  reward_mode: 'dense'
+  normalize_rewards: true
+  early_termination: true
+  timesteps: 25000  # SIGNIFICANTLY INCREASED for better convergence
+  
+  # IMPROVED Reward weights for environment
+  reward_weights:
+    expert_matching: 10.0      # NEW: Most important - match expert actions
+    action_sparsity: 1.0       # NEW: Appropriate action density  
+    world_model_rewards: 0.5   # REDUCED: Lower weight for WM predictions
+    completion_bonus: 5.0      # NEW: Episode completion reward
+    consistency_bonus: 1.0     # NEW: Action consistency
+    
+    # Legacy weights (for compatibility)
+    phase_completion: 1.0
+    risk_penalty: -0.5
+  
+  # OPTIMIZED Algorithm-specific settings
+  ppo:
+    learning_rate: 5e-5        # REDUCED for stability
+    n_steps: 512               # INCREASED for better estimates
+    batch_size: 64             # INCREASED
+    n_epochs: 10               # INCREASED
+    gamma: 0.95                # ADJUSTED for immediate rewards
+    gae_lambda: 0.9
+    clip_range: 0.1            # REDUCED for stability
+    ent_coef: 0.05             # INCREASED for exploration
+    vf_coef: 0.5
+    max_grad_norm: 0.5         # ADDED gradient clipping
+    
+  a2c:
+    learning_rate: 1e-4        # REDUCED for stability
+    n_steps: 32
+    gamma: 0.95                # ADJUSTED
+    gae_lambda: 0.9
+    ent_coef: 0.05             # INCREASED for exploration
+    vf_coef: 0.25
+    max_grad_norm: 0.5         # ADDED gradient clipping
+
+# Data configuration
+data:
+  context_length: 20
+  train_shift: 1
+  padding_value: 0.0
+  max_horizon: 15
+  
+  paths:
+    data_dir: "/home/maxboels/datasets/CholecT50"
+    class_labels_file_path: "./data/labels.json"
+    fold: 0
+    metadata_file: "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv"
+    video_global_outcome_file: "embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv"
+  
+  frame_risk_agg: 'max'
+
+# Model configurations
+models:
+  # Method 1: Autoregressive IL Model
+  autoregressive_il:
+    hidden_dim: 768
+    embedding_dim: 1024
+    n_layer: 6
+    num_action_classes: 100
+    num_phase_classes: 7
+    dropout: 0.1
+    max_length: 1024
+  
+  # Method 2: Conditional World Model  
+  conditional_world_model:
+    hidden_dim: 768
+    embedding_dim: 1024
+    action_embedding_dim: 128
+    n_layer: 6
+    num_action_classes: 100
+    num_phase_classes: 7
+    dropout: 0.1
+    max_sequence_length: 512
+
+# Fair evaluation
+fair_evaluation:
+  enabled: true
+  include_traditional_metrics: true
+  include_clinical_metrics: true
+  
+  clinical_outcome_weights:
+    phase_progression: 2.0
+    innovation: 0.5
+
+# Supervised Learning Configuration
+supervised_learning:
+  data_augmentation: false
+
+# Research comparison settings
+research_comparison:
+  methods: ['autoregressive_il', 'conditional_world_model', 'direct_video_rl']
+
+# Advanced configurations
+advanced:
+  mixed_precision: false
+
+# Hardware optimization
+hardware:
+  persistent_workers: true
+
+# NEW: RL Debugging Configuration
+rl_debugging:
+  enabled: true
+  save_training_curves: true
+  monitor_expert_matching: true
+  log_action_distributions: true
+  convergence_analysis: true
+  
+  # Logging frequency
+  episode_log_frequency: 10    # Log every 10 episodes
+  eval_frequency: 1000         # Evaluate every 1000 steps
+  
+  # Debugging thresholds
+  reward_improvement_threshold: 0.1
+  expert_matching_threshold: 0.5
+  
+  # Save paths
+  debug_dir: "rl_debug"
+  plot_dir: "rl_plots"

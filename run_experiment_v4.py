@@ -25,7 +25,7 @@ from datasets.world_model_dataset import create_world_model_dataloaders
 # Import separate trainers
 from training.autoregressive_il_trainer import AutoregressiveILTrainer
 # from training.world_model_trainer import WorldModelTrainer  # This should be the fixed version
-from training.world_model_rl_trainer_debug import WorldModelRLTrainer  # Fixed version with correct test loader handling
+from training.world_model_rl_trainer import WorldModelRLTrainer  # Fixed version with correct test loader handling
 
 # Import existing components for Method 3 and evaluation
 from datasets.cholect50 import load_cholect50_data

@@ -9,7 +9,7 @@ Your RL was showing terrible performance (-400 rewards) due to poor reward funct
 - `rl_environments.py` - **FIXED** environments with expert demonstration matching
 - `rl_debug_tools.py` - Comprehensive RL debugging and monitoring
 - `rl_diagnostic_script.py` - Quick diagnostic tools
-- `world_model_rl_trainer_debug.py` - **IMPROVED** RL trainer with better hyperparameters
+- `world_model_rl_trainer.py` - **IMPROVED** RL trainer with better hyperparameters
 
 ### Updated Files:
 - `run_experiment_v4.py` - **FIXED** to use new RL components
