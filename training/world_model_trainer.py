@@ -176,7 +176,7 @@ class WorldModelTrainer:
             train_metrics = self._train_epoch(train_loader, epoch)
             
             # FIXED: Validation phase with dictionary of test loaders
-            val_metrics = self._validate_epoch_fixed(test_loaders, epoch)
+            val_metrics = self._validate_epoch(test_loaders, epoch)
             
             # Learning rate scheduling
             self.scheduler.step()
@@ -292,8 +292,8 @@ class WorldModelTrainer:
         
         return dict(epoch_metrics)
     
-    def _validate_epoch_fixed(self, test_loaders: Dict[str, Any], epoch: int) -> Dict[str, float]:
-        """FIXED: Validate for one epoch with dictionary of test loaders."""
+    def _validate_epoch(self, test_loaders: Dict[str, Any], epoch: int) -> Dict[str, float]:
+        """Validate for one epoch with dictionary of test loaders."""
         
         self.model.eval()
         all_video_metrics = []
@@ -363,14 +363,14 @@ class WorldModelTrainer:
         self.model.eval()
         
         # Standard metrics
-        val_metrics = self._validate_epoch_fixed(test_loaders, epoch=0)
+        val_metrics = self._validate_epoch(test_loaders, epoch=0)
         
         # Simulation quality evaluation
-        simulation_results = self._evaluate_simulation_quality(test_loaders)
+        # simulation_results = self._evaluate_simulation_quality(test_loaders)
         
         evaluation_results = {
             'overall_metrics': val_metrics,
-            'simulation_quality': simulation_results,
+            # 'simulation_quality': simulation_results,
             'model_type': 'ConditionalWorldModel',
             'evaluation_summary': {
                 'best_metric': 'state_loss',

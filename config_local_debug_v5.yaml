@@ -108,7 +108,7 @@ rl_training:
   reward_mode: 'dense'
   normalize_rewards: true
   early_termination: true
-  timesteps: 25000  # SIGNIFICANTLY INCREASED for better convergence
+  timesteps: 1000 # 25000  # SIGNIFICANTLY INCREASED for better convergence
   
   # IMPROVED Reward weights for environment
   reward_weights:

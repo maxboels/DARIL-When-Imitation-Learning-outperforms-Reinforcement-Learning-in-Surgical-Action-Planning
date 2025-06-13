@@ -111,12 +111,12 @@ class ExperimentRunner:
         
         # Method 2: FIXED Conditional World Model + RL
         self.logger.info("🌍 Running Method 2: FIXED Conditional World Model + RL")
-        method2_results = self._run_method2_rl(train_data, test_data)
+        method2_results = self._run_method2_wm_rl(train_data, test_data)
         self.results['method_2_conditional_world_model'] = method2_results
         
         # Method 3: FIXED Direct Video RL
         self.logger.info("📹 Running Method 3: FIXED Direct Video RL")
-        method3_results = self._run_method3_fixed_rl(train_data, test_data)
+        method3_results = self._run_method3_direct_rl(train_data, test_data)
         self.results['method_3_direct_video_rl'] = method3_results
         
         # Comprehensive evaluation - FIXED with proper handling
@@ -265,7 +265,7 @@ class ExperimentRunner:
             self.logger.error(f"Full traceback: {traceback.format_exc()}")
             return {'status': 'failed', 'error': str(e)}
 
-    def _run_method2_rl(self, train_data: List[Dict], test_data: List[Dict]) -> Dict[str, Any]:
+    def _run_method2_wm_rl(self, train_data: List[Dict], test_data: List[Dict]) -> Dict[str, Any]:
             """FIXED Method 2: Conditional World Model + Improved RL - supports pretrained models."""
             
             self.logger.info("🌍 Method 2: FIXED Conditional World Model + RL")
@@ -395,7 +395,7 @@ class ExperimentRunner:
                 self.logger.error(f"Full traceback: {traceback.format_exc()}")
                 return {'status': 'failed', 'error': str(e)}
     
-    def _run_method3_fixed_rl(self, train_data: List[Dict], test_data: List[Dict]) -> Dict[str, Any]:
+    def _run_method3_direct_rl(self, train_data: List[Dict], test_data: List[Dict]) -> Dict[str, Any]:
         """FIXED Method 3: Direct Video RL with improved environments."""
         
         self.logger.info("📹 Method 3: FIXED Direct Video RL")
