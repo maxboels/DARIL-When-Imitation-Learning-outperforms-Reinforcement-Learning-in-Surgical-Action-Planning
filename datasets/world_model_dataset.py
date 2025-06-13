@@ -372,43 +372,50 @@ class WorldModelSimulationDataset(Dataset):
             'simulation_length': len(ground_truth_states)
         }
 
-
 def create_world_model_dataloaders(config: Dict,
-                                 train_data: List[Dict],
+                                 train_data: Optional[List[Dict]],
                                  test_data: List[Dict],
                                  batch_size: int = 32,
-                                 num_workers: int = 4) -> Tuple[DataLoader, DataLoader, DataLoader]:
+                                 num_workers: int = 4) -> Tuple[DataLoader, Dict[str, DataLoader], DataLoader]:
     """
     Create dataloaders for world model training and evaluation.
     
     Args:
         config: Data configuration
-        train_data: Training video data
+        train_data: Training video data (None to skip training)
         test_data: Test video data
         batch_size: Batch size
         num_workers: Number of worker processes
         
     Returns:
-        train_loader: Training dataloader
-        test_loader: Test dataloader  
-        simulation_loader: Simulation dataloader
+        train_loader: Training dataloader (None if train_data is None)
+        test_loaders: Dict of test dataloaders per video
+        simulation_loader: Simulation dataloader (None if train_data is None)
     """
     
     print("🔧 Creating world model dataloaders...")
     
-    # Training dataset and loader
-    train_dataset = WorldModelDataset(config, train_data)
-    train_loader = DataLoader(
-        train_dataset,
-        batch_size=batch_size,
-        shuffle=True,
-        num_workers=num_workers,
-        pin_memory=True,
-        drop_last=True
-    )
+    # Handle training data
+    train_loader = None
+    train_dataset = None
     
+    if train_data is not None and len(train_data) > 0:
+        print(f"📚 Creating training dataloader with {len(train_data)} videos")
+        # Training dataset and loader
+        train_dataset = WorldModelDataset(config, train_data)
+        train_loader = DataLoader(
+            train_dataset,
+            batch_size=batch_size,
+            shuffle=True,
+            num_workers=num_workers,
+            pin_memory=True,
+            drop_last=True
+        )
+    else:
+        print("⚠️ No training data provided, skipping training dataloader creation")
 
     # Test dataset and loader (one dataloader per video)
+    print(f"📋 Creating test dataloaders for {len(test_data)} videos")
     test_loaders = {}
     for test_video in test_data:
         video_dataset = WorldModelDataset(config, [test_video])
@@ -420,38 +427,147 @@ def create_world_model_dataloaders(config: Dict,
             pin_memory=True
         )
     
-    # Simulation dataset for RL training
-    simulation_dataset = WorldModelSimulationDataset(config, train_data)
-    simulation_loader = DataLoader(
-        simulation_dataset,
-        batch_size=1,  # One simulation at a time
-        shuffle=True,
-        num_workers=num_workers,
-        pin_memory=True
-    )
+    # Handle simulation data
+    simulation_loader = None
+    simulation_dataset = None
     
+    if train_data is not None and len(train_data) > 0:
+        print("🎮 Creating simulation dataloader")
+        # Simulation dataset for RL training
+        simulation_dataset = WorldModelSimulationDataset(config, train_data)
+        simulation_loader = DataLoader(
+            simulation_dataset,
+            batch_size=1,  # One simulation at a time
+            shuffle=True,
+            num_workers=num_workers,
+            pin_memory=True
+        )
+    else:
+        print("⚠️ No training data provided, skipping simulation dataloader creation")
+    
+    # Print summary
     print(f"✅ Created world model dataloaders")
-    print(f"   Training videos: {len(train_data)}")
-    print(f"   Training batches: {len(train_loader)}")
+    print(f"   Training videos: {len(train_data) if train_data is not None else 0}")
+    print(f"   Training batches: {len(train_loader) if train_loader is not None else 0}")
     print(f"   Test videos: {len(test_loaders)}")
     for video_id, loader in test_loaders.items():
         print(f"   Test video {video_id}: {len(loader)} batches")
-    print(f"   Simulation starts: {len(simulation_dataset)}")
     
-    # Print dataset statistics
-    stats = train_dataset.get_dataset_stats()
-    print(f"📊 Dataset Statistics:")
-    for key, value in stats.items():
-        if key == 'reward_statistics':
-            print(f"   {key}:")
-            for reward_type, reward_stats in value.items():
-                print(f"     {reward_type}: mean={reward_stats['mean']:.3f}, std={reward_stats['std']:.3f}")
-        elif isinstance(value, float):
-            print(f"   {key}: {value:.2f}")
-        else:
-            print(f"   {key}: {value}")
+    if simulation_dataset is not None:
+        print(f"   Simulation starts: {len(simulation_dataset)}")
+    else:
+        print(f"   Simulation starts: 0 (no training data)")
+    
+    # Print dataset statistics (only if we have training data)
+    if train_dataset is not None:
+        try:
+            stats = train_dataset.get_dataset_stats()
+            print(f"📊 Dataset Statistics:")
+            for key, value in stats.items():
+                if key == 'reward_statistics':
+                    print(f"   {key}:")
+                    for reward_type, reward_stats in value.items():
+                        print(f"     {reward_type}: mean={reward_stats['mean']:.3f}, std={reward_stats['std']:.3f}")
+                elif isinstance(value, float):
+                    print(f"   {key}: {value:.2f}")
+                else:
+                    print(f"   {key}: {value}")
+        except Exception as e:
+            print(f"⚠️ Could not get dataset statistics: {e}")
+    else:
+        print(f"📊 No training dataset statistics (training skipped)")
     
     return train_loader, test_loaders, simulation_loader
+
+# def create_world_model_dataloaders(config: Dict,
+#                                  train_data: Optional[List[Dict]] = None,
+#                                  test_data: List[Dict],
+#                                  batch_size: int = 32,
+#                                  num_workers: int = 4) -> Tuple[DataLoader, DataLoader, DataLoader]:
+#     """
+#     Create dataloaders for world model training and evaluation.
+    
+#     Args:
+#         config: Data configuration
+#         train_data: Training video data
+#         test_data: Test video data
+#         batch_size: Batch size
+#         num_workers: Number of worker processes
+        
+#     Returns:
+#         train_loader: Training dataloader
+#         test_loader: Test dataloader  
+#         simulation_loader: Simulation dataloader
+#     """
+    
+#     print("🔧 Creating world model dataloaders...")
+    
+#     if train_data is not None:
+#         # Training dataset and loader
+#         train_dataset = WorldModelDataset(config, train_data)
+#         train_loader = DataLoader(
+#             train_dataset,
+#             batch_size=batch_size,
+#             shuffle=True,
+#             num_workers=num_workers,
+#             pin_memory=True,
+#             drop_last=True
+#         )
+#     else:
+#         train_loader = []
+#         train_dataset = []
+#         print("⚠️ No training data provided, skipping training dataloader creation")
+    
+
+#     # Test dataset and loader (one dataloader per video)
+#     test_loaders = {}
+#     for test_video in test_data:
+#         video_dataset = WorldModelDataset(config, [test_video])
+#         test_loaders[test_video['video_id']] = DataLoader(
+#             video_dataset,
+#             batch_size=batch_size,
+#             shuffle=False,
+#             num_workers=num_workers,
+#             pin_memory=True
+#         )
+    
+#     if train_loader is None or len(train_loader) == 0:
+#         print("ℹ️ No training dataset created, using simulation dataset only")
+#         simulation_dataset = []
+#         simulation_loader = []
+#     else:
+#         # Simulation dataset for RL training
+#         simulation_dataset = WorldModelSimulationDataset(config, train_data)
+#         simulation_loader = DataLoader(
+#             simulation_dataset,
+#             batch_size=1,  # One simulation at a time
+#             shuffle=True,
+#             num_workers=num_workers,
+#             pin_memory=True
+#         )
+    
+#     print(f"✅ Created world model dataloaders")
+#     print(f"   Training videos: {len(train_data)}")
+#     print(f"   Training batches: {len(train_loader)}")
+#     print(f"   Test videos: {len(test_loaders)}")
+#     for video_id, loader in test_loaders.items():
+#         print(f"   Test video {video_id}: {len(loader)} batches")
+#     print(f"   Simulation starts: {len(simulation_dataset)}")
+    
+#     # Print dataset statistics
+#     stats = train_dataset.get_dataset_stats()
+#     print(f"📊 Dataset Statistics:")
+#     for key, value in stats.items():
+#         if key == 'reward_statistics':
+#             print(f"   {key}:")
+#             for reward_type, reward_stats in value.items():
+#                 print(f"     {reward_type}: mean={reward_stats['mean']:.3f}, std={reward_stats['std']:.3f}")
+#         elif isinstance(value, float):
+#             print(f"   {key}: {value:.2f}")
+#         else:
+#             print(f"   {key}: {value}")
+    
+#     return train_loader, test_loaders, simulation_loader
 
 
 # Testing and example usage

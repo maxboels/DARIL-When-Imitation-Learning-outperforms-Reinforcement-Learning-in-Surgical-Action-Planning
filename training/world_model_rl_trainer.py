@@ -141,9 +141,7 @@ class WorldModelRLTrainer:
     def create_world_model_env(self, world_model, train_data: List[Dict]):
         """Create world model environment."""
         def make_env():
-            # Import the environment
-            from rl_environment import WorldModelSimulationEnv
-            
+                        
             env = WorldModelSimulationEnv(
                 world_model=world_model,
                 video_data=train_data,

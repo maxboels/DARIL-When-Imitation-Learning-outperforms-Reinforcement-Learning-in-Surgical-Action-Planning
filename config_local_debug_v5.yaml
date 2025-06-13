@@ -37,10 +37,16 @@ experiment:
   
   # Imitation Learning
   autoregressive_il:
-    enabled: true
+    enabled: false
     # il_model_path: null
     il_model_path: "results/2025-06-10_19-45-51/logs/checkpoints/autoregressive_il_best_epoch_1.pt"  # Path to the best IL model
   
+  # Conditional World Model
+  world_model:
+    enabled: true
+    # cwm_model_path: null
+    wm_model_path: "results/fixed_rl_2025-06-13_16-30-50/logs/checkpoints/world_model_final.pt"
+
   # RL Experiments
   rl_experiments:
     enabled: true
@@ -48,7 +54,7 @@ experiment:
 
 # Training parameters
 training:
-  epochs: 5  # INCREASED for better convergence
+  epochs: 2  # INCREASED for better convergence
   batch_size: 16  # OPTIMIZED batch size
   learning_rate: 0.0001
   log_every_n_steps: 50

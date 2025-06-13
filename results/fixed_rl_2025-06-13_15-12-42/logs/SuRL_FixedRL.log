@@ -1,0 +1,49 @@
+2025-06-13 15:12:42,495 - INFO - SuRL_FixedRL_132184736035808 - Shared experiment log directory: results/fixed_rl_2025-06-13_15-12-42/logs
+2025-06-13 15:12:42,496 - INFO - SuRL_FixedRL_132184736035808 - 🎯 FIXED RL Experiment: fixed_rl_2025-06-13_15-12-42
+2025-06-13 15:12:42,496 - INFO - SuRL_FixedRL_132184736035808 - 📁 Results dir: results/fixed_rl_2025-06-13_15-12-42
+2025-06-13 15:12:42,496 - INFO - SuRL_FixedRL_132184736035808 - 🚀 Starting Complete FIXED RL Comparison
+2025-06-13 15:12:42,496 - INFO - SuRL_FixedRL_132184736035808 - ============================================================
+2025-06-13 15:12:42,496 - INFO - SuRL_FixedRL_132184736035808 - 📂 Loading CholecT50 data...
+2025-06-13 15:12:42,496 - INFO - SuRL_FixedRL_132184736035808 - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-13 15:12:42,901 - INFO - SuRL_FixedRL_132184736035808 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (78968, 156)
+2025-06-13 15:12:42,901 - INFO - SuRL_FixedRL_132184736035808 - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-13 15:12:42,901 - INFO - SuRL_FixedRL_132184736035808 - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-13 15:12:42,903 - INFO - SuRL_FixedRL_132184736035808 - [Train] Found 2 videos in metadata file
+2025-06-13 15:12:42,903 - INFO - SuRL_FixedRL_132184736035808 - [Train] Loading data for 2 videos
+2025-06-13 15:12:42,986 - INFO - SuRL_FixedRL_132184736035808 - ✅ Loaded video VID01: 1734 frames, 1024D embeddings
+2025-06-13 15:12:43,049 - INFO - SuRL_FixedRL_132184736035808 - ✅ Loaded video VID04: 1523 frames, 1024D embeddings
+2025-06-13 15:12:43,049 - INFO - SuRL_FixedRL_132184736035808 - ✅ Successfully loaded 2 videos for train
+2025-06-13 15:12:43,049 - INFO - SuRL_FixedRL_132184736035808 - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-13 15:12:43,132 - INFO - SuRL_FixedRL_132184736035808 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (21895, 156)
+2025-06-13 15:12:43,133 - INFO - SuRL_FixedRL_132184736035808 - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-13 15:12:43,133 - INFO - SuRL_FixedRL_132184736035808 - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-13 15:12:43,133 - INFO - SuRL_FixedRL_132184736035808 - [Test] Found 2 videos in metadata file
+2025-06-13 15:12:43,133 - INFO - SuRL_FixedRL_132184736035808 - [Test] Loading data for 2 videos
+2025-06-13 15:12:43,243 - INFO - SuRL_FixedRL_132184736035808 - ✅ Loaded video VID02: 2840 frames, 1024D embeddings
+2025-06-13 15:12:43,328 - INFO - SuRL_FixedRL_132184736035808 - ✅ Loaded video VID06: 2154 frames, 1024D embeddings
+2025-06-13 15:12:43,328 - INFO - SuRL_FixedRL_132184736035808 - ✅ Successfully loaded 2 videos for test
+2025-06-13 15:12:43,328 - INFO - SuRL_FixedRL_132184736035808 - ✅ Data loaded successfully
+2025-06-13 15:12:43,328 - INFO - SuRL_FixedRL_132184736035808 -    Training videos: 2
+2025-06-13 15:12:43,328 - INFO - SuRL_FixedRL_132184736035808 -    Test videos: 2
+2025-06-13 15:12:43,328 - INFO - SuRL_FixedRL_132184736035808 - 🎓 Running Method 1: Autoregressive IL
+2025-06-13 15:12:47,606 - INFO - SuRL_FixedRL_132184736035808 - 🎓 Method 1: Autoregressive IL
+2025-06-13 15:12:47,606 - INFO - SuRL_FixedRL_132184736035808 - ----------------------------------------
+2025-06-13 15:12:48,721 - INFO - SuRL_FixedRL_132184736035808 - 📂 Loading pretrained IL model from: results/2025-06-10_19-45-51/logs/checkpoints/autoregressive_il_best_epoch_1.pt
+2025-06-13 15:12:49,273 - INFO - SuRL_FixedRL_132184736035808 - ✅ Pretrained IL model loaded successfully
+2025-06-13 15:12:59,014 - INFO - SuRL_FixedRL_132184736035808 - 🎓 Autoregressive IL Trainer initialized (FINAL)
+2025-06-13 15:12:59,015 - INFO - SuRL_FixedRL_132184736035808 -    Device: cuda
+2025-06-13 15:12:59,015 - INFO - SuRL_FixedRL_132184736035808 -    Epochs: 5
+2025-06-13 15:12:59,015 - INFO - SuRL_FixedRL_132184736035808 -    Learning rate: 0.0001
+2025-06-13 15:12:59,015 - INFO - SuRL_FixedRL_132184736035808 -    ✅ Per-video aggregation + shared metrics + efficient validation
+2025-06-13 15:12:59,015 - INFO - SuRL_FixedRL_132184736035808 - 📊 Evaluating pretrained IL model...
+2025-06-13 15:13:00,834 - INFO - SuRL_FixedRL_132184736035808 - 📊 Evaluating Autoregressive IL Model (PER-VIDEO)...
+2025-06-13 15:16:06,719 - INFO - SuRL_FixedRL_132184736035808 - 📊 Validation Summary (averaged across 2 videos):
+2025-06-13 15:16:06,719 - INFO - SuRL_FixedRL_132184736035808 -    Action mAP: 0.4659 ± 0.0649
+2025-06-13 15:16:06,720 - INFO - SuRL_FixedRL_132184736035808 -    Total Loss: 0.4898
+2025-06-13 15:16:06,720 - INFO - SuRL_FixedRL_132184736035808 -    Action Sparsity: 0.6800
+2025-06-13 15:17:45,180 - INFO - SuRL_FixedRL_132184736035808 - 📊 Evaluating generation quality...
+2025-06-13 15:17:51,578 - INFO - SuRL_FixedRL_132184736035808 - ✅ Per-video evaluation completed
+2025-06-13 15:17:51,578 - INFO - SuRL_FixedRL_132184736035808 - 📊 Overall Action mAP: 0.4659 ± 0.0649
+2025-06-13 15:17:51,578 - INFO - SuRL_FixedRL_132184736035808 - 📊 Videos evaluated: 2
+2025-06-13 15:17:51,578 - INFO - SuRL_FixedRL_132184736035808 - 🎯 Aggregation: Per-video metrics → averaged
+2025-06-13 15:17:51,578 - INFO - SuRL_FixedRL_132184736035808 - 🌍 Running Method 2: FIXED Conditional World Model + RL

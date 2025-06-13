@@ -251,7 +251,9 @@ class WorldModelTrainer:
                     target_rewards=target_rewards,
                     target_phases=next_phases
                 )
-                
+
+                # Warning: We need to be careful with the loss for next actions prediction since we
+                # passed this as our conditional input.
                 loss = outputs['total_loss']
                 
                 # Backward pass

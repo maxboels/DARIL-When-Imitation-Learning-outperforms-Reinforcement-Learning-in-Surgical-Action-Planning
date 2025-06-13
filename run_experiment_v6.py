@@ -274,7 +274,7 @@ class ExperimentRunner:
             try:
                 # Check if pretrained world model is configured
                 wm_config = self.config.get('experiment', {}).get('world_model', {})
-                wm_model_path = wm_config.get('world_model_path', None)
+                wm_model_path = wm_config.get('wm_model_path', None)
                 
                 # 🔧 FIX: Determine if we should skip training
                 skip_training = wm_model_path and os.path.exists(wm_model_path)
@@ -339,23 +339,23 @@ class ExperimentRunner:
                     self.logger.info("🌍 Evaluating trained world model...")
                     world_model_evaluation = world_model_trainer.evaluate_model(test_loaders)
                 
-                # Step 2: FIXED RL training with improved trainer
-                self.logger.info("🚀 Starting FIXED RL training with improved rewards...")
-                
-                # Use the debug trainer which has better hyperparameters and monitoring
+                # Step 2: RL training
+                self.logger.info("🚀 Starting RL training...")
+
+                # Create RL trainer with world model                
                 rl_trainer = WorldModelRLTrainer(
                     config=self.config,
                     logger=self.logger,
                     device=DEVICE
                 )
                 
-                # Get training timesteps (increased for better convergence)
+                # Get training timesteps
                 timesteps = self.config.get('rl_training', {}).get('timesteps', 20000)  # Increased default
                 
-                # 🔧 FIX: Use original train_data for RL training (not None)
+                # Use original training data for RL
                 rl_train_data = train_data  # Always use original training data for RL
                 
-                # FIXED: Train RL algorithms with world model
+                # Train RL algorithms with world model
                 self.logger.info(f"🌍 Training World Model RL for {timesteps} timesteps...")
                 world_model_rl_results = rl_trainer.train_ppo_world_model(
                     world_model, rl_train_data, timesteps
@@ -394,115 +394,6 @@ class ExperimentRunner:
                 import traceback
                 self.logger.error(f"Full traceback: {traceback.format_exc()}")
                 return {'status': 'failed', 'error': str(e)}
-
-    # def _run_method2_rl(self, train_data: List[Dict], test_data: List[Dict]) -> Dict[str, Any]:
-    #     """FIXED Method 2: Conditional World Model + Improved RL."""
-        
-    #     self.logger.info("🌍 Method 2: FIXED Conditional World Model + RL")
-    #     self.logger.info("-" * 40)
-        
-    #     try:
-    #         # Check if pretrained world model is configured
-    #         wm_config = self.config.get('experiment', {}).get('world_model', {})
-    #         wm_model_path = wm_config.get('world_model_path', None)
-
-    #         train_data = None  if il_enabled and il_model_path else train_data
-
-    #         if wm_model_path and os.path.exists(wm_model_path):
-    #             # Load pretrained world model
-    #             world_model = ConditionalWorldModel.load_model(wm_model_path, device=DEVICE)
-    #             # Skip training, go directly to evaluation
-    #             self.logger.info(f"📂 Loaded pretrained world model from: {wm_model_path}")
-    #         else:
-    #             # Fall back to training from scratch
-    #             # Create world model
-    #             world_model = ConditionalWorldModel(
-    #                 hidden_dim=self.config['models']['conditional_world_model']['hidden_dim'],
-    #                 embedding_dim=self.config['models']['conditional_world_model']['embedding_dim'],
-    #                 action_embedding_dim=self.config['models']['conditional_world_model']['action_embedding_dim'],
-    #                 n_layer=self.config['models']['conditional_world_model']['n_layer'],
-    #                 num_action_classes=self.config['models']['conditional_world_model']['num_action_classes'],
-    #                 dropout=self.config['models']['conditional_world_model']['dropout']
-    #             ).to(DEVICE)
-    #         self.logger.info("✅ World model initialized successfully")
-            
-    #         # Create datasets for world model training
-    #         train_loader, test_loaders, simulation_loader = create_world_model_dataloaders(
-    #             config=self.config['data'],
-    #             train_data=train_data,
-    #             test_data=test_data,
-    #             batch_size=self.config['training']['batch_size'],
-    #             num_workers=self.config['training']['num_workers']
-    #         )
-
-    #         # ✅ IMPORTANT: Store test loaders for comprehensive evaluation
-    #         self.test_loaders = test_loaders  # Dict[video_id, DataLoader]
-    #         self.logger.info(f"✅ Stored test loaders for evaluation: {list(self.test_loaders.keys())}")
-        
-    #         # Step 1: Train world model
-    #         world_model_trainer = WorldModelTrainer(
-    #             model=world_model,
-    #             config=self.config,
-    #             logger=self.logger,
-    #             device=DEVICE
-    #         )
-            
-    #         self.logger.info("🌍 Training world model...")
-    #         best_world_model_path = world_model_trainer.train(train_loader, test_loaders)
-
-    #         self.logger.info("🌍 Evaluating world model...")
-    #         world_model_evaluation = world_model_trainer.evaluate_model(test_loaders)
-            
-    #         # Step 2: FIXED RL training with improved trainer
-    #         self.logger.info("🚀 Starting FIXED RL training with improved rewards...")
-            
-    #         # Use the debug trainer which has better hyperparameters and monitoring
-    #         rl_trainer = WorldModelRLTrainer(
-    #             config=self.config,
-    #             logger=self.logger,
-    #             device=DEVICE
-    #         )
-            
-    #         # Get training timesteps (increased for better convergence)
-    #         timesteps = self.config.get('rl_training', {}).get('timesteps', 20000)  # Increased default
-            
-    #         # FIXED: Train RL algorithms with world model
-    #         self.logger.info(f"🌍 Training World Model RL for {timesteps} timesteps...")
-    #         world_model_rl_results = rl_trainer.train_ppo_world_model(
-    #             world_model, train_data, timesteps
-    #         )
-            
-    #         self.logger.info(f"🎬 Training Direct Video RL for {timesteps} timesteps...")
-    #         direct_video_rl_results = rl_trainer.train_ppo_direct_video(
-    #             train_data, timesteps
-    #         )
-            
-    #         rl_results = {
-    #             'world_model_ppo': world_model_rl_results,
-    #             'direct_video_ppo': direct_video_rl_results
-    #         }
-            
-    #         return {
-    #             'status': 'success',
-    #             'world_model_path': best_world_model_path,
-    #             'world_model_evaluation': world_model_evaluation,
-    #             'rl_models': rl_results,
-    #             'model_type': 'ConditionalWorldModel',
-    #             'approach': 'FIXED: Action-conditioned world model + improved RL',
-    #             'method_description': 'World model-based RL with fixed rewards and debugging',
-    #             'improvements': [
-    #                 'Expert demonstration matching rewards',
-    #                 'Proper action space handling', 
-    #                 'Enhanced monitoring and debugging',
-    #                 'Optimized hyperparameters'
-    #             ]
-    #         }
-            
-    #     except Exception as e:
-    #         self.logger.error(f"❌ Method 2 failed: {e}")
-    #         import traceback
-    #         self.logger.error(f"Full traceback: {traceback.format_exc()}")
-    #         return {'status': 'failed', 'error': str(e)}
     
     def _run_method3_fixed_rl(self, train_data: List[Dict], test_data: List[Dict]) -> Dict[str, Any]:
         """FIXED Method 3: Direct Video RL with improved environments."""

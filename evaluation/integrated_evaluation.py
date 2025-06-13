@@ -17,9 +17,12 @@ from scipy import stats
 from tqdm import tqdm
 warnings.filterwarnings('ignore')
 
+from evaluation.evaluation_metrics import calculate_comprehensive_action_metrics, surgical_metrics
+
+
 class IntegratedEvaluationFramework:
     """
-    FIXED evaluation framework with fair comparison approach
+    evaluation framework with fair comparison approach
     """
     
     def __init__(self, results_dir: str, logger):
@@ -33,7 +36,12 @@ class IntegratedEvaluationFramework:
         
         self.logger.info(f"🔬 Evaluation Framework initialized")
         self.logger.info(f"📁 Results will be saved to: {self.eval_dir}")
+        
+        # Set up
+        surgical_metrics.logger = logger    
+        self.logger.info(f"🔬 Evaluation Framework initialized with METRICS MODULE")
     
+
     def load_all_models(self, experiment_results: Dict) -> Dict:
         """Load all models with proper handling for fair evaluation."""
         
@@ -771,326 +779,20 @@ class IntegratedEvaluationFramework:
         
         return evaluation_summary
 
-
-    # def _predict_single_step_actions_batch(self, model, states: np.ndarray, method_name: str) -> np.ndarray:
-    #     """Batch single-step action prediction for efficiency."""
-        
-    #     predictions = []
-    #     batch_size = 32  # Process in batches for efficiency
-        
-    #     for i in tqdm(range(0, len(states), batch_size), desc=f"{method_name} single-step"):
-    #         batch_states = states[i:i+batch_size]
-    #         batch_predictions = []
-            
-    #         for state in batch_states:
-    #             try:
-    #                 if 'AutoregressiveIL' in method_name:
-    #                     # IL model needs sequence context
-    #                     pred = self._predict_il_single_step(model, state)
-                        
-    #                 elif 'WorldModelRL' in method_name:
-    #                     # RL policy only (world model not needed for action prediction)
-    #                     pred = self._predict_rl_single_step_fixed(model, state, use_world_model=False)
-                        
-    #                 elif 'DirectVideoRL' in method_name:
-    #                     # Direct video RL policy
-    #                     pred = self._predict_rl_single_step_fixed(model, state, use_world_model=False)
-                        
-    #                 else:
-    #                     raise ValueError(f"Unknown method: {method_name}")
-                    
-    #                 batch_predictions.append(pred)
-                    
-    #             except Exception as e:
-    #                 self.logger.warning(f"Single prediction failed: {e}")
-    #                 batch_predictions.append(np.zeros(100))
-            
-    #         predictions.extend(batch_predictions)
-        
-    #     return np.array(predictions)
-
-    # def _predict_il_single_step(self, il_model, state: np.ndarray) -> np.ndarray:
-    #     """Single-step prediction for IL model."""
-        
-    #     # Convert state to sequence format expected by IL model
-    #     state_tensor = torch.tensor(state, dtype=torch.float32, device=self.device)
-        
-    #     # Create context sequence (simplified approach)
-    #     # NOTE: We don't want those simplified approaches that give the impression our code is working as intended !!!
-    #     context_length = 20
-    #     context = state_tensor.unsqueeze(0).unsqueeze(0).repeat(1, context_length, 1)
-        
-    #     with torch.no_grad():
-    #         action_probs = il_model.predict_next_action(context)  # [1, num_actions]
-    #         return action_probs[0].cpu().numpy()
-
-    # def _predict_rl_single_step_fixed(self, model, state: np.ndarray, use_world_model: bool = False) -> np.ndarray:
-    #     """FIXED: Single-step prediction for RL models."""
-        
-    #     # Extract RL policy if model is a dictionary (WorldModelRL case)
-    #     if isinstance(model, dict) and 'rl_policy' in model:
-    #         rl_policy = model['rl_policy']
-    #     else:
-    #         rl_policy = model
-        
-    #     # Ensure state has correct shape for RL model
-    #     state_input = state.reshape(1, -1)  # [1, state_dim]
-        
-    #     try:
-    #         with torch.no_grad():
-    #             # Get action prediction from RL policy
-    #             action_pred, _ = rl_policy.predict(state_input, deterministic=True)
-                
-    #             # FIXED: Handle different action prediction formats
-    #             if isinstance(action_pred, np.ndarray):
-    #                 action_pred = action_pred.flatten()
-    #             elif isinstance(action_pred, torch.Tensor):
-    #                 action_pred = action_pred.cpu().numpy().flatten()
-    #             else:
-    #                 # Handle scalar or list outputs
-    #                 action_pred = np.array([action_pred]).flatten()
-                
-    #             # FIXED: Convert to proper 100-dimensional action format
-    #             if len(action_pred) == 100:
-    #                 # Already in correct format (continuous action space)
-    #                 return np.clip(action_pred, 0, 1)  # Ensure [0, 1] range
-                    
-    #             elif len(action_pred) == 1:
-    #                 # Discrete action converted to binary vector
-    #                 action_binary = np.zeros(100, dtype=np.float32)
-    #                 action_idx = int(action_pred[0]) % 100  # Ensure valid index
-    #                 action_binary[action_idx] = 1.0
-    #                 return action_binary
-                    
-    #             else:
-    #                 # Unexpected size - pad or truncate
-    #                 action_binary = np.zeros(100, dtype=np.float32)
-    #                 if len(action_pred) > 0:
-    #                     copy_length = min(len(action_pred), 100)
-    #                     action_binary[:copy_length] = np.clip(action_pred[:copy_length], 0, 1)
-    #                 return action_binary
-                    
-    #     except Exception as e:
-    #         self.logger.warning(f"RL prediction failed: {e}")
-    #         return np.zeros(100, dtype=np.float32)
-
     def _calculate_comprehensive_action_metrics(self, predictions: np.ndarray, 
-                                            ground_truth: np.ndarray, method_name: str,
-                                            exclude_last_n: int = 6) -> Dict:
-        """Calculate comprehensive single-step action prediction metrics with sparsity handling."""
+                                              ground_truth: np.ndarray, method_name: str,
+                                              exclude_last_n: int = 6) -> Dict:
+        """
+        🔧 UPDATED: Use shared metrics module instead of local implementation.
+        """
         
-        def _compute_map_scores(preds, gt, handle_sparsity='present_only'):
-            """
-            Compute mAP scores with different sparsity handling strategies.
-            
-            Args:
-                handle_sparsity: 'standard', 'present_only', 'frequency_weighted', 'sample_wise'
-            """
-            binary_preds = (preds > 0.5).astype(int)
-            
-            if handle_sparsity == 'sample_wise':
-                # Compute AP per sample instead of per action
-                sample_aps = []
-                for sample_idx in range(len(gt)):
-                    gt_sample = gt[sample_idx]
-                    pred_sample = preds[sample_idx]
-                    
-                    if np.sum(gt_sample) > 0:  # Only if sample has positive actions
-                        try:
-                            ap = average_precision_score(gt_sample, pred_sample)
-                            sample_aps.append(ap)
-                        except:
-                            sample_aps.append(0.0)
-                
-                return np.mean(sample_aps) if sample_aps else 0.0
-            
-            # Action-wise approaches
-            ap_scores = []
-            action_frequencies = []
-            
-            for i in range(gt.shape[1]):  # iterate over actions
-                gt_class_i = gt[:, i]
-                pred_class_i = preds[:, i]
-                action_freq = np.sum(gt_class_i) / len(gt_class_i)  # frequency of this action
-                
-                if np.sum(gt_class_i) > 0:
-                    try:
-                        ap = average_precision_score(gt_class_i, pred_class_i)
-                        ap_scores.append(ap)
-                        action_frequencies.append(action_freq)
-                    except:
-                        ap_scores.append(0.0)
-                        action_frequencies.append(action_freq)
-                else:
-                    # Action not present in this batch/video
-                    if handle_sparsity == 'standard':
-                        # Original behavior
-                        if np.sum(binary_preds[:, i]) == 0:
-                            ap_scores.append(1.0)  # Perfect score for absent action
-                        else:
-                            ap_scores.append(0.0)  # False positive
-                        action_frequencies.append(action_freq)
-                    elif handle_sparsity == 'present_only':
-                        # Skip absent actions entirely
-                        continue
-                    # For frequency_weighted, we'll skip absent actions too
-            
-            if not ap_scores:
-                return 0.0
-                
-            if handle_sparsity == 'frequency_weighted' and action_frequencies:
-                # Weight by action frequency to reduce impact of rare actions
-                weights = np.array(action_frequencies)
-                weights = weights / np.sum(weights) if np.sum(weights) > 0 else np.ones_like(weights)
-                return np.average(ap_scores, weights=weights)
-            else:
-                return np.mean(ap_scores)
-        
-        def _compute_sequence_metrics(preds, gt):
-            """Helper to compute sequence-level metrics."""
-            binary_preds = (preds > 0.5).astype(int)
-            
-            exact_match = np.mean(np.all(binary_preds == gt, axis=1))
-            hamming_accuracy = np.mean(binary_preds == gt)
-            
-            try:
-                precision, recall, f1, _ = precision_recall_fscore_support(
-                    gt.flatten(), binary_preds.flatten(), 
-                    average='macro', zero_division=0
-                )
-            except:
-                precision = recall = f1 = 0.0
-                
-            return exact_match, hamming_accuracy, precision, recall, f1
-        
-        # Compute different mAP variants on all actions
-        mAP_standard = _compute_map_scores(predictions, ground_truth, 'standard')
-        mAP_present_only = _compute_map_scores(predictions, ground_truth, 'present_only')
-        mAP_freq_weighted = _compute_map_scores(predictions, ground_truth, 'frequency_weighted')
-        mAP_sample_wise = _compute_map_scores(predictions, ground_truth, 'sample_wise')
-        
-        # Other metrics on all actions
-        exact_match_all, hamming_all, precision_all, recall_all, f1_all = _compute_sequence_metrics(
-            predictions, ground_truth)
-        
-        # Count present actions for context
-        present_actions = np.sum(np.sum(ground_truth, axis=0) > 0)
-        total_actions = ground_truth.shape[1]
-        
-        results = {
-            # Different mAP variants - choose the one that fits your needs best
-            'mAP_standard': mAP_standard,           # Original (inflated by sparsity)
-            'mAP_present_only': mAP_present_only,   # Only actions with positive examples
-            'mAP_freq_weighted': mAP_freq_weighted, # Weighted by action frequency
-            'mAP_sample_wise': mAP_sample_wise,     # AP per sample, not per action
-            
-            # Use present_only as main mAP (recommended for sparse data)
-            'mAP': mAP_present_only,
-            
-            # Other metrics
-            'exact_match': exact_match_all,
-            'hamming_accuracy': hamming_all,
-            'precision': precision_all,
-            'recall': recall_all,
-            'f1': f1_all,
-            
-            # Metadata
-            'num_predictions': len(predictions),
-            'num_actions_total': total_actions,
-            'num_actions_present': present_actions,
-            'action_sparsity': 1 - (present_actions / total_actions),
-            'task': 'single_step_action_prediction'
-        }
-        
-        # Add metrics excluding last N actions if we have enough actions
-        if predictions.shape[1] > exclude_last_n:
-            preds_subset = predictions[:, :-exclude_last_n]
-            gt_subset = ground_truth[:, :-exclude_last_n]
-            
-            mAP_subset_present = _compute_map_scores(preds_subset, gt_subset, 'present_only')
-            results[f'mAP_excluding_last_{exclude_last_n}'] = mAP_subset_present
-            
-            present_actions_subset = np.sum(np.sum(gt_subset, axis=0) > 0)
-            results[f'num_actions_evaluated_subset'] = preds_subset.shape[1]
-            results[f'num_actions_present_subset'] = present_actions_subset
-        else:
-            results[f'mAP_excluding_last_{exclude_last_n}'] = None
-            results[f'num_actions_evaluated_subset'] = 0
-            results[f'num_actions_present_subset'] = 0
-        
-        return results
-
-
-
-    def _calculate_comprehensive_action_metrics_v1(self, predictions: np.ndarray, 
-                                                    ground_truth: np.ndarray, method_name: str,
-                                                    exclude_last_n: int = 6) -> Dict:
-        """Calculate comprehensive metrics on both full and subset of actions."""
-        
-        def _compute_all_metrics(preds, gt, suffix=""):
-            """Compute all metrics for given predictions and ground truth."""
-            binary_preds = (preds > 0.5).astype(int)
-            
-            # mAP calculation
-            ap_scores = []
-            for i in range(gt.shape[1]):
-                gt_class_i = gt[:, i]
-                pred_class_i = preds[:, i]
-                
-                if np.sum(gt_class_i) > 0:
-                    try:
-                        ap = average_precision_score(gt_class_i, pred_class_i)
-                        ap_scores.append(ap)
-                    except:
-                        ap_scores.append(0.0)
-                else:
-                    if np.sum(binary_preds[:, i]) == 0:
-                        ap_scores.append(1.0)
-                    else:
-                        ap_scores.append(0.0)
-            
-            mAP = np.mean(ap_scores) if ap_scores else 0.0
-            
-            # Other metrics
-            exact_match = np.mean(np.all(binary_preds == gt, axis=1))
-            hamming_accuracy = np.mean(binary_preds == gt)
-            
-            try:
-                precision, recall, f1, _ = precision_recall_fscore_support(
-                    gt.flatten(), binary_preds.flatten(), 
-                    average='macro', zero_division=0
-                )
-            except:
-                precision = recall = f1 = 0.0
-            
-            return {
-                f'mAP{suffix}': mAP, # per class average precision
-                f'exact_match{suffix}': exact_match,
-                f'hamming_accuracy{suffix}': hamming_accuracy,
-                f'precision{suffix}': precision,
-                f'recall{suffix}': recall,
-                f'f1{suffix}': f1,
-            }
-        
-        # Compute on all actions
-        results = _compute_all_metrics(predictions, ground_truth)
-        results.update({
-            'num_predictions': len(predictions),
-            'num_actions_total': predictions.shape[1],
-            'task': 'single_step_action_prediction'
-        })
-        
-        # Compute on subset excluding last N actions
-        if predictions.shape[1] > exclude_last_n:
-            preds_subset = predictions[:, :-exclude_last_n]
-            gt_subset = ground_truth[:, :-exclude_last_n]
-            
-            subset_metrics = _compute_all_metrics(preds_subset, gt_subset, 
-                                                f'_excluding_last_{exclude_last_n}')
-            results.update(subset_metrics)
-            results[f'num_actions_evaluated_subset'] = preds_subset.shape[1]
-        
-        return results
+        # Use the shared module
+        return calculate_comprehensive_action_metrics(
+            predictions=predictions,
+            ground_truth=ground_truth,
+            method_name=method_name,
+            exclude_last_n=exclude_last_n
+        )
 
     def _evaluate_planning_capability_fixed(self, model, states: np.ndarray, actions: np.ndarray,
                                     method_name: str, horizon: int) -> Dict:

@@ -103,8 +103,11 @@ class AutoregressiveDataset(Dataset):
         }
 
 
+from typing import Dict, List, Optional, Tuple
+from torch.utils.data import DataLoader
+
 def create_autoregressive_dataloaders(config: Dict, 
-                                    train_data: List[Dict], 
+                                    train_data: Optional[List[Dict]], 
                                     test_data: List[Dict],
                                     batch_size: int = 32,
                                     num_workers: int = 4) -> Tuple[Optional[DataLoader], Dict[str, DataLoader]]:
@@ -113,7 +116,7 @@ def create_autoregressive_dataloaders(config: Dict,
     
     Args:
         config: Dataset configuration
-        train_data: List of training video dictionaries
+        train_data: List of training video dictionaries, or None to skip training
         test_data: List of test video dictionaries
         batch_size: Batch size for dataloaders
         num_workers: Number of worker processes
@@ -123,14 +126,16 @@ def create_autoregressive_dataloaders(config: Dict,
     """
     
     # Validate inputs
-    if not isinstance(train_data, list) or not isinstance(test_data, list):
-        raise ValueError("train_data and test_data must be lists")
+    if train_data is not None and not isinstance(train_data, list):
+        raise ValueError("train_data must be a list or None")
+    if not isinstance(test_data, list):
+        raise ValueError("test_data must be a list")
     
     # Training dataset
     train_loader = None
     train_samples = 0
     
-    if train_data:
+    if train_data is not None and len(train_data) > 0:
         try:
             train_dataset = AutoregressiveDataset(config, train_data)
             train_samples = len(train_dataset)
@@ -149,6 +154,8 @@ def create_autoregressive_dataloaders(config: Dict,
         except Exception as e:
             print(f"❌ Error creating training dataset: {e}")
             raise
+    elif train_data is None:
+        print("ℹ️ Training skipped (train_data=None).")
     else:
         print("⚠️ No training data provided.")
     
