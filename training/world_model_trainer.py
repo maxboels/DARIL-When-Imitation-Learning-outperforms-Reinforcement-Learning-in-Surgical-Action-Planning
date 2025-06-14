@@ -205,8 +205,8 @@ class WorldModelTrainer:
                 f"Epoch {epoch+1}/{self.epochs} | "
                 f"Train Loss: {train_metrics['total_loss']:.4f} | "
                 f"Val Loss: {val_metrics['total_loss']:.4f} | "
-                f"State MSE: {val_metrics.get('state_loss', 0):.4f} | "
-                f"Reward MSE: {val_metrics.get('total_reward_loss', 0):.4f}"
+                f"Val State MSE: {val_metrics.get('state_loss', 0):.4f} | "
+                f"Val Reward MSE: {val_metrics.get('total_reward_loss', 0):.4f}"
             )
         
         # Save final model

@@ -127,7 +127,6 @@ class ExperimentRunner:
         # Analysis and comparison
         self.logger.info("🏆 Analyzing FIXED Results and Architectural Insights")
         self._print_method_comparison(self.results)
-        self._print_rl_improvements()
         
         # Save results
         self._save_complete_results()
@@ -550,13 +549,7 @@ class ExperimentRunner:
     def _compare_rl_improvements(self):
         """Compare before/after RL performance."""
         
-        self.logger.info("")
-        self.logger.info("📈 RL PERFORMANCE COMPARISON:")
-        self.logger.info("   BEFORE (Previous Results):")
-        self.logger.info("     Method 2 World Model RL: PPO: -400.010, A2C: -404.962")
-        self.logger.info("     Method 3 Direct Video RL: PPO: 79.488, A2C: 76.512")
-        
-        self.logger.info("   AFTER (FIXED Results):")
+        self.logger.info("")        
         method2 = self.results.get('method_2_conditional_world_model', {})
         method3 = self.results.get('method_3_direct_video_rl', {})
         
@@ -573,34 +566,7 @@ class ExperimentRunner:
                 if result.get('status') == 'success':
                     reward = result.get('mean_reward', 0)
                     self.logger.info(f"     Method 3 {alg}: {reward:.3f} (FIXED)")
-    
-    def _print_rl_improvements(self):
-        """Print details about RL improvements made."""
-        
-        self.logger.info("")
-        self.logger.info("🔧 RL IMPROVEMENTS SUMMARY")
-        self.logger.info("=" * 50)
-        
-        self.logger.info("🚫 PROBLEMS FIXED:")
-        self.logger.info("   • Negative rewards (-400) → Expert demonstration matching")
-        self.logger.info("   • Poor action space design → Continuous [0,1] per action")
-        self.logger.info("   • No learning progress → Enhanced monitoring + debugging")
-        self.logger.info("   • Poor hyperparameters → Optimized for surgical tasks")
-        
-        self.logger.info("✅ IMPROVEMENTS APPLIED:")
-        self.logger.info("   • Expert demonstration matching rewards (most important)")
-        self.logger.info("   • Proper action sparsity rewards")
-        self.logger.info("   • Better episode termination conditions")
-        self.logger.info("   • Enhanced RL monitoring with RLDebugger")
-        self.logger.info("   • Optimized hyperparameters (lower LR, larger batches)")
-        self.logger.info("   • Comprehensive training diagnostics")
-        
-        self.logger.info("🔬 DEBUGGING TOOLS ADDED:")
-        self.logger.info("   • RLDebugger: Real-time training monitoring")
-        self.logger.info("   • RL Diagnostic Script: Quick problem identification")
-        self.logger.info("   • Training curve visualization")
-        self.logger.info("   • Expert matching score tracking")
-        
+          
     def _save_complete_results(self):
         """Save all experimental results."""
         
@@ -727,7 +693,7 @@ def main():
     print()
     
     # Choose config file here
-    config_path = 'config_local_debug_v5.yaml'
+    config_path = 'config_dgx_all_v6.yaml'
     if not os.path.exists(config_path):
         print(f"❌ Config file not found: {config_path}")
         print("Please ensure config file exists or update the path")
