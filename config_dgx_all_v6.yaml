@@ -175,10 +175,10 @@ models:
   
   # Method 2: Conditional World Model  
   conditional_world_model:
-    hidden_dim: 768
+    hidden_dim: 512           # try a smaller hidden dimension to avoid overfitting
     embedding_dim: 1024
     action_embedding_dim: 128
-    n_layer: 6
+    n_layer: 4                # REDUCED number of layers to avoid overfitting
     num_action_classes: 100
     num_phase_classes: 7
     dropout: 0.1
