@@ -34,6 +34,7 @@ class WorldModelSimulationEnv(gym.Env):
         # Environment parameters
         self.max_episode_steps = config.get('rl_horizon', 25)  # Shorter episodes
         self.context_length = config.get('context_length', 10)
+        self.action_space_type = config.get('action_space_type', 'continuous')
         
         # Current episode state
         self.current_step = 0
@@ -42,10 +43,21 @@ class WorldModelSimulationEnv(gym.Env):
         self.current_state = None
         self.episode_reward = 0.0
         
-        # Proper action space - continuous [0,1] for each action class
-        self.action_space = spaces.Box(
-            low=0.0, high=1.0, shape=(100,), dtype=np.float32
-        )
+        if self.action_space_type == 'continuous':
+            # Proper action space - continuous [0,1] for each action class
+            self.action_space = spaces.Box(
+                low=0.0, high=1.0, shape=(100,), dtype=np.float32
+            )
+        elif self.action_space_type == 'discrete':
+            self.action_space = MultiDiscrete([2] * 100)  # 100 independent binary choices
+        elif self.action_space_type == 'hierarchical':
+            # First choose number of actions (1-3), then choose which ones
+            self.action_space = Dict({
+                'num_actions': Discrete(4),      # 0, 1, 2, or 3 actions
+                'action_indices': MultiDiscrete([100, 100, 100])  # Which 3 actions
+            })
+        else:
+            raise ValueError(f"Unsupported action space type: {self.action_space_type}")
         
         self.observation_space = spaces.Box(
             low=-np.inf, high=np.inf, shape=(1024,), dtype=np.float32
@@ -250,73 +262,6 @@ class WorldModelSimulationEnv(gym.Env):
         
         return np.clip(reward, -25.0, 40.0)
 
-    # def _calculate_meaningful_reward(self, action: np.ndarray, predicted_rewards: Dict[str, float]) -> float:
-    #     """Calculate meaningful reward that drives learning toward expert behavior."""
-    #     reward = 0.0
-        
-    #     # 1. MOST IMPORTANT: Expert demonstration matching
-    #     if (self.expert_actions_sequence is not None and 
-    #         self.current_frame_idx < len(self.expert_actions_sequence)):
-            
-    #         expert_actions = self.expert_actions_sequence[self.current_frame_idx]
-    #         binary_action = (action > 0.5).astype(int)
-            
-    #         if len(expert_actions) == len(binary_action):
-    #             # Calculate multiple matching metrics
-    #             accuracy = np.mean(binary_action == expert_actions)
-    #             reward += self.reward_weights['expert_matching'] * accuracy
-                
-    #             # Bonus for correctly predicting positive actions (surgical actions are sparse)
-    #             if np.sum(expert_actions) > 0:
-    #                 true_positives = np.sum((binary_action == 1) & (expert_actions == 1))
-    #                 false_positives = np.sum((binary_action == 1) & (expert_actions == 0))
-    #                 false_negatives = np.sum((binary_action == 0) & (expert_actions == 1))
-                    
-    #                 # Precision and recall
-    #                 precision = true_positives / (true_positives + false_positives) if (true_positives + false_positives) > 0 else 0
-    #                 recall = true_positives / (true_positives + false_negatives) if (true_positives + false_negatives) > 0 else 0
-                    
-    #                 # F1 score bonus
-    #                 if precision > 0 and recall > 0:
-    #                     f1_score = 2 * (precision * recall) / (precision + recall)
-    #                     reward += self.reward_weights['expert_matching'] * f1_score
-                
-    #             # Track expert matching for episode summary
-    #             if not hasattr(self, 'episode_expert_scores'):
-    #                 self.episode_expert_scores = []
-    #             self.episode_expert_scores.append(accuracy)
-        
-    #     # 2. Action sparsity reward (surgical actions should be reasonably sparse)
-    #     action_count = np.sum(action > 0.5)
-    #     if 1 <= action_count <= 5:  # Reasonable range for surgical actions
-    #         reward += self.reward_weights['action_sparsity']
-    #     elif action_count == 0:
-    #         reward -= 0.5  # Small penalty for no actions
-    #     elif action_count > 8:
-    #         reward -= 1.0  # Penalty for too many simultaneous actions
-        
-    #     # 3. World model predicted rewards (use but with lower weight)
-    #     world_model_reward = 0.0
-    #     for reward_type, reward_value in predicted_rewards.items():
-    #         if reward_type != 'value':  # Exclude value function
-    #             world_model_reward += reward_value
-        
-    #     reward += self.reward_weights['world_model_rewards'] * world_model_reward
-        
-    #     # 4. Action consistency bonus (avoid random switching)
-    #     if hasattr(self, 'previous_action'):
-    #         action_consistency = 1.0 - np.mean(np.abs(action - self.previous_action))
-    #         reward += self.reward_weights['consistency_bonus'] * action_consistency
-        
-    #     self.previous_action = action.copy()
-        
-    #     # 5. Small exploration bonus to avoid local minima
-    #     action_entropy = -np.sum(action * np.log(action + 1e-8) + (1-action) * np.log(1-action + 1e-8))
-    #     reward += 0.01 * action_entropy / 100  # Very small exploration bonus
-        
-    #     # Clip reward to reasonable range
-    #     return np.clip(reward, -5.0, 20.0)
-
     def _predict_with_world_model(self, action: np.ndarray) -> Tuple[np.ndarray, Dict[str, float]]:
         """Use world model for prediction with proper error handling."""
         try:
@@ -417,6 +362,7 @@ class DirectVideoEnvironment(gym.Env):
         
         # Environment parameters
         self.max_episode_steps = config.get('rl_horizon', 25)  # Shorter episodes
+        self.action_space_type = config.get('action_space_type', 'continuous')
         
         # Current episode state
         self.current_video_idx = 0
@@ -424,10 +370,22 @@ class DirectVideoEnvironment(gym.Env):
         self.current_step = 0
         self.episode_reward = 0.0
         
-        # Proper action space
-        self.action_space = spaces.Box(
-            low=0.0, high=1.0, shape=(100,), dtype=np.float32
-        )
+        if self.action_space_type == 'continuous':
+            # Proper action space - continuous [0,1] for each action class
+            self.action_space = spaces.Box(
+                low=0.0, high=1.0, shape=(100,), dtype=np.float32
+            )
+        elif self.action_space_type == 'discrete':
+            self.action_space = MultiDiscrete([2] * 100)  # 100 independent binary choices
+        elif self.action_space_type == 'hierarchical':
+            # First choose number of actions (1-3), then choose which ones
+            self.action_space = Dict({
+                'num_actions': Discrete(4),      # 0, 1, 2, or 3 actions
+                'action_indices': MultiDiscrete([100, 100, 100])  # Which 3 actions
+            })
+        else:
+            raise ValueError(f"Unsupported action space type: {self.action_space_type}")
+        
         
         self.observation_space = spaces.Box(
             low=-np.inf, high=np.inf, shape=(1024,), dtype=np.float32

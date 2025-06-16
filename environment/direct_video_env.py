@@ -322,9 +322,9 @@ class DirectVideoSB3Trainer:
             model = PPO(
                 "MlpPolicy",
                 env,
-                learning_rate=3e-4,
-                n_steps=256,
-                batch_size=32,
+                learning_rate=3e-5, # ultra-conservative learning rate
+                n_steps=128,  # Number of steps per update
+                batch_size=16,
                 n_epochs=4,
                 gamma=0.99,
                 gae_lambda=0.95,

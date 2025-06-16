@@ -10,6 +10,7 @@ training_mode: 'rl'
 # Data preprocessing
 preprocess:
   extract_rewards: false # already in the passed .csv file bellow
+  analyze_rewards: true  # Enable reward analysis during data loading
   rewards:
     grounded:
       phase_completion: true
@@ -24,16 +25,17 @@ preprocess:
 
 # Experiment configuration
 experiment:
-  max_videos: 50  # Deprecated, use train/test specific
+  test_on_train: false  # Set to true for debugging purposes
+  # max_videos: 50  # Deprecated, use train/test specific
   train:
     max_videos: 40  # INCREASED for better RL training
   test:
     max_videos: 10  # INCREASED for better evaluation
   
   # Dual World Model Training
-  dual_world_model:
-    train: true
-    best_model_path: null
+  # dual_world_model:
+  #   train: true
+  #   best_model_path: null
   
   # Imitation Learning
   autoregressive_il:
@@ -54,7 +56,7 @@ experiment:
 
 # Training parameters
 training:
-  epochs: 5  # INCREASED for better convergence
+  epochs: 1  # INCREASED for better convergence
   batch_size: 16  # OPTIMIZED batch size
   learning_rate: 0.00003 # 0.0001
   log_every_n_steps: 50
@@ -103,6 +105,7 @@ evaluation:
 
 # IMPROVED RL Training Configuration
 rl_training:
+  action_space_type: 'discrete'  # continuous, discrete, or hierarchical
   outcome_based_rewards: true
   rl_horizon: 30  # INCREASED episode length
   reward_mode: 'dense'
@@ -152,8 +155,8 @@ data:
   max_horizon: 15
   
   paths:
-    # data_dir: "/home/maxboels/datasets/CholecT50"
-    data_dir: "/nfs/home/mboels/datasets/CholecT50"
+    data_dir: "/home/maxboels/datasets/CholecT50"
+    # data_dir: "/nfs/home/mboels/datasets/CholecT50"
     class_labels_file_path: "./data/labels.json"
     fold: 0
     metadata_file: "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv"

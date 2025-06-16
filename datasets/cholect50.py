@@ -24,21 +24,29 @@ from typing import Dict, List, Any, Optional, Tuple
 
 # RESTORED: All preprocessing imports
 try:
-    from .preprocess.progression import add_progression_scores
-    from .preprocess.phase_completion import compute_phase_completion_rewards
-    from .preprocess.phase_transition import compute_phase_transition_rewards
-    from .preprocess.risk_scores import add_risk_scores
-    from .preprocess.action_scores import precompute_action_based_rewards
-    from .preprocess.action_scores import compute_action_phase_distribution
+    from datasets.preprocess.progression import add_progression_scores
+    from datasets.preprocess.phase_completion import compute_phase_completion_rewards
+    from datasets.preprocess.phase_transition import compute_phase_transition_rewards
+    from datasets.preprocess.risk_scores import add_risk_scores
+    from datasets.preprocess.action_scores import precompute_action_based_rewards
+    from datasets.preprocess.action_scores import compute_action_phase_distribution
     PREPROCESSING_AVAILABLE = True
 except ImportError as e:
     print(f"⚠️ Preprocessing modules not available: {e}")
     print("⚠️ Will skip reward preprocessing - please ensure preprocessing modules exist")
     PREPROCESSING_AVAILABLE = False
 
+# Import reward analyzer
+try:
+    from datasets.reward_visualization_tool import analyze_rewards_during_loading
+    REWARD_ANALYZER_AVAILABLE = True
+except ImportError:
+    print("⚠️ Reward analyzer not available, reward plotting will be skipped")
+    REWARD_ANALYZER_AVAILABLE = False
+
 
 # Step 1: Data Loading from CholecT50 Dataset
-def load_cholect50_data(cfg, logger, split='train', max_videos=None):
+def load_cholect50_data(cfg, logger, split='train', max_videos=None, test_on_train=False):
     """
     Load frame embeddings from the CholecT50 dataset for training or validation.
     RESTORED: Full preprocessing pipeline with proper error handling
@@ -52,9 +60,14 @@ def load_cholect50_data(cfg, logger, split='train', max_videos=None):
     data_dir = paths_config['data_dir']
     metadata_file = paths_config['metadata_file']
     fold = paths_config.get('fold', 0)
-    logger.info(f"Loading {split} data from {data_dir} with fold {fold}")
 
-    # Create metadata path
+    # Set split to 'train' if test_on_train is True
+    if test_on_train and split == 'test':
+        split = 'train'
+        logger.info("🔄 Test on training data enabled, using training split for loading data")
+    
+    # Set split paths
+    logger.info(f"Loading {split} data from {data_dir} with fold {fold}")
     split_folder = f"embeddings_{split}_set"    
     metadata_dir = os.path.join(data_dir, split_folder, f"fold{fold}")
     metadata_path = os.path.join(metadata_dir, metadata_file)
@@ -359,375 +372,467 @@ def load_cholect50_data(cfg, logger, split='train', max_videos=None):
         logger.error("   2. Metadata file format") 
         logger.error("   3. Embedding file paths")
         logger.error("   4. Column names in metadata")
-        return [], []
+        return []
     
     logger.info(f"✅ Successfully loaded {len(data)} videos for {split}")
+    
+    # NEW: Automatic reward analysis after loading
+    analyze_rewards = cfg.get('preprocess', {}).get('analyze_rewards', False)
+    if analyze_rewards and REWARD_ANALYZER_AVAILABLE and data:
+        logger.info(f"📊 Analyzing reward values for {len(data)} videos...")
+        try:
+            analysis_dir = f"reward_analysis/{split}/{datetime.now().strftime('%Y%m%d_%H%M')}"
+            os.makedirs(analysis_dir, exist_ok=True)
+            analyze_rewards_during_loading(data, analysis_dir)
+            logger.info(f"✅ Reward analysis complete! Check: {analysis_dir}/")
+        except Exception as e:
+            logger.warning(f"⚠️ Reward analysis failed: {e}")
+    elif analyze_rewards and not REWARD_ANALYZER_AVAILABLE:
+        logger.warning("⚠️ Reward analysis requested but reward_visualization_tool not available")
+    
     return data
 
-
-# RESTORED: Real dataset implementation
-from torch.utils.data import DataLoader
-
-def create_video_dataloaders(cfg, data, batch_size=32, shuffle=True, num_workers=4):
+# Quick test script functionality
+def quick_reward_analysis_test(config_path: str = 'config_dgx_all_v6.yaml'):
     """
-    Create a separate dataloader for each video in the dataset.
-    
-    Args:
-        cfg: Configuration dictionary
-        data: List of video dictionaries from load_cholect50_data()
-        batch_size: Batch size for the dataloaders
-        shuffle: Whether to shuffle the samples
-        num_workers: Number of worker processes for data loading
-        
-    Returns:
-        Dictionary mapping video IDs to their respective DataLoaders
+    Quick test to analyze reward values immediately.
     """
-    video_dataloaders = {}
     
-    for video in data:
-        video_id = video['video_id']
+    print("🚀 QUICK REWARD ANALYSIS TEST")
+    print("=" * 40)
+    
+    try:
+        import yaml
         
-        # Create a dataset with only this video's data
-        video_dataset = NextFramePredictionDataset(cfg['data'], [video])
+        # Load config
+        with open(config_path, 'r') as f:
+            config = yaml.safe_load(f)
         
-        # Create a dataloader for this video
-        video_dataloader = DataLoader(
-            video_dataset,
-            batch_size=batch_size,
-            shuffle=shuffle,
-            num_workers=num_workers
+        # Create simple logger
+        class SimpleLogger:
+            def info(self, msg): print(f"INFO: {msg}")
+            def warning(self, msg): print(f"WARNING: {msg}")
+            def error(self, msg): print(f"ERROR: {msg}")
+        
+        logger = SimpleLogger()
+        
+        # Load a small amount of data for quick analysis
+        print("📂 Loading small dataset for reward analysis...")
+        train_data = load_cholect50_data(
+            config, logger, 
+            split='train', 
+            max_videos=2,  # Just 2 videos for quick test
+            analyze_rewards=True  # Enable automatic analysis
         )
         
-        # Store the dataloader with the video ID as the key
-        video_dataloaders[video_id] = video_dataloader
-    
-    return video_dataloaders
-
-
-# RESTORED: Original NextFramePredictionDataset (with key fixes)
-class NextFramePredictionDataset(Dataset):
-    def __init__(self, cfg, data):
-        """
-        Initialize the dataset with sequences of frame embeddings
-        RESTORED from original with key naming fixes
-
-        Lexic:
-            "_" prefix indicates next frame
-            "f" prefix indicates future frame
-        
-        Args:
-            data: List of video dictionaries containing frame_embeddings and actions_binaries
-            context_length: Number of previous frames to include in each input sequence
-            padding_value: Value to use for padding when not enough previous frames exist
-        """
-        self.samples = []
-        
-        context_length = cfg.get('context_length', 10)
-        padding_value = cfg.get('padding_value', 0.0)
-        train_shift = cfg.get('train_shift', 1)
-        max_horizon = cfg.get('max_horizon', 15)
-
-        for video in data:
-            video_id = video['video_id']
-            embeddings = video['frame_embeddings']
-            actions = video['actions_binaries']  # FIXED: Use consistent key
-            instruments = video['instruments_binaries']
-            phases = video['phase_binaries']
-
-            # rewards and outcomes
-            rewards = video['next_rewards']
-            phase_completion = rewards['_r_phase_completion']
-            phase_initiation = rewards['_r_phase_initiation']
-            phase_progression = rewards['_r_phase_progression']
-            global_progression = rewards['_r_global_progression']
-            action_probability = rewards['_r_action_probability']
-            _r_risk_penalty = rewards['_r_risk_penalty']
-
-            # outcomes
-            q = video['outcomes']
+        if train_data:
+            print(f"✅ Loaded {len(train_data)} videos")
+            print(f"📊 Reward analysis plots should be saved in reward_analysis_* directory")
             
-            num_actions = len(actions[0])
-            num_instruments = len(instruments[0])
-            num_phases = len(phases[0])
-            reward_dim = 1
-            embedding_dim = len(embeddings[0])
-
-            for i in range(len(embeddings) - 1):
-                # For position i, take context_length frames from the left (previous frames)
-                z_seq = []
-                _z_seq = []
-                f_z_seq = [] # future states from i+1 to i+max_horizon
-                _a_seq = []
-                _p_seq = [] # next phases from i+1 to i+max_horizon
-                f_a_seq = [] # future actions from i+1 to i+max_horizon
-
-                # rewards
-                _r_p_comp_seq = []
-                _r_p_init_seq = []
-                _r_p_prog_seq = []
-                _r_g_prog_seq = []
-                _r_a_prob_seq = []
-                _r_risk_seq = []
-                
-                # outcomes
-                q_seq = []
-
-                # current
-                c_a = actions[i]
-                c_i = instruments[i]
-                
-                # Add previous frames, using padding if needed
-                for j in range(i - context_length + 1, i + 1):
-                    if j < 0:
-                        # Padding for positions before the start of the video
-                        z_seq.append([padding_value] * embedding_dim)
-                    else:
-                        z_seq.append(embeddings[j])
-                
-                # Add the shifted next frame and action, using padding if needed
-                for k in range(i - context_length + 1 + train_shift, i + 1 + train_shift):
-                    if k < 0:
-                        # Padding for positions before the start of the video
-                        _z_seq.append([padding_value] * embedding_dim)
-                        _a_seq.append([0] * num_actions)
-                        _p_seq.append([0] * num_phases)
-                        # rewards
-                        _r_p_comp_seq.append([0.0] * reward_dim)
-                        _r_p_init_seq.append([0.0] * reward_dim)
-                        _r_p_prog_seq.append([0.0] * reward_dim)
-                        _r_g_prog_seq.append([0.0] * reward_dim)
-                        _r_a_prob_seq.append([0.0] * reward_dim)
-                        _r_risk_seq.append([1.0] * reward_dim)
-
-                    elif k >= len(embeddings):
-                        # Padding for positions after the end of the video
-                        _z_seq.append([padding_value] * embedding_dim)
-                        _a_seq.append([0] * num_actions)
-                        _p_seq.append([0] * num_phases)
-                        # rewards
-                        _r_p_comp_seq.append([0.0] * reward_dim)
-                        _r_p_init_seq.append([0.0] * reward_dim)
-                        _r_p_prog_seq.append([0.0] * reward_dim)
-                        _r_g_prog_seq.append([0.0] * reward_dim)
-                        _r_a_prob_seq.append([0.0] * reward_dim)
-                        _r_risk_seq.append([1.0] * reward_dim) # 1.0 is the minimum risk score
-                    else:
-                        _z_seq.append(embeddings[k])
-                        _a_seq.append(actions[k])
-                        _p_seq.append(phases[k])
-                        # rewards (make sure it is a list of lists)
-                        _r_p_comp_seq.append([phase_completion[k]])
-                        _r_p_init_seq.append([phase_initiation[k]])
-                        _r_p_prog_seq.append([phase_progression[k]])
-                        _r_g_prog_seq.append([global_progression[k]])
-                        _r_a_prob_seq.append([action_probability[k]])
-                        _r_risk_seq.append([_r_risk_penalty[k]])
-                
-                # Add future actions and states
-                for k in range(i + 1, min(i + 1 + max_horizon, len(embeddings))):
-                    f_z_seq.append(embeddings[k])
-                    f_a_seq.append(actions[k])
-
-                if len(f_a_seq) < max_horizon:
-                    # Padding for positions after the end of the video
-                    for _ in range(max_horizon - len(f_a_seq)):
-                        f_a_seq.append([0] * num_actions)
-                        f_z_seq.append([padding_value] * embedding_dim)
-
-                # Add the sequence to the samples list
-                self.samples.append({
-                    'v_id': video_id,
-                    'z': z_seq,     # Sequence of frames from (i-context_length+1) to i
-                    '_z': _z_seq,   # Sequence of frames from (i-context_length+2) to i+1
-                    'f_z': f_z_seq,   # Future states from (i+1) to (i+max_horizon)
-                    '_a': _a_seq,    # Sequence of actions from (i-context_length+2) to i+1
-                    'f_a': f_a_seq,
-                    '_p': _p_seq,    # Sequence of phases from (i-context_length+2) to i+1
-                    'c_a': c_a,     # Current Action at position i
-                    'c_i': c_i,     # Current Instrument at position i
-                    # rewards
-                    '_r': {
-                        '_r_phase_completion': _r_p_comp_seq,
-                        '_r_phase_initiation': _r_p_init_seq,
-                        '_r_phase_progression': _r_p_prog_seq,
-                        '_r_global_progression': _r_g_prog_seq,
-                        '_r_action_probability': _r_a_prob_seq,
-                        '_r_risk': _r_risk_seq,
-                    },
-                    # outcomes
-                })
-    
-    def __len__(self):
-        return len(self.samples)
-    
-    def __getitem__(self, idx):
-        sample = self.samples[idx]
-
-        # Convert lists to numpy arrays first, then to tensors
-        z = torch.tensor(np.array(sample['z']), dtype=torch.float32)  # Shape: [context_length, embedding_dim]
-        _z = torch.tensor(np.array(sample['_z']), dtype=torch.float32)
-        f_z = torch.tensor(np.array(sample['f_z']), dtype=torch.float32)  # Shape: [max_horizon, embedding_dim]
-        _a = torch.tensor(np.array(sample['_a']), dtype=torch.float32)
-        f_a = torch.tensor(np.array(sample['f_a']), dtype=torch.float32)
-        _p = torch.tensor(np.array(sample['_p']), dtype=torch.float32)  # Shape: [max_horizon, num_phases]
-
-        # rewards
-        _r = sample['_r']
-        _r_p_comp = torch.tensor(np.array(_r['_r_phase_completion']), dtype=torch.float32)
-        _r_p_init = torch.tensor(np.array(_r['_r_phase_initiation']), dtype=torch.float32)
-        _r_p_prog = torch.tensor(np.array(_r['_r_phase_progression']), dtype=torch.float32)
-        _r_g_prog = torch.tensor(np.array(_r['_r_global_progression']), dtype=torch.float32)
-        _r_a_prob = torch.tensor(np.array(_r['_r_action_probability']), dtype=torch.float32)
-        _r_risk = torch.tensor(np.array(_r['_r_risk']), dtype=torch.float32)
-        _r_dict = {
-            '_r_phase_completion': _r_p_comp,
-            '_r_phase_initiation': _r_p_init,
-            '_r_phase_progression': _r_p_prog,
-            '_r_global_progression': _r_g_prog,
-            '_r_action_probability': _r_a_prob,
-            '_r_risk': _r_risk,
-        }
-        q_dict = {}
-
-        # current action and instrument
-        c_a = torch.tensor(sample['c_a'], dtype=torch.float32)
-        c_i = torch.tensor(sample['c_i'], dtype=torch.float32)
-
-        # convert the binary phase to single integer class
-        _p = torch.argmax(_p, dim=1)  # Convert to class integer
-
-        # create dictionary for batch - FIXED: Use consistent naming
-        data = {
-            'current_states': z,
-            'next_states': _z,
-            'future_states': f_z,
-            'next_actions': _a,      # FIXED: Consistent with world model dataset
-            'future_actions': f_a,
-            'next_phases': _p,
-            'next_rewards': _r_dict,
-            'outcomes': q_dict,
-            'current_actions': c_a,
-            'current_instruments': c_i,
-        }
-        return data
-
-
-# Compatibility function for the 3-method comparison
-def load_cholect50_data_for_comparison(config: Dict[str, Any], logger) -> Tuple[List[Dict], List[Dict]]:
-    """
-    Compatibility wrapper for the three-method comparison experiment.
-    This ensures the data format is consistent with the method comparison pipeline.
-    """
-    logger.info("📂 Loading CholecT50 data for method comparison...")
-    
-    # Determine if we have training/test splits configured
-    train_config = config.get('experiment', {}).get('train', {})
-    test_config = config.get('experiment', {}).get('test', {})
-    
-    max_train_videos = train_config.get('max_videos', config.get('experiment', {}).get('max_videos', 10))
-    max_test_videos = test_config.get('max_videos', config.get('experiment', {}).get('max_videos', 5))
-    
-    # Load training data
-    try:
-        train_data = load_cholect50_data(config, logger, split='train', max_videos=max_train_videos)
-        logger.info(f"✅ Loaded {len(train_data)} training videos")
+            # Print quick reward summary
+            print(f"\n📋 QUICK REWARD SUMMARY:")
+            for video in train_data:
+                video_id = video.get('video_id', 'unknown')
+                rewards = video.get('rewards', {})
+                print(f"\n  Video: {video_id}")
+                for reward_type, reward_values in rewards.items():
+                    values = np.array(reward_values)
+                    if values.size > 0:
+                        non_zero = np.sum(np.abs(values) > 1e-6)
+                        print(f"    {reward_type}: {values.shape[0]} frames, {non_zero} non-zero, range [{np.min(values):.4f}, {np.max(values):.4f}]")
+            
+            return True
+        else:
+            print("❌ No data loaded")
+            return False
+            
     except Exception as e:
-        logger.error(f"❌ Failed to load training data: {e}")
-        train_data = []
-    
-    # Load test data  
-    try:
-        test_data = load_cholect50_data(config, logger, split='test', max_videos=max_test_videos)  
-        logger.info(f"✅ Loaded {len(test_data)} test videos")
-    except Exception as e:
-        logger.error(f"❌ Failed to load test data: {e}")
-        test_data = []
-    
-    # If no real data loaded, provide guidance but don't use dummy data
-    if not train_data and not test_data:
-        logger.error("❌ No real data could be loaded")
-        logger.error("💡 Please ensure:")
-        logger.error("   1. CholecT50 dataset is properly downloaded and organized")
-        logger.error("   2. Preprocessing modules are available") 
-        logger.error("   3. Configuration paths are correct")
-        logger.error("   4. Metadata files exist and have expected columns")
-        
-        # Don't return dummy data - this forces addressing the real issue
-        return [], []
-    
-    return train_data, test_data
-
+        print(f"❌ Quick test failed: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
 
 if __name__ == "__main__":
-    print("📂 CHOLECT50 DATASET LOADER - RESTORED WITH FULL PREPROCESSING")
-    print("=" * 70)
+    print("📊 CHOLECT50 LOADER WITH REWARD ANALYSIS")
+    print("=" * 50)
+    print("Automatically analyzes and plots reward values during loading")
+    print()
     
-    # Test configuration
-    test_config = {
-        'data': {
-            'context_length': 20,
-            'train_shift': 1,
-            'padding_value': 0.0,
-            'max_horizon': 15,
-            'paths': {
-                'data_dir': '/home/maxboels/datasets/CholecT50',
-                'metadata_file': 'embeddings_metadata.csv',
-                'fold': 0,
-                'video_global_outcome_file': 'embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv'
-            },
-            'frame_risk_agg': 'max'
-        },
-        'preprocess': {
-            'extract_rewards': True,
-            'rewards': {
-                'grounded': {
-                    'phase_completion': True,
-                    'phase_transition': True,
-                    'phase_progression': True,
-                    'global_progression': True
-                },
-                'imitation': {
-                    'action_distribution': True
-                },
-                'expert_knowledge': {
-                    'risk_score': True,
-                    'frame_risk_agg': 'max'
-                }
-            }
-        },
-        'experiment': {
-            'train': {'max_videos': 2},
-            'test': {'max_videos': 1}
-        }
-    }
+    # Run quick test
+    success = quick_reward_analysis_test()
     
-    # Test logger
-    class TestLogger:
-        def info(self, msg): print(f"INFO: {msg}")
-        def warning(self, msg): print(f"WARNING: {msg}")
-        def error(self, msg): print(f"ERROR: {msg}")
-    
-    logger = TestLogger()
-    
-    print("🧪 Testing data loading with real preprocessing pipeline...")
-    train_data, test_data = load_cholect50_data_for_comparison(test_config, logger)
-    
-    if train_data or test_data:
-        print(f"✅ Successfully loaded {len(train_data)} train + {len(test_data)} test videos")
-        if train_data:
-            video = train_data[0]
-            print(f"📊 Sample video: {video['video_id']}")
-            print(f"   Frames: {video['frame_embeddings'].shape}")
-            print(f"   Actions: {video['actions_binaries'].shape}")
-            print(f"   Phases: {video['phase_binaries'].shape}")
-            print(f"   Rewards: {list(video['rewards'].keys())}")
+    if success:
+        print("\n🎉 SUCCESS!")
+        print("Reward analysis plots should be saved in the reward_analysis_* directory")
+        print("Check the plots to verify your reward values are correctly scaled")
     else:
-        print("❌ No data loaded - this will force addressing the real data issues")
-        print("💡 This is intentional - dummy data masks real problems")
+        print("\n❌ FAILED!")
+        print("Check your data paths and configuration")
+
+
+# # RESTORED: Real dataset implementation
+# from torch.utils.data import DataLoader
+
+# def create_video_dataloaders(cfg, data, batch_size=32, shuffle=True, num_workers=4):
+#     """
+#     Create a separate dataloader for each video in the dataset.
+    
+#     Args:
+#         cfg: Configuration dictionary
+#         data: List of video dictionaries from load_cholect50_data()
+#         batch_size: Batch size for the dataloaders
+#         shuffle: Whether to shuffle the samples
+#         num_workers: Number of worker processes for data loading
         
-    print("\n🎯 Key differences from dummy data version:")
-    print("✅ Real preprocessing pipeline restored")
-    print("✅ All reward computation functions included")
-    print("✅ Real file loading with proper error handling") 
-    print("✅ No dummy data fallback - forces fixing real issues")
-    print("✅ Proper data validation and error reporting")
+#     Returns:
+#         Dictionary mapping video IDs to their respective DataLoaders
+#     """
+#     video_dataloaders = {}
+    
+#     for video in data:
+#         video_id = video['video_id']
+        
+#         # Create a dataset with only this video's data
+#         video_dataset = NextFramePredictionDataset(cfg['data'], [video])
+        
+#         # Create a dataloader for this video
+#         video_dataloader = DataLoader(
+#             video_dataset,
+#             batch_size=batch_size,
+#             shuffle=shuffle,
+#             num_workers=num_workers
+#         )
+        
+#         # Store the dataloader with the video ID as the key
+#         video_dataloaders[video_id] = video_dataloader
+    
+#     return video_dataloaders
+
+
+# # RESTORED: Original NextFramePredictionDataset (with key fixes)
+# class NextFramePredictionDataset(Dataset):
+#     def __init__(self, cfg, data):
+#         """
+#         Initialize the dataset with sequences of frame embeddings
+#         RESTORED from original with key naming fixes
+
+#         Lexic:
+#             "_" prefix indicates next frame
+#             "f" prefix indicates future frame
+        
+#         Args:
+#             data: List of video dictionaries containing frame_embeddings and actions_binaries
+#             context_length: Number of previous frames to include in each input sequence
+#             padding_value: Value to use for padding when not enough previous frames exist
+#         """
+#         self.samples = []
+        
+#         context_length = cfg.get('context_length', 10)
+#         padding_value = cfg.get('padding_value', 0.0)
+#         train_shift = cfg.get('train_shift', 1)
+#         max_horizon = cfg.get('max_horizon', 15)
+
+#         for video in data:
+#             video_id = video['video_id']
+#             embeddings = video['frame_embeddings']
+#             actions = video['actions_binaries']  # FIXED: Use consistent key
+#             instruments = video['instruments_binaries']
+#             phases = video['phase_binaries']
+
+#             # rewards and outcomes
+#             rewards = video['next_rewards']
+#             phase_completion = rewards['_r_phase_completion']
+#             phase_initiation = rewards['_r_phase_initiation']
+#             phase_progression = rewards['_r_phase_progression']
+#             global_progression = rewards['_r_global_progression']
+#             action_probability = rewards['_r_action_probability']
+#             _r_risk_penalty = rewards['_r_risk_penalty']
+
+#             # outcomes
+#             q = video['outcomes']
+            
+#             num_actions = len(actions[0])
+#             num_instruments = len(instruments[0])
+#             num_phases = len(phases[0])
+#             reward_dim = 1
+#             embedding_dim = len(embeddings[0])
+
+#             for i in range(len(embeddings) - 1):
+#                 # For position i, take context_length frames from the left (previous frames)
+#                 z_seq = []
+#                 _z_seq = []
+#                 f_z_seq = [] # future states from i+1 to i+max_horizon
+#                 _a_seq = []
+#                 _p_seq = [] # next phases from i+1 to i+max_horizon
+#                 f_a_seq = [] # future actions from i+1 to i+max_horizon
+
+#                 # rewards
+#                 _r_p_comp_seq = []
+#                 _r_p_init_seq = []
+#                 _r_p_prog_seq = []
+#                 _r_g_prog_seq = []
+#                 _r_a_prob_seq = []
+#                 _r_risk_seq = []
+                
+#                 # outcomes
+#                 q_seq = []
+
+#                 # current
+#                 c_a = actions[i]
+#                 c_i = instruments[i]
+                
+#                 # Add previous frames, using padding if needed
+#                 for j in range(i - context_length + 1, i + 1):
+#                     if j < 0:
+#                         # Padding for positions before the start of the video
+#                         z_seq.append([padding_value] * embedding_dim)
+#                     else:
+#                         z_seq.append(embeddings[j])
+                
+#                 # Add the shifted next frame and action, using padding if needed
+#                 for k in range(i - context_length + 1 + train_shift, i + 1 + train_shift):
+#                     if k < 0:
+#                         # Padding for positions before the start of the video
+#                         _z_seq.append([padding_value] * embedding_dim)
+#                         _a_seq.append([0] * num_actions)
+#                         _p_seq.append([0] * num_phases)
+#                         # rewards
+#                         _r_p_comp_seq.append([0.0] * reward_dim)
+#                         _r_p_init_seq.append([0.0] * reward_dim)
+#                         _r_p_prog_seq.append([0.0] * reward_dim)
+#                         _r_g_prog_seq.append([0.0] * reward_dim)
+#                         _r_a_prob_seq.append([0.0] * reward_dim)
+#                         _r_risk_seq.append([1.0] * reward_dim)
+
+#                     elif k >= len(embeddings):
+#                         # Padding for positions after the end of the video
+#                         _z_seq.append([padding_value] * embedding_dim)
+#                         _a_seq.append([0] * num_actions)
+#                         _p_seq.append([0] * num_phases)
+#                         # rewards
+#                         _r_p_comp_seq.append([0.0] * reward_dim)
+#                         _r_p_init_seq.append([0.0] * reward_dim)
+#                         _r_p_prog_seq.append([0.0] * reward_dim)
+#                         _r_g_prog_seq.append([0.0] * reward_dim)
+#                         _r_a_prob_seq.append([0.0] * reward_dim)
+#                         _r_risk_seq.append([1.0] * reward_dim) # 1.0 is the minimum risk score
+#                     else:
+#                         _z_seq.append(embeddings[k])
+#                         _a_seq.append(actions[k])
+#                         _p_seq.append(phases[k])
+#                         # rewards (make sure it is a list of lists)
+#                         _r_p_comp_seq.append([phase_completion[k]])
+#                         _r_p_init_seq.append([phase_initiation[k]])
+#                         _r_p_prog_seq.append([phase_progression[k]])
+#                         _r_g_prog_seq.append([global_progression[k]])
+#                         _r_a_prob_seq.append([action_probability[k]])
+#                         _r_risk_seq.append([_r_risk_penalty[k]])
+                
+#                 # Add future actions and states
+#                 for k in range(i + 1, min(i + 1 + max_horizon, len(embeddings))):
+#                     f_z_seq.append(embeddings[k])
+#                     f_a_seq.append(actions[k])
+
+#                 if len(f_a_seq) < max_horizon:
+#                     # Padding for positions after the end of the video
+#                     for _ in range(max_horizon - len(f_a_seq)):
+#                         f_a_seq.append([0] * num_actions)
+#                         f_z_seq.append([padding_value] * embedding_dim)
+
+#                 # Add the sequence to the samples list
+#                 self.samples.append({
+#                     'v_id': video_id,
+#                     'z': z_seq,     # Sequence of frames from (i-context_length+1) to i
+#                     '_z': _z_seq,   # Sequence of frames from (i-context_length+2) to i+1
+#                     'f_z': f_z_seq,   # Future states from (i+1) to (i+max_horizon)
+#                     '_a': _a_seq,    # Sequence of actions from (i-context_length+2) to i+1
+#                     'f_a': f_a_seq,
+#                     '_p': _p_seq,    # Sequence of phases from (i-context_length+2) to i+1
+#                     'c_a': c_a,     # Current Action at position i
+#                     'c_i': c_i,     # Current Instrument at position i
+#                     # rewards
+#                     '_r': {
+#                         '_r_phase_completion': _r_p_comp_seq,
+#                         '_r_phase_initiation': _r_p_init_seq,
+#                         '_r_phase_progression': _r_p_prog_seq,
+#                         '_r_global_progression': _r_g_prog_seq,
+#                         '_r_action_probability': _r_a_prob_seq,
+#                         '_r_risk': _r_risk_seq,
+#                     },
+#                     # outcomes
+#                 })
+    
+#     def __len__(self):
+#         return len(self.samples)
+    
+#     def __getitem__(self, idx):
+#         sample = self.samples[idx]
+
+#         # Convert lists to numpy arrays first, then to tensors
+#         z = torch.tensor(np.array(sample['z']), dtype=torch.float32)  # Shape: [context_length, embedding_dim]
+#         _z = torch.tensor(np.array(sample['_z']), dtype=torch.float32)
+#         f_z = torch.tensor(np.array(sample['f_z']), dtype=torch.float32)  # Shape: [max_horizon, embedding_dim]
+#         _a = torch.tensor(np.array(sample['_a']), dtype=torch.float32)
+#         f_a = torch.tensor(np.array(sample['f_a']), dtype=torch.float32)
+#         _p = torch.tensor(np.array(sample['_p']), dtype=torch.float32)  # Shape: [max_horizon, num_phases]
+
+#         # rewards
+#         _r = sample['_r']
+#         _r_p_comp = torch.tensor(np.array(_r['_r_phase_completion']), dtype=torch.float32)
+#         _r_p_init = torch.tensor(np.array(_r['_r_phase_initiation']), dtype=torch.float32)
+#         _r_p_prog = torch.tensor(np.array(_r['_r_phase_progression']), dtype=torch.float32)
+#         _r_g_prog = torch.tensor(np.array(_r['_r_global_progression']), dtype=torch.float32)
+#         _r_a_prob = torch.tensor(np.array(_r['_r_action_probability']), dtype=torch.float32)
+#         _r_risk = torch.tensor(np.array(_r['_r_risk']), dtype=torch.float32)
+#         _r_dict = {
+#             '_r_phase_completion': _r_p_comp,
+#             '_r_phase_initiation': _r_p_init,
+#             '_r_phase_progression': _r_p_prog,
+#             '_r_global_progression': _r_g_prog,
+#             '_r_action_probability': _r_a_prob,
+#             '_r_risk': _r_risk,
+#         }
+#         q_dict = {}
+
+#         # current action and instrument
+#         c_a = torch.tensor(sample['c_a'], dtype=torch.float32)
+#         c_i = torch.tensor(sample['c_i'], dtype=torch.float32)
+
+#         # convert the binary phase to single integer class
+#         _p = torch.argmax(_p, dim=1)  # Convert to class integer
+
+#         # create dictionary for batch - FIXED: Use consistent naming
+#         data = {
+#             'current_states': z,
+#             'next_states': _z,
+#             'future_states': f_z,
+#             'next_actions': _a,      # FIXED: Consistent with world model dataset
+#             'future_actions': f_a,
+#             'next_phases': _p,
+#             'next_rewards': _r_dict,
+#             'outcomes': q_dict,
+#             'current_actions': c_a,
+#             'current_instruments': c_i,
+#         }
+#         return data
+
+
+# # Compatibility function for the 3-method comparison
+# def load_cholect50_data_for_comparison(config: Dict[str, Any], logger) -> Tuple[List[Dict], List[Dict]]:
+#     """
+#     Compatibility wrapper for the three-method comparison experiment.
+#     This ensures the data format is consistent with the method comparison pipeline.
+#     """
+#     logger.info("📂 Loading CholecT50 data for method comparison...")
+    
+#     # Determine if we have training/test splits configured
+#     train_config = config.get('experiment', {}).get('train', {})
+#     test_config = config.get('experiment', {}).get('test', {})
+    
+#     max_train_videos = train_config.get('max_videos', config.get('experiment', {}).get('max_videos', 10))
+#     max_test_videos = test_config.get('max_videos', config.get('experiment', {}).get('max_videos', 5))
+    
+#     # Load training data
+#     try:
+#         train_data = load_cholect50_data(config, logger, split='train', max_videos=max_train_videos)
+#         logger.info(f"✅ Loaded {len(train_data)} training videos")
+#     except Exception as e:
+#         logger.error(f"❌ Failed to load training data: {e}")
+#         train_data = []
+    
+#     # Load test data  
+#     try:
+#         test_data = load_cholect50_data(config, logger, split='test', max_videos=max_test_videos)  
+#         logger.info(f"✅ Loaded {len(test_data)} test videos")
+#     except Exception as e:
+#         logger.error(f"❌ Failed to load test data: {e}")
+#         test_data = []
+    
+#     # If no real data loaded, provide guidance but don't use dummy data
+#     if not train_data and not test_data:
+#         logger.error("❌ No real data could be loaded")
+#         logger.error("💡 Please ensure:")
+#         logger.error("   1. CholecT50 dataset is properly downloaded and organized")
+#         logger.error("   2. Preprocessing modules are available") 
+#         logger.error("   3. Configuration paths are correct")
+#         logger.error("   4. Metadata files exist and have expected columns")
+        
+#         # Don't return dummy data - this forces addressing the real issue
+#         return [], []
+    
+#     return train_data, test_data
+
+
+# if __name__ == "__main__":
+#     print("📂 CHOLECT50 DATASET LOADER - RESTORED WITH FULL PREPROCESSING")
+#     print("=" * 70)
+    
+#     # Test configuration
+#     test_config = {
+#         'data': {
+#             'context_length': 20,
+#             'train_shift': 1,
+#             'padding_value': 0.0,
+#             'max_horizon': 15,
+#             'paths': {
+#                 'data_dir': '/home/maxboels/datasets/CholecT50',
+#                 'metadata_file': 'embeddings_metadata.csv',
+#                 'fold': 0,
+#                 'video_global_outcome_file': 'embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv'
+#             },
+#             'frame_risk_agg': 'max'
+#         },
+#         'preprocess': {
+#             'extract_rewards': True,
+#             'rewards': {
+#                 'grounded': {
+#                     'phase_completion': True,
+#                     'phase_transition': True,
+#                     'phase_progression': True,
+#                     'global_progression': True
+#                 },
+#                 'imitation': {
+#                     'action_distribution': True
+#                 },
+#                 'expert_knowledge': {
+#                     'risk_score': True,
+#                     'frame_risk_agg': 'max'
+#                 }
+#             }
+#         },
+#         'experiment': {
+#             'train': {'max_videos': 2},
+#             'test': {'max_videos': 1}
+#         }
+#     }
+    
+#     # Test logger
+#     class TestLogger:
+#         def info(self, msg): print(f"INFO: {msg}")
+#         def warning(self, msg): print(f"WARNING: {msg}")
+#         def error(self, msg): print(f"ERROR: {msg}")
+    
+#     logger = TestLogger()
+    
+#     print("🧪 Testing data loading with real preprocessing pipeline...")
+#     train_data, test_data = load_cholect50_data_for_comparison(test_config, logger)
+    
+#     if train_data or test_data:
+#         print(f"✅ Successfully loaded {len(train_data)} train + {len(test_data)} test videos")
+#         if train_data:
+#             video = train_data[0]
+#             print(f"📊 Sample video: {video['video_id']}")
+#             print(f"   Frames: {video['frame_embeddings'].shape}")
+#             print(f"   Actions: {video['actions_binaries'].shape}")
+#             print(f"   Phases: {video['phase_binaries'].shape}")
+#             print(f"   Rewards: {list(video['rewards'].keys())}")
+#     else:
+#         print("❌ No data loaded - this will force addressing the real data issues")
+#         print("💡 This is intentional - dummy data masks real problems")
+        
+#     print("\n🎯 Key differences from dummy data version:")
+#     print("✅ Real preprocessing pipeline restored")
+#     print("✅ All reward computation functions included")
+#     print("✅ Real file loading with proper error handling") 
+#     print("✅ No dummy data fallback - forces fixing real issues")
+#     print("✅ Proper data validation and error reporting")

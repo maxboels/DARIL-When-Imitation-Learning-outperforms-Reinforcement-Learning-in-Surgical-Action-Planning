@@ -188,8 +188,8 @@ class WorldModelRLTrainer:
             model = PPO(
                 "MlpPolicy",
                 env,
-                learning_rate=1e-4,      # LOWER learning rate for stability
-                n_steps=256,             # SMALLER steps for more frequent updates
+                learning_rate=1e-5,      # LOWER learning rate for stability
+                n_steps=128,             # SMALLER steps for more frequent updates
                 batch_size=32,           # SMALLER batch size
                 n_epochs=20,             # MORE epochs per update for better learning
                 gamma=0.98,              # HIGHER gamma for long-term rewards
@@ -206,29 +206,6 @@ class WorldModelRLTrainer:
                 },
                 tensorboard_log=str(self.save_dir / 'tensorboard')
             )
-
-            # # Optimized PPO hyperparameters for surgical tasks
-            # model = PPO(
-            #     "MlpPolicy",
-            #     env,
-            #     learning_rate=5e-5,      # Lower learning rate for stability
-            #     n_steps=512,             # More steps for better estimates
-            #     batch_size=64,           # Larger batch size
-            #     n_epochs=10,             # More epochs per update
-            #     gamma=0.95,              # Slightly lower gamma for immediate rewards
-            #     gae_lambda=0.9,          # GAE lambda for advantage estimation
-            #     clip_range=0.1,          # Lower clip range for stability
-            #     ent_coef=0.05,           # Higher entropy for exploration
-            #     vf_coef=0.5,             # Value function coefficient
-            #     max_grad_norm=0.5,       # Gradient clipping
-            #     verbose=1,
-            #     device='cpu',
-            #     policy_kwargs={
-            #         'net_arch': [256, 256, 128],  # Larger network
-            #         'activation_fn': torch.nn.ReLU
-            #     },
-            #     tensorboard_log=str(self.save_dir / 'tensorboard')
-            # )
             
             # Enhanced monitoring callback
             monitor_callback = RLMonitoringCallback(
@@ -338,28 +315,6 @@ class WorldModelRLTrainer:
                 },
                 tensorboard_log=str(self.save_dir / 'tensorboard')
             )
-            # Optimized PPO hyperparameters
-            # model = PPO(
-            #     "MlpPolicy",
-            #     env,
-            #     learning_rate=3e-5,      # Lower learning rate
-            #     n_steps=512,
-            #     batch_size=64,
-            #     n_epochs=10,
-            #     gamma=0.95,
-            #     gae_lambda=0.9,
-            #     clip_range=0.1,
-            #     ent_coef=0.05,
-            #     vf_coef=0.5,
-            #     max_grad_norm=0.5,
-            #     verbose=1,
-            #     device='cpu',
-            #     policy_kwargs={
-            #         'net_arch': [256, 256, 128],
-            #         'activation_fn': torch.nn.ReLU
-            #     },
-            #     tensorboard_log=str(self.save_dir / 'tensorboard')
-            # )
             
             # Enhanced monitoring
             monitor_callback = RLMonitoringCallback(

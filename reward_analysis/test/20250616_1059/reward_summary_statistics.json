@@ -1,0 +1,656 @@
+{
+  "analysis_timestamp": "2025-06-16T11:00:06.399790",
+  "total_videos": 10,
+  "video_metadata": {
+    "VID02": {
+      "num_frames": 2840,
+      "embedding_dim": 1024
+    },
+    "VID06": {
+      "num_frames": 2154,
+      "embedding_dim": 1024
+    },
+    "VID111": {
+      "num_frames": 2146,
+      "embedding_dim": 1024
+    },
+    "VID14": {
+      "num_frames": 1709,
+      "embedding_dim": 1024
+    },
+    "VID23": {
+      "num_frames": 1636,
+      "embedding_dim": 1024
+    },
+    "VID25": {
+      "num_frames": 2130,
+      "embedding_dim": 1024
+    },
+    "VID50": {
+      "num_frames": 1095,
+      "embedding_dim": 1024
+    },
+    "VID51": {
+      "num_frames": 2945,
+      "embedding_dim": 1024
+    },
+    "VID66": {
+      "num_frames": 1825,
+      "embedding_dim": 1024
+    },
+    "VID79": {
+      "num_frames": 3415,
+      "embedding_dim": 1024
+    }
+  },
+  "reward_types_found": [
+    "_r_action_probability",
+    "_r_global_progression",
+    "_r_phase_completion",
+    "_r_phase_initiation",
+    "_r_phase_progression",
+    "_r_risk_penalty"
+  ],
+  "overall_statistics": {
+    "_r_global_progression": {
+      "global_mean": 0.5,
+      "global_std": 0.28880701621215543,
+      "global_min": 0.0,
+      "global_max": 1.0,
+      "global_median": 0.5,
+      "global_non_zero_fraction": 0.9995432747202557,
+      "per_video_stats": [
+        {
+          "video_id": "VID02",
+          "mean": 0.5,
+          "std": 0.2887767986707221,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "2839",
+          "total_count": 2840
+        },
+        {
+          "video_id": "VID06",
+          "mean": 0.5,
+          "std": 0.28880918388673443,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "2153",
+          "total_count": 2154
+        },
+        {
+          "video_id": "VID111",
+          "mean": 0.5,
+          "std": 0.28880968372101623,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "2145",
+          "total_count": 2146
+        },
+        {
+          "video_id": "VID14",
+          "mean": 0.5,
+          "std": 0.28884409869157124,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "1708",
+          "total_count": 1709
+        },
+        {
+          "video_id": "VID23",
+          "mean": 0.5,
+          "std": 0.28885164034936317,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "1635",
+          "total_count": 1636
+        },
+        {
+          "video_id": "VID25",
+          "mean": 0.5,
+          "std": 0.28881069465609754,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "2129",
+          "total_count": 2130
+        },
+        {
+          "video_id": "VID50",
+          "mean": 0.5,
+          "std": 0.2889388853438416,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "1094",
+          "total_count": 1095
+        },
+        {
+          "video_id": "VID51",
+          "mean": 0.5,
+          "std": 0.28877317335960057,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "2944",
+          "total_count": 2945
+        },
+        {
+          "video_id": "VID66",
+          "mean": 0.5,
+          "std": 0.2888333561109921,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "1824",
+          "total_count": 1825
+        },
+        {
+          "video_id": "VID79",
+          "mean": 0.5,
+          "std": 0.2887596784931242,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "3414",
+          "total_count": 3415
+        }
+      ]
+    },
+    "_r_phase_completion": {
+      "global_mean": 0.024646649862887383,
+      "global_std": 0.10977825182628763,
+      "global_min": 0.0,
+      "global_max": 0.8998513082740474,
+      "global_median": 0.0,
+      "global_non_zero_fraction": 0.08988353505366523,
+      "per_video_stats": [
+        {
+          "video_id": "VID02",
+          "mean": 0.01956169977121887,
+          "std": 0.09830384796416498,
+          "min": 0.0,
+          "max": 0.8998513082740474,
+          "non_zero_count": "203",
+          "total_count": 2840
+        },
+        {
+          "video_id": "VID06",
+          "mean": 0.025791656151467775,
+          "std": 0.11216335059893852,
+          "min": 0.0,
+          "max": 0.8998513082740474,
+          "non_zero_count": "203",
+          "total_count": 2154
+        },
+        {
+          "video_id": "VID111",
+          "mean": 0.025887803984278465,
+          "std": 0.11236114548169901,
+          "min": 0.0,
+          "max": 0.8998513082740474,
+          "non_zero_count": "203",
+          "total_count": 2146
+        },
+        {
+          "video_id": "VID14",
+          "mean": 0.03250744725000678,
+          "std": 0.1250524809323387,
+          "min": 0.0,
+          "max": 0.8998513082740474,
+          "non_zero_count": "203",
+          "total_count": 1709
+        },
+        {
+          "video_id": "VID23",
+          "mean": 0.029106825366885223,
+          "std": 0.11874843861436746,
+          "min": 0.0,
+          "max": 0.8998513082740474,
+          "non_zero_count": "174",
+          "total_count": 1636
+        },
+        {
+          "video_id": "VID25",
+          "mean": 0.02608226636162516,
+          "std": 0.11275988150982243,
+          "min": 0.0,
+          "max": 0.8998513082740474,
+          "non_zero_count": "203",
+          "total_count": 2130
+        },
+        {
+          "video_id": "VID50",
+          "mean": 0.04348242538513336,
+          "std": 0.1429794201888788,
+          "min": 0.0,
+          "max": 0.8998513082740474,
+          "non_zero_count": "173",
+          "total_count": 1095
+        },
+        {
+          "video_id": "VID51",
+          "mean": 0.01886425376918899,
+          "std": 0.0966036182011978,
+          "min": 0.0,
+          "max": 0.8998513082740474,
+          "non_zero_count": "203",
+          "total_count": 2945
+        },
+        {
+          "video_id": "VID66",
+          "mean": 0.03042180010911943,
+          "std": 0.12127631313509821,
+          "min": 0.0,
+          "max": 0.8998513082740474,
+          "non_zero_count": "200",
+          "total_count": 1825
+        },
+        {
+          "video_id": "VID79",
+          "mean": 0.016268002152345997,
+          "std": 0.08994505928367907,
+          "min": 0.0,
+          "max": 0.8998513082740474,
+          "non_zero_count": "203",
+          "total_count": 3415
+        }
+      ]
+    },
+    "_r_risk_penalty": {
+      "global_mean": 3.7911852021009365,
+      "global_std": 1.5695972336438158,
+      "global_min": 1.0,
+      "global_max": 5.0,
+      "global_median": 5.0,
+      "global_non_zero_fraction": 1.0,
+      "per_video_stats": [
+        {
+          "video_id": "VID02",
+          "mean": 4.025352112676057,
+          "std": 1.494376153210519,
+          "min": 1.0,
+          "max": 5.0,
+          "non_zero_count": "2840",
+          "total_count": 2840
+        },
+        {
+          "video_id": "VID06",
+          "mean": 3.8356545961002784,
+          "std": 1.5390041467470132,
+          "min": 1.0,
+          "max": 5.0,
+          "non_zero_count": "2154",
+          "total_count": 2154
+        },
+        {
+          "video_id": "VID111",
+          "mean": 3.026561043802423,
+          "std": 1.7456491007892534,
+          "min": 1.0,
+          "max": 5.0,
+          "non_zero_count": "2146",
+          "total_count": 2146
+        },
+        {
+          "video_id": "VID14",
+          "mean": 3.5658279695728496,
+          "std": 1.5920818468392697,
+          "min": 1.0,
+          "max": 5.0,
+          "non_zero_count": "1709",
+          "total_count": 1709
+        },
+        {
+          "video_id": "VID23",
+          "mean": 3.8551344743276283,
+          "std": 1.5812677263839454,
+          "min": 1.0,
+          "max": 5.0,
+          "non_zero_count": "1636",
+          "total_count": 1636
+        },
+        {
+          "video_id": "VID25",
+          "mean": 3.984507042253521,
+          "std": 1.4937253319540706,
+          "min": 1.0,
+          "max": 5.0,
+          "non_zero_count": "2130",
+          "total_count": 2130
+        },
+        {
+          "video_id": "VID50",
+          "mean": 3.976255707762557,
+          "std": 1.4919518178718048,
+          "min": 1.0,
+          "max": 5.0,
+          "non_zero_count": "1095",
+          "total_count": 1095
+        },
+        {
+          "video_id": "VID51",
+          "mean": 3.398981324278438,
+          "std": 1.5603531166206102,
+          "min": 1.0,
+          "max": 5.0,
+          "non_zero_count": "2945",
+          "total_count": 2945
+        },
+        {
+          "video_id": "VID66",
+          "mean": 4.064657534246575,
+          "std": 1.4460850144505948,
+          "min": 1.0,
+          "max": 5.0,
+          "non_zero_count": "1825",
+          "total_count": 1825
+        },
+        {
+          "video_id": "VID79",
+          "mean": 4.143191800878477,
+          "std": 1.402881286204624,
+          "min": 1.0,
+          "max": 5.0,
+          "non_zero_count": "3415",
+          "total_count": 3415
+        }
+      ]
+    },
+    "_r_phase_progression": {
+      "global_mean": 0.5,
+      "global_std": 0.2895783511617467,
+      "global_min": 0.0,
+      "global_max": 1.0,
+      "global_median": 0.5,
+      "global_non_zero_fraction": 0.9968942680977392,
+      "per_video_stats": [
+        {
+          "video_id": "VID02",
+          "mean": 0.5,
+          "std": 0.28939051346770117,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "2833",
+          "total_count": 2840
+        },
+        {
+          "video_id": "VID06",
+          "mean": 0.5,
+          "std": 0.2896194966706205,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "2147",
+          "total_count": 2154
+        },
+        {
+          "video_id": "VID111",
+          "mean": 0.5,
+          "std": 0.2896205504506806,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "2139",
+          "total_count": 2146
+        },
+        {
+          "video_id": "VID14",
+          "mean": 0.49999999999999994,
+          "std": 0.28986953055910086,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "1702",
+          "total_count": 1709
+        },
+        {
+          "video_id": "VID23",
+          "mean": 0.5,
+          "std": 0.2897396536555912,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "1630",
+          "total_count": 1636
+        },
+        {
+          "video_id": "VID25",
+          "mean": 0.5,
+          "std": 0.28963089687525734,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "2123",
+          "total_count": 2130
+        },
+        {
+          "video_id": "VID50",
+          "mean": 0.5,
+          "std": 0.2902795630331127,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "1089",
+          "total_count": 1095
+        },
+        {
+          "video_id": "VID51",
+          "mean": 0.5,
+          "std": 0.28936445706258984,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "2938",
+          "total_count": 2945
+        },
+        {
+          "video_id": "VID66",
+          "mean": 0.5,
+          "std": 0.28979352656376806,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "1818",
+          "total_count": 1825
+        },
+        {
+          "video_id": "VID79",
+          "mean": 0.5,
+          "std": 0.28927025202963685,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "3408",
+          "total_count": 3415
+        }
+      ]
+    },
+    "_r_phase_initiation": {
+      "global_mean": 0.01552865951130395,
+      "global_std": 0.12364271205811501,
+      "global_min": 0.0,
+      "global_max": 1.0,
+      "global_median": 0.0,
+      "global_non_zero_fraction": 0.01552865951130395,
+      "per_video_stats": [
+        {
+          "video_id": "VID02",
+          "mean": 0.01232394366197183,
+          "std": 0.11032707770347396,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "35",
+          "total_count": 2840
+        },
+        {
+          "video_id": "VID06",
+          "mean": 0.016248839368616527,
+          "std": 0.12643106654532907,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "35",
+          "total_count": 2154
+        },
+        {
+          "video_id": "VID111",
+          "mean": 0.016309412861136997,
+          "std": 0.12666260661008827,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "35",
+          "total_count": 2146
+        },
+        {
+          "video_id": "VID14",
+          "mean": 0.02047981275599766,
+          "std": 0.1416347062886669,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "35",
+          "total_count": 1709
+        },
+        {
+          "video_id": "VID23",
+          "mean": 0.018337408312958436,
+          "std": 0.13416835606551297,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "30",
+          "total_count": 1636
+        },
+        {
+          "video_id": "VID25",
+          "mean": 0.01643192488262911,
+          "std": 0.12712952736198127,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "35",
+          "total_count": 2130
+        },
+        {
+          "video_id": "VID50",
+          "mean": 0.0273972602739726,
+          "std": 0.16323801764127377,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "30",
+          "total_count": 1095
+        },
+        {
+          "video_id": "VID51",
+          "mean": 0.011884550084889643,
+          "std": 0.1083665425958095,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "35",
+          "total_count": 2945
+        },
+        {
+          "video_id": "VID66",
+          "mean": 0.019178082191780823,
+          "std": 0.13715058641954878,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "35",
+          "total_count": 1825
+        },
+        {
+          "video_id": "VID79",
+          "mean": 0.010248901903367497,
+          "std": 0.1007167409775686,
+          "min": 0.0,
+          "max": 1.0,
+          "non_zero_count": "35",
+          "total_count": 3415
+        }
+      ]
+    },
+    "_r_action_probability": {
+      "global_mean": -0.12199257975045505,
+      "global_std": 0.24536599698993639,
+      "global_min": -0.6645130637406225,
+      "global_max": 0.4991096827626895,
+      "global_median": -0.0476724925146236,
+      "global_non_zero_fraction": 0.916282256222882,
+      "per_video_stats": [
+        {
+          "video_id": "VID02",
+          "mean": -0.12346442524826096,
+          "std": 0.24966262888221652,
+          "min": -0.6605186926085311,
+          "max": 0.4991096827626895,
+          "non_zero_count": "2620",
+          "total_count": 2840
+        },
+        {
+          "video_id": "VID06",
+          "mean": -0.06706288225095561,
+          "std": 0.1820616275101369,
+          "min": -0.6012806743238461,
+          "max": 0.4991096827626895,
+          "non_zero_count": "2088",
+          "total_count": 2154
+        },
+        {
+          "video_id": "VID111",
+          "mean": -0.2230653115955247,
+          "std": 0.26093221364527913,
+          "min": -0.6640024172815919,
+          "max": 0.2252662110428831,
+          "non_zero_count": "1617",
+          "total_count": 2146
+        },
+        {
+          "video_id": "VID14",
+          "mean": -0.16796839783663012,
+          "std": 0.2269432559997089,
+          "min": -0.662613207590423,
+          "max": 0.4991096827626895,
+          "non_zero_count": "1485",
+          "total_count": 1709
+        },
+        {
+          "video_id": "VID23",
+          "mean": -0.17032797121415189,
+          "std": 0.23591510351401077,
+          "min": -0.6556473270279539,
+          "max": 0.2252662110428831,
+          "non_zero_count": "1541",
+          "total_count": 1636
+        },
+        {
+          "video_id": "VID25",
+          "mean": -0.08020447394399369,
+          "std": 0.2247034057815527,
+          "min": -0.6369563971568735,
+          "max": 0.4991096827626895,
+          "non_zero_count": "2028",
+          "total_count": 2130
+        },
+        {
+          "video_id": "VID50",
+          "mean": -0.08755979299410148,
+          "std": 0.21432506784497432,
+          "min": -0.6632383956481591,
+          "max": 0.2252662110428831,
+          "non_zero_count": "1031",
+          "total_count": 1095
+        },
+        {
+          "video_id": "VID51",
+          "mean": -0.13260534202893745,
+          "std": 0.21290338945381254,
+          "min": -0.6645130637406225,
+          "max": 0.4991096827626895,
+          "non_zero_count": "2704",
+          "total_count": 2945
+        },
+        {
+          "video_id": "VID66",
+          "mean": -0.06388186134500294,
+          "std": 0.2645285866621777,
+          "min": -0.6556473270279539,
+          "max": 0.4991096827626895,
+          "non_zero_count": "1704",
+          "total_count": 1825
+        },
+        {
+          "video_id": "VID79",
+          "mean": -0.10474429692835902,
+          "std": 0.2848756947394098,
+          "min": -0.6622738748487291,
+          "max": 0.4991096827626895,
+          "non_zero_count": "3244",
+          "total_count": 3415
+        }
+      ]
+    }
+  }
+}

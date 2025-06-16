@@ -1,0 +1,60 @@
+{
+  "summary": {
+    "_r_global_progression": {
+      "mean": 0.5,
+      "std": 0.28880701621215543,
+      "min": 0.0,
+      "max": 1.0,
+      "abs_max": 1.0,
+      "non_zero_fraction": 0.9995432747202557,
+      "range": 1.0
+    },
+    "_r_phase_completion": {
+      "mean": 0.024646649862887383,
+      "std": 0.10977825182628763,
+      "min": 0.0,
+      "max": 0.8998513082740474,
+      "abs_max": 0.8998513082740474,
+      "non_zero_fraction": 0.08988353505366523,
+      "range": 0.8998513082740474
+    },
+    "_r_risk_penalty": {
+      "mean": 3.7911852021009365,
+      "std": 1.5695972336438158,
+      "min": 1.0,
+      "max": 5.0,
+      "abs_max": 5.0,
+      "non_zero_fraction": 1.0,
+      "range": 4.0
+    },
+    "_r_phase_progression": {
+      "mean": 0.5,
+      "std": 0.2895783511617467,
+      "min": 0.0,
+      "max": 1.0,
+      "abs_max": 1.0,
+      "non_zero_fraction": 0.9968942680977392,
+      "range": 1.0
+    },
+    "_r_phase_initiation": {
+      "mean": 0.01552865951130395,
+      "std": 0.12364271205811501,
+      "min": 0.0,
+      "max": 1.0,
+      "abs_max": 1.0,
+      "non_zero_fraction": 0.01552865951130395,
+      "range": 1.0
+    },
+    "_r_action_probability": {
+      "mean": -0.12199257975045505,
+      "std": 0.24536599698993639,
+      "min": -0.6645130637406225,
+      "max": 0.4991096827626895,
+      "abs_max": 0.6645130637406225,
+      "non_zero_fraction": 0.916282256222882,
+      "range": 1.163622746503312
+    }
+  },
+  "potential_issues": [],
+  "recommendations": []
+}

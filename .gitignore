@@ -35,3 +35,4 @@ results/*/*/*.zip
 *.npz
 results/*/complete_results.json
 results/*/*/*evaluation_results.json
+reward_analysis_*/*
