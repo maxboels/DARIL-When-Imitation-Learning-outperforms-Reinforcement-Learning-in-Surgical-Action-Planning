@@ -490,3 +490,91 @@ class WorldModelTrainer:
         
         self.logger.info(f"📊 Training plots saved to: {plot_path}")
         self.logger.info(f"📊 Metrics saved to: {metrics_path}")
+
+
+
+# Added with the goal to match as closely as possible the IL training data format
+def train_world_model_matching_il(world_model, il_dataloader, device, config):
+    """
+    Train world model using IDENTICAL data as IL model.
+    """
+    
+    optimizer = torch.optim.Adam(world_model.parameters(), lr=config.get('lr', 1e-4))
+    world_model.train()
+    
+    print("🌍 Training World Model with IL-matched data...")
+    
+    total_loss = 0.0
+    num_batches = 0
+    
+    for epoch in range(config.get('num_epochs', 10)):
+        epoch_loss = 0.0
+        epoch_batches = 0
+        
+        for batch in il_dataloader:
+            # Extract from IL batch format - IDENTICAL to your IL training
+            current_states = batch['current_states'].to(device)  # [batch, seq_len, emb_dim]
+            target_actions = batch['target_actions'].to(device)  # [batch, seq_len, 100]
+            
+            # Use target_actions as both input actions and targets
+            # In expert data: the action that was taken IS the expert action
+            next_actions = target_actions  # Actions that cause state transitions
+            
+            batch_size, seq_len, emb_dim = current_states.shape
+            
+            # Create next states by shifting current states
+            # next_states[t] = current_states[t+1] 
+            target_next_states = torch.cat([
+                current_states[:, 1:, :],  # Shift by 1
+                current_states[:, -1:, :]  # Repeat last state
+            ], dim=1)
+            
+            # Create target rewards using surgical reward function
+            target_surgical_rewards = []
+            for b in range(batch_size):
+                for t in range(seq_len):
+                    action = target_actions[b, t].cpu().numpy()
+                    expert_action = target_actions[b, t].cpu().numpy()  # Same as action in expert data
+                    surgical_reward = world_model._calculate_single_surgical_reward(action, expert_action)
+                    target_surgical_rewards.append(surgical_reward)
+            
+            target_surgical_rewards = torch.tensor(
+                target_surgical_rewards, device=device
+            ).view(batch_size, seq_len, 1)
+            
+            # Create target rewards dict (using surgical reward for all types)
+            target_rewards = {
+                'phase_progression': target_surgical_rewards,
+                'safety': target_surgical_rewards, 
+                'efficiency': target_surgical_rewards
+            }
+            
+            # Forward pass
+            outputs = world_model(
+                current_states=current_states,
+                next_actions=next_actions,
+                target_next_states=target_next_states,
+                target_rewards=target_rewards
+            )
+            
+            loss = outputs['total_loss']
+            
+            # Backward pass
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            
+            total_loss += loss.item()
+            epoch_loss += loss.item()
+            num_batches += 1
+            epoch_batches += 1
+            
+            if num_batches % 100 == 0:
+                avg_loss = total_loss / num_batches
+                print(f"   Batch {num_batches}: Avg Loss = {avg_loss:.4f}")
+        
+        avg_epoch_loss = epoch_loss / epoch_batches
+        print(f"Epoch {epoch+1}: Loss = {avg_epoch_loss:.4f}")
+    
+    print(f"✅ World Model training completed. Final avg loss: {total_loss/num_batches:.4f}")
+    return world_model

@@ -1,0 +1,142 @@
+{
+    "VID02": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.049953964754976106,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.06341749760978474,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.05443297740455911,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID06": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.0751694668668684,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.0874633926724315,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.07010872468685321,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID111": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.06595672362540578,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.042627826476913946,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.042524555458561215,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID14": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.043357166181017204,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.05339728599979522,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.040109345121957664,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID23": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.05063157445579462,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.07902849809172331,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.06331635867940143,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID25": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.06897443544843594,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.10068743701263237,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.0731149916526028,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID50": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.09609897228507669,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.11290636523948919,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.0988199793770316,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID51": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.05460877799884916,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.0806724513663395,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.06284447519864514,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID66": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.07810090108479043,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.1043521618031545,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.10971332107970291,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID79": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.05167382129188798,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.06256905492215384,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.05498076605781179,
+            "evaluation_type": "next_action_prediction"
+        }
+    }
+}

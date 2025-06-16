@@ -3,6 +3,7 @@
 
 # Debug mode
 debug: false
+test_on_train_data: true  # Set to true to test on training data
 
 # Training mode
 training_mode: 'rl'

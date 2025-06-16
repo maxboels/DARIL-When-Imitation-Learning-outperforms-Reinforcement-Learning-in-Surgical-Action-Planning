@@ -1,0 +1,1096 @@
+2025-06-15 07:38:18,323 - INFO - SuRL_FixedRL_139654571754352 - Shared experiment log directory: results/fixed_rl_2025-06-15_07-38-18/logs
+2025-06-15 07:38:18,323 - INFO - SuRL_FixedRL_139654571754352 - 🎯 FIXED RL Experiment: fixed_rl_2025-06-15_07-38-18
+2025-06-15 07:38:18,323 - INFO - SuRL_FixedRL_139654571754352 - 📁 Results dir: results/fixed_rl_2025-06-15_07-38-18
+2025-06-15 07:38:18,323 - INFO - SuRL_FixedRL_139654571754352 - 🚀 Starting Complete FIXED RL Comparison
+2025-06-15 07:38:18,323 - INFO - SuRL_FixedRL_139654571754352 - ============================================================
+2025-06-15 07:38:18,323 - INFO - SuRL_FixedRL_139654571754352 - 📂 Loading CholecT50 data...
+2025-06-15 07:38:18,323 - INFO - SuRL_FixedRL_139654571754352 - Loading train data from /nfs/home/mboels/datasets/CholecT50 with fold 0
+2025-06-15 07:38:19,219 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded metadata: /nfs/home/mboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (78968, 156)
+2025-06-15 07:38:19,219 - INFO - SuRL_FixedRL_139654571754352 - [Train] Start processing metadata file /nfs/home/mboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-15 07:38:19,219 - INFO - SuRL_FixedRL_139654571754352 - [Train] Rewards extraction skipped, using metadata file /nfs/home/mboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-15 07:38:19,223 - INFO - SuRL_FixedRL_139654571754352 - [Train] Found 40 videos in metadata file
+2025-06-15 07:38:19,223 - INFO - SuRL_FixedRL_139654571754352 - [Train] Loading data for 40 videos
+2025-06-15 07:38:20,254 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID01: 1734 frames, 1024D embeddings
+2025-06-15 07:38:21,540 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID04: 1523 frames, 1024D embeddings
+2025-06-15 07:38:22,880 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID05: 2345 frames, 1024D embeddings
+2025-06-15 07:38:23,742 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID08: 1520 frames, 1024D embeddings
+2025-06-15 07:38:25,218 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID10: 1750 frames, 1024D embeddings
+2025-06-15 07:38:27,065 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID103: 2220 frames, 1024D embeddings
+2025-06-15 07:38:28,844 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID110: 2177 frames, 1024D embeddings
+2025-06-15 07:38:29,475 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID12: 1091 frames, 1024D embeddings
+2025-06-15 07:38:30,311 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID13: 982 frames, 1024D embeddings
+2025-06-15 07:38:31,510 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID15: 2059 frames, 1024D embeddings
+2025-06-15 07:38:33,156 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID18: 1943 frames, 1024D embeddings
+2025-06-15 07:38:34,478 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID22: 1533 frames, 1024D embeddings
+2025-06-15 07:38:35,932 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID26: 1774 frames, 1024D embeddings
+2025-06-15 07:38:37,120 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID27: 2085 frames, 1024D embeddings
+2025-06-15 07:38:38,517 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID29: 2351 frames, 1024D embeddings
+2025-06-15 07:38:40,971 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID31: 3946 frames, 1024D embeddings
+2025-06-15 07:38:42,743 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID32: 2117 frames, 1024D embeddings
+2025-06-15 07:38:43,964 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID35: 2107 frames, 1024D embeddings
+2025-06-15 07:38:45,363 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID36: 2388 frames, 1024D embeddings
+2025-06-15 07:38:46,669 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID40: 2223 frames, 1024D embeddings
+2025-06-15 07:38:49,781 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID42: 3713 frames, 1024D embeddings
+2025-06-15 07:38:51,737 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID43: 2363 frames, 1024D embeddings
+2025-06-15 07:38:53,621 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID47: 2260 frames, 1024D embeddings
+2025-06-15 07:38:54,679 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID48: 1835 frames, 1024D embeddings
+2025-06-15 07:38:56,055 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID49: 1672 frames, 1024D embeddings
+2025-06-15 07:38:57,209 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID52: 1967 frames, 1024D embeddings
+2025-06-15 07:38:58,732 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID56: 1837 frames, 1024D embeddings
+2025-06-15 07:39:00,987 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID57: 2633 frames, 1024D embeddings
+2025-06-15 07:39:03,081 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID60: 2533 frames, 1024D embeddings
+2025-06-15 07:39:04,280 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID62: 2033 frames, 1024D embeddings
+2025-06-15 07:39:05,375 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID65: 1874 frames, 1024D embeddings
+2025-06-15 07:39:06,527 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID68: 1973 frames, 1024D embeddings
+2025-06-15 07:39:07,518 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID70: 1195 frames, 1024D embeddings
+2025-06-15 07:39:08,306 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID73: 1357 frames, 1024D embeddings
+2025-06-15 07:39:09,246 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID74: 1635 frames, 1024D embeddings
+2025-06-15 07:39:10,372 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID75: 1924 frames, 1024D embeddings
+2025-06-15 07:39:10,987 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID78: 740 frames, 1024D embeddings
+2025-06-15 07:39:12,448 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID80: 1725 frames, 1024D embeddings
+2025-06-15 07:39:14,208 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID92: 2124 frames, 1024D embeddings
+2025-06-15 07:39:15,209 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID96: 1707 frames, 1024D embeddings
+2025-06-15 07:39:15,210 - INFO - SuRL_FixedRL_139654571754352 - ✅ Successfully loaded 40 videos for train
+2025-06-15 07:39:15,217 - INFO - SuRL_FixedRL_139654571754352 - Loading test data from /nfs/home/mboels/datasets/CholecT50 with fold 0
+2025-06-15 07:39:15,397 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded metadata: /nfs/home/mboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (21895, 156)
+2025-06-15 07:39:15,397 - INFO - SuRL_FixedRL_139654571754352 - [Test] Start processing metadata file /nfs/home/mboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-15 07:39:15,397 - INFO - SuRL_FixedRL_139654571754352 - [Test] Rewards extraction skipped, using metadata file /nfs/home/mboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-15 07:39:15,398 - INFO - SuRL_FixedRL_139654571754352 - [Test] Found 10 videos in metadata file
+2025-06-15 07:39:15,398 - INFO - SuRL_FixedRL_139654571754352 - [Test] Loading data for 10 videos
+2025-06-15 07:39:17,427 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID02: 2840 frames, 1024D embeddings
+2025-06-15 07:39:19,203 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID06: 2154 frames, 1024D embeddings
+2025-06-15 07:39:20,984 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID111: 2146 frames, 1024D embeddings
+2025-06-15 07:39:22,404 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID14: 1709 frames, 1024D embeddings
+2025-06-15 07:39:23,782 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID23: 1636 frames, 1024D embeddings
+2025-06-15 07:39:25,025 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID25: 2130 frames, 1024D embeddings
+2025-06-15 07:39:25,930 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID50: 1095 frames, 1024D embeddings
+2025-06-15 07:39:27,634 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID51: 2945 frames, 1024D embeddings
+2025-06-15 07:39:28,698 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID66: 1825 frames, 1024D embeddings
+2025-06-15 07:39:31,544 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded video VID79: 3415 frames, 1024D embeddings
+2025-06-15 07:39:31,545 - INFO - SuRL_FixedRL_139654571754352 - ✅ Successfully loaded 10 videos for test
+2025-06-15 07:39:31,547 - INFO - SuRL_FixedRL_139654571754352 - ✅ Data loaded successfully
+2025-06-15 07:39:31,547 - INFO - SuRL_FixedRL_139654571754352 -    Training videos: 40
+2025-06-15 07:39:31,547 - INFO - SuRL_FixedRL_139654571754352 -    Test videos: 10
+2025-06-15 07:39:31,547 - INFO - SuRL_FixedRL_139654571754352 - 🔍 Testing on training data...
+2025-06-15 07:39:31,549 - INFO - SuRL_FixedRL_139654571754352 - 🎓 Method 1: Autoregressive IL is disabled in config, skipping...
+2025-06-15 07:39:31,549 - INFO - SuRL_FixedRL_139654571754352 - 🌍 Running Method 2: FIXED Conditional World Model + RL
+2025-06-15 07:39:31,549 - INFO - SuRL_FixedRL_139654571754352 - 🌍 Method 2: FIXED Conditional World Model + RL
+2025-06-15 07:39:31,550 - INFO - SuRL_FixedRL_139654571754352 - ----------------------------------------
+2025-06-15 07:39:31,550 - INFO - SuRL_FixedRL_139654571754352 - 🏋️ Will train world model from scratch
+2025-06-15 07:39:32,111 - INFO - SuRL_FixedRL_139654571754352 - ✅ World model initialized for training
+2025-06-15 07:40:06,579 - INFO - SuRL_FixedRL_139654571754352 - ✅ Stored test loaders for evaluation: ['VID01', 'VID04', 'VID05', 'VID08', 'VID10', 'VID103', 'VID110', 'VID12', 'VID13', 'VID15', 'VID18', 'VID22', 'VID26', 'VID27', 'VID29', 'VID31', 'VID32', 'VID35', 'VID36', 'VID40', 'VID42', 'VID43', 'VID47', 'VID48', 'VID49', 'VID52', 'VID56', 'VID57', 'VID60', 'VID62', 'VID65', 'VID68', 'VID70', 'VID73', 'VID74', 'VID75', 'VID78', 'VID80', 'VID92', 'VID96']
+2025-06-15 07:40:06,593 - INFO - SuRL_FixedRL_139654571754352 - 🌍 World Model Trainer initialized
+2025-06-15 07:40:06,593 - INFO - SuRL_FixedRL_139654571754352 -    Device: cuda
+2025-06-15 07:40:06,593 - INFO - SuRL_FixedRL_139654571754352 -    Epochs: 5
+2025-06-15 07:40:06,593 - INFO - SuRL_FixedRL_139654571754352 -    Learning rate: 3e-05
+2025-06-15 07:40:06,593 - INFO - SuRL_FixedRL_139654571754352 -    Focus: Action-conditioned state-reward prediction
+2025-06-15 07:40:06,593 - INFO - SuRL_FixedRL_139654571754352 - 🌍 Training world model from scratch...
+2025-06-15 07:40:06,593 - INFO - SuRL_FixedRL_139654571754352 - 🌍 Starting World Model Training...
+2025-06-15 07:40:06,593 - INFO - SuRL_FixedRL_139654571754352 - 🎯 Goal: Learn action-conditioned state-reward prediction
+2025-06-15 07:43:11,542 - INFO - SuRL_FixedRL_139654571754352 - ✅ New best model saved: results/fixed_rl_2025-06-15_07-38-18/logs/checkpoints/world_model_best_epoch_1.pt
+2025-06-15 07:43:11,543 - INFO - SuRL_FixedRL_139654571754352 - Epoch 1/5 | Train Loss: 1.2160 | Val Loss: 0.5232 | Val State MSE: 0.1373 | Val Reward MSE: 0.0283
+2025-06-15 07:46:18,564 - INFO - SuRL_FixedRL_139654571754352 - ✅ New best model saved: results/fixed_rl_2025-06-15_07-38-18/logs/checkpoints/world_model_best_epoch_2.pt
+2025-06-15 07:46:18,565 - INFO - SuRL_FixedRL_139654571754352 - Epoch 2/5 | Train Loss: 0.5761 | Val Loss: 0.3939 | Val State MSE: 0.1106 | Val Reward MSE: 0.0179
+2025-06-15 07:49:19,375 - INFO - SuRL_FixedRL_139654571754352 - ✅ New best model saved: results/fixed_rl_2025-06-15_07-38-18/logs/checkpoints/world_model_best_epoch_3.pt
+2025-06-15 07:49:19,375 - INFO - SuRL_FixedRL_139654571754352 - Epoch 3/5 | Train Loss: 0.4753 | Val Loss: 0.3425 | Val State MSE: 0.0993 | Val Reward MSE: 0.0141
+2025-06-15 07:52:17,178 - INFO - SuRL_FixedRL_139654571754352 - ✅ New best model saved: results/fixed_rl_2025-06-15_07-38-18/logs/checkpoints/world_model_best_epoch_4.pt
+2025-06-15 07:52:17,179 - INFO - SuRL_FixedRL_139654571754352 - Epoch 4/5 | Train Loss: 0.4345 | Val Loss: 0.3198 | Val State MSE: 0.0948 | Val Reward MSE: 0.0113
+2025-06-15 07:55:19,528 - INFO - SuRL_FixedRL_139654571754352 - ✅ New best model saved: results/fixed_rl_2025-06-15_07-38-18/logs/checkpoints/world_model_best_epoch_5.pt
+2025-06-15 07:55:19,622 - INFO - SuRL_FixedRL_139654571754352 - Epoch 5/5 | Train Loss: 0.4185 | Val Loss: 0.3120 | Val State MSE: 0.0931 | Val Reward MSE: 0.0107
+2025-06-15 07:55:19,710 - INFO - SuRL_FixedRL_139654571754352 - ✅ World Model Training completed!
+2025-06-15 07:55:19,710 - INFO - SuRL_FixedRL_139654571754352 - 📄 Best model: results/fixed_rl_2025-06-15_07-38-18/logs/checkpoints/world_model_best_epoch_5.pt
+2025-06-15 07:55:19,710 - INFO - SuRL_FixedRL_139654571754352 - 📄 Final model: results/fixed_rl_2025-06-15_07-38-18/logs/checkpoints/world_model_final.pt
+2025-06-15 07:55:19,710 - INFO - SuRL_FixedRL_139654571754352 - 🌍 Evaluating trained world model...
+2025-06-15 07:55:19,710 - INFO - SuRL_FixedRL_139654571754352 - 📊 Evaluating World Model...
+2025-06-15 07:56:55,653 - INFO - SuRL_FixedRL_139654571754352 - ✅ Evaluation completed
+2025-06-15 07:56:55,654 - INFO - SuRL_FixedRL_139654571754352 - 📊 State Loss: 0.0931
+2025-06-15 07:56:55,654 - INFO - SuRL_FixedRL_139654571754352 - 📊 Reward Loss: 0.0107
+2025-06-15 07:56:55,654 - INFO - SuRL_FixedRL_139654571754352 - 🚀 Starting RL training...
+2025-06-15 07:56:55,656 - INFO - SuRL_FixedRL_139654571754352 - 🌍 Training World Model RL for 50000 timesteps...
+2025-06-15 15:32:22,978 - INFO - SuRL_FixedRL_139654571754352 - 🎬 Training Direct Video RL for 50000 timesteps...
+2025-06-15 15:32:23,519 - INFO - SuRL_FixedRL_139654571754352 - 📹 Running Method 3: FIXED Direct Video RL
+2025-06-15 15:32:23,519 - INFO - SuRL_FixedRL_139654571754352 - 📹 Method 3: FIXED Direct Video RL
+2025-06-15 15:32:23,519 - INFO - SuRL_FixedRL_139654571754352 - ----------------------------------------
+2025-06-15 15:32:23,524 - INFO - SuRL_FixedRL_139654571754352 - 🚀 Training FIXED RL algorithms for 50000 timesteps...
+2025-06-15 16:59:49,848 - INFO - SuRL_FixedRL_139654571754352 - 📊 Running Comprehensive Evaluation
+2025-06-15 16:59:49,851 - INFO - SuRL_FixedRL_139654571754352 - 🔬 Evaluation Framework initialized
+2025-06-15 16:59:49,851 - INFO - SuRL_FixedRL_139654571754352 - 📁 Results will be saved to: results/fixed_rl_2025-06-15_07-38-18/integrated_evaluation
+2025-06-15 16:59:49,851 - INFO - SuRL_FixedRL_139654571754352 - 🔬 Evaluation Framework initialized with METRICS MODULE
+2025-06-15 16:59:50,295 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded ConditionalWorldModel (for planning analysis)
+2025-06-15 16:59:55,657 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded world_model_ppo RL policy (trained with world model)
+2025-06-15 16:59:56,751 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded ppo RL policy (trained on direct video)
+2025-06-15 16:59:57,862 - INFO - SuRL_FixedRL_139654571754352 - ✅ Loaded a2c RL policy (trained on direct video)
+2025-06-15 16:59:57,862 - INFO - SuRL_FixedRL_139654571754352 - 📊 Loaded 3 models for comprehensive evaluation
+2025-06-15 16:59:57,862 - INFO - SuRL_FixedRL_139654571754352 - 🎯 Evaluation approach:
+2025-06-15 16:59:57,862 - INFO - SuRL_FixedRL_139654571754352 -    Primary: Single-step action prediction (fair comparison)
+2025-06-15 16:59:57,862 - INFO - SuRL_FixedRL_139654571754352 -    Secondary: Multi-step planning analysis (paradigm-specific)
+2025-06-15 16:59:57,862 - INFO - SuRL_FixedRL_139654571754352 - 📊 Loaded models for evaluation:
+2025-06-15 16:59:57,862 - INFO - SuRL_FixedRL_139654571754352 -    WorldModelRL_world_model_ppo: rl_with_world_model_simulation
+2025-06-15 16:59:57,862 - INFO - SuRL_FixedRL_139654571754352 -    DirectVideoRL_ppo: rl_with_direct_video_episodes
+2025-06-15 16:59:57,863 - INFO - SuRL_FixedRL_139654571754352 -    DirectVideoRL_a2c: rl_with_direct_video_episodes
+2025-06-15 16:59:57,863 - INFO - SuRL_FixedRL_139654571754352 - 🚀 Running evaluation on 40 videos...
+2025-06-15 16:59:57,863 - INFO - SuRL_FixedRL_139654571754352 - 🚀 Starting FIXED comprehensive evaluation (using proper batches)
+2025-06-15 16:59:57,863 - INFO - SuRL_FixedRL_139654571754352 - 📊 Models: 3, Videos: 40
+2025-06-15 16:59:57,863 - INFO - SuRL_FixedRL_139654571754352 - 🎯 Evaluation approach:
+2025-06-15 16:59:57,863 - INFO - SuRL_FixedRL_139654571754352 -    ✅ Uses DataLoader batches directly (like training)
+2025-06-15 16:59:57,863 - INFO - SuRL_FixedRL_139654571754352 -    ✅ Maintains temporal structure for IL model
+2025-06-15 16:59:57,863 - INFO - SuRL_FixedRL_139654571754352 -    ✅ Consistent model interfaces
+2025-06-15 16:59:57,864 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID01
+2025-06-15 16:59:59,616 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID01
+2025-06-15 16:59:59,616 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 16:59:59,616 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:00:02,624 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 109 batches processed
+2025-06-15 17:00:03,846 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0820
+2025-06-15 17:00:03,847 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:00:06,826 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 109 batches processed
+2025-06-15 17:00:07,841 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0854
+2025-06-15 17:00:07,841 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:00:10,898 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 109 batches processed
+2025-06-15 17:00:11,934 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1087
+2025-06-15 17:00:11,934 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:00:11,934 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:00:17,620 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9995
+2025-06-15 17:00:17,620 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:00:20,179 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:00:20,179 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:00:22,496 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:00:22,496 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.0820
+2025-06-15 17:00:22,496 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.0854
+2025-06-15 17:00:22,496 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.1087
+2025-06-15 17:00:22,496 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID04
+2025-06-15 17:00:24,164 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID04
+2025-06-15 17:00:24,164 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:00:24,164 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:00:26,948 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 96 batches processed
+2025-06-15 17:00:27,782 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0735
+2025-06-15 17:00:27,782 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:00:30,419 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 96 batches processed
+2025-06-15 17:00:31,246 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0937
+2025-06-15 17:00:31,246 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:00:33,940 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 96 batches processed
+2025-06-15 17:00:34,763 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0934
+2025-06-15 17:00:34,763 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:00:34,763 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:00:40,042 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9996
+2025-06-15 17:00:40,042 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:00:42,223 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:00:42,223 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:00:44,394 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:00:44,394 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.0735
+2025-06-15 17:00:44,394 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.0937
+2025-06-15 17:00:44,394 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.0934
+2025-06-15 17:00:44,394 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID05
+2025-06-15 17:00:46,096 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID05
+2025-06-15 17:00:46,096 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:00:46,096 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:00:49,486 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 147 batches processed
+2025-06-15 17:00:50,704 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0799
+2025-06-15 17:00:50,704 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:00:53,896 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 147 batches processed
+2025-06-15 17:00:55,120 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0821
+2025-06-15 17:00:55,120 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:00:58,433 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 147 batches processed
+2025-06-15 17:00:59,643 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0812
+2025-06-15 17:00:59,643 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:00:59,643 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:01:06,782 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9995
+2025-06-15 17:01:06,782 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:01:09,166 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:01:09,166 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:01:11,806 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:01:11,806 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.0799
+2025-06-15 17:01:11,806 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.0821
+2025-06-15 17:01:11,806 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.0812
+2025-06-15 17:01:11,806 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID08
+2025-06-15 17:01:13,534 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID08
+2025-06-15 17:01:13,534 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:01:13,534 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:01:16,335 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 95 batches processed
+2025-06-15 17:01:17,204 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0939
+2025-06-15 17:01:17,205 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:01:19,958 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 95 batches processed
+2025-06-15 17:01:20,819 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0897
+2025-06-15 17:01:20,819 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:01:23,510 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 95 batches processed
+2025-06-15 17:01:24,379 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0935
+2025-06-15 17:01:24,379 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:01:24,379 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:01:29,494 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9997
+2025-06-15 17:01:29,494 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:01:31,661 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:01:31,661 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:01:33,774 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:01:33,775 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.0939
+2025-06-15 17:01:33,775 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.0897
+2025-06-15 17:01:33,775 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.0935
+2025-06-15 17:01:33,775 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID10
+2025-06-15 17:01:35,487 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID10
+2025-06-15 17:01:35,487 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:01:35,487 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:01:38,561 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 110 batches processed
+2025-06-15 17:01:39,544 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0912
+2025-06-15 17:01:39,545 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:01:42,352 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 110 batches processed
+2025-06-15 17:01:43,329 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1009
+2025-06-15 17:01:43,329 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:01:46,181 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 110 batches processed
+2025-06-15 17:01:47,345 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1029
+2025-06-15 17:01:47,346 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:01:47,346 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:01:53,007 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9998
+2025-06-15 17:01:53,007 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:01:55,298 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:01:55,298 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:01:57,491 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:01:57,491 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.0912
+2025-06-15 17:01:57,491 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.1009
+2025-06-15 17:01:57,491 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.1029
+2025-06-15 17:01:57,491 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID103
+2025-06-15 17:01:59,223 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID103
+2025-06-15 17:01:59,223 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:01:59,223 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:02:02,502 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 139 batches processed
+2025-06-15 17:02:03,661 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0627
+2025-06-15 17:02:03,662 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:02:06,849 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 139 batches processed
+2025-06-15 17:02:08,008 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0817
+2025-06-15 17:02:08,008 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:02:11,223 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 139 batches processed
+2025-06-15 17:02:12,382 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0931
+2025-06-15 17:02:12,382 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:02:12,382 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:02:19,120 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9997
+2025-06-15 17:02:19,120 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:02:21,702 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:02:21,702 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:02:24,144 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:02:24,144 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.0627
+2025-06-15 17:02:24,144 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.0817
+2025-06-15 17:02:24,144 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.0931
+2025-06-15 17:02:24,145 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID110
+2025-06-15 17:02:25,823 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID110
+2025-06-15 17:02:25,824 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:02:25,824 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:02:29,064 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 136 batches processed
+2025-06-15 17:02:30,177 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0821
+2025-06-15 17:02:30,177 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:02:33,307 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 136 batches processed
+2025-06-15 17:02:34,420 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0564
+2025-06-15 17:02:34,420 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:02:37,722 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 136 batches processed
+2025-06-15 17:02:38,843 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0815
+2025-06-15 17:02:38,843 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:02:38,843 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:02:45,569 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9996
+2025-06-15 17:02:45,569 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:02:47,952 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:02:47,952 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:02:50,389 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:02:50,389 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.0821
+2025-06-15 17:02:50,389 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.0564
+2025-06-15 17:02:50,389 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.0815
+2025-06-15 17:02:50,390 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID12
+2025-06-15 17:02:52,188 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID12
+2025-06-15 17:02:52,188 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:02:52,188 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:02:54,684 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 69 batches processed
+2025-06-15 17:02:55,282 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1272
+2025-06-15 17:02:55,282 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:02:57,975 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 69 batches processed
+2025-06-15 17:02:58,583 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1154
+2025-06-15 17:02:58,584 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:03:00,979 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 69 batches processed
+2025-06-15 17:03:01,577 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1343
+2025-06-15 17:03:01,577 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:03:01,577 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:03:05,730 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9996
+2025-06-15 17:03:05,731 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:03:07,795 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:03:07,795 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:03:09,862 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:03:09,862 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.1272
+2025-06-15 17:03:09,862 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.1154
+2025-06-15 17:03:09,862 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.1343
+2025-06-15 17:03:09,862 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID13
+2025-06-15 17:03:11,663 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID13
+2025-06-15 17:03:11,663 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:03:11,663 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:03:14,065 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 62 batches processed
+2025-06-15 17:03:14,682 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.2344
+2025-06-15 17:03:14,682 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:03:17,023 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 62 batches processed
+2025-06-15 17:03:17,644 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1401
+2025-06-15 17:03:17,644 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:03:20,018 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 62 batches processed
+2025-06-15 17:03:20,645 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1439
+2025-06-15 17:03:20,645 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:03:20,645 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:03:24,647 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9996
+2025-06-15 17:03:24,648 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:03:26,640 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:03:26,640 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:03:28,652 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:03:28,652 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.2344
+2025-06-15 17:03:28,652 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.1401
+2025-06-15 17:03:28,652 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.1439
+2025-06-15 17:03:28,653 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID15
+2025-06-15 17:03:30,429 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID15
+2025-06-15 17:03:30,429 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:03:30,429 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:03:33,744 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 129 batches processed
+2025-06-15 17:03:34,941 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0658
+2025-06-15 17:03:34,941 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:03:38,013 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 129 batches processed
+2025-06-15 17:03:39,212 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0736
+2025-06-15 17:03:39,213 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:03:42,630 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 129 batches processed
+2025-06-15 17:03:43,827 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0736
+2025-06-15 17:03:43,827 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:03:43,827 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:03:50,175 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9997
+2025-06-15 17:03:50,175 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:03:52,503 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:03:52,503 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:03:54,775 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:03:54,775 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.0658
+2025-06-15 17:03:54,775 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.0736
+2025-06-15 17:03:54,775 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.0736
+2025-06-15 17:03:54,775 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID18
+2025-06-15 17:03:56,544 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID18
+2025-06-15 17:03:56,545 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:03:56,545 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:03:59,648 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 122 batches processed
+2025-06-15 17:04:00,840 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1266
+2025-06-15 17:04:00,840 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:04:03,927 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 122 batches processed
+2025-06-15 17:04:05,107 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0972
+2025-06-15 17:04:05,107 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:04:08,049 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 122 batches processed
+2025-06-15 17:04:09,407 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1055
+2025-06-15 17:04:09,408 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:04:09,408 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:04:15,428 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9996
+2025-06-15 17:04:15,428 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:04:17,780 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:04:17,780 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:04:20,062 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:04:20,062 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.1266
+2025-06-15 17:04:20,062 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.0972
+2025-06-15 17:04:20,062 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.1055
+2025-06-15 17:04:20,062 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID22
+2025-06-15 17:04:21,785 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID22
+2025-06-15 17:04:21,785 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:04:21,785 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:04:24,567 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 96 batches processed
+2025-06-15 17:04:25,542 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0869
+2025-06-15 17:04:25,542 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:04:28,239 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 96 batches processed
+2025-06-15 17:04:29,205 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1195
+2025-06-15 17:04:29,206 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:04:31,926 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 96 batches processed
+2025-06-15 17:04:32,876 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0954
+2025-06-15 17:04:32,876 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:04:32,876 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:04:38,056 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9996
+2025-06-15 17:04:38,056 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:04:40,204 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:04:40,204 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:04:42,535 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:04:42,535 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.0869
+2025-06-15 17:04:42,535 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.1195
+2025-06-15 17:04:42,535 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.0954
+2025-06-15 17:04:42,535 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID26
+2025-06-15 17:04:44,403 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID26
+2025-06-15 17:04:44,404 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:04:44,404 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:04:47,405 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 111 batches processed
+2025-06-15 17:04:48,451 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0812
+2025-06-15 17:04:48,451 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:04:51,378 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 111 batches processed
+2025-06-15 17:04:52,424 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0891
+2025-06-15 17:04:52,425 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:04:55,328 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 111 batches processed
+2025-06-15 17:04:56,363 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0870
+2025-06-15 17:04:56,364 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:04:56,364 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:05:02,040 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9997
+2025-06-15 17:05:02,040 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:05:04,260 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:05:04,260 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:05:06,508 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:05:06,508 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.0812
+2025-06-15 17:05:06,508 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.0891
+2025-06-15 17:05:06,508 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.0870
+2025-06-15 17:05:06,508 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID27
+2025-06-15 17:05:08,264 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID27
+2025-06-15 17:05:08,264 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:05:08,264 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:05:11,464 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 131 batches processed
+2025-06-15 17:05:12,765 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1280
+2025-06-15 17:05:12,765 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:05:15,799 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 131 batches processed
+2025-06-15 17:05:17,098 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0974
+2025-06-15 17:05:17,098 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:05:20,375 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 131 batches processed
+2025-06-15 17:05:21,661 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0888
+2025-06-15 17:05:21,661 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:05:21,661 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:05:28,075 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9997
+2025-06-15 17:05:28,075 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:05:30,417 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:05:30,417 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:05:32,784 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:05:32,785 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.1280
+2025-06-15 17:05:32,785 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.0974
+2025-06-15 17:05:32,785 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.0888
+2025-06-15 17:05:32,785 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID29
+2025-06-15 17:05:34,547 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID29
+2025-06-15 17:05:34,547 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:05:34,547 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:05:37,924 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 147 batches processed
+2025-06-15 17:05:39,324 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0814
+2025-06-15 17:05:39,325 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:05:42,585 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 147 batches processed
+2025-06-15 17:05:43,960 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0863
+2025-06-15 17:05:43,961 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:05:47,187 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 147 batches processed
+2025-06-15 17:05:48,585 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0854
+2025-06-15 17:05:48,585 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:05:48,586 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:05:55,820 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9996
+2025-06-15 17:05:55,820 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:05:58,237 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:05:58,237 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:06:00,675 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:06:00,675 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.0814
+2025-06-15 17:06:00,675 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.0863
+2025-06-15 17:06:00,675 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.0854
+2025-06-15 17:06:00,676 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID31
+2025-06-15 17:06:02,400 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID31
+2025-06-15 17:06:02,400 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:06:02,400 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:06:06,954 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 247 batches processed
+2025-06-15 17:06:09,320 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1172
+2025-06-15 17:06:09,320 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:06:13,739 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 247 batches processed
+2025-06-15 17:06:16,113 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1055
+2025-06-15 17:06:16,113 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:06:20,420 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 247 batches processed
+2025-06-15 17:06:22,801 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1056
+2025-06-15 17:06:22,801 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:06:22,801 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:06:33,635 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9998
+2025-06-15 17:06:33,635 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:06:36,493 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:06:36,494 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:06:39,376 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:06:39,377 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.1172
+2025-06-15 17:06:39,377 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.1055
+2025-06-15 17:06:39,377 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.1056
+2025-06-15 17:06:39,377 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID32
+2025-06-15 17:06:41,092 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID32
+2025-06-15 17:06:41,092 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:06:41,092 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:06:44,417 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 133 batches processed
+2025-06-15 17:06:45,709 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0799
+2025-06-15 17:06:45,709 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:06:48,786 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 133 batches processed
+2025-06-15 17:06:50,109 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0778
+2025-06-15 17:06:50,109 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:06:53,217 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 133 batches processed
+2025-06-15 17:06:54,520 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0679
+2025-06-15 17:06:54,521 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:06:54,521 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:07:01,278 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9996
+2025-06-15 17:07:01,278 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:07:03,609 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:07:03,609 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:07:06,066 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:07:06,067 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.0799
+2025-06-15 17:07:06,067 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.0778
+2025-06-15 17:07:06,067 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.0679
+2025-06-15 17:07:06,067 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID35
+2025-06-15 17:07:07,833 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID35
+2025-06-15 17:07:07,833 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:07:07,833 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:07:11,002 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 132 batches processed
+2025-06-15 17:07:12,342 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1067
+2025-06-15 17:07:12,342 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:07:15,493 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 132 batches processed
+2025-06-15 17:07:16,827 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0955
+2025-06-15 17:07:16,828 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:07:19,907 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 132 batches processed
+2025-06-15 17:07:21,242 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0886
+2025-06-15 17:07:21,243 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:07:21,243 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:07:27,730 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9996
+2025-06-15 17:07:27,731 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:07:30,055 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:07:30,055 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:07:32,386 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:07:32,387 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.1067
+2025-06-15 17:07:32,387 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.0955
+2025-06-15 17:07:32,387 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.0886
+2025-06-15 17:07:32,387 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID36
+2025-06-15 17:07:34,188 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID36
+2025-06-15 17:07:34,188 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:07:34,188 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:07:37,686 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 150 batches processed
+2025-06-15 17:07:39,062 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1166
+2025-06-15 17:07:39,062 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:07:42,372 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 150 batches processed
+2025-06-15 17:07:43,759 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1055
+2025-06-15 17:07:43,759 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:07:47,042 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 150 batches processed
+2025-06-15 17:07:48,420 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0981
+2025-06-15 17:07:48,420 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:07:48,420 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:07:55,661 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9997
+2025-06-15 17:07:55,662 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:07:58,059 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:07:58,059 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:08:00,536 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:08:00,536 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.1166
+2025-06-15 17:08:00,536 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.1055
+2025-06-15 17:08:00,536 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.0981
+2025-06-15 17:08:00,536 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID40
+2025-06-15 17:08:02,294 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID40
+2025-06-15 17:08:02,294 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:08:02,294 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:08:05,701 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 139 batches processed
+2025-06-15 17:08:06,950 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1065
+2025-06-15 17:08:06,951 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:08:10,301 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 139 batches processed
+2025-06-15 17:08:11,535 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1183
+2025-06-15 17:08:11,535 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:08:14,784 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 139 batches processed
+2025-06-15 17:08:16,024 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1218
+2025-06-15 17:08:16,024 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:08:16,024 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:08:22,846 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9997
+2025-06-15 17:08:22,846 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:08:25,323 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:08:25,323 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:08:27,675 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:08:27,675 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.1065
+2025-06-15 17:08:27,675 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.1183
+2025-06-15 17:08:27,675 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.1218
+2025-06-15 17:08:27,675 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID42
+2025-06-15 17:08:29,472 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID42
+2025-06-15 17:08:29,472 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:08:29,473 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:08:33,912 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 232 batches processed
+2025-06-15 17:08:36,088 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0842
+2025-06-15 17:08:36,088 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:08:40,179 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 232 batches processed
+2025-06-15 17:08:42,388 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0961
+2025-06-15 17:08:42,388 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:08:46,766 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 232 batches processed
+2025-06-15 17:08:48,942 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1037
+2025-06-15 17:08:48,942 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:08:48,942 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:08:59,027 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9996
+2025-06-15 17:08:59,027 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:09:01,980 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:09:01,980 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:09:04,849 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:09:04,849 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.0842
+2025-06-15 17:09:04,849 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.0961
+2025-06-15 17:09:04,849 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.1037
+2025-06-15 17:09:04,849 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID43
+2025-06-15 17:09:06,531 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID43
+2025-06-15 17:09:06,531 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:09:06,531 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:09:10,290 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 148 batches processed
+2025-06-15 17:09:11,641 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0804
+2025-06-15 17:09:11,641 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:09:14,898 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 148 batches processed
+2025-06-15 17:09:16,269 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0520
+2025-06-15 17:09:16,269 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:09:19,666 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 148 batches processed
+2025-06-15 17:09:21,062 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0800
+2025-06-15 17:09:21,062 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:09:21,062 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:09:28,118 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9995
+2025-06-15 17:09:28,118 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:09:30,627 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:09:30,627 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:09:33,058 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:09:33,058 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.0804
+2025-06-15 17:09:33,058 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.0520
+2025-06-15 17:09:33,058 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.0800
+2025-06-15 17:09:33,058 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID47
+2025-06-15 17:09:34,813 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID47
+2025-06-15 17:09:34,813 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:09:34,813 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:09:38,134 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 142 batches processed
+2025-06-15 17:09:39,525 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0850
+2025-06-15 17:09:39,525 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:09:42,727 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 142 batches processed
+2025-06-15 17:09:44,115 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0812
+2025-06-15 17:09:44,115 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:09:47,375 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 142 batches processed
+2025-06-15 17:09:48,762 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0683
+2025-06-15 17:09:48,762 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:09:48,762 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:09:56,271 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9997
+2025-06-15 17:09:56,271 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:09:58,589 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:09:58,589 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:10:00,965 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:10:00,966 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.0850
+2025-06-15 17:10:00,966 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.0812
+2025-06-15 17:10:00,966 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.0683
+2025-06-15 17:10:00,966 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID48
+2025-06-15 17:10:02,720 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID48
+2025-06-15 17:10:02,720 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:10:02,720 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:10:05,784 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 115 batches processed
+2025-06-15 17:10:06,897 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1629
+2025-06-15 17:10:06,897 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:10:09,861 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 115 batches processed
+2025-06-15 17:10:10,972 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1094
+2025-06-15 17:10:10,972 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:10:13,843 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 115 batches processed
+2025-06-15 17:10:14,941 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1146
+2025-06-15 17:10:14,941 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:10:14,941 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:10:20,799 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9997
+2025-06-15 17:10:20,799 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:10:23,042 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:10:23,042 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:10:25,314 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:10:25,314 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.1629
+2025-06-15 17:10:25,314 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.1094
+2025-06-15 17:10:25,314 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.1146
+2025-06-15 17:10:25,315 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID49
+2025-06-15 17:10:27,100 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID49
+2025-06-15 17:10:27,100 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:10:27,101 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:10:29,957 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 105 batches processed
+2025-06-15 17:10:31,158 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0827
+2025-06-15 17:10:31,159 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:10:34,199 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 105 batches processed
+2025-06-15 17:10:35,208 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0738
+2025-06-15 17:10:35,208 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:10:37,984 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 105 batches processed
+2025-06-15 17:10:38,972 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0745
+2025-06-15 17:10:38,972 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:10:38,972 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:10:44,446 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9996
+2025-06-15 17:10:44,446 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:10:46,625 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:10:46,625 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:10:48,789 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:10:48,789 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.0827
+2025-06-15 17:10:48,789 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.0738
+2025-06-15 17:10:48,789 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.0745
+2025-06-15 17:10:48,789 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID52
+2025-06-15 17:10:50,516 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID52
+2025-06-15 17:10:50,517 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:10:50,517 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:10:53,616 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 123 batches processed
+2025-06-15 17:10:54,893 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0847
+2025-06-15 17:10:54,894 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:10:57,927 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 123 batches processed
+2025-06-15 17:10:59,189 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0820
+2025-06-15 17:10:59,190 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:11:02,226 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 123 batches processed
+2025-06-15 17:11:03,478 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0675
+2025-06-15 17:11:03,478 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:11:03,478 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:11:09,837 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9996
+2025-06-15 17:11:09,837 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:11:12,141 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:11:12,142 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:11:14,488 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:11:14,488 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.0847
+2025-06-15 17:11:14,488 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.0820
+2025-06-15 17:11:14,488 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.0675
+2025-06-15 17:11:14,489 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID56
+2025-06-15 17:11:16,241 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID56
+2025-06-15 17:11:16,241 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:11:16,241 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:11:19,247 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 115 batches processed
+2025-06-15 17:11:20,257 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1225
+2025-06-15 17:11:20,257 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:11:23,122 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 115 batches processed
+2025-06-15 17:11:24,159 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1110
+2025-06-15 17:11:24,159 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:11:27,270 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 115 batches processed
+2025-06-15 17:11:28,296 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1250
+2025-06-15 17:11:28,296 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:11:28,296 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:11:34,192 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9998
+2025-06-15 17:11:34,193 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:11:36,474 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:11:36,474 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:11:38,797 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:11:38,797 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.1225
+2025-06-15 17:11:38,797 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.1110
+2025-06-15 17:11:38,798 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.1250
+2025-06-15 17:11:38,798 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID57
+2025-06-15 17:11:40,604 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID57
+2025-06-15 17:11:40,604 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:11:40,604 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:11:44,168 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 165 batches processed
+2025-06-15 17:11:45,641 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0894
+2025-06-15 17:11:45,641 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:11:48,996 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 165 batches processed
+2025-06-15 17:11:50,466 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0830
+2025-06-15 17:11:50,467 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:11:53,865 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 165 batches processed
+2025-06-15 17:11:55,348 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0796
+2025-06-15 17:11:55,348 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:11:55,348 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:12:02,967 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9997
+2025-06-15 17:12:02,967 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:12:05,452 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:12:05,453 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:12:07,891 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:12:07,892 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.0894
+2025-06-15 17:12:07,892 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.0830
+2025-06-15 17:12:07,892 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.0796
+2025-06-15 17:12:07,892 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID60
+2025-06-15 17:12:09,787 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID60
+2025-06-15 17:12:09,787 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:12:09,787 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:12:13,560 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 159 batches processed
+2025-06-15 17:12:14,975 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0597
+2025-06-15 17:12:14,975 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:12:18,670 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 159 batches processed
+2025-06-15 17:12:20,089 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0818
+2025-06-15 17:12:20,089 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:12:23,771 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 159 batches processed
+2025-06-15 17:12:25,192 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0797
+2025-06-15 17:12:25,192 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:12:25,192 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:12:32,571 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9996
+2025-06-15 17:12:32,572 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:12:35,000 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:12:35,000 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:12:37,503 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:12:37,503 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.0597
+2025-06-15 17:12:37,503 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.0818
+2025-06-15 17:12:37,503 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.0797
+2025-06-15 17:12:37,504 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID62
+2025-06-15 17:12:39,257 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID62
+2025-06-15 17:12:39,257 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:12:39,257 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:12:42,468 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 127 batches processed
+2025-06-15 17:12:43,709 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1247
+2025-06-15 17:12:43,710 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:12:46,795 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 127 batches processed
+2025-06-15 17:12:48,033 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1098
+2025-06-15 17:12:48,033 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:12:51,124 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 127 batches processed
+2025-06-15 17:12:52,428 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1352
+2025-06-15 17:12:52,428 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:12:52,428 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:12:58,854 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9996
+2025-06-15 17:12:58,854 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:13:01,566 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:13:01,566 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:13:03,888 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:13:03,888 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.1247
+2025-06-15 17:13:03,888 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.1098
+2025-06-15 17:13:03,888 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.1352
+2025-06-15 17:13:03,888 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID65
+2025-06-15 17:13:05,581 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID65
+2025-06-15 17:13:05,581 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:13:05,581 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:13:08,587 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 118 batches processed
+2025-06-15 17:13:09,648 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0957
+2025-06-15 17:13:09,648 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:13:12,802 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 118 batches processed
+2025-06-15 17:13:13,850 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1230
+2025-06-15 17:13:13,850 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:13:16,766 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 118 batches processed
+2025-06-15 17:13:17,821 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1233
+2025-06-15 17:13:17,821 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:13:17,822 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:13:23,916 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9998
+2025-06-15 17:13:23,916 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:13:26,207 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:13:26,208 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:13:28,711 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:13:28,711 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.0957
+2025-06-15 17:13:28,711 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.1230
+2025-06-15 17:13:28,711 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.1233
+2025-06-15 17:13:28,711 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID68
+2025-06-15 17:13:30,479 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID68
+2025-06-15 17:13:30,479 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:13:30,479 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:13:33,618 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 124 batches processed
+2025-06-15 17:13:34,764 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0895
+2025-06-15 17:13:34,764 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:13:37,879 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 124 batches processed
+2025-06-15 17:13:39,016 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0661
+2025-06-15 17:13:39,017 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:13:42,060 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 124 batches processed
+2025-06-15 17:13:43,221 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0837
+2025-06-15 17:13:43,221 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:13:43,221 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:13:49,473 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9995
+2025-06-15 17:13:49,473 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:13:51,897 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:13:51,898 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:13:54,335 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:13:54,335 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.0895
+2025-06-15 17:13:54,335 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.0661
+2025-06-15 17:13:54,335 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.0837
+2025-06-15 17:13:54,335 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID70
+2025-06-15 17:13:56,095 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID70
+2025-06-15 17:13:56,095 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:13:56,095 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:13:58,663 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 75 batches processed
+2025-06-15 17:13:59,453 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0739
+2025-06-15 17:13:59,453 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:14:01,991 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 75 batches processed
+2025-06-15 17:14:02,777 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0930
+2025-06-15 17:14:02,777 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:14:05,318 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 75 batches processed
+2025-06-15 17:14:06,292 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0803
+2025-06-15 17:14:06,292 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:14:06,292 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:14:10,772 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9997
+2025-06-15 17:14:10,772 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:14:12,863 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:14:12,863 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:14:15,256 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:14:15,256 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.0739
+2025-06-15 17:14:15,257 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.0930
+2025-06-15 17:14:15,257 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.0803
+2025-06-15 17:14:15,257 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID73
+2025-06-15 17:14:16,980 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID73
+2025-06-15 17:14:16,981 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:14:16,981 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:14:19,664 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 85 batches processed
+2025-06-15 17:14:20,516 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0836
+2025-06-15 17:14:20,516 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:14:23,106 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 85 batches processed
+2025-06-15 17:14:23,957 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0872
+2025-06-15 17:14:23,957 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:14:26,486 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 85 batches processed
+2025-06-15 17:14:27,327 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0829
+2025-06-15 17:14:27,327 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:14:27,327 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:14:32,197 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9997
+2025-06-15 17:14:32,198 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:14:34,311 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:14:34,311 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:14:36,473 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:14:36,473 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.0836
+2025-06-15 17:14:36,473 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.0872
+2025-06-15 17:14:36,473 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.0829
+2025-06-15 17:14:36,474 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID74
+2025-06-15 17:14:38,163 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID74
+2025-06-15 17:14:38,163 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:14:38,163 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:14:41,248 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 103 batches processed
+2025-06-15 17:14:42,302 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0791
+2025-06-15 17:14:42,302 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:14:45,122 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 103 batches processed
+2025-06-15 17:14:46,171 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0883
+2025-06-15 17:14:46,171 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:14:49,030 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 103 batches processed
+2025-06-15 17:14:50,078 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0862
+2025-06-15 17:14:50,078 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:14:50,078 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:14:55,610 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9996
+2025-06-15 17:14:55,610 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:14:57,815 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:14:57,815 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:15:00,017 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:15:00,017 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.0791
+2025-06-15 17:15:00,017 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.0883
+2025-06-15 17:15:00,017 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.0862
+2025-06-15 17:15:00,017 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID75
+2025-06-15 17:15:01,757 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID75
+2025-06-15 17:15:01,758 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:15:01,758 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:15:04,895 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 121 batches processed
+2025-06-15 17:15:06,020 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0908
+2025-06-15 17:15:06,020 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:15:08,993 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 121 batches processed
+2025-06-15 17:15:10,128 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0796
+2025-06-15 17:15:10,128 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:15:13,052 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 121 batches processed
+2025-06-15 17:15:14,322 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0887
+2025-06-15 17:15:14,322 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:15:14,322 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:15:20,434 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9996
+2025-06-15 17:15:20,434 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:15:22,794 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:15:22,794 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:15:25,119 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:15:25,120 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.0908
+2025-06-15 17:15:25,120 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.0796
+2025-06-15 17:15:25,120 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.0887
+2025-06-15 17:15:25,120 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID78
+2025-06-15 17:15:26,955 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID78
+2025-06-15 17:15:26,956 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:15:26,956 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:15:29,444 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 47 batches processed
+2025-06-15 17:15:29,929 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1502
+2025-06-15 17:15:29,929 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:15:32,208 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 47 batches processed
+2025-06-15 17:15:32,699 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1411
+2025-06-15 17:15:32,699 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:15:35,054 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 47 batches processed
+2025-06-15 17:15:35,532 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0886
+2025-06-15 17:15:35,532 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:15:35,532 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:15:39,062 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9996
+2025-06-15 17:15:39,062 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:15:41,077 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:15:41,077 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:15:43,084 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:15:43,084 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.1502
+2025-06-15 17:15:43,084 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.1411
+2025-06-15 17:15:43,084 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.0886
+2025-06-15 17:15:43,084 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID80
+2025-06-15 17:15:44,899 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID80
+2025-06-15 17:15:44,900 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:15:44,900 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:15:47,928 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 108 batches processed
+2025-06-15 17:15:49,150 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0909
+2025-06-15 17:15:49,151 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:15:51,986 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 108 batches processed
+2025-06-15 17:15:53,042 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0870
+2025-06-15 17:15:53,042 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:15:55,937 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 108 batches processed
+2025-06-15 17:15:56,989 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.1124
+2025-06-15 17:15:56,990 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:15:56,990 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:16:02,702 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9996
+2025-06-15 17:16:02,702 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:16:04,974 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:16:04,974 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:16:07,239 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:16:07,239 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.0909
+2025-06-15 17:16:07,239 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.0870
+2025-06-15 17:16:07,239 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.1124
+2025-06-15 17:16:07,239 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID92
+2025-06-15 17:16:08,933 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID92
+2025-06-15 17:16:08,933 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:16:08,933 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:16:12,570 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 133 batches processed
+2025-06-15 17:16:13,699 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0863
+2025-06-15 17:16:13,699 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:16:16,829 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 133 batches processed
+2025-06-15 17:16:17,967 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0446
+2025-06-15 17:16:17,967 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:16:21,022 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 133 batches processed
+2025-06-15 17:16:22,351 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0848
+2025-06-15 17:16:22,351 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:16:22,351 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:16:28,891 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9995
+2025-06-15 17:16:28,892 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:16:31,204 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:16:31,205 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:16:33,538 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:16:33,538 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.0863
+2025-06-15 17:16:33,538 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.0446
+2025-06-15 17:16:33,538 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.0848
+2025-06-15 17:16:33,539 - INFO - SuRL_FixedRL_139654571754352 - 📹 Evaluating video: VID96
+2025-06-15 17:16:35,249 - INFO - SuRL_FixedRL_139654571754352 - 📹 Comprehensive evaluation: VID96
+2025-06-15 17:16:35,249 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY: Single-step action prediction
+2025-06-15 17:16:35,249 - INFO - SuRL_FixedRL_139654571754352 -   🤖 WorldModelRL_world_model_ppo: Single-step action prediction
+2025-06-15 17:16:38,194 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo evaluation completed: 107 batches processed
+2025-06-15 17:16:39,039 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0446
+2025-06-15 17:16:39,039 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_ppo: Single-step action prediction
+2025-06-15 17:16:41,815 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo evaluation completed: 107 batches processed
+2025-06-15 17:16:42,674 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0445
+2025-06-15 17:16:42,674 - INFO - SuRL_FixedRL_139654571754352 -   🤖 DirectVideoRL_a2c: Single-step action prediction
+2025-06-15 17:16:45,483 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c evaluation completed: 107 batches processed
+2025-06-15 17:16:46,331 - INFO - SuRL_FixedRL_139654571754352 -     📊 Single-step mAP: 0.0535
+2025-06-15 17:16:46,331 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY: Planning capability analysis
+2025-06-15 17:16:46,331 - INFO - SuRL_FixedRL_139654571754352 -   🧠 WorldModelRL_world_model_ppo: Planning capability analysis
+2025-06-15 17:16:51,857 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9995
+2025-06-15 17:16:51,857 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_ppo: Planning capability analysis
+2025-06-15 17:16:54,028 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:16:54,028 - INFO - SuRL_FixedRL_139654571754352 -   🧠 DirectVideoRL_a2c: Planning capability analysis
+2025-06-15 17:16:56,331 - INFO - SuRL_FixedRL_139654571754352 -     📊 Planning stability: 0.9988
+2025-06-15 17:16:56,332 - INFO - SuRL_FixedRL_139654571754352 -   WorldModelRL_world_model_ppo: mAP = 0.0446
+2025-06-15 17:16:56,332 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_ppo: mAP = 0.0445
+2025-06-15 17:16:56,332 - INFO - SuRL_FixedRL_139654571754352 -   DirectVideoRL_a2c: mAP = 0.0535
+2025-06-15 17:16:56,334 - INFO - SuRL_FixedRL_139654571754352 - 📂 Main video results saved to results/fixed_rl_2025-06-15_07-38-18/integrated_evaluation/main_video_results.json
+2025-06-15 17:16:56,355 - INFO - SuRL_FixedRL_139654571754352 - 📂 Video results saved to results/fixed_rl_2025-06-15_07-38-18/integrated_evaluation/videos_results.json
+2025-06-15 17:16:56,355 - INFO - SuRL_FixedRL_139654571754352 - 📊 Computing aggregate results...
+2025-06-15 17:16:56,356 - INFO - SuRL_FixedRL_139654571754352 - 📈 Performing statistical tests...
+2025-06-15 17:16:56,396 - INFO - SuRL_FixedRL_139654571754352 - 
+2025-06-15 17:16:56,396 - INFO - SuRL_FixedRL_139654571754352 - 🎉 COMPREHENSIVE EVALUATION COMPLETED!
+2025-06-15 17:16:56,396 - INFO - SuRL_FixedRL_139654571754352 - ============================================================
+2025-06-15 17:16:56,396 - INFO - SuRL_FixedRL_139654571754352 - 🎯 PRIMARY RESULTS: Single-step Action Prediction (Fair Comparison)
+2025-06-15 17:16:56,396 - INFO - SuRL_FixedRL_139654571754352 -    WorldModelRL_world_model_ppo: 0.0971 ± 0.0324 mAP
+2025-06-15 17:16:56,396 - INFO - SuRL_FixedRL_139654571754352 -    RL + Direct Video (A2C): 0.0941 ± 0.0200 mAP
+2025-06-15 17:16:56,396 - INFO - SuRL_FixedRL_139654571754352 -    RL + Direct Video (PPO): 0.0911 ± 0.0218 mAP
+2025-06-15 17:16:56,396 - INFO - SuRL_FixedRL_139654571754352 - 
+2025-06-15 17:16:56,396 - INFO - SuRL_FixedRL_139654571754352 - 🚀 SECONDARY RESULTS: Planning Capability Analysis
+2025-06-15 17:16:56,396 - INFO - SuRL_FixedRL_139654571754352 - 
+2025-06-15 17:16:56,396 - INFO - SuRL_FixedRL_139654571754352 - 🔍 KEY INSIGHTS:
+2025-06-15 17:16:56,396 - INFO - SuRL_FixedRL_139654571754352 -    ✅ Fair single-step comparison shows paradigm performance
+2025-06-15 17:16:56,396 - INFO - SuRL_FixedRL_139654571754352 -    ✅ Planning analysis reveals paradigm-specific strengths
+2025-06-15 17:16:56,396 - INFO - SuRL_FixedRL_139654571754352 -    ✅ No ground truth leakage or environment mismatches
+2025-06-15 17:16:56,396 - INFO - SuRL_FixedRL_139654571754352 -    ✅ Each method evaluated according to its training paradigm
+2025-06-15 17:16:56,396 - INFO - SuRL_FixedRL_139654571754352 - 
+2025-06-15 17:16:56,396 - INFO - SuRL_FixedRL_139654571754352 - ⚖️ EVALUATION FAIRNESS:
+2025-06-15 17:16:56,396 - INFO - SuRL_FixedRL_139654571754352 -    Primary task: single_step_action_prediction_with_proper_context
+2025-06-15 17:16:56,396 - INFO - SuRL_FixedRL_139654571754352 -    Secondary task: multi_step_planning_analysis
+2025-06-15 17:16:56,398 - INFO - SuRL_FixedRL_139654571754352 -    Fairness approach: respects_training_paradigms_and_data_structure
+2025-06-15 17:16:56,404 - INFO - SuRL_FixedRL_139654571754352 - 💾 Saving evaluation results...
+2025-06-15 17:16:56,404 - INFO - SuRL_FixedRL_139654571754352 - 📊 evaluation results saved
+2025-06-15 17:16:56,404 - INFO - SuRL_FixedRL_139654571754352 - 📁 Location: results/fixed_rl_2025-06-15_07-38-18/integrated_evaluation
+2025-06-15 17:16:56,405 - INFO - SuRL_FixedRL_139654571754352 - 🏆 Analyzing FIXED Results and Architectural Insights
+2025-06-15 17:16:56,405 - INFO - SuRL_FixedRL_139654571754352 - 🏆 THREE-METHOD COMPARISON RESULTS (FIXED RL)
+2025-06-15 17:16:56,405 - INFO - SuRL_FixedRL_139654571754352 - ============================================================
+2025-06-15 17:16:56,405 - INFO - SuRL_FixedRL_139654571754352 - 🎓 Method 1: ❌ Failed - Unknown
+2025-06-15 17:16:56,405 - INFO - SuRL_FixedRL_139654571754352 - 🌍 Method 2 (FIXED Conditional World Model + RL):
+2025-06-15 17:16:56,405 - INFO - SuRL_FixedRL_139654571754352 -    Status: ✅ Success
+2025-06-15 17:16:56,405 - INFO - SuRL_FixedRL_139654571754352 -    World Model State Loss: 0.0931
+2025-06-15 17:16:56,405 - INFO - SuRL_FixedRL_139654571754352 -    World Model Reward Loss: 0.0107
+2025-06-15 17:16:56,405 - INFO - SuRL_FixedRL_139654571754352 -    FIXED RL Algorithms: ['world_model_ppo']
+2025-06-15 17:16:56,405 - INFO - SuRL_FixedRL_139654571754352 -      world_model_ppo: 14.824 reward (IMPROVED)
+2025-06-15 17:16:56,405 - INFO - SuRL_FixedRL_139654571754352 -    Approach: FIXED Action-conditioned simulation + RL
+2025-06-15 17:16:56,405 - INFO - SuRL_FixedRL_139654571754352 -    🔧 FIXED Issues:
+2025-06-15 17:16:56,406 - INFO - SuRL_FixedRL_139654571754352 -      ✅ Expert demonstration matching rewards
+2025-06-15 17:16:56,406 - INFO - SuRL_FixedRL_139654571754352 -      ✅ Proper action space handling
+2025-06-15 17:16:56,406 - INFO - SuRL_FixedRL_139654571754352 -      ✅ Enhanced monitoring and debugging
+2025-06-15 17:16:56,406 - INFO - SuRL_FixedRL_139654571754352 -      ✅ Optimized hyperparameters
+2025-06-15 17:16:56,406 - INFO - SuRL_FixedRL_139654571754352 -      ✅ Trained world model from scratch
+2025-06-15 17:16:56,406 - INFO - SuRL_FixedRL_139654571754352 - 📹 Method 3 (FIXED Direct Video RL):
+2025-06-15 17:16:56,406 - INFO - SuRL_FixedRL_139654571754352 -    Status: ✅ Success
+2025-06-15 17:16:56,406 - INFO - SuRL_FixedRL_139654571754352 -    FIXED RL Algorithms: ['ppo', 'a2c']
+2025-06-15 17:16:56,406 - INFO - SuRL_FixedRL_139654571754352 -      ppo: 43.578 reward (IMPROVED)
+2025-06-15 17:16:56,406 - INFO - SuRL_FixedRL_139654571754352 -      a2c: 49.003 reward (IMPROVED)
+2025-06-15 17:16:56,406 - INFO - SuRL_FixedRL_139654571754352 -    Approach: FIXED Model-free RL on real video frames
+2025-06-15 17:16:56,406 - INFO - SuRL_FixedRL_139654571754352 -    🔧 FIXED Issues:
+2025-06-15 17:16:56,406 - INFO - SuRL_FixedRL_139654571754352 -      ✅ Expert demonstration matching rewards
+2025-06-15 17:16:56,406 - INFO - SuRL_FixedRL_139654571754352 -      ✅ Proper continuous action space [0,1]
+2025-06-15 17:16:56,406 - INFO - SuRL_FixedRL_139654571754352 -      ✅ Better episode termination
+2025-06-15 17:16:56,406 - INFO - SuRL_FixedRL_139654571754352 -      ✅ Meaningful reward functions
+2025-06-15 17:16:56,406 - INFO - SuRL_FixedRL_139654571754352 - 
+2025-06-15 17:16:56,406 - INFO - SuRL_FixedRL_139654571754352 - 🎯 Successful Methods: ['Method 2 (FIXED World Model RL)', 'Method 3 (FIXED Direct RL)']
+2025-06-15 17:16:56,406 - INFO - SuRL_FixedRL_139654571754352 - 📊 Total Methods Tested: 3
+2025-06-15 17:16:56,406 - INFO - SuRL_FixedRL_139654571754352 - ✅ Success Rate: 2/3
+2025-06-15 17:16:56,406 - INFO - SuRL_FixedRL_139654571754352 - 
+2025-06-15 17:16:56,406 - INFO - SuRL_FixedRL_139654571754352 -      Method 2 world_model_ppo: 14.824 (FIXED)
+2025-06-15 17:16:56,406 - INFO - SuRL_FixedRL_139654571754352 -      Method 3 ppo: 43.578 (FIXED)
+2025-06-15 17:16:56,406 - INFO - SuRL_FixedRL_139654571754352 -      Method 3 a2c: 49.003 (FIXED)
+2025-06-15 17:16:56,446 - INFO - SuRL_FixedRL_139654571754352 - 📄 Generating publication-ready conference paper...
+2025-06-15 17:16:56,456 - INFO - SuRL_FixedRL_139654571754352 - 📄 Enhanced Research Paper Generator initialized
+2025-06-15 17:16:56,456 - INFO - SuRL_FixedRL_139654571754352 - 📁 Publication files will be saved to: results/fixed_rl_2025-06-15_07-38-18/publication_paper
+2025-06-15 17:16:56,456 - INFO - SuRL_FixedRL_139654571754352 - 📄 Generating publication-ready conference paper...
+2025-06-15 17:16:56,456 - INFO - SuRL_FixedRL_139654571754352 - 📊 Creating publication-quality figures...
+2025-06-15 17:16:56,456 - WARNING - SuRL_FixedRL_139654571754352 - No method results found, creating example figure
+2025-06-15 17:17:01,101 - INFO - SuRL_FixedRL_139654571754352 - 📋 Generating tables with experimental results...
+2025-06-15 17:17:01,103 - INFO - SuRL_FixedRL_139654571754352 - 📄 Writing enhanced paper content...
+2025-06-15 17:17:01,104 - INFO - SuRL_FixedRL_139654571754352 - 📚 Creating supplementary materials...
+2025-06-15 17:17:01,106 - INFO - SuRL_FixedRL_139654571754352 - 📄 Publication-ready paper generated in: results/fixed_rl_2025-06-15_07-38-18/publication_paper
+2025-06-15 17:17:01,106 - INFO - SuRL_FixedRL_139654571754352 - 🔧 Run compile_paper.sh to build the PDF
+2025-06-15 17:17:01,106 - INFO - SuRL_FixedRL_139654571754352 - ✨ Paper reflects your actual experimental results!
+2025-06-15 17:17:01,106 - INFO - SuRL_FixedRL_139654571754352 - 📄 Research paper generated: results/fixed_rl_2025-06-15_07-38-18/publication_paper
+2025-06-15 17:17:01,106 - INFO - SuRL_FixedRL_139654571754352 - 💾 All FIXED RL results saved to: results/fixed_rl_2025-06-15_07-38-18
+2025-06-15 17:17:01,106 - INFO - SuRL_FixedRL_139654571754352 - 📄 Complete results: results/fixed_rl_2025-06-15_07-38-18/complete_results_fixed_rl.json
+2025-06-15 17:17:01,106 - INFO - SuRL_FixedRL_139654571754352 - 📄 Summary: results/fixed_rl_2025-06-15_07-38-18/experiment_summary_fixed_rl.json

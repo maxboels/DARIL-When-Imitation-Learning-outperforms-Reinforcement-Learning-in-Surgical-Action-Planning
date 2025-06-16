@@ -393,7 +393,158 @@ class ConditionalWorldModel(nn.Module):
                 result[f'rewards_{reward_type}'] = torch.tensor(reward_list)
         
         return result
-    
+
+    # Newly added methods for surgical reward calculation
+    # Add these methods to your existing ConditionalWorldModel class
+    def calculate_surgical_reward(self, action: torch.Tensor, expert_action: torch.Tensor) -> torch.Tensor:
+        """
+        IDENTICAL surgical reward calculation as evaluation metric.
+        
+        Args:
+            action: [batch_size, num_action_classes] or [num_action_classes]
+            expert_action: [batch_size, num_action_classes] or [num_action_classes]
+        
+        Returns:
+            reward: [batch_size] or scalar
+        """
+        # Ensure tensors are on CPU for numpy operations
+        if torch.is_tensor(action):
+            action_np = action.cpu().numpy()
+        else:
+            action_np = action
+            
+        if torch.is_tensor(expert_action):
+            expert_np = expert_action.cpu().numpy()
+        else:
+            expert_np = expert_action
+        
+        # Handle batch vs single input
+        if action_np.ndim == 1:
+            return self._calculate_single_surgical_reward(action_np, expert_np)
+        else:
+            batch_rewards = []
+            for i in range(len(action_np)):
+                reward = self._calculate_single_surgical_reward(action_np[i], expert_np[i])
+                batch_rewards.append(reward)
+            return torch.tensor(batch_rewards, dtype=torch.float32, device=action.device)
+
+    # New to match the evaluation metric
+    def _calculate_single_surgical_reward(self, action: np.ndarray, expert_action: np.ndarray) -> float:
+        """
+        Single surgical reward calculation - IDENTICAL to evaluation metric.
+        """
+        # Always exclude last 6 null verb classes (same as evaluation)
+        expert_surgical = expert_action[:-6]  # Surgical actions only
+        action_surgical = action[:-6]
+        
+        # Find present surgical actions
+        present_indices = np.where(expert_surgical == 1)[0]
+        
+        if len(present_indices) == 0:
+            # No surgical actions present - perfect if we predict none
+            return 1.0 if np.sum(action_surgical) == 0 else 0.0
+        
+        # Calculate recall on present actions (matches mAP evaluation exactly)
+        tp = np.sum(action_surgical[present_indices])  # Correctly identified
+        recall = tp / len(present_indices)
+        
+        return float(recall)
+
+    # MODIFIED simulate_step to include surgical reward
+    def simulate_step_with_surgical_reward(self, 
+                                        current_state: torch.Tensor, 
+                                        next_action: torch.Tensor,
+                                        expert_action: Optional[torch.Tensor] = None,
+                                        return_hidden: bool = False) -> Tuple[torch.Tensor, Dict[str, float], Optional[torch.Tensor]]:
+        """
+        MODIFIED simulate_step to use surgical reward aligned with evaluation.
+        
+        Args:
+            current_state: [batch_size, embedding_dim] or [embedding_dim]
+            next_action: [batch_size, num_action_classes] or [num_action_classes]
+            expert_action: [batch_size, num_action_classes] or [num_action_classes] - for reward calculation
+            return_hidden: Whether to return hidden states
+            
+        Returns:
+            next_state: [batch_size, embedding_dim]
+            rewards: Dict with surgical reward + original rewards
+            hidden_state: Optional hidden state
+        """
+        
+        self.eval()
+        with torch.no_grad():
+            # Ensure correct shapes
+            if current_state.dim() == 1:
+                current_state = current_state.unsqueeze(0)  # [1, embedding_dim]
+            if next_action.dim() == 1:
+                next_action = next_action.unsqueeze(0)  # [1, num_action_classes]
+            if expert_action is not None and expert_action.dim() == 1:
+                expert_action = expert_action.unsqueeze(0)  # [1, num_action_classes]
+            
+            batch_size = current_state.size(0)
+            
+            # Add sequence dimension
+            state_seq = current_state.unsqueeze(1)  # [batch_size, 1, embedding_dim]
+            action_seq = next_action.unsqueeze(1)  # [batch_size, 1, num_action_classes]
+            
+            # Forward simulation using existing method
+            outputs = self.forward(
+                current_states=state_seq,
+                next_actions=action_seq,
+                return_hidden_states=return_hidden
+            )
+            
+            # Extract next state prediction
+            next_state = outputs['next_state_pred'][:, -1, :]  # [batch_size, embedding_dim]
+            
+            # Extract original reward predictions
+            rewards = {}
+            for key, value in outputs.items():
+                if key.startswith('reward_'):
+                    reward_type = key.replace('reward_', '')
+                    reward_values = value[:, -1, 0]  # [batch_size]
+                    
+                    if batch_size == 1:
+                        rewards[reward_type] = float(reward_values[0])
+                    else:
+                        rewards[reward_type] = reward_values.cpu().numpy()
+            
+            # Add value prediction
+            if 'value_pred' in outputs:
+                value = outputs['value_pred'][:, -1, 0]  # [batch_size]
+                if batch_size == 1:
+                    rewards['value'] = float(value[0])
+                else:
+                    rewards['value'] = value.cpu().numpy()
+            
+            # MAIN ADDITION: Calculate surgical reward if expert action provided
+            if expert_action is not None:
+                surgical_reward = self.calculate_surgical_reward(next_action, expert_action)
+                if batch_size == 1:
+                    rewards['surgical'] = float(surgical_reward)
+                else:
+                    rewards['surgical'] = surgical_reward.cpu().numpy()
+            
+            hidden_state = None
+            if return_hidden:
+                hidden_state = outputs['hidden_states'][:, -1, :]  # [batch_size, hidden_dim]
+            
+            return next_state, rewards, hidden_state
+
+    # UPDATE: Modify the original simulate_step to use the new version
+    def simulate_step(self, 
+                    current_state: torch.Tensor, 
+                    next_action: torch.Tensor,
+                    expert_action: Optional[torch.Tensor] = None,
+                    return_hidden: bool = False) -> Tuple[torch.Tensor, Dict[str, float], Optional[torch.Tensor]]:
+        """
+        Updated simulate_step that includes surgical reward calculation.
+        """
+        return self.simulate_step_with_surgical_reward(
+            current_state, next_action, expert_action, return_hidden
+        )
+
+
     def save_model(self, path: str):
         """Save the model with configuration."""
         

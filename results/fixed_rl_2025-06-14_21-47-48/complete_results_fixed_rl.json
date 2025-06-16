@@ -1,0 +1,2486 @@
+{
+  "experiment_name": "fixed_rl_2025-06-14_21-47-48",
+  "config": {
+    "debug": false,
+    "training_mode": "rl",
+    "preprocess": {
+      "extract_rewards": false,
+      "rewards": {
+        "grounded": {
+          "phase_completion": true,
+          "phase_transition": true,
+          "phase_progression": true,
+          "global_progression": true
+        },
+        "imitation": {
+          "action_distribution": true
+        },
+        "expert_knowledge": {
+          "risk_score": true,
+          "frame_risk_agg": "max"
+        }
+      }
+    },
+    "experiment": {
+      "max_videos": 50,
+      "train": {
+        "max_videos": 40
+      },
+      "test": {
+        "max_videos": 10
+      },
+      "dual_world_model": {
+        "train": true,
+        "best_model_path": null
+      },
+      "autoregressive_il": {
+        "enabled": false,
+        "il_model_path": null
+      },
+      "world_model": {
+        "enabled": true,
+        "wm_model_path": null
+      },
+      "rl_experiments": {
+        "enabled": true,
+        "eval_episodes": 10
+      }
+    },
+    "training": {
+      "epochs": 5,
+      "batch_size": 16,
+      "learning_rate": 3e-05,
+      "log_every_n_steps": 50,
+      "scheduler": {
+        "type": "cosine",
+        "warmup_steps": 100
+      },
+      "weight_decay": 0.01,
+      "gradient_clip_val": 1.0,
+      "dropout": 0.1,
+      "num_workers": 4,
+      "pin_memory": true,
+      "log_dir": "logs",
+      "checkpoint_dir": "checkpoints",
+      "eval_epoch_interval": 1,
+      "save_model": true
+    },
+    "evaluation": {
+      "prediction_horizon": 15,
+      "supervised": {
+        "action_prediction": true
+      },
+      "rl": {
+        "rollout_horizon": 15,
+        "use_best_actions": true
+      },
+      "comparison": {
+        "statistical_tests": true,
+        "effect_size_threshold": 0.2
+      },
+      "world_model": {
+        "use_memory": false,
+        "overall_horizon": 1
+      }
+    },
+    "rl_training": {
+      "outcome_based_rewards": true,
+      "rl_horizon": 30,
+      "reward_mode": "dense",
+      "normalize_rewards": true,
+      "early_termination": true,
+      "timesteps": 50000,
+      "reward_weights": {
+        "expert_matching": 10.0,
+        "action_sparsity": 1.0,
+        "world_model_rewards": 0.5,
+        "completion_bonus": 5.0,
+        "consistency_bonus": 1.0,
+        "phase_completion": 1.0,
+        "risk_penalty": -0.5
+      },
+      "ppo": {
+        "learning_rate": "5e-5",
+        "n_steps": 512,
+        "batch_size": 64,
+        "n_epochs": 10,
+        "gamma": 0.95,
+        "gae_lambda": 0.9,
+        "clip_range": 0.1,
+        "ent_coef": 0.05,
+        "vf_coef": 0.5,
+        "max_grad_norm": 0.5
+      },
+      "a2c": {
+        "learning_rate": "1e-4",
+        "n_steps": 32,
+        "gamma": 0.95,
+        "gae_lambda": 0.9,
+        "ent_coef": 0.05,
+        "vf_coef": 0.25,
+        "max_grad_norm": 0.5
+      }
+    },
+    "data": {
+      "context_length": 20,
+      "train_shift": 1,
+      "padding_value": 0.0,
+      "max_horizon": 15,
+      "paths": {
+        "data_dir": "/nfs/home/mboels/datasets/CholecT50",
+        "class_labels_file_path": "./data/labels.json",
+        "fold": 0,
+        "metadata_file": "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv",
+        "video_global_outcome_file": "embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv"
+      },
+      "frame_risk_agg": "max"
+    },
+    "models": {
+      "autoregressive_il": {
+        "hidden_dim": 768,
+        "embedding_dim": 1024,
+        "n_layer": 6,
+        "num_action_classes": 100,
+        "num_phase_classes": 7,
+        "dropout": 0.1,
+        "max_length": 1024
+      },
+      "conditional_world_model": {
+        "hidden_dim": 512,
+        "embedding_dim": 1024,
+        "action_embedding_dim": 128,
+        "n_layer": 4,
+        "num_action_classes": 100,
+        "num_phase_classes": 7,
+        "dropout": 0.1,
+        "max_sequence_length": 512
+      }
+    },
+    "fair_evaluation": {
+      "enabled": true,
+      "include_traditional_metrics": true,
+      "include_clinical_metrics": true,
+      "clinical_outcome_weights": {
+        "phase_progression": 2.0,
+        "innovation": 0.5
+      }
+    },
+    "supervised_learning": {
+      "data_augmentation": false
+    },
+    "research_comparison": {
+      "methods": [
+        "autoregressive_il",
+        "conditional_world_model",
+        "direct_video_rl"
+      ]
+    },
+    "advanced": {
+      "mixed_precision": false
+    },
+    "hardware": {
+      "persistent_workers": true
+    },
+    "rl_debugging": {
+      "enabled": true,
+      "save_training_curves": true,
+      "monitor_expert_matching": true,
+      "log_action_distributions": true,
+      "convergence_analysis": true,
+      "episode_log_frequency": 10,
+      "eval_frequency": 1000,
+      "reward_improvement_threshold": 0.1,
+      "expert_matching_threshold": 0.5,
+      "debug_dir": "rl_debug",
+      "plot_dir": "rl_plots"
+    }
+  },
+  "timestamp": "2025-06-14_21-47-48",
+  "results_dir": "results/fixed_rl_2025-06-14_21-47-48",
+  "method_1_autoregressive_il": {
+    "status": "skipped",
+    "reason": "Autoregressive IL disabled in config"
+  },
+  "method_2_conditional_world_model": {
+    "status": "success",
+    "world_model_path": "results/fixed_rl_2025-06-14_21-47-48/logs/checkpoints/world_model_best_epoch_3.pt",
+    "world_model_evaluation": {
+      "overall_metrics": {
+        "state_loss": 0.1441612996750468,
+        "reward_risk_penalty_loss": 0.1643537197192979,
+        "reward_phase_completion_loss": 0.011129291102190648,
+        "reward_phase_initiation_loss": 0.01608111871757734,
+        "reward_phase_progression_loss": 0.06723725352749661,
+        "reward_action_probability_loss": 0.019322298740529428,
+        "total_reward_loss": 0.0556247376798372,
+        "phase_loss": 0.8212348958083533,
+        "total_loss": 0.954350819264757
+      },
+      "model_type": "ConditionalWorldModel",
+      "evaluation_summary": {
+        "best_metric": "state_loss",
+        "best_value": 0.1441612996750468,
+        "strength": "Action-conditioned state-reward prediction",
+        "architecture": "ConditionalWorldModel with action conditioning"
+      }
+    },
+    "world_model_pretrained": null,
+    "rl_models": {
+      "world_model_ppo": {
+        "algorithm": "PPO_WorldModel",
+        "mean_reward": -90.81683220000001,
+        "std_reward": 240.19801501395878,
+        "model_path": "results/fixed_rl_2025-06-14_21-47-48/logs/rl_training/ppo_world_model_final.zip",
+        "status": "success",
+        "training_timesteps": 50000,
+        "episode_stats": {
+          "avg_length": 30.0,
+          "avg_reward": -720.0,
+          "std_reward": 0.0,
+          "episodes": 1672,
+          "last_reward": -720.0,
+          "reward_trend": "stable",
+          "avg_expert_matching": 0.6737737928284662,
+          "std_expert_matching": 0.012513271910072492,
+          "last_expert_matching": 0.6710344827586208
+        },
+        "monitoring_data": [
+          {
+            "timestep": 2500,
+            "mean_reward": -515.0709116,
+            "std_reward": 4.454386426452596
+          },
+          {
+            "timestep": 5000,
+            "mean_reward": -515.8672498,
+            "std_reward": 1.458077789385921
+          },
+          {
+            "timestep": 7500,
+            "mean_reward": -322.11456699999997,
+            "std_reward": 223.69516631534864
+          },
+          {
+            "timestep": 10000,
+            "mean_reward": -137.3124582,
+            "std_reward": 321.5604821726752
+          },
+          {
+            "timestep": 12500,
+            "mean_reward": -436.7102414,
+            "std_reward": 149.47210918502063
+          },
+          {
+            "timestep": 15000,
+            "mean_reward": -416.4657862,
+            "std_reward": 175.69686792701464
+          },
+          {
+            "timestep": 17500,
+            "mean_reward": -176.1695772,
+            "std_reward": 209.3920235976509
+          },
+          {
+            "timestep": 20000,
+            "mean_reward": -217.6643372,
+            "std_reward": 245.78550774924713
+          },
+          {
+            "timestep": 22500,
+            "mean_reward": -75.76950760000001,
+            "std_reward": 221.12715108715418
+          },
+          {
+            "timestep": 25000,
+            "mean_reward": -132.39079900000002,
+            "std_reward": 294.3734204904933
+          },
+          {
+            "timestep": 27500,
+            "mean_reward": -15.340385600000001,
+            "std_reward": 288.6257949823081
+          },
+          {
+            "timestep": 30000,
+            "mean_reward": -240.4233284,
+            "std_reward": 258.9387785196173
+          },
+          {
+            "timestep": 32500,
+            "mean_reward": 34.292924,
+            "std_reward": 206.85246120387157
+          },
+          {
+            "timestep": 35000,
+            "mean_reward": -49.0574282,
+            "std_reward": 276.32454073687745
+          },
+          {
+            "timestep": 37500,
+            "mean_reward": -305.44717,
+            "std_reward": 310.77159177094256
+          },
+          {
+            "timestep": 40000,
+            "mean_reward": -30.548800399999994,
+            "std_reward": 307.4258883408556
+          },
+          {
+            "timestep": 42500,
+            "mean_reward": -196.33307180000003,
+            "std_reward": 307.6892487007907
+          },
+          {
+            "timestep": 45000,
+            "mean_reward": 125.60058240000001,
+            "std_reward": 50.88651642927857
+          },
+          {
+            "timestep": 47500,
+            "mean_reward": -167.12078460000004,
+            "std_reward": 325.0123660330354
+          },
+          {
+            "timestep": 50000,
+            "mean_reward": -249.9021594,
+            "std_reward": 273.50019750321877
+          }
+        ],
+        "expert_matching_enabled": true,
+        "reward_design": "expert_demonstration_matching",
+        "optimal_threshold": 0.4,
+        "threshold_map": 0.3765151515151515
+      },
+      "direct_video_ppo": {
+        "algorithm": "PPO_DirectVideo",
+        "status": "failed",
+        "error": "No module named 'rl_environment'"
+      }
+    },
+    "model_type": "ConditionalWorldModel",
+    "approach": "FIXED: Action-conditioned world model + improved RL (TRAINED)",
+    "method_description": "World model-based RL with fixed rewards and debugging (trained WM)",
+    "improvements": [
+      "Expert demonstration matching rewards",
+      "Proper action space handling",
+      "Enhanced monitoring and debugging",
+      "Optimized hyperparameters",
+      "Trained world model from scratch"
+    ]
+  },
+  "method_3_direct_video_rl": {
+    "status": "success",
+    "rl_models": {
+      "ppo": {
+        "algorithm": "PPO_DirectVideo",
+        "approach": "Direct RL on video sequences (no world model)",
+        "mean_reward": 40.9356922,
+        "std_reward": 3.118129383015363,
+        "model_path": "results/fixed_rl_2025-06-14_21-47-48/logs/direct_video_rl/ppo_direct_video.zip",
+        "status": "success",
+        "training_timesteps": 50000,
+        "uses_world_model": false,
+        "uses_real_frames": true,
+        "simulation_based": false,
+        "episode_stats": {
+          "avg_length": 30.0,
+          "avg_reward": 36.57749361816861,
+          "episodes": 100,
+          "last_length": 30,
+          "last_reward": 38.34380887200546,
+          "using_real_frames": true
+        }
+      },
+      "a2c": {
+        "algorithm": "A2C_DirectVideo",
+        "approach": "Direct RL on video sequences (no world model)",
+        "mean_reward": 49.920377,
+        "std_reward": 3.866149375112141,
+        "model_path": "results/fixed_rl_2025-06-14_21-47-48/logs/direct_video_rl/a2c_direct_video.zip",
+        "status": "success",
+        "training_timesteps": 50000,
+        "uses_world_model": false,
+        "uses_real_frames": true,
+        "simulation_based": false,
+        "episode_stats": {
+          "avg_length": 30.0,
+          "avg_reward": 37.37881579309291,
+          "episodes": 100,
+          "last_length": 30,
+          "last_reward": 53.00921568627451,
+          "using_real_frames": true
+        }
+      }
+    },
+    "model_type": "DirectVideoRL",
+    "approach": "FIXED: Direct RL on video sequences with improved rewards",
+    "method_description": "Model-free RL on offline video episodes with fixed reward design",
+    "improvements": [
+      "Expert demonstration matching rewards",
+      "Proper continuous action space [0,1]",
+      "Better episode termination",
+      "Meaningful reward functions"
+    ]
+  },
+  "comprehensive_evaluation": {
+    "evaluator": "<evaluation.integrated_evaluation.IntegratedEvaluationFramework object at 0x7f8518267670>",
+    "results": {
+      "status": "success",
+      "evaluation_type": "comprehensive_evaluation_with_proper_batches",
+      "num_models": 3,
+      "num_videos": 10,
+      "horizon": 15,
+      "video_results": {
+        "VID02": {
+          "video_id": "VID02",
+          "evaluation_type": "comprehensive_fair_evaluation_with_proper_batches",
+          "single_step_evaluation": {
+            "WorldModelRL_world_model_ppo": {
+              "metrics": {
+                "mAP": 0.049953964754976106,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "28",
+                  "subset_action_sparsity": 0.7021276595744681
+                },
+                "mAP_standard_with_null_verb": 0.5950265072420373,
+                "mAP_present_only_with_null_verb": 0.04419560953540385,
+                "mAP_freq_weighted_with_null_verb": 0.20403122652124933,
+                "mAP_sample_wise_with_null_verb": 0.029318092797520318,
+                "mAP_standard_all_actions": 0.5950265072420373,
+                "mAP_present_only_all_actions": 0.04419560953540385,
+                "mAP_freq_weighted_all_actions": 0.20403122652124933,
+                "mAP_sample_wise_all_actions": 0.029318092797520318,
+                "exact_match_with_null_verb": 0.0,
+                "hamming_accuracy_with_null_verb": 0.9199471644945403,
+                "precision_with_null_verb": 0.4937466625812924,
+                "recall_with_null_verb": 0.4727173326447548,
+                "f1_with_null_verb": 0.4813388968496551,
+                "num_predictions": 2839,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "34",
+                "action_sparsity_with_null_verb": 0.6599999999999999,
+                "task": "single_step_action_prediction",
+                "method_name": "WorldModelRL_world_model_ppo",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.6319011809908439,
+                "mAP_present_only": 0.049953964754976106,
+                "mAP_freq_weighted": 0.2149013991495629,
+                "exact_match": 0.0,
+                "hamming_accuracy": 0.9189443391065178,
+                "precision": 0.4937975424821938,
+                "recall": 0.4725950751386151,
+                "f1": 0.48117687834211287,
+                "num_actions_total": 94,
+                "num_actions_present": "28",
+                "action_sparsity": 0.7021276595744681
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            },
+            "DirectVideoRL_ppo": {
+              "metrics": {
+                "mAP": 0.06341749760978474,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "28",
+                  "subset_action_sparsity": 0.7021276595744681
+                },
+                "mAP_standard_with_null_verb": 0.4185434667377945,
+                "mAP_present_only_with_null_verb": 0.054539608052337,
+                "mAP_freq_weighted_with_null_verb": 0.27311644613388186,
+                "mAP_sample_wise_with_null_verb": 0.04868670097643224,
+                "mAP_standard_all_actions": 0.4185434667377945,
+                "mAP_present_only_all_actions": 0.054539608052337,
+                "mAP_freq_weighted_all_actions": 0.27311644613388186,
+                "mAP_sample_wise_all_actions": 0.04868670097643224,
+                "exact_match_with_null_verb": 0.0,
+                "hamming_accuracy_with_null_verb": 0.8506798168369144,
+                "precision_with_null_verb": 0.5077121237595058,
+                "recall_with_null_verb": 0.5667785210818029,
+                "f1_with_null_verb": 0.484537136533794,
+                "num_predictions": 2839,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "34",
+                "action_sparsity_with_null_verb": 0.6599999999999999,
+                "task": "single_step_action_prediction",
+                "method_name": "DirectVideoRL_ppo",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.44442223333057423,
+                "mAP_present_only": 0.06341749760978474,
+                "mAP_freq_weighted": 0.2884136530317401,
+                "exact_match": 0.0,
+                "hamming_accuracy": 0.8556953677126348,
+                "precision": 0.5090454580405557,
+                "recall": 0.5760889339141639,
+                "f1": 0.4880806977571984,
+                "num_actions_total": 94,
+                "num_actions_present": "28",
+                "action_sparsity": 0.7021276595744681
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            },
+            "DirectVideoRL_a2c": {
+              "metrics": {
+                "mAP": 0.05443297740455911,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "28",
+                  "subset_action_sparsity": 0.7021276595744681
+                },
+                "mAP_standard_with_null_verb": 0.6758830082836303,
+                "mAP_present_only_with_null_verb": 0.04671473024597121,
+                "mAP_freq_weighted_with_null_verb": 0.2084306860773248,
+                "mAP_sample_wise_with_null_verb": 0.05015565400271136,
+                "mAP_standard_all_actions": 0.6758830082836303,
+                "mAP_present_only_all_actions": 0.04671473024597121,
+                "mAP_freq_weighted_all_actions": 0.2084306860773248,
+                "mAP_sample_wise_all_actions": 0.05015565400271136,
+                "exact_match_with_null_verb": 0.07713983797111659,
+                "hamming_accuracy_with_null_verb": 0.9856533990841846,
+                "precision_with_null_verb": 0.4928266995420923,
+                "recall_with_null_verb": 0.5,
+                "f1_with_null_verb": 0.49638743576234595,
+                "num_predictions": 2839,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "34",
+                "action_sparsity_with_null_verb": 0.6599999999999999,
+                "task": "single_step_action_prediction",
+                "method_name": "DirectVideoRL_a2c",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.7183417379502942,
+                "mAP_present_only": 0.05443297740455911,
+                "mAP_freq_weighted": 0.22009604894190257,
+                "exact_match": 0.11165903487143361,
+                "hamming_accuracy": 0.9856332391537326,
+                "precision": 0.4928166195768663,
+                "recall": 0.5,
+                "f1": 0.49638232263567705,
+                "num_actions_total": 94,
+                "num_actions_present": "28",
+                "action_sparsity": 0.7021276595744681
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            }
+          },
+          "planning_evaluation": {
+            "WorldModelRL_world_model_ppo": {},
+            "DirectVideoRL_ppo": {},
+            "DirectVideoRL_a2c": {}
+          },
+          "summary": {
+            "primary_comparison": {
+              "WorldModelRL_world_model_ppo": {
+                "mAP": 0.049953964754976106,
+                "exact_match": 0.0,
+                "task": "single_step_action_prediction"
+              },
+              "DirectVideoRL_ppo": {
+                "mAP": 0.06341749760978474,
+                "exact_match": 0.0,
+                "task": "single_step_action_prediction"
+              },
+              "DirectVideoRL_a2c": {
+                "mAP": 0.05443297740455911,
+                "exact_match": 0.11165903487143361,
+                "task": "single_step_action_prediction"
+              }
+            },
+            "secondary_analysis": {},
+            "overall_ranking": {},
+            "paradigm_insights": {
+              "fair_comparison_task": "single_step_action_prediction",
+              "planning_analysis": "shows_method_specific_strengths",
+              "evaluation_approach": "respects_training_paradigms"
+            }
+          },
+          "fairness_report": {
+            "evaluation_design": {
+              "primary_evaluation": "single_step_fair_comparison",
+              "secondary_evaluation": "method_specific_planning_analysis",
+              "data_handling": "uses_dataloader_batches_like_training",
+              "temporal_structure": "maintained_for_il_model",
+              "ground_truth_leakage": "eliminated"
+            },
+            "method_fairness": {
+              "AutoregressiveIL": "evaluated_with_proper_temporal_sequences",
+              "WorldModelRL": "evaluated_with_consistent_batch_approach",
+              "DirectVideoRL": "evaluated_with_consistent_batch_approach"
+            },
+            "data_integrity": {
+              "temporal_context": "preserved_for_models_that_need_it",
+              "batch_structure": "mirrors_training_approach",
+              "evaluation_consistency": "matches_model_training_interface"
+            },
+            "comparison_validity": {
+              "single_step_comparison": "valid_and_fair_with_proper_data_handling",
+              "planning_comparison": "method_specific_respecting_capabilities",
+              "overall_approach": "methodologically_sound_and_consistent_with_training"
+            }
+          }
+        },
+        "VID06": {
+          "video_id": "VID06",
+          "evaluation_type": "comprehensive_fair_evaluation_with_proper_batches",
+          "single_step_evaluation": {
+            "WorldModelRL_world_model_ppo": {
+              "metrics": {
+                "mAP": 0.0751694668668684,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "26",
+                  "subset_action_sparsity": 0.7234042553191489
+                },
+                "mAP_standard_with_null_verb": 0.6129445073565818,
+                "mAP_present_only_with_null_verb": 0.0764816911886061,
+                "mAP_freq_weighted_with_null_verb": 0.35017218920753407,
+                "mAP_sample_wise_with_null_verb": 0.026385362284799433,
+                "mAP_standard_all_actions": 0.6129445073565818,
+                "mAP_present_only_all_actions": 0.0764816911886061,
+                "mAP_freq_weighted_all_actions": 0.35017218920753407,
+                "mAP_sample_wise_all_actions": 0.026385362284799433,
+                "exact_match_with_null_verb": 0.0,
+                "hamming_accuracy_with_null_verb": 0.9254575011611704,
+                "precision_with_null_verb": 0.4930746741018551,
+                "recall_with_null_verb": 0.47800268075090746,
+                "f1_with_null_verb": 0.4839800727920695,
+                "num_predictions": 2153,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "30",
+                "action_sparsity_with_null_verb": 0.7,
+                "task": "single_step_action_prediction",
+                "method_name": "WorldModelRL_world_model_ppo",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.6484511291333891,
+                "mAP_present_only": 0.0751694668668684,
+                "mAP_freq_weighted": 0.36867042107500236,
+                "exact_match": 0.0,
+                "hamming_accuracy": 0.9240050992677215,
+                "precision": 0.49326956054363735,
+                "recall": 0.47770762232508185,
+                "f1": 0.4837319488482072,
+                "num_actions_total": 94,
+                "num_actions_present": "26",
+                "action_sparsity": 0.7234042553191489
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            },
+            "DirectVideoRL_ppo": {
+              "metrics": {
+                "mAP": 0.0874633926724315,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "26",
+                  "subset_action_sparsity": 0.7234042553191489
+                },
+                "mAP_standard_with_null_verb": 0.46409625215174466,
+                "mAP_present_only_with_null_verb": 0.08032084050581548,
+                "mAP_freq_weighted_with_null_verb": 0.43712423335072276,
+                "mAP_sample_wise_with_null_verb": 0.07459937069737885,
+                "mAP_standard_all_actions": 0.46409625215174466,
+                "mAP_present_only_all_actions": 0.08032084050581548,
+                "mAP_freq_weighted_all_actions": 0.43712423335072276,
+                "mAP_sample_wise_all_actions": 0.07459937069737885,
+                "exact_match_with_null_verb": 0.0,
+                "hamming_accuracy_with_null_verb": 0.8129493729679517,
+                "precision_with_null_verb": 0.5134493410550617,
+                "recall_with_null_verb": 0.6181536286589315,
+                "f1_with_null_verb": 0.4839482696455661,
+                "num_predictions": 2153,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "30",
+                "action_sparsity_with_null_verb": 0.7,
+                "task": "single_step_action_prediction",
+                "method_name": "DirectVideoRL_ppo",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.47100051286684275,
+                "mAP_present_only": 0.0874633926724315,
+                "mAP_freq_weighted": 0.46687713775873146,
+                "exact_match": 0.0,
+                "hamming_accuracy": 0.8206757517961083,
+                "precision": 0.5157400123993048,
+                "recall": 0.6362524462236239,
+                "f1": 0.4895911554330582,
+                "num_actions_total": 94,
+                "num_actions_present": "26",
+                "action_sparsity": 0.7234042553191489
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            },
+            "DirectVideoRL_a2c": {
+              "metrics": {
+                "mAP": 0.07010872468685321,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "26",
+                  "subset_action_sparsity": 0.7234042553191489
+                },
+                "mAP_standard_with_null_verb": 0.7192189948512613,
+                "mAP_present_only_with_null_verb": 0.06406331617087076,
+                "mAP_freq_weighted_with_null_verb": 0.3682452106981087,
+                "mAP_sample_wise_with_null_verb": 0.041470960225347,
+                "mAP_standard_all_actions": 0.7192189948512613,
+                "mAP_present_only_all_actions": 0.06406331617087076,
+                "mAP_freq_weighted_all_actions": 0.3682452106981087,
+                "mAP_sample_wise_all_actions": 0.041470960225347,
+                "exact_match_with_null_verb": 0.030190431955411056,
+                "hamming_accuracy_with_null_verb": 0.9825963771481654,
+                "precision_with_null_verb": 0.4912981885740827,
+                "recall_with_null_verb": 0.5,
+                "f1_with_null_verb": 0.4956109011767517,
+                "num_predictions": 2153,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "30",
+                "action_sparsity_with_null_verb": 0.7,
+                "task": "single_step_action_prediction",
+                "method_name": "DirectVideoRL_a2c",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.7427960302325337,
+                "mAP_present_only": 0.07010872468685321,
+                "mAP_freq_weighted": 0.39387991010246354,
+                "exact_match": 0.04412447747329308,
+                "hamming_accuracy": 0.9828443240999694,
+                "precision": 0.4914221620499847,
+                "recall": 0.5,
+                "f1": 0.4956739730669936,
+                "num_actions_total": 94,
+                "num_actions_present": "26",
+                "action_sparsity": 0.7234042553191489
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            }
+          },
+          "planning_evaluation": {
+            "WorldModelRL_world_model_ppo": {},
+            "DirectVideoRL_ppo": {},
+            "DirectVideoRL_a2c": {}
+          },
+          "summary": {
+            "primary_comparison": {
+              "WorldModelRL_world_model_ppo": {
+                "mAP": 0.0751694668668684,
+                "exact_match": 0.0,
+                "task": "single_step_action_prediction"
+              },
+              "DirectVideoRL_ppo": {
+                "mAP": 0.0874633926724315,
+                "exact_match": 0.0,
+                "task": "single_step_action_prediction"
+              },
+              "DirectVideoRL_a2c": {
+                "mAP": 0.07010872468685321,
+                "exact_match": 0.04412447747329308,
+                "task": "single_step_action_prediction"
+              }
+            },
+            "secondary_analysis": {},
+            "overall_ranking": {},
+            "paradigm_insights": {
+              "fair_comparison_task": "single_step_action_prediction",
+              "planning_analysis": "shows_method_specific_strengths",
+              "evaluation_approach": "respects_training_paradigms"
+            }
+          },
+          "fairness_report": {
+            "evaluation_design": {
+              "primary_evaluation": "single_step_fair_comparison",
+              "secondary_evaluation": "method_specific_planning_analysis",
+              "data_handling": "uses_dataloader_batches_like_training",
+              "temporal_structure": "maintained_for_il_model",
+              "ground_truth_leakage": "eliminated"
+            },
+            "method_fairness": {
+              "AutoregressiveIL": "evaluated_with_proper_temporal_sequences",
+              "WorldModelRL": "evaluated_with_consistent_batch_approach",
+              "DirectVideoRL": "evaluated_with_consistent_batch_approach"
+            },
+            "data_integrity": {
+              "temporal_context": "preserved_for_models_that_need_it",
+              "batch_structure": "mirrors_training_approach",
+              "evaluation_consistency": "matches_model_training_interface"
+            },
+            "comparison_validity": {
+              "single_step_comparison": "valid_and_fair_with_proper_data_handling",
+              "planning_comparison": "method_specific_respecting_capabilities",
+              "overall_approach": "methodologically_sound_and_consistent_with_training"
+            }
+          }
+        },
+        "VID111": {
+          "video_id": "VID111",
+          "evaluation_type": "comprehensive_fair_evaluation_with_proper_batches",
+          "single_step_evaluation": {
+            "WorldModelRL_world_model_ppo": {
+              "metrics": {
+                "mAP": 0.06595672362540578,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "25",
+                  "subset_action_sparsity": 0.7340425531914894
+                },
+                "mAP_standard_with_null_verb": 0.5880647611546884,
+                "mAP_present_only_with_null_verb": 0.06229227984375323,
+                "mAP_freq_weighted_with_null_verb": 0.14539147665084437,
+                "mAP_sample_wise_with_null_verb": 0.029845120340706292,
+                "mAP_standard_all_actions": 0.5880647611546884,
+                "mAP_present_only_all_actions": 0.06229227984375323,
+                "mAP_freq_weighted_all_actions": 0.14539147665084437,
+                "mAP_sample_wise_all_actions": 0.029845120340706292,
+                "exact_match_with_null_verb": 0.0004662004662004662,
+                "hamming_accuracy_with_null_verb": 0.9201911421911422,
+                "precision_with_null_verb": 0.4936517554279208,
+                "recall_with_null_verb": 0.4669298586585232,
+                "f1_with_null_verb": 0.4795681489153879,
+                "num_predictions": 2145,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "29",
+                "action_sparsity_with_null_verb": 0.71,
+                "task": "single_step_action_prediction",
+                "method_name": "WorldModelRL_world_model_ppo",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.6239246605386717,
+                "mAP_present_only": 0.06595672362540578,
+                "mAP_freq_weighted": 0.1587145341727638,
+                "exact_match": 0.0004662004662004662,
+                "hamming_accuracy": 0.9204037097654119,
+                "precision": 0.49409738122876706,
+                "recall": 0.46531820894324843,
+                "f1": 0.47927615692736003,
+                "num_actions_total": 94,
+                "num_actions_present": "25",
+                "action_sparsity": 0.7340425531914894
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            },
+            "DirectVideoRL_ppo": {
+              "metrics": {
+                "mAP": 0.042627826476913946,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "25",
+                  "subset_action_sparsity": 0.7340425531914894
+                },
+                "mAP_standard_with_null_verb": 0.4726503216194584,
+                "mAP_present_only_with_null_verb": 0.0436217986877875,
+                "mAP_freq_weighted_with_null_verb": 0.13570906145556047,
+                "mAP_sample_wise_with_null_verb": 0.07062501423573944,
+                "mAP_standard_all_actions": 0.4726503216194584,
+                "mAP_present_only_all_actions": 0.0436217986877875,
+                "mAP_freq_weighted_all_actions": 0.13570906145556047,
+                "mAP_sample_wise_all_actions": 0.07062501423573944,
+                "exact_match_with_null_verb": 0.0,
+                "hamming_accuracy_with_null_verb": 0.8535944055944056,
+                "precision_with_null_verb": 0.5035019743964305,
+                "recall_with_null_verb": 0.5346838385750611,
+                "f1_with_null_verb": 0.47720095421278874,
+                "num_predictions": 2145,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "29",
+                "action_sparsity_with_null_verb": 0.71,
+                "task": "single_step_action_prediction",
+                "method_name": "DirectVideoRL_ppo",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.47942229427577493,
+                "mAP_present_only": 0.042627826476913946,
+                "mAP_freq_weighted": 0.14244673298943303,
+                "exact_match": 0.0,
+                "hamming_accuracy": 0.8591876208897485,
+                "precision": 0.5050569709035583,
+                "recall": 0.5543560539629008,
+                "f1": 0.4802787515437849,
+                "num_actions_total": 94,
+                "num_actions_present": "25",
+                "action_sparsity": 0.7340425531914894
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            },
+            "DirectVideoRL_a2c": {
+              "metrics": {
+                "mAP": 0.042524555458561215,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "25",
+                  "subset_action_sparsity": 0.7340425531914894
+                },
+                "mAP_standard_with_null_verb": 0.7223651961697692,
+                "mAP_present_only_with_null_verb": 0.04263860748196334,
+                "mAP_freq_weighted_with_null_verb": 0.14757920207315645,
+                "mAP_sample_wise_with_null_verb": 0.08164996344464356,
+                "mAP_standard_all_actions": 0.7223651961697692,
+                "mAP_present_only_all_actions": 0.04263860748196334,
+                "mAP_freq_weighted_all_actions": 0.14757920207315645,
+                "mAP_sample_wise_all_actions": 0.08164996344464356,
+                "exact_match_with_null_verb": 0.24615384615384617,
+                "hamming_accuracy_with_null_verb": 0.9877482517482518,
+                "precision_with_null_verb": 0.4938741258741259,
+                "recall_with_null_verb": 0.5,
+                "f1_with_null_verb": 0.4969181841209085,
+                "num_predictions": 2145,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "29",
+                "action_sparsity_with_null_verb": 0.71,
+                "task": "single_step_action_prediction",
+                "method_name": "DirectVideoRL_a2c",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.7453522753879152,
+                "mAP_present_only": 0.042524555458561215,
+                "mAP_freq_weighted": 0.157807267272471,
+                "exact_match": 0.29976689976689974,
+                "hamming_accuracy": 0.9890046124088677,
+                "precision": 0.49450230620443386,
+                "recall": 0.5,
+                "f1": 0.49723595724149283,
+                "num_actions_total": 94,
+                "num_actions_present": "25",
+                "action_sparsity": 0.7340425531914894
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            }
+          },
+          "planning_evaluation": {
+            "WorldModelRL_world_model_ppo": {},
+            "DirectVideoRL_ppo": {},
+            "DirectVideoRL_a2c": {}
+          },
+          "summary": {
+            "primary_comparison": {
+              "WorldModelRL_world_model_ppo": {
+                "mAP": 0.06595672362540578,
+                "exact_match": 0.0004662004662004662,
+                "task": "single_step_action_prediction"
+              },
+              "DirectVideoRL_ppo": {
+                "mAP": 0.042627826476913946,
+                "exact_match": 0.0,
+                "task": "single_step_action_prediction"
+              },
+              "DirectVideoRL_a2c": {
+                "mAP": 0.042524555458561215,
+                "exact_match": 0.29976689976689974,
+                "task": "single_step_action_prediction"
+              }
+            },
+            "secondary_analysis": {},
+            "overall_ranking": {},
+            "paradigm_insights": {
+              "fair_comparison_task": "single_step_action_prediction",
+              "planning_analysis": "shows_method_specific_strengths",
+              "evaluation_approach": "respects_training_paradigms"
+            }
+          },
+          "fairness_report": {
+            "evaluation_design": {
+              "primary_evaluation": "single_step_fair_comparison",
+              "secondary_evaluation": "method_specific_planning_analysis",
+              "data_handling": "uses_dataloader_batches_like_training",
+              "temporal_structure": "maintained_for_il_model",
+              "ground_truth_leakage": "eliminated"
+            },
+            "method_fairness": {
+              "AutoregressiveIL": "evaluated_with_proper_temporal_sequences",
+              "WorldModelRL": "evaluated_with_consistent_batch_approach",
+              "DirectVideoRL": "evaluated_with_consistent_batch_approach"
+            },
+            "data_integrity": {
+              "temporal_context": "preserved_for_models_that_need_it",
+              "batch_structure": "mirrors_training_approach",
+              "evaluation_consistency": "matches_model_training_interface"
+            },
+            "comparison_validity": {
+              "single_step_comparison": "valid_and_fair_with_proper_data_handling",
+              "planning_comparison": "method_specific_respecting_capabilities",
+              "overall_approach": "methodologically_sound_and_consistent_with_training"
+            }
+          }
+        },
+        "VID14": {
+          "video_id": "VID14",
+          "evaluation_type": "comprehensive_fair_evaluation_with_proper_batches",
+          "single_step_evaluation": {
+            "WorldModelRL_world_model_ppo": {
+              "metrics": {
+                "mAP": 0.043357166181017204,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "36",
+                  "subset_action_sparsity": 0.6170212765957447
+                },
+                "mAP_standard_with_null_verb": 0.48685997637697215,
+                "mAP_present_only_with_null_verb": 0.04112189360237103,
+                "mAP_freq_weighted_with_null_verb": 0.17376655314821562,
+                "mAP_sample_wise_with_null_verb": 0.027385829799662153,
+                "mAP_standard_all_actions": 0.48685997637697215,
+                "mAP_present_only_all_actions": 0.04112189360237103,
+                "mAP_freq_weighted_all_actions": 0.17376655314821562,
+                "mAP_sample_wise_all_actions": 0.027385829799662153,
+                "exact_match_with_null_verb": 0.0,
+                "hamming_accuracy_with_null_verb": 0.9176288056206089,
+                "precision_with_null_verb": 0.49337996703938697,
+                "recall_with_null_verb": 0.472729392118744,
+                "f1_with_null_verb": 0.4810637101685144,
+                "num_predictions": 1708,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "41",
+                "action_sparsity_with_null_verb": 0.5900000000000001,
+                "task": "single_step_action_prediction",
+                "method_name": "WorldModelRL_world_model_ppo",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.5059665742820918,
+                "mAP_present_only": 0.043357166181017204,
+                "mAP_freq_weighted": 0.18178953547500615,
+                "exact_match": 0.0,
+                "hamming_accuracy": 0.9171171956749216,
+                "precision": 0.49348283640980806,
+                "recall": 0.4728971606800266,
+                "f1": 0.48106920635721023,
+                "num_actions_total": 94,
+                "num_actions_present": "36",
+                "action_sparsity": 0.6170212765957447
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            },
+            "DirectVideoRL_ppo": {
+              "metrics": {
+                "mAP": 0.05339728599979522,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "36",
+                  "subset_action_sparsity": 0.6170212765957447
+                },
+                "mAP_standard_with_null_verb": 0.4101717529818973,
+                "mAP_present_only_with_null_verb": 0.04919939751682272,
+                "mAP_freq_weighted_with_null_verb": 0.1982198404166178,
+                "mAP_sample_wise_with_null_verb": 0.1319598455927233,
+                "mAP_standard_all_actions": 0.4101717529818973,
+                "mAP_present_only_all_actions": 0.04919939751682272,
+                "mAP_freq_weighted_all_actions": 0.1982198404166178,
+                "mAP_sample_wise_all_actions": 0.1319598455927233,
+                "exact_match_with_null_verb": 0.0,
+                "hamming_accuracy_with_null_verb": 0.8541451990632318,
+                "precision_with_null_verb": 0.5175533639293037,
+                "recall_with_null_verb": 0.6415131990217714,
+                "f1_with_null_verb": 0.5015027931863838,
+                "num_predictions": 1708,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "41",
+                "action_sparsity_with_null_verb": 0.5900000000000001,
+                "task": "single_step_action_prediction",
+                "method_name": "DirectVideoRL_ppo",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.4353436414467301,
+                "mAP_present_only": 0.05339728599979522,
+                "mAP_freq_weighted": 0.20887153034612574,
+                "exact_match": 0.0,
+                "hamming_accuracy": 0.859459863471025,
+                "precision": 0.5194507564045426,
+                "recall": 0.6526964190457316,
+                "f1": 0.5059825178323809,
+                "num_actions_total": 94,
+                "num_actions_present": "36",
+                "action_sparsity": 0.6170212765957447
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            },
+            "DirectVideoRL_a2c": {
+              "metrics": {
+                "mAP": 0.040109345121957664,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "36",
+                  "subset_action_sparsity": 0.6170212765957447
+                },
+                "mAP_standard_with_null_verb": 0.6051056410177857,
+                "mAP_present_only_with_null_verb": 0.03684302687264825,
+                "mAP_freq_weighted_with_null_verb": 0.16079040189988833,
+                "mAP_sample_wise_with_null_verb": 0.07645197096381391,
+                "mAP_standard_all_actions": 0.6051056410177857,
+                "mAP_present_only_all_actions": 0.03684302687264825,
+                "mAP_freq_weighted_all_actions": 0.16079040189988833,
+                "mAP_sample_wise_all_actions": 0.07645197096381391,
+                "exact_match_with_null_verb": 0.13056206088992975,
+                "hamming_accuracy_with_null_verb": 0.984519906323185,
+                "precision_with_null_verb": 0.4922599531615925,
+                "recall_with_null_verb": 0.5,
+                "f1_with_null_verb": 0.4960997887631433,
+                "num_predictions": 1708,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "41",
+                "action_sparsity_with_null_verb": 0.5900000000000001,
+                "task": "single_step_action_prediction",
+                "method_name": "DirectVideoRL_a2c",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.6323823023871329,
+                "mAP_present_only": 0.040109345121957664,
+                "mAP_freq_weighted": 0.16974481160606691,
+                "exact_match": 0.14227166276346603,
+                "hamming_accuracy": 0.984547062633913,
+                "precision": 0.4922735313169565,
+                "recall": 0.5,
+                "f1": 0.4961066840749098,
+                "num_actions_total": 94,
+                "num_actions_present": "36",
+                "action_sparsity": 0.6170212765957447
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            }
+          },
+          "planning_evaluation": {
+            "WorldModelRL_world_model_ppo": {},
+            "DirectVideoRL_ppo": {},
+            "DirectVideoRL_a2c": {}
+          },
+          "summary": {
+            "primary_comparison": {
+              "WorldModelRL_world_model_ppo": {
+                "mAP": 0.043357166181017204,
+                "exact_match": 0.0,
+                "task": "single_step_action_prediction"
+              },
+              "DirectVideoRL_ppo": {
+                "mAP": 0.05339728599979522,
+                "exact_match": 0.0,
+                "task": "single_step_action_prediction"
+              },
+              "DirectVideoRL_a2c": {
+                "mAP": 0.040109345121957664,
+                "exact_match": 0.14227166276346603,
+                "task": "single_step_action_prediction"
+              }
+            },
+            "secondary_analysis": {},
+            "overall_ranking": {},
+            "paradigm_insights": {
+              "fair_comparison_task": "single_step_action_prediction",
+              "planning_analysis": "shows_method_specific_strengths",
+              "evaluation_approach": "respects_training_paradigms"
+            }
+          },
+          "fairness_report": {
+            "evaluation_design": {
+              "primary_evaluation": "single_step_fair_comparison",
+              "secondary_evaluation": "method_specific_planning_analysis",
+              "data_handling": "uses_dataloader_batches_like_training",
+              "temporal_structure": "maintained_for_il_model",
+              "ground_truth_leakage": "eliminated"
+            },
+            "method_fairness": {
+              "AutoregressiveIL": "evaluated_with_proper_temporal_sequences",
+              "WorldModelRL": "evaluated_with_consistent_batch_approach",
+              "DirectVideoRL": "evaluated_with_consistent_batch_approach"
+            },
+            "data_integrity": {
+              "temporal_context": "preserved_for_models_that_need_it",
+              "batch_structure": "mirrors_training_approach",
+              "evaluation_consistency": "matches_model_training_interface"
+            },
+            "comparison_validity": {
+              "single_step_comparison": "valid_and_fair_with_proper_data_handling",
+              "planning_comparison": "method_specific_respecting_capabilities",
+              "overall_approach": "methodologically_sound_and_consistent_with_training"
+            }
+          }
+        },
+        "VID23": {
+          "video_id": "VID23",
+          "evaluation_type": "comprehensive_fair_evaluation_with_proper_batches",
+          "single_step_evaluation": {
+            "WorldModelRL_world_model_ppo": {
+              "metrics": {
+                "mAP": 0.05063157445579462,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "26",
+                  "subset_action_sparsity": 0.7234042553191489
+                },
+                "mAP_standard_with_null_verb": 0.594695306667727,
+                "mAP_present_only_with_null_verb": 0.0474042150571837,
+                "mAP_freq_weighted_with_null_verb": 0.1573782672545777,
+                "mAP_sample_wise_with_null_verb": 0.05015583715346892,
+                "mAP_standard_all_actions": 0.594695306667727,
+                "mAP_present_only_all_actions": 0.0474042150571837,
+                "mAP_freq_weighted_all_actions": 0.1573782672545777,
+                "mAP_sample_wise_all_actions": 0.05015583715346892,
+                "exact_match_with_null_verb": 0.0,
+                "hamming_accuracy_with_null_verb": 0.905474006116208,
+                "precision_with_null_verb": 0.49689733468673414,
+                "recall_with_null_verb": 0.48529369923750987,
+                "f1_with_null_verb": 0.48363502540187164,
+                "num_predictions": 1635,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "31",
+                "action_sparsity_with_null_verb": 0.69,
+                "task": "single_step_action_prediction",
+                "method_name": "WorldModelRL_world_model_ppo",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.6310257546367092,
+                "mAP_present_only": 0.05063157445579462,
+                "mAP_freq_weighted": 0.16296387961406972,
+                "exact_match": 0.0,
+                "hamming_accuracy": 0.9057648513240939,
+                "precision": 0.4973800749115717,
+                "recall": 0.48720573933763944,
+                "f1": 0.4841385237836426,
+                "num_actions_total": 94,
+                "num_actions_present": "26",
+                "action_sparsity": 0.7234042553191489
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            },
+            "DirectVideoRL_ppo": {
+              "metrics": {
+                "mAP": 0.07902849809172331,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "26",
+                  "subset_action_sparsity": 0.7234042553191489
+                },
+                "mAP_standard_with_null_verb": 0.5025524416839068,
+                "mAP_present_only_with_null_verb": 0.07274981188357019,
+                "mAP_freq_weighted_with_null_verb": 0.26282032296364727,
+                "mAP_sample_wise_with_null_verb": 0.08707839192473137,
+                "mAP_standard_all_actions": 0.5025524416839068,
+                "mAP_present_only_all_actions": 0.07274981188357019,
+                "mAP_freq_weighted_all_actions": 0.26282032296364727,
+                "mAP_sample_wise_all_actions": 0.08707839192473137,
+                "exact_match_with_null_verb": 0.0,
+                "hamming_accuracy_with_null_verb": 0.8475351681957186,
+                "precision_with_null_verb": 0.5127861324173204,
+                "recall_with_null_verb": 0.6033117146086089,
+                "f1_with_null_verb": 0.4924748702421058,
+                "num_predictions": 1635,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "31",
+                "action_sparsity_with_null_verb": 0.69,
+                "task": "single_step_action_prediction",
+                "method_name": "DirectVideoRL_ppo",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.5218589462806894,
+                "mAP_present_only": 0.07902849809172331,
+                "mAP_freq_weighted": 0.27920507770953407,
+                "exact_match": 0.0,
+                "hamming_accuracy": 0.8527295204632702,
+                "precision": 0.5146970407437343,
+                "recall": 0.6191346024724373,
+                "f1": 0.496648666617304,
+                "num_actions_total": 94,
+                "num_actions_present": "26",
+                "action_sparsity": 0.7234042553191489
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            },
+            "DirectVideoRL_a2c": {
+              "metrics": {
+                "mAP": 0.06331635867940143,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "26",
+                  "subset_action_sparsity": 0.7234042553191489
+                },
+                "mAP_standard_with_null_verb": 0.7074341544755679,
+                "mAP_present_only_with_null_verb": 0.05623920798570275,
+                "mAP_freq_weighted_with_null_verb": 0.1626982260302043,
+                "mAP_sample_wise_with_null_verb": 0.043607913951716315,
+                "mAP_standard_all_actions": 0.7074341544755679,
+                "mAP_present_only_all_actions": 0.05623920798570275,
+                "mAP_freq_weighted_all_actions": 0.1626982260302043,
+                "mAP_sample_wise_all_actions": 0.043607913951716315,
+                "exact_match_with_null_verb": 0.0581039755351682,
+                "hamming_accuracy_with_null_verb": 0.9841651376146789,
+                "precision_with_null_verb": 0.49208256880733947,
+                "recall_with_null_verb": 0.5,
+                "f1_with_null_verb": 0.4960096914099707,
+                "num_predictions": 1635,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "31",
+                "action_sparsity_with_null_verb": 0.69,
+                "task": "single_step_action_prediction",
+                "method_name": "DirectVideoRL_a2c",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.7409172906985578,
+                "mAP_present_only": 0.06331635867940143,
+                "mAP_freq_weighted": 0.17315305698090114,
+                "exact_match": 0.08440366972477065,
+                "hamming_accuracy": 0.9845988678508686,
+                "precision": 0.4922994339254343,
+                "recall": 0.5,
+                "f1": 0.4961198375151223,
+                "num_actions_total": 94,
+                "num_actions_present": "26",
+                "action_sparsity": 0.7234042553191489
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            }
+          },
+          "planning_evaluation": {
+            "WorldModelRL_world_model_ppo": {},
+            "DirectVideoRL_ppo": {},
+            "DirectVideoRL_a2c": {}
+          },
+          "summary": {
+            "primary_comparison": {
+              "WorldModelRL_world_model_ppo": {
+                "mAP": 0.05063157445579462,
+                "exact_match": 0.0,
+                "task": "single_step_action_prediction"
+              },
+              "DirectVideoRL_ppo": {
+                "mAP": 0.07902849809172331,
+                "exact_match": 0.0,
+                "task": "single_step_action_prediction"
+              },
+              "DirectVideoRL_a2c": {
+                "mAP": 0.06331635867940143,
+                "exact_match": 0.08440366972477065,
+                "task": "single_step_action_prediction"
+              }
+            },
+            "secondary_analysis": {},
+            "overall_ranking": {},
+            "paradigm_insights": {
+              "fair_comparison_task": "single_step_action_prediction",
+              "planning_analysis": "shows_method_specific_strengths",
+              "evaluation_approach": "respects_training_paradigms"
+            }
+          },
+          "fairness_report": {
+            "evaluation_design": {
+              "primary_evaluation": "single_step_fair_comparison",
+              "secondary_evaluation": "method_specific_planning_analysis",
+              "data_handling": "uses_dataloader_batches_like_training",
+              "temporal_structure": "maintained_for_il_model",
+              "ground_truth_leakage": "eliminated"
+            },
+            "method_fairness": {
+              "AutoregressiveIL": "evaluated_with_proper_temporal_sequences",
+              "WorldModelRL": "evaluated_with_consistent_batch_approach",
+              "DirectVideoRL": "evaluated_with_consistent_batch_approach"
+            },
+            "data_integrity": {
+              "temporal_context": "preserved_for_models_that_need_it",
+              "batch_structure": "mirrors_training_approach",
+              "evaluation_consistency": "matches_model_training_interface"
+            },
+            "comparison_validity": {
+              "single_step_comparison": "valid_and_fair_with_proper_data_handling",
+              "planning_comparison": "method_specific_respecting_capabilities",
+              "overall_approach": "methodologically_sound_and_consistent_with_training"
+            }
+          }
+        },
+        "VID25": {
+          "video_id": "VID25",
+          "evaluation_type": "comprehensive_fair_evaluation_with_proper_batches",
+          "single_step_evaluation": {
+            "WorldModelRL_world_model_ppo": {
+              "metrics": {
+                "mAP": 0.06897443544843594,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "21",
+                  "subset_action_sparsity": 0.7765957446808511
+                },
+                "mAP_standard_with_null_verb": 0.6155102203404259,
+                "mAP_present_only_with_null_verb": 0.059654693617022296,
+                "mAP_freq_weighted_with_null_verb": 0.2420543671107516,
+                "mAP_sample_wise_with_null_verb": 0.02280875246814431,
+                "mAP_standard_all_actions": 0.6155102203404259,
+                "mAP_present_only_all_actions": 0.059654693617022296,
+                "mAP_freq_weighted_all_actions": 0.2420543671107516,
+                "mAP_sample_wise_all_actions": 0.02280875246814431,
+                "exact_match_with_null_verb": 0.0,
+                "hamming_accuracy_with_null_verb": 0.9139079379990606,
+                "precision_with_null_verb": 0.49131249164204444,
+                "recall_with_null_verb": 0.46548983347804856,
+                "f1_with_null_verb": 0.4778353023908053,
+                "num_predictions": 2129,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "26",
+                "action_sparsity_with_null_verb": 0.74,
+                "task": "single_step_action_prediction",
+                "method_name": "WorldModelRL_world_model_ppo",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.6537070547278421,
+                "mAP_present_only": 0.06897443544843594,
+                "mAP_freq_weighted": 0.256706689806642,
+                "exact_match": 0.0,
+                "hamming_accuracy": 0.9125251091812159,
+                "precision": 0.49113842347309256,
+                "recall": 0.4639005034776026,
+                "f1": 0.47713104774445714,
+                "num_actions_total": 94,
+                "num_actions_present": "21",
+                "action_sparsity": 0.7765957446808511
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            },
+            "DirectVideoRL_ppo": {
+              "metrics": {
+                "mAP": 0.10068743701263237,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "21",
+                  "subset_action_sparsity": 0.7765957446808511
+                },
+                "mAP_standard_with_null_verb": 0.522528133078066,
+                "mAP_present_only_with_null_verb": 0.08664666568486926,
+                "mAP_freq_weighted_with_null_verb": 0.35229309316769936,
+                "mAP_sample_wise_with_null_verb": 0.1078416583875626,
+                "mAP_standard_all_actions": 0.522528133078066,
+                "mAP_present_only_all_actions": 0.08664666568486926,
+                "mAP_freq_weighted_all_actions": 0.35229309316769936,
+                "mAP_sample_wise_all_actions": 0.1078416583875626,
+                "exact_match_with_null_verb": 0.0,
+                "hamming_accuracy_with_null_verb": 0.8432785345232503,
+                "precision_with_null_verb": 0.5178521975072795,
+                "recall_with_null_verb": 0.6431810220028251,
+                "f1_with_null_verb": 0.49938149685014854,
+                "num_predictions": 2129,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "26",
+                "action_sparsity_with_null_verb": 0.74,
+                "task": "single_step_action_prediction",
+                "method_name": "DirectVideoRL_ppo",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.5437705976304816,
+                "mAP_present_only": 0.10068743701263237,
+                "mAP_freq_weighted": 0.3733025684030397,
+                "exact_match": 0.0,
+                "hamming_accuracy": 0.8495647741922588,
+                "precision": 0.520337198803521,
+                "recall": 0.6594306976130876,
+                "f1": 0.5049890692527002,
+                "num_actions_total": 94,
+                "num_actions_present": "21",
+                "action_sparsity": 0.7765957446808511
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            },
+            "DirectVideoRL_a2c": {
+              "metrics": {
+                "mAP": 0.0731149916526028,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "21",
+                  "subset_action_sparsity": 0.7765957446808511
+                },
+                "mAP_standard_with_null_verb": 0.7562757336230703,
+                "mAP_present_only_with_null_verb": 0.06259897547334836,
+                "mAP_freq_weighted_with_null_verb": 0.25170621647410574,
+                "mAP_sample_wise_with_null_verb": 0.053291430244918635,
+                "mAP_standard_all_actions": 0.7562757336230703,
+                "mAP_present_only_all_actions": 0.06259897547334836,
+                "mAP_freq_weighted_all_actions": 0.25170621647410574,
+                "mAP_sample_wise_all_actions": 0.053291430244918635,
+                "exact_match_with_null_verb": 0.04744011272898074,
+                "hamming_accuracy_with_null_verb": 0.9834288398309066,
+                "precision_with_null_verb": 0.4917144199154533,
+                "recall_with_null_verb": 0.5,
+                "f1_with_null_verb": 0.495822597756896,
+                "num_predictions": 2129,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "26",
+                "action_sparsity_with_null_verb": 0.74,
+                "task": "single_step_action_prediction",
+                "method_name": "DirectVideoRL_a2c",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.7929299449436664,
+                "mAP_present_only": 0.0731149916526028,
+                "mAP_freq_weighted": 0.2670696580929365,
+                "exact_match": 0.07045561296383279,
+                "hamming_accuracy": 0.9835353727151894,
+                "precision": 0.4917676863575947,
+                "recall": 0.5,
+                "f1": 0.4958496764133143,
+                "num_actions_total": 94,
+                "num_actions_present": "21",
+                "action_sparsity": 0.7765957446808511
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            }
+          },
+          "planning_evaluation": {
+            "WorldModelRL_world_model_ppo": {},
+            "DirectVideoRL_ppo": {},
+            "DirectVideoRL_a2c": {}
+          },
+          "summary": {
+            "primary_comparison": {
+              "WorldModelRL_world_model_ppo": {
+                "mAP": 0.06897443544843594,
+                "exact_match": 0.0,
+                "task": "single_step_action_prediction"
+              },
+              "DirectVideoRL_ppo": {
+                "mAP": 0.10068743701263237,
+                "exact_match": 0.0,
+                "task": "single_step_action_prediction"
+              },
+              "DirectVideoRL_a2c": {
+                "mAP": 0.0731149916526028,
+                "exact_match": 0.07045561296383279,
+                "task": "single_step_action_prediction"
+              }
+            },
+            "secondary_analysis": {},
+            "overall_ranking": {},
+            "paradigm_insights": {
+              "fair_comparison_task": "single_step_action_prediction",
+              "planning_analysis": "shows_method_specific_strengths",
+              "evaluation_approach": "respects_training_paradigms"
+            }
+          },
+          "fairness_report": {
+            "evaluation_design": {
+              "primary_evaluation": "single_step_fair_comparison",
+              "secondary_evaluation": "method_specific_planning_analysis",
+              "data_handling": "uses_dataloader_batches_like_training",
+              "temporal_structure": "maintained_for_il_model",
+              "ground_truth_leakage": "eliminated"
+            },
+            "method_fairness": {
+              "AutoregressiveIL": "evaluated_with_proper_temporal_sequences",
+              "WorldModelRL": "evaluated_with_consistent_batch_approach",
+              "DirectVideoRL": "evaluated_with_consistent_batch_approach"
+            },
+            "data_integrity": {
+              "temporal_context": "preserved_for_models_that_need_it",
+              "batch_structure": "mirrors_training_approach",
+              "evaluation_consistency": "matches_model_training_interface"
+            },
+            "comparison_validity": {
+              "single_step_comparison": "valid_and_fair_with_proper_data_handling",
+              "planning_comparison": "method_specific_respecting_capabilities",
+              "overall_approach": "methodologically_sound_and_consistent_with_training"
+            }
+          }
+        },
+        "VID50": {
+          "video_id": "VID50",
+          "evaluation_type": "comprehensive_fair_evaluation_with_proper_batches",
+          "single_step_evaluation": {
+            "WorldModelRL_world_model_ppo": {
+              "metrics": {
+                "mAP": 0.09609897228507669,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "16",
+                  "subset_action_sparsity": 0.8297872340425532
+                },
+                "mAP_standard_with_null_verb": 0.7061491613363678,
+                "mAP_present_only_with_null_verb": 0.08971756297982113,
+                "mAP_freq_weighted_with_null_verb": 0.37241365898050427,
+                "mAP_sample_wise_with_null_verb": 0.024981589096358444,
+                "mAP_standard_all_actions": 0.7061491613363678,
+                "mAP_present_only_all_actions": 0.08971756297982113,
+                "mAP_freq_weighted_all_actions": 0.37241365898050427,
+                "mAP_sample_wise_all_actions": 0.024981589096358444,
+                "exact_match_with_null_verb": 0.0,
+                "hamming_accuracy_with_null_verb": 0.9136288848263254,
+                "precision_with_null_verb": 0.492063420651738,
+                "recall_with_null_verb": 0.4680070218917803,
+                "f1_with_null_verb": 0.47880186565247573,
+                "num_predictions": 1094,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "18",
+                "action_sparsity_with_null_verb": 0.8200000000000001,
+                "task": "single_step_action_prediction",
+                "method_name": "WorldModelRL_world_model_ppo",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.718484931452779,
+                "mAP_present_only": 0.09609897228507669,
+                "mAP_freq_weighted": 0.3910049209870458,
+                "exact_match": 0.0,
+                "hamming_accuracy": 0.9112859309969271,
+                "precision": 0.49165935150948914,
+                "recall": 0.4656216774398765,
+                "f1": 0.4776655266745721,
+                "num_actions_total": 94,
+                "num_actions_present": "16",
+                "action_sparsity": 0.8297872340425532
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            },
+            "DirectVideoRL_ppo": {
+              "metrics": {
+                "mAP": 0.11290636523948919,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "16",
+                  "subset_action_sparsity": 0.8297872340425532
+                },
+                "mAP_standard_with_null_verb": 0.5490725575629587,
+                "mAP_present_only_with_null_verb": 0.10595865312754865,
+                "mAP_freq_weighted_with_null_verb": 0.4753628893663885,
+                "mAP_sample_wise_with_null_verb": 0.050802832704286156,
+                "mAP_standard_all_actions": 0.5490725575629587,
+                "mAP_present_only_all_actions": 0.10595865312754865,
+                "mAP_freq_weighted_all_actions": 0.4753628893663885,
+                "mAP_sample_wise_all_actions": 0.050802832704286156,
+                "exact_match_with_null_verb": 0.0,
+                "hamming_accuracy_with_null_verb": 0.8185923217550274,
+                "precision_with_null_verb": 0.5117378478225801,
+                "recall_with_null_verb": 0.6059691243287898,
+                "f1_with_null_verb": 0.4825006820024005,
+                "num_predictions": 1094,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "18",
+                "action_sparsity_with_null_verb": 0.8200000000000001,
+                "task": "single_step_action_prediction",
+                "method_name": "DirectVideoRL_ppo",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.5617712962109769,
+                "mAP_present_only": 0.11290636523948919,
+                "mAP_freq_weighted": 0.49828770120994104,
+                "exact_match": 0.0,
+                "hamming_accuracy": 0.8253335407833833,
+                "precision": 0.513777789631341,
+                "recall": 0.620347131914222,
+                "f1": 0.48771158262793957,
+                "num_actions_total": 94,
+                "num_actions_present": "16",
+                "action_sparsity": 0.8297872340425532
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            },
+            "DirectVideoRL_a2c": {
+              "metrics": {
+                "mAP": 0.0988199793770316,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "16",
+                  "subset_action_sparsity": 0.8297872340425532
+                },
+                "mAP_standard_with_null_verb": 0.8369265541230804,
+                "mAP_present_only_with_null_verb": 0.09403641179489143,
+                "mAP_freq_weighted_with_null_verb": 0.37327452473409695,
+                "mAP_sample_wise_with_null_verb": 0.02846919540455982,
+                "mAP_standard_all_actions": 0.8369265541230804,
+                "mAP_present_only_all_actions": 0.09403641179489143,
+                "mAP_freq_weighted_all_actions": 0.37327452473409695,
+                "mAP_sample_wise_all_actions": 0.02846919540455982,
+                "exact_match_with_null_verb": 0.05758683729433273,
+                "hamming_accuracy_with_null_verb": 0.9835466179159049,
+                "precision_with_null_verb": 0.49177330895795246,
+                "recall_with_null_verb": 0.5,
+                "f1_with_null_verb": 0.49585253456221196,
+                "num_predictions": 1094,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "18",
+                "action_sparsity_with_null_verb": 0.8200000000000001,
+                "task": "single_step_action_prediction",
+                "method_name": "DirectVideoRL_a2c",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.8466076560641757,
+                "mAP_present_only": 0.0988199793770316,
+                "mAP_freq_weighted": 0.3907399993352854,
+                "exact_match": 0.07221206581352833,
+                "hamming_accuracy": 0.983449375705006,
+                "precision": 0.491724687852503,
+                "recall": 0.5,
+                "f1": 0.49582781781634555,
+                "num_actions_total": 94,
+                "num_actions_present": "16",
+                "action_sparsity": 0.8297872340425532
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            }
+          },
+          "planning_evaluation": {
+            "WorldModelRL_world_model_ppo": {},
+            "DirectVideoRL_ppo": {},
+            "DirectVideoRL_a2c": {}
+          },
+          "summary": {
+            "primary_comparison": {
+              "WorldModelRL_world_model_ppo": {
+                "mAP": 0.09609897228507669,
+                "exact_match": 0.0,
+                "task": "single_step_action_prediction"
+              },
+              "DirectVideoRL_ppo": {
+                "mAP": 0.11290636523948919,
+                "exact_match": 0.0,
+                "task": "single_step_action_prediction"
+              },
+              "DirectVideoRL_a2c": {
+                "mAP": 0.0988199793770316,
+                "exact_match": 0.07221206581352833,
+                "task": "single_step_action_prediction"
+              }
+            },
+            "secondary_analysis": {},
+            "overall_ranking": {},
+            "paradigm_insights": {
+              "fair_comparison_task": "single_step_action_prediction",
+              "planning_analysis": "shows_method_specific_strengths",
+              "evaluation_approach": "respects_training_paradigms"
+            }
+          },
+          "fairness_report": {
+            "evaluation_design": {
+              "primary_evaluation": "single_step_fair_comparison",
+              "secondary_evaluation": "method_specific_planning_analysis",
+              "data_handling": "uses_dataloader_batches_like_training",
+              "temporal_structure": "maintained_for_il_model",
+              "ground_truth_leakage": "eliminated"
+            },
+            "method_fairness": {
+              "AutoregressiveIL": "evaluated_with_proper_temporal_sequences",
+              "WorldModelRL": "evaluated_with_consistent_batch_approach",
+              "DirectVideoRL": "evaluated_with_consistent_batch_approach"
+            },
+            "data_integrity": {
+              "temporal_context": "preserved_for_models_that_need_it",
+              "batch_structure": "mirrors_training_approach",
+              "evaluation_consistency": "matches_model_training_interface"
+            },
+            "comparison_validity": {
+              "single_step_comparison": "valid_and_fair_with_proper_data_handling",
+              "planning_comparison": "method_specific_respecting_capabilities",
+              "overall_approach": "methodologically_sound_and_consistent_with_training"
+            }
+          }
+        },
+        "VID51": {
+          "video_id": "VID51",
+          "evaluation_type": "comprehensive_fair_evaluation_with_proper_batches",
+          "single_step_evaluation": {
+            "WorldModelRL_world_model_ppo": {
+              "metrics": {
+                "mAP": 0.05460877799884916,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "24",
+                  "subset_action_sparsity": 0.7446808510638299
+                },
+                "mAP_standard_with_null_verb": 0.6346575170385929,
+                "mAP_present_only_with_null_verb": 0.05054316220204426,
+                "mAP_freq_weighted_with_null_verb": 0.23924438250683225,
+                "mAP_sample_wise_with_null_verb": 0.028432449178128344,
+                "mAP_standard_all_actions": 0.6346575170385929,
+                "mAP_present_only_all_actions": 0.05054316220204426,
+                "mAP_freq_weighted_all_actions": 0.23924438250683225,
+                "mAP_sample_wise_all_actions": 0.028432449178128344,
+                "exact_match_with_null_verb": 0.0,
+                "hamming_accuracy_with_null_verb": 0.9297248641304348,
+                "precision_with_null_verb": 0.49273170167446967,
+                "recall_with_null_verb": 0.4745509375344692,
+                "f1_with_null_verb": 0.4828991716028381,
+                "num_predictions": 2944,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "29",
+                "action_sparsity_with_null_verb": 0.71,
+                "task": "single_step_action_prediction",
+                "method_name": "WorldModelRL_world_model_ppo",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.6628788369358763,
+                "mAP_present_only": 0.05460877799884916,
+                "mAP_freq_weighted": 0.2610849190951811,
+                "exact_match": 0.0,
+                "hamming_accuracy": 0.92851670906568,
+                "precision": 0.4930201377138304,
+                "recall": 0.4738061731337521,
+                "f1": 0.48257489499217276,
+                "num_actions_total": 94,
+                "num_actions_present": "24",
+                "action_sparsity": 0.7446808510638299
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            },
+            "DirectVideoRL_ppo": {
+              "metrics": {
+                "mAP": 0.0806724513663395,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "24",
+                  "subset_action_sparsity": 0.7446808510638299
+                },
+                "mAP_standard_with_null_verb": 0.48081867254836425,
+                "mAP_present_only_with_null_verb": 0.0717885260288424,
+                "mAP_freq_weighted_with_null_verb": 0.33510796995755093,
+                "mAP_sample_wise_with_null_verb": 0.07098016849668991,
+                "mAP_standard_all_actions": 0.48081867254836425,
+                "mAP_present_only_all_actions": 0.0717885260288424,
+                "mAP_freq_weighted_all_actions": 0.33510796995755093,
+                "mAP_sample_wise_all_actions": 0.07098016849668991,
+                "exact_match_with_null_verb": 0.0,
+                "hamming_accuracy_with_null_verb": 0.8299864130434783,
+                "precision_with_null_verb": 0.5112910270257337,
+                "recall_with_null_verb": 0.6048739386754882,
+                "f1_with_null_verb": 0.4843970627944214,
+                "num_predictions": 2944,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "29",
+                "action_sparsity_with_null_verb": 0.71,
+                "task": "single_step_action_prediction",
+                "method_name": "DirectVideoRL_ppo",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.5099589237531079,
+                "mAP_present_only": 0.0806724513663395,
+                "mAP_freq_weighted": 0.366764650288024,
+                "exact_match": 0.0,
+                "hamming_accuracy": 0.8375346901017576,
+                "precision": 0.5133617345437876,
+                "recall": 0.6250316022001206,
+                "f1": 0.4894256836553286,
+                "num_actions_total": 94,
+                "num_actions_present": "24",
+                "action_sparsity": 0.7446808510638299
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            },
+            "DirectVideoRL_a2c": {
+              "metrics": {
+                "mAP": 0.06284447519864514,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "24",
+                  "subset_action_sparsity": 0.7446808510638299
+                },
+                "mAP_standard_with_null_verb": 0.7262819985984684,
+                "mAP_present_only_with_null_verb": 0.05614482275333972,
+                "mAP_freq_weighted_with_null_verb": 0.25802484466596276,
+                "mAP_sample_wise_with_null_verb": 0.045774565590330954,
+                "mAP_standard_all_actions": 0.7262819985984684,
+                "mAP_present_only_all_actions": 0.05614482275333972,
+                "mAP_freq_weighted_all_actions": 0.25802484466596276,
+                "mAP_sample_wise_all_actions": 0.045774565590330954,
+                "exact_match_with_null_verb": 0.08186141304347826,
+                "hamming_accuracy_with_null_verb": 0.9848539402173913,
+                "precision_with_null_verb": 0.4924269701086956,
+                "recall_with_null_verb": 0.5,
+                "f1_with_null_verb": 0.49618459084678296,
+                "num_predictions": 2944,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "29",
+                "action_sparsity_with_null_verb": 0.71,
+                "task": "single_step_action_prediction",
+                "method_name": "DirectVideoRL_a2c",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.7607262489868881,
+                "mAP_present_only": 0.06284447519864514,
+                "mAP_freq_weighted": 0.28230459807121866,
+                "exact_match": 0.09612771739130435,
+                "hamming_accuracy": 0.9854446114708603,
+                "precision": 0.49272230573543013,
+                "recall": 0.5,
+                "f1": 0.4963344763069576,
+                "num_actions_total": 94,
+                "num_actions_present": "24",
+                "action_sparsity": 0.7446808510638299
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            }
+          },
+          "planning_evaluation": {
+            "WorldModelRL_world_model_ppo": {},
+            "DirectVideoRL_ppo": {},
+            "DirectVideoRL_a2c": {}
+          },
+          "summary": {
+            "primary_comparison": {
+              "WorldModelRL_world_model_ppo": {
+                "mAP": 0.05460877799884916,
+                "exact_match": 0.0,
+                "task": "single_step_action_prediction"
+              },
+              "DirectVideoRL_ppo": {
+                "mAP": 0.0806724513663395,
+                "exact_match": 0.0,
+                "task": "single_step_action_prediction"
+              },
+              "DirectVideoRL_a2c": {
+                "mAP": 0.06284447519864514,
+                "exact_match": 0.09612771739130435,
+                "task": "single_step_action_prediction"
+              }
+            },
+            "secondary_analysis": {},
+            "overall_ranking": {},
+            "paradigm_insights": {
+              "fair_comparison_task": "single_step_action_prediction",
+              "planning_analysis": "shows_method_specific_strengths",
+              "evaluation_approach": "respects_training_paradigms"
+            }
+          },
+          "fairness_report": {
+            "evaluation_design": {
+              "primary_evaluation": "single_step_fair_comparison",
+              "secondary_evaluation": "method_specific_planning_analysis",
+              "data_handling": "uses_dataloader_batches_like_training",
+              "temporal_structure": "maintained_for_il_model",
+              "ground_truth_leakage": "eliminated"
+            },
+            "method_fairness": {
+              "AutoregressiveIL": "evaluated_with_proper_temporal_sequences",
+              "WorldModelRL": "evaluated_with_consistent_batch_approach",
+              "DirectVideoRL": "evaluated_with_consistent_batch_approach"
+            },
+            "data_integrity": {
+              "temporal_context": "preserved_for_models_that_need_it",
+              "batch_structure": "mirrors_training_approach",
+              "evaluation_consistency": "matches_model_training_interface"
+            },
+            "comparison_validity": {
+              "single_step_comparison": "valid_and_fair_with_proper_data_handling",
+              "planning_comparison": "method_specific_respecting_capabilities",
+              "overall_approach": "methodologically_sound_and_consistent_with_training"
+            }
+          }
+        },
+        "VID66": {
+          "video_id": "VID66",
+          "evaluation_type": "comprehensive_fair_evaluation_with_proper_batches",
+          "single_step_evaluation": {
+            "WorldModelRL_world_model_ppo": {
+              "metrics": {
+                "mAP": 0.07810090108479043,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "20",
+                  "subset_action_sparsity": 0.7872340425531915
+                },
+                "mAP_standard_with_null_verb": 0.6459630994148585,
+                "mAP_present_only_with_null_verb": 0.06940478006460209,
+                "mAP_freq_weighted_with_null_verb": 0.29369521416609146,
+                "mAP_sample_wise_with_null_verb": 0.02011458790055625,
+                "mAP_standard_all_actions": 0.6459630994148585,
+                "mAP_present_only_all_actions": 0.06940478006460209,
+                "mAP_freq_weighted_all_actions": 0.29369521416609146,
+                "mAP_sample_wise_all_actions": 0.02011458790055625,
+                "exact_match_with_null_verb": 0.0,
+                "hamming_accuracy_with_null_verb": 0.9139309210526316,
+                "precision_with_null_verb": 0.49177526100031044,
+                "recall_with_null_verb": 0.4655117297341289,
+                "f1_with_null_verb": 0.4779596923256181,
+                "num_predictions": 1824,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "23",
+                "action_sparsity_with_null_verb": 0.77,
+                "task": "single_step_action_prediction",
+                "method_name": "WorldModelRL_world_model_ppo",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.66555338320953,
+                "mAP_present_only": 0.07810090108479043,
+                "mAP_freq_weighted": 0.3028646179312098,
+                "exact_match": 0.0,
+                "hamming_accuracy": 0.9127822881672266,
+                "precision": 0.49152662160808797,
+                "recall": 0.4651927165929834,
+                "f1": 0.4776680400245102,
+                "num_actions_total": 94,
+                "num_actions_present": "20",
+                "action_sparsity": 0.7872340425531915
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            },
+            "DirectVideoRL_ppo": {
+              "metrics": {
+                "mAP": 0.1043521618031545,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "20",
+                  "subset_action_sparsity": 0.7872340425531915
+                },
+                "mAP_standard_with_null_verb": 0.5115265902869451,
+                "mAP_present_only_with_null_verb": 0.09359387081280485,
+                "mAP_freq_weighted_with_null_verb": 0.3654712556426212,
+                "mAP_sample_wise_with_null_verb": 0.06466791374533871,
+                "mAP_standard_all_actions": 0.5115265902869451,
+                "mAP_present_only_all_actions": 0.09359387081280485,
+                "mAP_freq_weighted_all_actions": 0.3654712556426212,
+                "mAP_sample_wise_all_actions": 0.06466791374533871,
+                "exact_match_with_null_verb": 0.0,
+                "hamming_accuracy_with_null_verb": 0.8421546052631579,
+                "precision_with_null_verb": 0.5117075231997722,
+                "recall_with_null_verb": 0.5972875006638694,
+                "f1_with_null_verb": 0.4892272879083943,
+                "num_predictions": 1824,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "23",
+                "action_sparsity_with_null_verb": 0.77,
+                "task": "single_step_action_prediction",
+                "method_name": "DirectVideoRL_ppo",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.5328408854900328,
+                "mAP_present_only": 0.1043521618031545,
+                "mAP_freq_weighted": 0.37660405787653867,
+                "exact_match": 0.0,
+                "hamming_accuracy": 0.8478210153042179,
+                "precision": 0.5135090834015088,
+                "recall": 0.6057989110369492,
+                "f1": 0.49399371278276905,
+                "num_actions_total": 94,
+                "num_actions_present": "20",
+                "action_sparsity": 0.7872340425531915
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            },
+            "DirectVideoRL_a2c": {
+              "metrics": {
+                "mAP": 0.10971332107970291,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "20",
+                  "subset_action_sparsity": 0.7872340425531915
+                },
+                "mAP_standard_with_null_verb": 0.7924174944074939,
+                "mAP_present_only_with_null_verb": 0.09746736698910372,
+                "mAP_freq_weighted_with_null_verb": 0.30641389843715683,
+                "mAP_sample_wise_with_null_verb": 0.050083075010524364,
+                "mAP_standard_all_actions": 0.7924174944074939,
+                "mAP_present_only_all_actions": 0.09746736698910372,
+                "mAP_freq_weighted_all_actions": 0.30641389843715683,
+                "mAP_sample_wise_all_actions": 0.050083075010524364,
+                "exact_match_with_null_verb": 0.06578947368421052,
+                "hamming_accuracy_with_null_verb": 0.9841611842105263,
+                "precision_with_null_verb": 0.49208059210526317,
+                "recall_with_null_verb": 0.5,
+                "f1_with_null_verb": 0.49600868721868085,
+                "num_predictions": 1824,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "23",
+                "action_sparsity_with_null_verb": 0.77,
+                "task": "single_step_action_prediction",
+                "method_name": "DirectVideoRL_a2c",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.8105773023573837,
+                "mAP_present_only": 0.10971332107970291,
+                "mAP_freq_weighted": 0.3158228548726555,
+                "exact_match": 0.07291666666666667,
+                "hamming_accuracy": 0.9836809443822322,
+                "precision": 0.4918404721911161,
+                "recall": 0.5,
+                "f1": 0.49588667329189623,
+                "num_actions_total": 94,
+                "num_actions_present": "20",
+                "action_sparsity": 0.7872340425531915
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            }
+          },
+          "planning_evaluation": {
+            "WorldModelRL_world_model_ppo": {},
+            "DirectVideoRL_ppo": {},
+            "DirectVideoRL_a2c": {}
+          },
+          "summary": {
+            "primary_comparison": {
+              "WorldModelRL_world_model_ppo": {
+                "mAP": 0.07810090108479043,
+                "exact_match": 0.0,
+                "task": "single_step_action_prediction"
+              },
+              "DirectVideoRL_ppo": {
+                "mAP": 0.1043521618031545,
+                "exact_match": 0.0,
+                "task": "single_step_action_prediction"
+              },
+              "DirectVideoRL_a2c": {
+                "mAP": 0.10971332107970291,
+                "exact_match": 0.07291666666666667,
+                "task": "single_step_action_prediction"
+              }
+            },
+            "secondary_analysis": {},
+            "overall_ranking": {},
+            "paradigm_insights": {
+              "fair_comparison_task": "single_step_action_prediction",
+              "planning_analysis": "shows_method_specific_strengths",
+              "evaluation_approach": "respects_training_paradigms"
+            }
+          },
+          "fairness_report": {
+            "evaluation_design": {
+              "primary_evaluation": "single_step_fair_comparison",
+              "secondary_evaluation": "method_specific_planning_analysis",
+              "data_handling": "uses_dataloader_batches_like_training",
+              "temporal_structure": "maintained_for_il_model",
+              "ground_truth_leakage": "eliminated"
+            },
+            "method_fairness": {
+              "AutoregressiveIL": "evaluated_with_proper_temporal_sequences",
+              "WorldModelRL": "evaluated_with_consistent_batch_approach",
+              "DirectVideoRL": "evaluated_with_consistent_batch_approach"
+            },
+            "data_integrity": {
+              "temporal_context": "preserved_for_models_that_need_it",
+              "batch_structure": "mirrors_training_approach",
+              "evaluation_consistency": "matches_model_training_interface"
+            },
+            "comparison_validity": {
+              "single_step_comparison": "valid_and_fair_with_proper_data_handling",
+              "planning_comparison": "method_specific_respecting_capabilities",
+              "overall_approach": "methodologically_sound_and_consistent_with_training"
+            }
+          }
+        },
+        "VID79": {
+          "video_id": "VID79",
+          "evaluation_type": "comprehensive_fair_evaluation_with_proper_batches",
+          "single_step_evaluation": {
+            "WorldModelRL_world_model_ppo": {
+              "metrics": {
+                "mAP": 0.05167382129188798,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "31",
+                  "subset_action_sparsity": 0.6702127659574468
+                },
+                "mAP_standard_with_null_verb": 0.5172762966161455,
+                "mAP_present_only_with_null_verb": 0.04798971282262652,
+                "mAP_freq_weighted_with_null_verb": 0.24477987560657535,
+                "mAP_sample_wise_with_null_verb": 0.02514685707929268,
+                "mAP_standard_all_actions": 0.5172762966161455,
+                "mAP_present_only_all_actions": 0.04798971282262652,
+                "mAP_freq_weighted_all_actions": 0.24477987560657535,
+                "mAP_sample_wise_all_actions": 0.02514685707929268,
+                "exact_match_with_null_verb": 0.0,
+                "hamming_accuracy_with_null_verb": 0.9250234329232572,
+                "precision_with_null_verb": 0.4925923777536254,
+                "recall_with_null_verb": 0.47501111315750605,
+                "f1_with_null_verb": 0.48262336188381777,
+                "num_predictions": 3414,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "36",
+                "action_sparsity_with_null_verb": 0.64,
+                "task": "single_step_action_prediction",
+                "method_name": "WorldModelRL_world_model_ppo",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.5489562602132823,
+                "mAP_present_only": 0.05167382129188798,
+                "mAP_freq_weighted": 0.2560377272820193,
+                "exact_match": 0.0,
+                "hamming_accuracy": 0.9244070099340638,
+                "precision": 0.49259120831139086,
+                "recall": 0.47502116192090144,
+                "f1": 0.48257208354822445,
+                "num_actions_total": 94,
+                "num_actions_present": "31",
+                "action_sparsity": 0.6702127659574468
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            },
+            "DirectVideoRL_ppo": {
+              "metrics": {
+                "mAP": 0.06256905492215384,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "31",
+                  "subset_action_sparsity": 0.6702127659574468
+                },
+                "mAP_standard_with_null_verb": 0.44071401589682174,
+                "mAP_present_only_with_null_verb": 0.05753893304672707,
+                "mAP_freq_weighted_with_null_verb": 0.3152809974885924,
+                "mAP_sample_wise_with_null_verb": 0.08282646783588783,
+                "mAP_standard_all_actions": 0.44071401589682174,
+                "mAP_present_only_all_actions": 0.05753893304672707,
+                "mAP_freq_weighted_all_actions": 0.3152809974885924,
+                "mAP_sample_wise_all_actions": 0.08282646783588783,
+                "exact_match_with_null_verb": 0.0,
+                "hamming_accuracy_with_null_verb": 0.832568834212068,
+                "precision_with_null_verb": 0.5134882202321306,
+                "recall_with_null_verb": 0.6127821643162283,
+                "f1_with_null_verb": 0.48958186956102623,
+                "num_predictions": 3414,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "36",
+                "action_sparsity_with_null_verb": 0.64,
+                "task": "single_step_action_prediction",
+                "method_name": "DirectVideoRL_ppo",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.4568046883253912,
+                "mAP_present_only": 0.06256905492215384,
+                "mAP_freq_weighted": 0.33012078067347195,
+                "exact_match": 0.0,
+                "hamming_accuracy": 0.8385029104189258,
+                "precision": 0.5149792570064046,
+                "recall": 0.6207321781332094,
+                "f1": 0.493736473686203,
+                "num_actions_total": 94,
+                "num_actions_present": "31",
+                "action_sparsity": 0.6702127659574468
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            },
+            "DirectVideoRL_a2c": {
+              "metrics": {
+                "mAP": 0.05498076605781179,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "31",
+                  "subset_action_sparsity": 0.6702127659574468
+                },
+                "mAP_standard_with_null_verb": 0.657769549823405,
+                "mAP_present_only_with_null_verb": 0.04935986062056931,
+                "mAP_freq_weighted_with_null_verb": 0.26171425093348843,
+                "mAP_sample_wise_with_null_verb": 0.06633427705893269,
+                "mAP_standard_all_actions": 0.657769549823405,
+                "mAP_present_only_all_actions": 0.04935986062056931,
+                "mAP_freq_weighted_all_actions": 0.26171425093348843,
+                "mAP_sample_wise_all_actions": 0.06633427705893269,
+                "exact_match_with_null_verb": 0.04979496192149971,
+                "hamming_accuracy_with_null_verb": 0.9833567662565905,
+                "precision_with_null_verb": 0.49167838312829526,
+                "recall_with_null_verb": 0.5,
+                "f1_with_null_verb": 0.4958042763595119,
+                "num_predictions": 3414,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "36",
+                "action_sparsity_with_null_verb": 0.64,
+                "task": "single_step_action_prediction",
+                "method_name": "DirectVideoRL_a2c",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.6883447207211933,
+                "mAP_present_only": 0.05498076605781179,
+                "mAP_freq_weighted": 0.27477801849808514,
+                "exact_match": 0.06854130052724078,
+                "hamming_accuracy": 0.9832136758528711,
+                "precision": 0.49160683792643556,
+                "recall": 0.5,
+                "f1": 0.4957678982472955,
+                "num_actions_total": 94,
+                "num_actions_present": "31",
+                "action_sparsity": 0.6702127659574468
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": false
+            }
+          },
+          "planning_evaluation": {
+            "WorldModelRL_world_model_ppo": {},
+            "DirectVideoRL_ppo": {},
+            "DirectVideoRL_a2c": {}
+          },
+          "summary": {
+            "primary_comparison": {
+              "WorldModelRL_world_model_ppo": {
+                "mAP": 0.05167382129188798,
+                "exact_match": 0.0,
+                "task": "single_step_action_prediction"
+              },
+              "DirectVideoRL_ppo": {
+                "mAP": 0.06256905492215384,
+                "exact_match": 0.0,
+                "task": "single_step_action_prediction"
+              },
+              "DirectVideoRL_a2c": {
+                "mAP": 0.05498076605781179,
+                "exact_match": 0.06854130052724078,
+                "task": "single_step_action_prediction"
+              }
+            },
+            "secondary_analysis": {},
+            "overall_ranking": {},
+            "paradigm_insights": {
+              "fair_comparison_task": "single_step_action_prediction",
+              "planning_analysis": "shows_method_specific_strengths",
+              "evaluation_approach": "respects_training_paradigms"
+            }
+          },
+          "fairness_report": {
+            "evaluation_design": {
+              "primary_evaluation": "single_step_fair_comparison",
+              "secondary_evaluation": "method_specific_planning_analysis",
+              "data_handling": "uses_dataloader_batches_like_training",
+              "temporal_structure": "maintained_for_il_model",
+              "ground_truth_leakage": "eliminated"
+            },
+            "method_fairness": {
+              "AutoregressiveIL": "evaluated_with_proper_temporal_sequences",
+              "WorldModelRL": "evaluated_with_consistent_batch_approach",
+              "DirectVideoRL": "evaluated_with_consistent_batch_approach"
+            },
+            "data_integrity": {
+              "temporal_context": "preserved_for_models_that_need_it",
+              "batch_structure": "mirrors_training_approach",
+              "evaluation_consistency": "matches_model_training_interface"
+            },
+            "comparison_validity": {
+              "single_step_comparison": "valid_and_fair_with_proper_data_handling",
+              "planning_comparison": "method_specific_respecting_capabilities",
+              "overall_approach": "methodologically_sound_and_consistent_with_training"
+            }
+          }
+        }
+      },
+      "aggregate_results": {
+        "single_step_comparison": {
+          "DirectVideoRL_ppo": {
+            "mean_mAP": 0.07871219711944182,
+            "std_mAP": 0.021971667119604472,
+            "mean_exact_match": 0.0,
+            "std_exact_match": 0.0,
+            "num_videos": 10,
+            "evaluation_type": "single_step_fair_comparison"
+          },
+          "WorldModelRL_world_model_ppo": {
+            "mean_mAP": 0.06345258039931023,
+            "std_mAP": 0.015562055598052238,
+            "mean_exact_match": 4.662004662004662e-05,
+            "std_exact_match": 0.00013986013986013986,
+            "num_videos": 10,
+            "evaluation_type": "single_step_fair_comparison"
+          },
+          "DirectVideoRL_a2c": {
+            "mean_mAP": 0.06699654947171267,
+            "std_mAP": 0.021305821750725793,
+            "mean_exact_match": 0.10624791079624359,
+            "std_exact_match": 0.06941742420543016,
+            "num_videos": 10,
+            "evaluation_type": "single_step_fair_comparison"
+          }
+        },
+        "planning_analysis": {},
+        "method_rankings": {
+          "single_step_ranking": [
+            [
+              "DirectVideoRL_ppo",
+              0.07871219711944182
+            ],
+            [
+              "DirectVideoRL_a2c",
+              0.06699654947171267
+            ],
+            [
+              "WorldModelRL_world_model_ppo",
+              0.06345258039931023
+            ]
+          ],
+          "planning_ranking": []
+        }
+      },
+      "statistical_tests": {
+        "DirectVideoRL_ppo_vs_WorldModelRL_world_model_ppo": {
+          "t_statistic": 1.7002638668465586,
+          "p_value": 0.10629459026779672,
+          "cohens_d": 0.8015120733691085,
+          "significant": "False",
+          "mean_diff": 0.015259616720131583,
+          "method1_mean": 0.07871219711944182,
+          "method2_mean": 0.06345258039931023
+        },
+        "DirectVideoRL_ppo_vs_DirectVideoRL_a2c": {
+          "t_statistic": 1.1483892151994133,
+          "p_value": 0.2658410517137248,
+          "cohens_d": 0.5413558676726685,
+          "significant": "False",
+          "mean_diff": 0.011715647647729144,
+          "method1_mean": 0.07871219711944182,
+          "method2_mean": 0.06699654947171267
+        },
+        "WorldModelRL_world_model_ppo_vs_DirectVideoRL_a2c": {
+          "t_statistic": -0.4029679352513438,
+          "p_value": 0.6917177939074686,
+          "cohens_d": -0.18996090641131125,
+          "significant": "False",
+          "mean_diff": -0.003543969072402439,
+          "method1_mean": 0.06345258039931023,
+          "method2_mean": 0.06699654947171267
+        }
+      },
+      "evaluation_design": {
+        "data_handling": "uses_dataloader_batches_like_training",
+        "temporal_structure": "maintained_properly",
+        "model_interfaces": "consistent_with_training",
+        "primary_evaluation": "single_step_action_prediction_with_proper_context",
+        "secondary_evaluation": "multi_step_planning_analysis",
+        "fairness_approach": "respects_training_paradigms_and_data_structure"
+      },
+      "timestamp": "2025-06-14 22:22:48.233048"
+    },
+    "file_paths": {
+      "evaluation": "results/fixed_rl_2025-06-14_21-47-48/integrated_evaluation/evaluation_results.json",
+      "fair_comparison": "results/fixed_rl_2025-06-14_21-47-48/integrated_evaluation/fair_single_step_comparison.csv",
+      "planning_analysis": "results/fixed_rl_2025-06-14_21-47-48/integrated_evaluation/planning_capability_analysis.csv"
+    }
+  }
+}

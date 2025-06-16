@@ -140,14 +140,23 @@ class ExperimentRunner:
         self.logger.info("📂 Loading CholecT50 data...")
         
         train_videos = self.config.get('experiment', {}).get('train', {}).get('max_videos', 2)
+        test_videos = self.config.get('experiment', {}).get('test', {}).get('max_videos', 1)
+        test_on_train = self.config.get('test_on_train_data', False)
+
+        self.logger.info(f"🔍 Loading training data (max {train_videos} videos)")
         train_data = load_cholect50_data(
             self.config, self.logger, split='train', max_videos=train_videos
         )
-        
-        test_videos = self.config.get('experiment', {}).get('test', {}).get('max_videos', 1)
-        test_data = load_cholect50_data(
-            self.config, self.logger, split='test', max_videos=test_videos
-        )
+
+        if not test_on_train:        
+            self.logger.info(f"🔍 Loading test data (max {test_videos} videos)")
+            test_data = load_cholect50_data(
+                self.config, self.logger, split='test', max_videos=test_videos
+            )
+        else:
+            self.logger.info("🔍 Using training data for testing (test_on_train_data is True)")
+            test_data = train_data
+
         self.logger.info(f"✅ Data loaded successfully")
         self.logger.info(f"   Training videos: {len(train_data)}")
         self.logger.info(f"   Test videos: {len(test_data)}")

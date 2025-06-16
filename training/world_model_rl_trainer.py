@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 from collections import deque
 
 # Custom imports
-from environment.rl_environments import WorldModelSimulationEnv
+from environment.world_model_sim_env import WorldModelSimulationEnv
 
 class RLMonitoringCallback(BaseCallback):
     """

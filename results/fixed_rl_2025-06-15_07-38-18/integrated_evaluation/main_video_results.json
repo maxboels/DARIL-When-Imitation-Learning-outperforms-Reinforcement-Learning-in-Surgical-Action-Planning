@@ -1,0 +1,562 @@
+{
+    "VID01": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.0819530375838689,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.08543613036704142,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.10872426010310532,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID04": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.07348453405231663,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.0936586085914512,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.09337023142605029,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID05": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.07994469712771357,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.08209898292255936,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.0812200455608666,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID08": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.09391454858309299,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.08973314140927936,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.09349131563427862,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID10": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.09121818442980341,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.10088937128569601,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.10294657132810824,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID103": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.06273465743476503,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.08166748762550491,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.09305690561288568,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID110": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.08205274345285318,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.05635125626264997,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.08147467169314629,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID12": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.12723328611555743,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.1154220096443313,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.13429129299384132,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID13": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.23440148514935932,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.14013892324691052,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.1438615169138608,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID15": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.06575704552019271,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.0735587636427862,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.07362240610587112,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID18": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.1265820335250911,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.09723742188185108,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.10549156751869379,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID22": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.08691179099813175,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.11950487208719343,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.09541641047615707,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID26": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.08121741515182063,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.08912190000318838,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.08699237757271013,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID27": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.12797766312045977,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.09738947773133301,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.08875441870896118,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID29": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.08142288532818953,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.08629574895620813,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.08539683005128375,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID31": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.11715269839945425,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.10551421106082098,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.10555424061882722,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID32": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.07985878389239381,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.07777334816248094,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.06787928798573493,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID35": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.10670756237959843,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.0955260745380638,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.08855300879370166,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID36": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.11657757348919323,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.10547097370040016,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.09810959615114499,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID40": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.10649758405597068,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.11834006215115622,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.12179411302903899,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID42": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.08423857810844558,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.09611540623113674,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.1036822358579067,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID43": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.080359679286811,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.051959527065827495,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.08004787458195962,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID47": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.0849644171888556,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.0811692535132995,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.06832422706648252,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID48": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.16292556200374186,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.1093850173995024,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.11455897249424929,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID49": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.08268062502716265,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.07381583033712903,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.0745489951881151,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID52": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.08470002053899013,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.08203986800065535,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.06749925326021794,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID56": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.12246571205162982,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.11100176981184652,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.12499656991843669,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID57": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.08944349354277437,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.083022185582904,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.07963652768901334,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID60": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.05973702523766521,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.08178307229126805,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.07970271076637508,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID62": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.12474350043411112,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.1098022430884096,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.13520766971034398,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID65": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.09567791345056548,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.12301005155374839,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.12325162539527863,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID68": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.08947662366463152,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.06608063594968798,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.08366821478393482,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID70": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.07387184667833106,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.09304019211468278,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.0802823244030422,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID73": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.08357804571613092,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.08716584441231727,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.08290509260344957,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID74": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.0791428160837164,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.08825431350497166,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.08621691551758058,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID75": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.09077082902270582,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.07964577909862769,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.08870840009310783,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID78": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.1501661743499509,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.14109746958798208,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.08861161829457874,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID80": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.09091393400787622,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.08699382686178204,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.11237634913928735,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID92": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.0863004729135254,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.044643581350697376,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.08484016588930794,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID96": {
+        "WorldModelRL_world_model_ppo": {
+            "mAP": 0.044591831901574494,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_ppo": {
+            "mAP": 0.04453454547824026,
+            "evaluation_type": "next_action_prediction"
+        },
+        "DirectVideoRL_a2c": {
+            "mAP": 0.05353038592772207,
+            "evaluation_type": "next_action_prediction"
+        }
+    }
+}
