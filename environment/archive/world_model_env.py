@@ -64,7 +64,7 @@ class SurgicalWorldModelEnv(gym.Env):
             'phase_progression': 1.0,
             'global_progression': 0.8,
             'action_probability': 0.3,
-            'risk_penalty': -0.5,
+            'risk_penalty': -0.01,
         })
         
         # Performance tracking

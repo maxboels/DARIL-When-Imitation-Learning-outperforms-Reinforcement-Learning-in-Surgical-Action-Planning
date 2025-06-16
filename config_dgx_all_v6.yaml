@@ -1,28 +1,4 @@
-# Updated Configuration with IMPROVED RL Parameters
-# Based on config_dgx_all.yaml but with fixes for RL training
-
-# Debug mode
 debug: false
-
-# Training mode
-training_mode: 'rl'
-
-# Data preprocessing
-preprocess:
-  extract_rewards: false # already in the passed .csv file bellow
-  analyze_rewards: true  # Enable reward analysis during data loading
-  rewards:
-    grounded:
-      phase_completion: true
-      phase_transition: true  
-      phase_progression: true
-      global_progression: true
-    imitation:
-      action_distribution: true
-    expert_knowledge:
-      risk_score: true
-      frame_risk_agg: 'max'
-
 # Experiment configuration
 experiment:
   test_on_train: false  # Set to true for debugging purposes
@@ -31,12 +7,7 @@ experiment:
     max_videos: 40  # INCREASED for better RL training
   test:
     max_videos: 10  # INCREASED for better evaluation
-  
-  # Dual World Model Training
-  # dual_world_model:
-  #   train: true
-  #   best_model_path: null
-  
+    
   # Imitation Learning
   autoregressive_il:
     enabled: false
@@ -163,6 +134,23 @@ data:
     video_global_outcome_file: "embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv"
   
   frame_risk_agg: 'max'
+
+training_mode: 'rl'
+preprocess:
+  extract_rewards: false # already in the passed .csv file bellow
+  analyze_rewards: false  # Enable reward analysis during data loading
+  rewards:
+    grounded:
+      phase_completion: true
+      phase_transition: true  
+      phase_progression: true
+      global_progression: true
+    imitation:
+      action_distribution: true
+    expert_knowledge:
+      risk_score: true
+      frame_risk_agg: 'max'
+
 
 # Model configurations
 models:

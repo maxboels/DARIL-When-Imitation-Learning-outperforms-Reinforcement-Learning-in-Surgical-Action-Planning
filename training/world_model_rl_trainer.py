@@ -17,109 +17,7 @@ import matplotlib.pyplot as plt
 from collections import deque
 
 # Custom imports
-from environment.rl_environments import WorldModelSimulationEnv
-
-class RLMonitoringCallback(BaseCallback):
-    """
-    Custom callback for monitoring RL training progress with surgical-specific metrics.
-    """
-    
-    def __init__(self, eval_env, save_dir: str, eval_freq: int = 1000):
-        super().__init__()
-        self.eval_env = eval_env
-        self.save_dir = Path(save_dir)
-        self.eval_freq = eval_freq
-        
-        # Metrics tracking
-        self.episode_rewards = deque(maxlen=100)
-        self.episode_lengths = deque(maxlen=100)
-        self.expert_matching_scores = deque(maxlen=100)
-        self.action_densities = deque(maxlen=100)
-        
-        # Training progress
-        self.evaluations = []
-        self.eval_episodes = []
-        self.best_mean_reward = -np.inf
-        
-    def _on_step(self) -> bool:
-        """Called at each training step."""
-        
-        # Extract episode info from the environment
-        if 'episode' in self.locals:
-            episode_info = self.locals.get('infos', [{}])[0]
-            
-            if 'episode' in episode_info:
-                ep_info = episode_info['episode']
-                self.episode_rewards.append(ep_info['r'])
-                self.episode_lengths.append(ep_info['l'])
-                
-                # Extract surgical-specific metrics
-                if 'episode_expert_matching' in episode_info:
-                    self.expert_matching_scores.append(episode_info['episode_expert_matching'])
-                
-                if 'action_sum' in episode_info:
-                    self.action_densities.append(episode_info['action_sum'])
-                
-                # Log progress every 50 episodes
-                if len(self.episode_rewards) % 50 == 0:
-                    self._log_training_progress()
-        
-        # Evaluation
-        if self.num_timesteps % self.eval_freq == 0:
-            self._evaluate_model()
-        
-        return True
-    
-    def _log_training_progress(self):
-        """Log training progress with surgical metrics."""
-        if len(self.episode_rewards) < 10:
-            return
-        
-        recent_rewards = list(self.episode_rewards)[-10:]
-        recent_lengths = list(self.episode_lengths)[-10:]
-        recent_expert_scores = list(self.expert_matching_scores)[-10:] if self.expert_matching_scores else [0]
-        recent_action_densities = list(self.action_densities)[-10:] if self.action_densities else [0]
-        
-        print(f"\n📊 Training Progress (Step {self.num_timesteps}):")
-        print(f"   Avg Reward: {np.mean(recent_rewards):.3f} ± {np.std(recent_rewards):.3f}")
-        print(f"   Avg Length: {np.mean(recent_lengths):.1f}")
-        print(f"   Expert Matching: {np.mean(recent_expert_scores):.3f}")
-        print(f"   Avg Actions/Step: {np.mean(recent_action_densities):.1f}")
-        
-        # Check for learning progress
-        if len(self.episode_rewards) >= 50:
-            early_rewards = list(self.episode_rewards)[-50:-25]
-            late_rewards = list(self.episode_rewards)[-25:]
-            improvement = np.mean(late_rewards) - np.mean(early_rewards)
-            
-            if improvement > 0.1:
-                print(f"   📈 Learning progress: +{improvement:.3f}")
-            elif improvement < -0.1:
-                print(f"   📉 Performance declining: {improvement:.3f}")
-            else:
-                print(f"   ➡️  Stable performance: {improvement:.3f}")
-    
-    def _evaluate_model(self):
-        """Evaluate model performance."""
-        mean_reward, std_reward = evaluate_policy(
-            self.model, self.eval_env, n_eval_episodes=5, deterministic=True
-        )
-        
-        self.evaluations.append({
-            'timestep': self.num_timesteps,
-            'mean_reward': mean_reward,
-            'std_reward': std_reward
-        })
-        
-        print(f"🔍 Evaluation: {mean_reward:.3f} ± {std_reward:.3f}")
-        
-        # Save best model
-        if mean_reward > self.best_mean_reward:
-            self.best_mean_reward = mean_reward
-            best_model_path = self.save_dir / 'best_model.zip'
-            self.model.save(str(best_model_path))
-            print(f"💾 New best model saved: {mean_reward:.3f}")
-
+from environment.world_model_env import WorldModelSimulationEnv
 
 class WorldModelRLTrainer:
     """
@@ -135,8 +33,8 @@ class WorldModelRLTrainer:
         self.save_dir = Path(logger.log_dir) / 'rl_training'
         self.save_dir.mkdir(exist_ok=True)
         
-        print("🔧 RL Trainer initialized")
-        print(f"📁 Save dir: {self.save_dir}")
+        self.logger.info(f"🔧 RL Trainer initialized with config: {self.config}")
+        self.logger.info(f"📂 Results will be saved to: {self.save_dir}")
     
     def create_world_model_env(self, world_model, train_data: List[Dict]):
         """Create world model environment."""
@@ -146,6 +44,7 @@ class WorldModelRLTrainer:
                 world_model=world_model,
                 video_data=train_data,
                 config=self.config.get('rl_training', {}),
+                logger=self.logger,
                 device=self.device
             )
             return Monitor(env)
@@ -383,6 +282,20 @@ class WorldModelRLTrainer:
             traceback.print_exc()
             return {'algorithm': 'PPO_DirectVideo', 'status': 'failed', 'error': str(e)}
 
+    def convert_continuous_to_binary(self, action):
+        # Use adaptive thresholding instead of fixed 0.5
+        threshold = np.percentile(action, 85)  # Top 15% of actions
+        threshold = max(threshold, 0.4)  # Minimum threshold
+        binary_action = (action > threshold).astype(np.float32)
+        
+        # Cap at max 3 actions
+        if np.sum(binary_action) > 3:
+            top_3_indices = np.argsort(action)[-3:]
+            binary_action = np.zeros(100)
+            binary_action[top_3_indices] = 1.0
+        
+        return binary_action
+
     def optimize_action_threshold(self, rl_model, test_data):
         """Find optimal threshold for action prediction after training"""
         
@@ -520,6 +433,108 @@ class WorldModelRLTrainer:
         plt.close()
         
         print(f"📊 Training curves saved to {plot_path}")
+
+
+class RLMonitoringCallback(BaseCallback):
+    """
+    Custom callback for monitoring RL training progress with surgical-specific metrics.
+    """
+    
+    def __init__(self, eval_env, save_dir: str, eval_freq: int = 1000):
+        super().__init__()
+        self.eval_env = eval_env
+        self.save_dir = Path(save_dir)
+        self.eval_freq = eval_freq
+        
+        # Metrics tracking
+        self.episode_rewards = deque(maxlen=100)
+        self.episode_lengths = deque(maxlen=100)
+        self.expert_matching_scores = deque(maxlen=100)
+        self.action_densities = deque(maxlen=100)
+        
+        # Training progress
+        self.evaluations = []
+        self.eval_episodes = []
+        self.best_mean_reward = -np.inf
+        
+    def _on_step(self) -> bool:
+        """Called at each training step."""
+        
+        # Extract episode info from the environment
+        if 'episode' in self.locals:
+            episode_info = self.locals.get('infos', [{}])[0]
+            
+            if 'episode' in episode_info:
+                ep_info = episode_info['episode']
+                self.episode_rewards.append(ep_info['r'])
+                self.episode_lengths.append(ep_info['l'])
+                
+                # Extract surgical-specific metrics
+                if 'episode_expert_matching' in episode_info:
+                    self.expert_matching_scores.append(episode_info['episode_expert_matching'])
+                
+                if 'action_sum' in episode_info:
+                    self.action_densities.append(episode_info['action_sum'])
+                
+                # Log progress every 50 episodes
+                if len(self.episode_rewards) % 50 == 0:
+                    self._log_training_progress()
+        
+        # Evaluation
+        if self.num_timesteps % self.eval_freq == 0:
+            self._evaluate_model()
+        
+        return True
+    
+    def _log_training_progress(self):
+        """Log training progress with surgical metrics."""
+        if len(self.episode_rewards) < 10:
+            return
+        
+        recent_rewards = list(self.episode_rewards)[-10:]
+        recent_lengths = list(self.episode_lengths)[-10:]
+        recent_expert_scores = list(self.expert_matching_scores)[-10:] if self.expert_matching_scores else [0]
+        recent_action_densities = list(self.action_densities)[-10:] if self.action_densities else [0]
+        
+        print(f"\n📊 Training Progress (Step {self.num_timesteps}):")
+        print(f"   Avg Reward: {np.mean(recent_rewards):.3f} ± {np.std(recent_rewards):.3f}")
+        print(f"   Avg Length: {np.mean(recent_lengths):.1f}")
+        print(f"   Expert Matching: {np.mean(recent_expert_scores):.3f}")
+        print(f"   Avg Actions/Step: {np.mean(recent_action_densities):.1f}")
+        
+        # Check for learning progress
+        if len(self.episode_rewards) >= 50:
+            early_rewards = list(self.episode_rewards)[-50:-25]
+            late_rewards = list(self.episode_rewards)[-25:]
+            improvement = np.mean(late_rewards) - np.mean(early_rewards)
+            
+            if improvement > 0.1:
+                print(f"   📈 Learning progress: +{improvement:.3f}")
+            elif improvement < -0.1:
+                print(f"   📉 Performance declining: {improvement:.3f}")
+            else:
+                print(f"   ➡️  Stable performance: {improvement:.3f}")
+    
+    def _evaluate_model(self):
+        """Evaluate model performance."""
+        mean_reward, std_reward = evaluate_policy(
+            self.model, self.eval_env, n_eval_episodes=5, deterministic=True
+        )
+        
+        self.evaluations.append({
+            'timestep': self.num_timesteps,
+            'mean_reward': mean_reward,
+            'std_reward': std_reward
+        })
+        
+        print(f"🔍 Evaluation: {mean_reward:.3f} ± {std_reward:.3f}")
+        
+        # Save best model
+        if mean_reward > self.best_mean_reward:
+            self.best_mean_reward = mean_reward
+            best_model_path = self.save_dir / 'best_model.zip'
+            self.model.save(str(best_model_path))
+            print(f"💾 New best model saved: {mean_reward:.3f}")
 
 
 # Usage example and integration
