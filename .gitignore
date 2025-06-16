@@ -31,6 +31,7 @@ results/*/paper/*
 results/*/*/*/*.zip
 results/*/*/*.zip
 
+*.pyc
 *.zip
 *.npz
 *.pt
@@ -40,4 +41,3 @@ results/*/complete_results.json
 results/*/*/*evaluation_results.json
 reward_analysis_*/*
 quick_test_results/checkpoints/*.pt
-*

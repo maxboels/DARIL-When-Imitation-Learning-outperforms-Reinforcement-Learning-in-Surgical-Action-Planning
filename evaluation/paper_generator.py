@@ -73,6 +73,9 @@ class ResearchPaperGenerator:
         if not eval_path.exists():
             # Try alternative path
             eval_path = self.results_dir / 'integrated_evaluation' / 'complete_integrated_results.json'
+        elif not eval_path.exists():
+            # Try legacy path
+            eval_path = self.results_dir / 'integrated_evaluation' / 'main_video_results.json'
         
         if eval_path.exists():
             with open(eval_path, 'r') as f:

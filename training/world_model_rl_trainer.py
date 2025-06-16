@@ -18,6 +18,8 @@ from collections import deque
 
 # Custom imports
 from environment.world_model_env import WorldModelSimulationEnv
+from environment.direct_video_env import DirectVideoEnvironment
+
 
 class WorldModelRLTrainer:
     """
@@ -54,9 +56,7 @@ class WorldModelRLTrainer:
     def create_direct_video_env(self, train_data: List[Dict]):
         """Create direct video environment."""
         def make_env():
-            # Import the environment
-            from rl_environment import DirectVideoEnvironment
-            
+
             env = DirectVideoEnvironment(
                 video_data=train_data,
                 config=self.config.get('rl_training', {}),
@@ -69,8 +69,9 @@ class WorldModelRLTrainer:
     def train_ppo_world_model(self, world_model, train_data: List[Dict], timesteps: int = 20000) -> Dict[str, Any]:
         """Train PPO with world model environment and proper hyperparameters."""
         
-        print("🌍 Training PPO with World Model")
-        print("-" * 50)
+        self.logger.info("-" * 50)
+        self.logger.info("🌍 Training PPO with World Model")
+        self.logger.info("-" * 50)
         
         try:
             # Create environment
@@ -81,7 +82,7 @@ class WorldModelRLTrainer:
             obs = env.reset()
             action = env.action_space.sample()
             obs, reward, done, info = env.step(action)
-            print(f"✅ Environment test: Reward={reward[0]:.3f}, Action shape={action.shape}")
+            self.logger.info(f"✅ Environment test: Reward={reward[0]:.3f}, Action shape={action.shape}")
             env.reset()
 
             model = PPO(
@@ -113,7 +114,7 @@ class WorldModelRLTrainer:
                 eval_freq=max(timesteps // 20, 1000)
             )
             
-            print(f"🚀 Training for {timesteps} timesteps with enhanced monitoring...")
+            self.logger.info(f"🚀 Training for {timesteps} timesteps with enhanced monitoring...")
             
             # Train with monitoring
             model.learn(
@@ -124,15 +125,15 @@ class WorldModelRLTrainer:
             )
 
             # ADD THIS OPTIMIZATION STEP HERE:
-            print("🎯 Optimizing action threshold...")
+            self.logger.info("🎯 Optimizing action threshold...")
             try:
                 optimal_threshold, threshold_map = self.optimize_action_threshold(model, train_data[:2])  # Use 2 videos for speed
             except Exception as e:
-                print(f"⚠️ Threshold optimization failed: {e}")
+                self.logger.info(f"⚠️ Threshold optimization failed: {e}")
                 optimal_threshold, threshold_map = 0.5, 0.0
 
             
-            # Final evaluation
+            # Evaluation on the environment
             mean_reward, std_reward = evaluate_policy(
                 model, eval_env, n_eval_episodes=10, deterministic=True
             )
@@ -160,9 +161,9 @@ class WorldModelRLTrainer:
                 'threshold_map': threshold_map
             }
             
-            print(f"✅ PPO World Model training completed!")
-            print(f"📊 Final performance: {mean_reward:.3f} ± {std_reward:.3f}")
-            print(f"📊 Episode stats: {episode_stats}")
+            self.logger.info(f"✅ PPO World Model training completed!")
+            self.logger.info(f"📊 Mean Reward: {mean_reward:.3f} ± {std_reward:.3f}")
+            self.logger.info(f"📊 Episode stats: {episode_stats}")
             
             # Plot training curves
             self._plot_training_results(monitor_callback, 'world_model_ppo')
@@ -170,7 +171,7 @@ class WorldModelRLTrainer:
             return result
             
         except Exception as e:
-            print(f"❌ PPO World Model training failed: {e}")
+            self.logger.info(f"❌ PPO World Model training failed: {e}")
             import traceback
             traceback.print_exc()
             return {'algorithm': 'PPO_WorldModel', 'status': 'failed', 'error': str(e)}
@@ -178,8 +179,9 @@ class WorldModelRLTrainer:
     def train_ppo_direct_video(self, train_data: List[Dict], timesteps: int = 20000) -> Dict[str, Any]:
         """Train PPO with direct video environment."""
         
-        print("🎬 Training PPO with Direct Video")
-        print("-" * 50)
+        self.logger.info("-" * 50)
+        self.logger.info("🎬 Training PPO with Direct Video")
+        self.logger.info("-" * 50)
         
         try:
             # Create environment
@@ -190,7 +192,7 @@ class WorldModelRLTrainer:
             obs = env.reset()
             action = env.action_space.sample()
             obs, reward, done, info = env.step(action)
-            print(f"✅ Environment test: Reward={reward[0]:.3f}, Action shape={action.shape}")
+            self.logger.info(f"✅ Environment test: Reward={reward[0]:.3f}, Action shape={action.shape}")
             env.reset()
             
             model = PPO(
@@ -222,7 +224,7 @@ class WorldModelRLTrainer:
                 eval_freq=max(timesteps // 20, 1000)
             )
             
-            print(f"🚀 Training for {timesteps} timesteps...")
+            self.logger.info(f"🚀 Training for {timesteps} timesteps...")
             
             # Train
             model.learn(
@@ -233,11 +235,11 @@ class WorldModelRLTrainer:
             )
 
             # ADD THIS OPTIMIZATION STEP HERE:
-            print("🎯 Optimizing action threshold...")
+            self.logger.info("🎯 Optimizing action threshold...")
             try:
                 optimal_threshold, threshold_map = self.optimize_action_threshold(model, train_data[:2])  # Use 2 videos for speed
             except Exception as e:
-                print(f"⚠️ Threshold optimization failed: {e}")
+                self.logger.info(f"⚠️ Threshold optimization failed: {e}")
                 optimal_threshold, threshold_map = 0.5, 0.0
 
             # Final evaluation
@@ -268,8 +270,8 @@ class WorldModelRLTrainer:
                 'threshold_map': threshold_map
             }
             
-            print(f"✅ PPO Direct Video training completed!")
-            print(f"📊 Final performance: {mean_reward:.3f} ± {std_reward:.3f}")
+            self.logger.info(f"✅ PPO Direct Video training completed!")
+            self.logger.info(f"📊 Mean Reward: {mean_reward:.3f} ± {std_reward:.3f}")
             
             # Plot training curves
             self._plot_training_results(monitor_callback, 'direct_video_ppo')
@@ -277,7 +279,7 @@ class WorldModelRLTrainer:
             return result
             
         except Exception as e:
-            print(f"❌ PPO Direct Video training failed: {e}")
+            self.logger.info(f"❌ PPO Direct Video training failed: {e}")
             import traceback
             traceback.print_exc()
             return {'algorithm': 'PPO_DirectVideo', 'status': 'failed', 'error': str(e)}
@@ -299,7 +301,7 @@ class WorldModelRLTrainer:
     def optimize_action_threshold(self, rl_model, test_data):
         """Find optimal threshold for action prediction after training"""
         
-        print("🎯 Optimizing action threshold for mAP...")
+        self.logger.info("🎯 Optimizing action threshold for mAP...")
         
         best_threshold = 0.5
         best_map = 0.0
@@ -353,13 +355,13 @@ class WorldModelRLTrainer:
                             ap_scores.append(0.0)
                 
                 map_score = np.mean(ap_scores) if ap_scores else 0.0
-                print(f"   Threshold {threshold}: mAP = {map_score:.4f}")
+                self.logger.info(f"   Threshold {threshold}: mAP = {map_score:.4f}")
                 
                 if map_score > best_map:
                     best_map = map_score
                     best_threshold = threshold
         
-        print(f"✅ Best threshold: {best_threshold} (mAP: {best_map:.4f})")
+        self.logger.info(f"✅ Best threshold: {best_threshold} (mAP: {best_map:.4f})")
         return best_threshold, best_map
 
     def _plot_training_results(self, monitor_callback, method_name: str):
@@ -432,7 +434,7 @@ class WorldModelRLTrainer:
         plt.savefig(plot_path, dpi=300, bbox_inches='tight')
         plt.close()
         
-        print(f"📊 Training curves saved to {plot_path}")
+        self.logger.info(f"📊 Training curves saved to {plot_path}")
 
 
 class RLMonitoringCallback(BaseCallback):
@@ -541,36 +543,36 @@ class RLMonitoringCallback(BaseCallback):
 def run_rl_training(config, logger, world_model, train_data, timesteps=20000):
     """Run RL training with proper monitoring."""
     
-    print("🔧 RUNNING RL TRAINING")
-    print("=" * 50)
+    logger.info("🔧 RUNNING RL TRAINING")
+    logger.info("=" * 50)
     
     trainer = WorldModelRLTrainer(config, logger)
     results = {}
     
     # Train World Model RL (Method 2)
     if world_model is not None:
-        print("\n🌍 Training World Model RL...")
+        logger.info("\n🌍 Training World Model RL...")
         results['world_model_rl'] = trainer.train_ppo_world_model(
             world_model, train_data, timesteps
         )
     
     # Train Direct Video RL (Method 3)
-    print("\n🎬 Training Direct Video RL...")
+    logger.info("\n🎬 Training Direct Video RL...")
     results['direct_video_rl'] = trainer.train_ppo_direct_video(
         train_data, timesteps
     )
     
     # Print summary
-    print("\n📊 RL TRAINING SUMMARY:")
+    logger.info("\n📊 RL TRAINING SUMMARY:")
     for method, result in results.items():
         if result.get('status') == 'success':
-            print(f"✅ {method}: {result['mean_reward']:.3f} ± {result['std_reward']:.3f}")
+            logger.info(f"✅ {method}: {result['mean_reward']:.3f} ± {result['std_reward']:.3f}")
             if 'episode_stats' in result:
                 stats = result['episode_stats']
                 if 'avg_expert_matching' in stats:
-                    print(f"   Expert matching: {stats['avg_expert_matching']:.3f}")
+                    logger.info(f"   Expert matching: {stats['avg_expert_matching']:.3f}")
         else:
-            print(f"❌ {method}: Failed - {result.get('error', 'Unknown error')}")
+            logger.info(f"❌ {method}: Failed - {result.get('error', 'Unknown error')}")
     
     return results
 

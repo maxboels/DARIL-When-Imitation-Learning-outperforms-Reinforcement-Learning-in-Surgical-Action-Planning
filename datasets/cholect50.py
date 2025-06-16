@@ -359,7 +359,7 @@ def load_cholect50_data(cfg, logger, split='train', max_videos=None, test_on_tra
                 'outcomes': outcomes,
             })
             
-            logger.info(f"✅ Loaded video {video_id}: {num_frames} frames, {embedding_dim}D embeddings")
+            logger.info(f"✅ Loaded video {video_id}: {num_frames} frames, {embedding_dim}-dims embeddings")
             
         except Exception as e:
             logger.error(f"❌ Failed to load video {video_id}: {e}")
@@ -374,7 +374,10 @@ def load_cholect50_data(cfg, logger, split='train', max_videos=None, test_on_tra
         logger.error("   4. Column names in metadata")
         return []
     
-    logger.info(f"✅ Successfully loaded {len(data)} videos for {split}")
+    if test_on_train:
+        logger.info(f"🔄 Test on training data enabled, using {len(data)} videos from training split")
+    else:
+        logger.info(f"📂 Loaded {len(data)} videos from {split} split")
     
     # NEW: Automatic reward analysis after loading
     analyze_rewards = cfg.get('preprocess', {}).get('analyze_rewards', False)
