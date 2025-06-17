@@ -1,0 +1,15 @@
+EVALUATION CONSISTENCY ANALYSIS
+==================================================
+
+PERFORMANCE COMPARISON:
+Training data mAP: 0.1143
+Test data mAP: 0.0403
+Performance ratio: 0.35
+
+MAIN ISSUES:
+- Severe overfitting
+- Model outputs too many zeros: 51.2%
+- Model never confident: max prediction only 0.653
+
+PRIORITY FIXES:
+- Severe overfitting detected - reduce model complexity

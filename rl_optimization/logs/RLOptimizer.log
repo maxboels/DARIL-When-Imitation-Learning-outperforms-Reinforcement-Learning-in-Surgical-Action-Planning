@@ -1,0 +1,36 @@
+2025-06-17 19:26:43,286 - INFO - RLOptimizer_140686408116096 - Shared experiment log directory: rl_optimization/logs
+2025-06-17 19:26:43,287 - INFO - RLOptimizer_140686408116096 - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-17 19:26:43,379 - INFO - RLOptimizer_140686408116096 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (21895, 156)
+2025-06-17 19:26:43,379 - INFO - RLOptimizer_140686408116096 - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-17 19:26:43,379 - INFO - RLOptimizer_140686408116096 - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-17 19:26:43,380 - INFO - RLOptimizer_140686408116096 - [Test] Found 10 videos in metadata file
+2025-06-17 19:26:43,380 - INFO - RLOptimizer_140686408116096 - [Test] Loading data for 10 videos
+2025-06-17 19:26:43,498 - INFO - RLOptimizer_140686408116096 - ✅ Loaded video VID02: 2840 frames, 1024-dims embeddings
+2025-06-17 19:26:43,583 - INFO - RLOptimizer_140686408116096 - ✅ Loaded video VID06: 2154 frames, 1024-dims embeddings
+2025-06-17 19:26:43,668 - INFO - RLOptimizer_140686408116096 - ✅ Loaded video VID111: 2146 frames, 1024-dims embeddings
+2025-06-17 19:26:43,738 - INFO - RLOptimizer_140686408116096 - ✅ Loaded video VID14: 1709 frames, 1024-dims embeddings
+2025-06-17 19:26:43,804 - INFO - RLOptimizer_140686408116096 - ✅ Loaded video VID23: 1636 frames, 1024-dims embeddings
+2025-06-17 19:26:43,889 - INFO - RLOptimizer_140686408116096 - ✅ Loaded video VID25: 2130 frames, 1024-dims embeddings
+2025-06-17 19:26:43,936 - INFO - RLOptimizer_140686408116096 - ✅ Loaded video VID50: 1095 frames, 1024-dims embeddings
+2025-06-17 19:26:44,056 - INFO - RLOptimizer_140686408116096 - ✅ Loaded video VID51: 2945 frames, 1024-dims embeddings
+2025-06-17 19:26:44,127 - INFO - RLOptimizer_140686408116096 - ✅ Loaded video VID66: 1825 frames, 1024-dims embeddings
+2025-06-17 19:26:44,265 - INFO - RLOptimizer_140686408116096 - ✅ Loaded video VID79: 3415 frames, 1024-dims embeddings
+2025-06-17 19:26:44,265 - INFO - RLOptimizer_140686408116096 - 📂 Loaded 10 videos from test split
+2025-06-17 19:26:46,871 - INFO - RLOptimizer_140686408116096 - 🎯 RL Optimizer initialized
+2025-06-17 19:26:46,871 - INFO - RLOptimizer_140686408116096 -    Model: results/fixed_rl_training_continued/fixed_simplified_ppo.zip
+2025-06-17 19:26:46,871 - INFO - RLOptimizer_140686408116096 - 🔍 Analyzing action prediction patterns...
+2025-06-17 19:26:47,285 - INFO - RLOptimizer_140686408116096 - 📊 Creating optimization plots...
+2025-06-17 19:26:48,589 - INFO - RLOptimizer_140686408116096 - 📊 Optimization plots saved to rl_optimization_analysis.png
+2025-06-17 19:26:48,589 - INFO - RLOptimizer_140686408116096 - 🔍 Action Analysis Complete:
+2025-06-17 19:26:48,589 - INFO - RLOptimizer_140686408116096 -    Expert avg actions: 1.5
+2025-06-17 19:26:48,589 - INFO - RLOptimizer_140686408116096 -    Predicted avg (0.5): 0.5
+2025-06-17 19:26:48,589 - INFO - RLOptimizer_140686408116096 -    Optimal threshold: 0.1
+2025-06-17 19:26:48,589 - INFO - RLOptimizer_140686408116096 -    Optimal mAP: 0.0354
+2025-06-17 19:26:48,589 - INFO - RLOptimizer_140686408116096 - 🎯 Optimizing reward function...
+2025-06-17 19:26:48,589 - INFO - RLOptimizer_140686408116096 -    Current density ratio: 0.32x too high
+2025-06-17 19:26:48,589 - INFO - RLOptimizer_140686408116096 - 🎯 Optimization Strategy:
+2025-06-17 19:26:48,589 - INFO - RLOptimizer_140686408116096 -    ✅ Use threshold 0.1 (vs 0.5)
+2025-06-17 19:26:48,589 - INFO - RLOptimizer_140686408116096 -    ✅ Increase sparsity penalty 1.5x
+2025-06-17 19:26:48,589 - INFO - RLOptimizer_140686408116096 -    ✅ Add over-prediction penalty
+2025-06-17 19:26:48,589 - INFO - RLOptimizer_140686408116096 -    ✅ Target: 20% mAP (40% of supervised)
+2025-06-17 19:26:48,590 - INFO - RLOptimizer_140686408116096 - 💾 Optimization results saved to rl_optimization_results

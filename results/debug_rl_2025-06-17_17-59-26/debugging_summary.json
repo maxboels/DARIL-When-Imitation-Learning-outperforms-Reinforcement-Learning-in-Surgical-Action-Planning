@@ -1,0 +1,34 @@
+{
+  "experiment_type": "rl_debugging_and_performance_analysis",
+  "timestamp": "2025-06-17_17-59-26",
+  "performance_summary": {
+    "supervised_baseline_mAP": 0.4832534088922885,
+    "world_model_rl_mAP": 0.0,
+    "direct_video_rl_mAP": 0.0,
+    "best_rl_mAP": 0.0,
+    "rl_vs_supervised_ratio": 0.0
+  },
+  "debugging_applied": {
+    "world_model_quality_evaluation": true,
+    "simplified_expert_matching_rewards": true,
+    "action_space_analysis": true,
+    "comprehensive_monitoring": true,
+    "training_visualizations": true
+  },
+  "key_findings": [
+    "Strong supervised baseline established",
+    "RL struggling to learn - major issues identified"
+  ],
+  "recommendations": [
+    "Focus on reward function alignment with mAP",
+    "Consider behavioral cloning warm-start for RL",
+    "Validate action space conversion and thresholding",
+    "Increase expert demonstration matching weight",
+    "World model quality is poor - consider retraining or using direct video RL"
+  ],
+  "success_metrics": {
+    "supervised_baseline_established": "True",
+    "rl_learning_demonstrated": false,
+    "debugging_systems_functional": true
+  }
+}

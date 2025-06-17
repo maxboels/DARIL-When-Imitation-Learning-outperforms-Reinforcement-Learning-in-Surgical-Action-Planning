@@ -1,0 +1,265 @@
+debug: false
+
+# RL Debugging Experiment Configuration
+# Focus: Understanding why RL can't reach supervised learning performance
+# Optimized for 40 training + 10 test videos with expert action matching focus
+
+experiment:
+  train:
+    max_videos: 40  # Sufficient data for learning
+  test:
+    max_videos: 10  # Good evaluation set
+    test_on_train: false
+    
+  # Imitation Learning (baseline for comparison)
+  autoregressive_il:
+    enabled: true
+    il_model_path: null  # Set to path if you have pretrained model
+    # il_model_path: "results/2025-06-10_19-45-51/logs/checkpoints/autoregressive_il_best_epoch_1.pt"
+  
+  # Conditional World Model
+  world_model:
+    enabled: true
+    wm_model_path: null  # Set to path if you have pretrained model
+    # wm_model_path: "results/fixed_rl_2025-06-13_19-22-25/logs/checkpoints/world_model_best_epoch_1.pt"
+
+  # RL Experiments with debugging focus
+  rl_experiments:
+    enabled: true
+    eval_episodes: 10
+    debugging_enabled: true
+    simplified_rewards: true  # Focus only on expert matching
+
+# Training parameters optimized for debugging
+training:
+  epochs: 3  # Faster training for debugging iterations
+  batch_size: 16
+  learning_rate: 0.0001
+  log_every_n_steps: 50
+  
+  # Learning rate scheduling
+  scheduler:
+    type: "cosine"
+    warmup_steps: 100
+    
+  # Regularization
+  weight_decay: 0.01
+  gradient_clip_val: 1.0
+  dropout: 0.1
+  
+  # Logging and checkpointing
+  num_workers: 4
+  pin_memory: true
+  log_dir: "logs"
+  checkpoint_dir: "checkpoints"
+  eval_epoch_interval: 1
+  save_model: true
+
+# Evaluation configuration focused on mAP
+evaluation:
+  prediction_horizon: 15
+  
+  # Supervised evaluation
+  supervised:
+    action_prediction: true
+    
+  # RL evaluation with debugging
+  rl:
+    rollout_horizon: 15
+    use_best_actions: true
+    debug_action_thresholds: true  # Test multiple thresholds
+    
+  # Comparison metrics
+  comparison:
+    statistical_tests: true
+    effect_size_threshold: 0.2
+    
+  # General evaluation
+  world_model:
+    use_memory: false
+    overall_horizon: 1
+
+# RL Training Configuration - OPTIMIZED FOR DEBUGGING
+rl_training:
+  action_space_type: 'continuous'
+  outcome_based_rewards: false  # Disable complex rewards
+  rl_horizon: 20  # Shorter episodes for faster learning
+  reward_mode: 'simplified_expert_matching'  # NEW: Simplified mode
+  normalize_rewards: true
+  early_termination: true
+  timesteps: 30000  # Increased for better convergence
+  
+  # SIMPLIFIED Reward weights - ONLY expert matching
+  reward_weights:
+    expert_f1_score: 100.0        # PRIMARY: F1-like reward (precision + recall)
+    action_sparsity_matching: 5.0 # Match expert action density
+    completion_bonus: 2.0         # Small episode completion
+    
+    # DISABLED complex rewards that don't align with mAP
+    world_model_rewards: 0.0      # DISABLED
+    phase_completion: 0.0         # DISABLED
+    risk_penalty: 0.0             # DISABLED
+    consistency_bonus: 0.0        # DISABLED
+    
+  # DEBUGGING-OPTIMIZED Algorithm settings
+  ppo:
+    learning_rate: 3e-5           # Conservative for stability
+    n_steps: 256                  # More steps for better estimates
+    batch_size: 64                # Larger batch
+    n_epochs: 10                  # More epochs for learning
+    gamma: 0.99                   # Standard discount
+    gae_lambda: 0.95              # Standard GAE
+    clip_range: 0.2               # Standard clip
+    ent_coef: 0.01                # Lower entropy for focused actions
+    vf_coef: 0.5                  # Standard value function
+    max_grad_norm: 0.5            # Gradient clipping
+    
+  a2c:
+    learning_rate: 1e-4
+    n_steps: 128
+    gamma: 0.99
+    gae_lambda: 0.95
+    ent_coef: 0.01
+    vf_coef: 0.25
+    max_grad_norm: 0.5
+
+# Data configuration
+data:
+  context_length: 20
+  train_shift: 1
+  padding_value: 0.0
+  max_horizon: 15
+  
+  paths:
+    data_dir: "/home/maxboels/datasets/CholecT50"
+    class_labels_file_path: "./data/labels.json"
+    fold: 0
+    metadata_file: "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv"
+    video_global_outcome_file: "embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv"
+  
+  frame_risk_agg: 'max'
+
+# Training mode
+training_mode: 'rl_debugging'
+
+# Preprocessing - simplified for debugging
+preprocess:
+  extract_rewards: false
+  analyze_rewards: false
+  rewards:
+    grounded:
+      phase_completion: false      # DISABLED for simplified training
+      phase_transition: false     # DISABLED
+      phase_progression: false    # DISABLED
+      global_progression: false   # DISABLED
+    imitation:
+      action_distribution: true   # ENABLED - this aligns with expert matching
+    expert_knowledge:
+      risk_score: false           # DISABLED for simplified training
+      frame_risk_agg: 'max'
+
+# Model configurations
+models:
+  # Method 1: Autoregressive IL Model (baseline)
+  autoregressive_il:
+    hidden_dim: 768
+    embedding_dim: 1024
+    n_layer: 6
+    num_action_classes: 100
+    num_phase_classes: 7
+    dropout: 0.1
+    max_length: 1024
+  
+  # Method 2: Conditional World Model (for RL)
+  conditional_world_model:
+    hidden_dim: 512
+    embedding_dim: 1024
+    action_embedding_dim: 128
+    n_layer: 4
+    num_action_classes: 100
+    num_phase_classes: 7
+    dropout: 0.1
+    max_sequence_length: 512
+
+# Fair evaluation
+fair_evaluation:
+  enabled: true
+  include_traditional_metrics: true
+  include_clinical_metrics: false  # Simplified for debugging
+  
+  clinical_outcome_weights:
+    phase_progression: 0.0  # DISABLED
+    innovation: 0.0         # DISABLED
+
+# Supervised Learning Configuration
+supervised_learning:
+  data_augmentation: false
+
+# Research comparison settings
+research_comparison:
+  methods: ['autoregressive_il', 'simplified_world_model_rl', 'simplified_direct_video_rl']
+
+# Advanced configurations
+advanced:
+  mixed_precision: false
+
+# Hardware optimization
+hardware:
+  persistent_workers: true
+
+# RL Debugging Configuration - COMPREHENSIVE
+rl_debugging:
+  enabled: true
+  save_training_curves: true
+  monitor_expert_matching: true
+  log_action_distributions: true
+  convergence_analysis: true
+  world_model_quality_evaluation: true
+  action_space_analysis: true
+  threshold_optimization: true
+  
+  # Enhanced logging for debugging
+  episode_log_frequency: 10
+  eval_frequency: 500              # More frequent evaluation
+  detailed_action_logging: true
+  reward_component_tracking: true
+  
+  # Debugging thresholds
+  reward_improvement_threshold: 0.05   # Lower threshold for faster detection
+  expert_matching_threshold: 0.3       # Lower threshold for initial learning
+  mAP_target_threshold: 0.05           # 5% mAP target for debugging phase
+  
+  # Save paths
+  debug_dir: "rl_debug"
+  plot_dir: "rl_plots"
+  analysis_dir: "rl_analysis"
+  
+  # Visualization settings
+  create_interactive_plots: true
+  save_training_videos: false  # Disable to save space during debugging
+  plot_update_frequency: 1000  # Update plots every 1000 steps
+  
+  # Comparison settings
+  compare_with_supervised: true
+  supervised_baseline_path: null  # Will be set automatically
+  
+  # Action analysis settings
+  test_action_thresholds: [0.3, 0.4, 0.5, 0.6, 0.7]  # Test multiple thresholds
+  action_density_target_range: [1, 3]  # Expert-like action density
+  
+  # Expert matching settings
+  expert_matching_metrics: ['f1', 'precision', 'recall', 'mAP']
+  focus_on_positive_actions: true  # Align with mAP focus
+  
+  # Early stopping for debugging
+  early_stopping:
+    enabled: true
+    patience: 5000  # Stop if no improvement for 5000 steps
+    min_improvement: 0.01  # Minimum mAP improvement required
+    
+  # Simplified environment settings
+  simplified_environment:
+    use_simplified_rewards: true
+    remove_complex_reward_components: true
+    focus_only_expert_matching: true
+    action_sparsity_enforcement: true

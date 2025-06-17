@@ -1,0 +1,82 @@
+2025-06-17 21:22:10,599 - INFO - FixedBCRL_130737956134720 - Shared experiment log directory: fixed_behavioral_cloning_final_2025-06-17_21-22-10/logs
+2025-06-17 21:22:10,599 - INFO - FixedBCRL_130737956134720 - 🎓 FIXED BEHAVIORAL CLONING + SPARSE ACTION RL
+2025-06-17 21:22:10,599 - INFO - FixedBCRL_130737956134720 - ============================================================
+2025-06-17 21:22:10,599 - INFO - FixedBCRL_130737956134720 - 🔧 All shape and interface issues fixed
+2025-06-17 21:22:10,599 - INFO - FixedBCRL_130737956134720 - 🎯 Optimized for sparse surgical actions (0-3 out of 100)
+2025-06-17 21:22:10,599 - INFO - FixedBCRL_130737956134720 - 📂 Step 1: Loading data...
+2025-06-17 21:22:10,599 - INFO - FixedBCRL_130737956134720 - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-17 21:22:10,990 - INFO - FixedBCRL_130737956134720 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (78968, 156)
+2025-06-17 21:22:10,990 - INFO - FixedBCRL_130737956134720 - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-17 21:22:10,990 - INFO - FixedBCRL_130737956134720 - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-17 21:22:10,992 - INFO - FixedBCRL_130737956134720 - [Train] Found 20 videos in metadata file
+2025-06-17 21:22:10,992 - INFO - FixedBCRL_130737956134720 - [Train] Loading data for 20 videos
+2025-06-17 21:22:11,066 - INFO - FixedBCRL_130737956134720 - ✅ Loaded video VID01: 1734 frames, 1024-dims embeddings
+2025-06-17 21:22:11,130 - INFO - FixedBCRL_130737956134720 - ✅ Loaded video VID04: 1523 frames, 1024-dims embeddings
+2025-06-17 21:22:11,226 - INFO - FixedBCRL_130737956134720 - ✅ Loaded video VID05: 2345 frames, 1024-dims embeddings
+2025-06-17 21:22:11,289 - INFO - FixedBCRL_130737956134720 - ✅ Loaded video VID08: 1520 frames, 1024-dims embeddings
+2025-06-17 21:22:11,361 - INFO - FixedBCRL_130737956134720 - ✅ Loaded video VID10: 1750 frames, 1024-dims embeddings
+2025-06-17 21:22:11,450 - INFO - FixedBCRL_130737956134720 - ✅ Loaded video VID103: 2220 frames, 1024-dims embeddings
+2025-06-17 21:22:11,538 - INFO - FixedBCRL_130737956134720 - ✅ Loaded video VID110: 2177 frames, 1024-dims embeddings
+2025-06-17 21:22:11,584 - INFO - FixedBCRL_130737956134720 - ✅ Loaded video VID12: 1091 frames, 1024-dims embeddings
+2025-06-17 21:22:11,626 - INFO - FixedBCRL_130737956134720 - ✅ Loaded video VID13: 982 frames, 1024-dims embeddings
+2025-06-17 21:22:11,710 - INFO - FixedBCRL_130737956134720 - ✅ Loaded video VID15: 2059 frames, 1024-dims embeddings
+2025-06-17 21:22:11,789 - INFO - FixedBCRL_130737956134720 - ✅ Loaded video VID18: 1943 frames, 1024-dims embeddings
+2025-06-17 21:22:11,853 - INFO - FixedBCRL_130737956134720 - ✅ Loaded video VID22: 1533 frames, 1024-dims embeddings
+2025-06-17 21:22:11,930 - INFO - FixedBCRL_130737956134720 - ✅ Loaded video VID26: 1774 frames, 1024-dims embeddings
+2025-06-17 21:22:12,019 - INFO - FixedBCRL_130737956134720 - ✅ Loaded video VID27: 2085 frames, 1024-dims embeddings
+2025-06-17 21:22:12,119 - INFO - FixedBCRL_130737956134720 - ✅ Loaded video VID29: 2351 frames, 1024-dims embeddings
+2025-06-17 21:22:12,282 - INFO - FixedBCRL_130737956134720 - ✅ Loaded video VID31: 3946 frames, 1024-dims embeddings
+2025-06-17 21:22:12,370 - INFO - FixedBCRL_130737956134720 - ✅ Loaded video VID32: 2117 frames, 1024-dims embeddings
+2025-06-17 21:22:12,459 - INFO - FixedBCRL_130737956134720 - ✅ Loaded video VID35: 2107 frames, 1024-dims embeddings
+2025-06-17 21:22:12,560 - INFO - FixedBCRL_130737956134720 - ✅ Loaded video VID36: 2388 frames, 1024-dims embeddings
+2025-06-17 21:22:12,653 - INFO - FixedBCRL_130737956134720 - ✅ Loaded video VID40: 2223 frames, 1024-dims embeddings
+2025-06-17 21:22:12,653 - INFO - FixedBCRL_130737956134720 - 📂 Loaded 20 videos from train split
+2025-06-17 21:22:12,655 - INFO - FixedBCRL_130737956134720 - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-17 21:22:12,748 - INFO - FixedBCRL_130737956134720 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (21895, 156)
+2025-06-17 21:22:12,748 - INFO - FixedBCRL_130737956134720 - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-17 21:22:12,748 - INFO - FixedBCRL_130737956134720 - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-17 21:22:12,749 - INFO - FixedBCRL_130737956134720 - [Test] Found 8 videos in metadata file
+2025-06-17 21:22:12,749 - INFO - FixedBCRL_130737956134720 - [Test] Loading data for 8 videos
+2025-06-17 21:22:12,862 - INFO - FixedBCRL_130737956134720 - ✅ Loaded video VID02: 2840 frames, 1024-dims embeddings
+2025-06-17 21:22:12,950 - INFO - FixedBCRL_130737956134720 - ✅ Loaded video VID06: 2154 frames, 1024-dims embeddings
+2025-06-17 21:22:13,036 - INFO - FixedBCRL_130737956134720 - ✅ Loaded video VID111: 2146 frames, 1024-dims embeddings
+2025-06-17 21:22:13,106 - INFO - FixedBCRL_130737956134720 - ✅ Loaded video VID14: 1709 frames, 1024-dims embeddings
+2025-06-17 21:22:13,173 - INFO - FixedBCRL_130737956134720 - ✅ Loaded video VID23: 1636 frames, 1024-dims embeddings
+2025-06-17 21:22:13,261 - INFO - FixedBCRL_130737956134720 - ✅ Loaded video VID25: 2130 frames, 1024-dims embeddings
+2025-06-17 21:22:13,306 - INFO - FixedBCRL_130737956134720 - ✅ Loaded video VID50: 1095 frames, 1024-dims embeddings
+2025-06-17 21:22:13,427 - INFO - FixedBCRL_130737956134720 - ✅ Loaded video VID51: 2945 frames, 1024-dims embeddings
+2025-06-17 21:22:13,427 - INFO - FixedBCRL_130737956134720 - 📂 Loaded 8 videos from test split
+2025-06-17 21:22:13,428 - INFO - FixedBCRL_130737956134720 - ✅ Data loaded: 20 train, 8 test videos
+2025-06-17 21:22:13,428 - INFO - FixedBCRL_130737956134720 - 📂 Step 2: Loading trained models...
+2025-06-17 21:22:15,132 - INFO - FixedBCRL_130737956134720 - ✅ World model loaded successfully
+2025-06-17 21:22:15,132 - INFO - FixedBCRL_130737956134720 - 🔧 Step 3: Creating adapter and collecting demonstrations...
+2025-06-17 21:22:15,585 - INFO - FixedBCRL_130737956134720 - ✅ Loaded supervised model for behavioral cloning
+2025-06-17 21:22:15,585 - INFO - FixedBCRL_130737956134720 -    Original performance: 48.3% mAP
+2025-06-17 21:22:15,585 - INFO - FixedBCRL_130737956134720 -    Model handles sparse actions (0-3 out of 100)
+2025-06-17 21:22:15,585 - INFO - FixedBCRL_130737956134720 - 📊 Collecting expert demonstrations...
+2025-06-17 21:22:16,047 - INFO - FixedBCRL_130737956134720 - ✅ Collected 200 demonstrations
+2025-06-17 21:22:16,047 - INFO - FixedBCRL_130737956134720 -    Average active actions: 1.2
+2025-06-17 21:22:16,047 - INFO - FixedBCRL_130737956134720 -    Action sparsity: 98.8%
+2025-06-17 21:22:16,047 - INFO - FixedBCRL_130737956134720 - 🎯 Step 4: Creating improved sparse action environment...
+2025-06-17 21:22:16,047 - INFO - FixedBCRL_130737956134720 - 🎯 Improved Sparse Action Environment initialized
+2025-06-17 21:22:16,047 - INFO - FixedBCRL_130737956134720 -    Max episode steps: 15
+2025-06-17 21:22:16,047 - INFO - FixedBCRL_130737956134720 -    Reward weights: {'sparse_expert_f1': 50.0, 'precision_bonus': 30.0, 'recall_bonus': 20.0, 'sparsity_match': 15.0, 'false_positive_penalty': 25.0, 'completion_bonus': 5.0}
+2025-06-17 21:22:16,047 - INFO - FixedBCRL_130737956134720 - 🔧 Testing environment...
+2025-06-17 21:22:16,056 - INFO - FixedBCRL_130737956134720 - ✅ Environment test successful - Reward: -7.000
+2025-06-17 21:22:16,056 - INFO - FixedBCRL_130737956134720 - 🎓 Step 5: Creating and warm-starting RL policy...
+2025-06-17 21:22:16,056 - INFO - FixedBCRL_130737956134720 - 🔧 Creating calibrated RL policy from supervised model...
+2025-06-17 21:22:16,119 - INFO - FixedBCRL_130737956134720 - 🎓 Performing imitation learning warm start...
+2025-06-17 21:22:16,119 - INFO - FixedBCRL_130737956134720 -    Using 200 demonstrations
+2025-06-17 21:22:16,119 - INFO - FixedBCRL_130737956134720 -    Training for 3 epochs
+2025-06-17 21:22:16,120 - INFO - FixedBCRL_130737956134720 -    State shape: (200, 1024)
+2025-06-17 21:22:16,120 - INFO - FixedBCRL_130737956134720 -    Action shape: (200, 100)
+2025-06-17 21:22:16,208 - INFO - FixedBCRL_130737956134720 -    Epoch 1/3: Avg action difference = 0.0174
+2025-06-17 21:22:16,290 - INFO - FixedBCRL_130737956134720 -    Epoch 2/3: Avg action difference = 0.0168
+2025-06-17 21:22:16,375 - INFO - FixedBCRL_130737956134720 -    Epoch 3/3: Avg action difference = 0.0179
+2025-06-17 21:22:16,375 - INFO - FixedBCRL_130737956134720 - ✅ Imitation learning warm start completed
+2025-06-17 21:22:16,375 - INFO - FixedBCRL_130737956134720 -    Note: Using lightweight approach due to PPO policy constraints
+2025-06-17 21:22:16,375 - INFO - FixedBCRL_130737956134720 - 🔍 Step 6: Initial evaluation after warm start...
+2025-06-17 21:22:16,395 - INFO - FixedBCRL_130737956134720 -    Sparsity check - Expert: 1.4, Predicted: 0.0
+2025-06-17 21:22:16,395 - INFO - FixedBCRL_130737956134720 -    Initial mAP after warm start: 0.1145
+2025-06-17 21:22:16,395 - INFO - FixedBCRL_130737956134720 - 🚀 Step 7: RL training with sparse action optimization...
+2025-06-17 21:22:16,395 - ERROR - FixedBCRL_130737956134720 - ❌ Fixed behavioral cloning RL failed: property 'logger' of 'ImprovedSparseActionCallback' object has no setter

@@ -1,0 +1,201 @@
+# Configuration to Continue RL Training from Best Trained Models
+# Based on previous successful run: debug_rl_2025-06-17_17-59-26
+# IL Model: epoch 1 (48.3% mAP) | World Model: epoch 2 (State Loss: 0.1421)
+
+debug: false
+
+experiment:
+  train:
+    max_videos: 40  # Same as successful run
+  test:
+    max_videos: 10  # Same as successful run
+    test_on_train: false
+    
+  # Use trained IL model (epoch 1 - best performance: 48.3% mAP)
+  autoregressive_il:
+    enabled: true
+    il_model_path: "results/debug_rl_2025-06-17_17-59-26/logs/checkpoints/autoregressive_il_best_epoch_1.pt"
+  
+  # Use trained World Model (epoch 2 - best performance: State Loss 0.1421)
+  world_model:
+    enabled: true
+    wm_model_path: "results/debug_rl_2025-06-17_17-59-26/logs/checkpoints/world_model_best_epoch_2.pt"
+
+  # RL Experiments - FIXED version
+  rl_experiments:
+    enabled: true
+    eval_episodes: 10
+    fixed_version: true  # Use fixed RL implementation
+
+# Training parameters (not needed since we're loading trained models)
+training:
+  epochs: 1  # Not used for RL continuation
+  batch_size: 16
+  learning_rate: 0.0001
+  
+  num_workers: 4
+  pin_memory: true
+  log_dir: "logs"
+  checkpoint_dir: "checkpoints"
+
+# Data configuration (same as successful run)
+data:
+  context_length: 20
+  train_shift: 1
+  padding_value: 0.0
+  max_horizon: 15
+  
+  paths:
+    data_dir: "/home/maxboels/datasets/CholecT50"
+    class_labels_file_path: "./data/labels.json"
+    fold: 0
+    metadata_file: "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv"
+    video_global_outcome_file: "embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv"
+  
+  frame_risk_agg: 'max'
+
+# FIXED RL Training Configuration
+rl_training:
+  action_space_type: 'continuous'
+  rl_horizon: 20  # Shorter episodes for faster learning
+  reward_mode: 'fixed_simplified_expert_matching'
+  normalize_rewards: true
+  early_termination: true
+  timesteps: 30000  # Increased for better convergence
+  
+  # SIMPLIFIED reward weights - ONLY expert matching (FIXED)
+  reward_weights:
+    expert_f1: 100.0              # PRIMARY: F1-like reward (precision + recall)
+    action_sparsity: 5.0          # Match expert action density (1-3 actions)
+    completion_bonus: 2.0         # Small episode completion bonus
+    
+    # All other rewards DISABLED for simplicity
+    world_model_rewards: 0.0
+    phase_completion: 0.0
+    risk_penalty: 0.0
+    consistency_bonus: 0.0
+    
+  # FIXED PPO settings (optimized for expert matching)
+  ppo:
+    learning_rate: 3e-5           # Conservative for stability
+    n_steps: 256                  # More steps for better estimates  
+    batch_size: 64                # Larger batch size
+    n_epochs: 10                  # More epochs for learning
+    gamma: 0.99                   # Standard discount factor
+    gae_lambda: 0.95              # Standard GAE
+    clip_range: 0.2               # Standard clip range
+    ent_coef: 0.01                # Lower entropy for focused actions
+    vf_coef: 0.5                  # Standard value function coefficient
+    max_grad_norm: 0.5            # Gradient clipping
+    
+    # Network architecture
+    net_arch: [256, 256, 128]     # Smaller network for faster training
+    activation_fn: "ReLU"
+
+# Models (loaded from trained weights)
+models:
+  # Trained IL Model (48.3% mAP baseline)
+  autoregressive_il:
+    hidden_dim: 768
+    embedding_dim: 1024
+    n_layer: 6
+    num_action_classes: 100
+    num_phase_classes: 7
+    dropout: 0.1
+    max_length: 1024
+  
+  # Trained World Model (State Loss: 0.1421)
+  conditional_world_model:
+    hidden_dim: 512
+    embedding_dim: 1024
+    action_embedding_dim: 128
+    n_layer: 4
+    num_action_classes: 100
+    num_phase_classes: 7
+    dropout: 0.1
+    max_sequence_length: 512
+
+# Training mode
+training_mode: 'fixed_rl_continuation'
+
+# Preprocessing (simplified for RL)
+preprocess:
+  extract_rewards: false
+  analyze_rewards: false
+  rewards:
+    grounded:
+      phase_completion: false      # DISABLED
+      phase_transition: false     # DISABLED
+      phase_progression: false    # DISABLED
+      global_progression: false   # DISABLED
+    imitation:
+      action_distribution: true   # ENABLED - aligns with expert matching
+    expert_knowledge:
+      risk_score: false           # DISABLED
+
+# Evaluation configuration
+evaluation:
+  prediction_horizon: 15
+  
+  rl:
+    rollout_horizon: 15
+    use_best_actions: true
+    
+  comparison:
+    statistical_tests: true
+    effect_size_threshold: 0.2
+
+# FIXED RL Debugging Configuration
+rl_debugging:
+  enabled: true
+  save_training_curves: true
+  monitor_expert_matching: true
+  log_action_distributions: true
+  convergence_analysis: true
+  
+  # Evaluation frequency
+  episode_log_frequency: 10
+  eval_frequency: 500             # Evaluate every 500 steps
+  
+  # Debugging thresholds
+  reward_improvement_threshold: 0.05
+  expert_matching_threshold: 0.3
+  mAP_target_threshold: 0.10      # Target: 10% mAP (20% of supervised baseline)
+  
+  # Save paths
+  debug_dir: "rl_debug_fixed"
+  plot_dir: "rl_plots_fixed"
+  
+  # Fixed environment settings
+  fixed_environment:
+    proper_gymnasium_inheritance: true
+    device_attribute_handling: true
+    error_handling_improved: true
+    reward_focus: "expert_f1_only"
+
+# Performance targets based on previous results
+performance_targets:
+  supervised_baseline_mAP: 0.4833    # Achieved: 48.3% mAP
+  target_rl_mAP: 0.0966              # Target: 20% of supervised (9.66%)
+  minimum_rl_mAP: 0.0483             # Minimum: 10% of supervised (4.83%)
+  
+  # Success criteria
+  success_thresholds:
+    excellent: 0.2416              # >50% of supervised
+    good: 0.0966                   # >20% of supervised  
+    moderate: 0.0483               # >10% of supervised
+    learning: 0.0241               # >5% of supervised
+
+# Hardware optimization
+hardware:
+  device: "cuda"
+  persistent_workers: true
+  pin_memory: true
+  use_cpu_for_rl: true              # Use CPU for RL stability
+
+# Advanced configurations
+advanced:
+  mixed_precision: false
+  continue_from_trained: true       # Flag to indicate continuation
+  skip_training_stages: true        # Skip IL and WM training
+  focus_rl_only: true              # Only run RL training

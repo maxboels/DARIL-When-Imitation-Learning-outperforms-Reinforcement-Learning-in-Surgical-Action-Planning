@@ -1,0 +1,17 @@
+2025-06-17 20:14:21,259 - INFO - FixedBC_133275260008976 - Shared experiment log directory: fixed_behavioral_cloning_2025-06-17_20-14-21/logs
+2025-06-17 20:14:21,260 - INFO - FixedBC_133275260008976 - 🎓 FIXED BEHAVIORAL CLONING WARM-START + SPARSE ACTION RL
+2025-06-17 20:14:21,260 - INFO - FixedBC_133275260008976 - ============================================================
+2025-06-17 20:14:21,260 - INFO - FixedBC_133275260008976 - Goal: Fix overfitting and optimize for sparse actions (0-3 out of 100)
+2025-06-17 20:14:21,260 - INFO - FixedBC_133275260008976 - Key insight: Most predictions should be near zero for this domain!
+2025-06-17 20:14:21,260 - INFO - FixedBC_133275260008976 - 📂 Loading data...
+2025-06-17 20:14:21,260 - INFO - FixedBC_133275260008976 - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-17 20:14:21,709 - INFO - FixedBC_133275260008976 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (78968, 156)
+2025-06-17 20:14:21,709 - INFO - FixedBC_133275260008976 - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-17 20:14:21,709 - INFO - FixedBC_133275260008976 - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-17 20:14:21,711 - INFO - FixedBC_133275260008976 - [Train] Found 15 videos in metadata file
+2025-06-17 20:14:21,711 - INFO - FixedBC_133275260008976 - [Train] Loading data for 15 videos
+2025-06-17 20:14:21,787 - INFO - FixedBC_133275260008976 - ✅ Loaded video VID01: 1734 frames, 1024-dims embeddings
+2025-06-17 20:14:21,852 - INFO - FixedBC_133275260008976 - ✅ Loaded video VID04: 1523 frames, 1024-dims embeddings
+2025-06-17 20:14:21,948 - INFO - FixedBC_133275260008976 - ✅ Loaded video VID05: 2345 frames, 1024-dims embeddings
+2025-06-17 20:14:22,016 - INFO - FixedBC_133275260008976 - ✅ Loaded video VID08: 1520 frames, 1024-dims embeddings
+2025-06-17 20:14:22,090 - INFO - FixedBC_133275260008976 - ✅ Loaded video VID10: 1750 frames, 1024-dims embeddings

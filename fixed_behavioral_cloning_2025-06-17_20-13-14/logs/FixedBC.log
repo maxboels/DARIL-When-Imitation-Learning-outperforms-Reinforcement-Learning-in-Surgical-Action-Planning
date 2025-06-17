@@ -1,0 +1,165 @@
+2025-06-17 20:13:14,591 - INFO - FixedBC_124293091579648 - Shared experiment log directory: fixed_behavioral_cloning_2025-06-17_20-13-14/logs
+2025-06-17 20:13:14,591 - INFO - FixedBC_124293091579648 - 🎓 FIXED BEHAVIORAL CLONING WARM-START + SPARSE ACTION RL
+2025-06-17 20:13:14,591 - INFO - FixedBC_124293091579648 - ============================================================
+2025-06-17 20:13:14,591 - INFO - FixedBC_124293091579648 - Goal: Fix overfitting and optimize for sparse actions (0-3 out of 100)
+2025-06-17 20:13:14,591 - INFO - FixedBC_124293091579648 - Key insight: Most predictions should be near zero for this domain!
+2025-06-17 20:13:14,591 - INFO - FixedBC_124293091579648 - 📂 Loading data...
+2025-06-17 20:13:14,591 - INFO - FixedBC_124293091579648 - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-17 20:13:14,989 - INFO - FixedBC_124293091579648 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (78968, 156)
+2025-06-17 20:13:14,989 - INFO - FixedBC_124293091579648 - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-17 20:13:14,989 - INFO - FixedBC_124293091579648 - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-17 20:13:14,991 - INFO - FixedBC_124293091579648 - [Train] Found 15 videos in metadata file
+2025-06-17 20:13:14,991 - INFO - FixedBC_124293091579648 - [Train] Loading data for 15 videos
+2025-06-17 20:13:15,063 - INFO - FixedBC_124293091579648 - ✅ Loaded video VID01: 1734 frames, 1024-dims embeddings
+2025-06-17 20:13:15,127 - INFO - FixedBC_124293091579648 - ✅ Loaded video VID04: 1523 frames, 1024-dims embeddings
+2025-06-17 20:13:15,222 - INFO - FixedBC_124293091579648 - ✅ Loaded video VID05: 2345 frames, 1024-dims embeddings
+2025-06-17 20:13:15,286 - INFO - FixedBC_124293091579648 - ✅ Loaded video VID08: 1520 frames, 1024-dims embeddings
+2025-06-17 20:13:15,357 - INFO - FixedBC_124293091579648 - ✅ Loaded video VID10: 1750 frames, 1024-dims embeddings
+2025-06-17 20:13:15,446 - INFO - FixedBC_124293091579648 - ✅ Loaded video VID103: 2220 frames, 1024-dims embeddings
+2025-06-17 20:13:15,535 - INFO - FixedBC_124293091579648 - ✅ Loaded video VID110: 2177 frames, 1024-dims embeddings
+2025-06-17 20:13:15,581 - INFO - FixedBC_124293091579648 - ✅ Loaded video VID12: 1091 frames, 1024-dims embeddings
+2025-06-17 20:13:15,623 - INFO - FixedBC_124293091579648 - ✅ Loaded video VID13: 982 frames, 1024-dims embeddings
+2025-06-17 20:13:15,705 - INFO - FixedBC_124293091579648 - ✅ Loaded video VID15: 2059 frames, 1024-dims embeddings
+2025-06-17 20:13:15,787 - INFO - FixedBC_124293091579648 - ✅ Loaded video VID18: 1943 frames, 1024-dims embeddings
+2025-06-17 20:13:15,849 - INFO - FixedBC_124293091579648 - ✅ Loaded video VID22: 1533 frames, 1024-dims embeddings
+2025-06-17 20:13:15,925 - INFO - FixedBC_124293091579648 - ✅ Loaded video VID26: 1774 frames, 1024-dims embeddings
+2025-06-17 20:13:16,010 - INFO - FixedBC_124293091579648 - ✅ Loaded video VID27: 2085 frames, 1024-dims embeddings
+2025-06-17 20:13:16,107 - INFO - FixedBC_124293091579648 - ✅ Loaded video VID29: 2351 frames, 1024-dims embeddings
+2025-06-17 20:13:16,108 - INFO - FixedBC_124293091579648 - 📂 Loaded 15 videos from train split
+2025-06-17 20:13:16,109 - INFO - FixedBC_124293091579648 - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-17 20:13:16,199 - INFO - FixedBC_124293091579648 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (21895, 156)
+2025-06-17 20:13:16,199 - INFO - FixedBC_124293091579648 - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-17 20:13:16,199 - INFO - FixedBC_124293091579648 - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-17 20:13:16,200 - INFO - FixedBC_124293091579648 - [Test] Found 10 videos in metadata file
+2025-06-17 20:13:16,200 - INFO - FixedBC_124293091579648 - [Test] Loading data for 10 videos
+2025-06-17 20:13:16,310 - INFO - FixedBC_124293091579648 - ✅ Loaded video VID02: 2840 frames, 1024-dims embeddings
+2025-06-17 20:13:16,395 - INFO - FixedBC_124293091579648 - ✅ Loaded video VID06: 2154 frames, 1024-dims embeddings
+2025-06-17 20:13:16,482 - INFO - FixedBC_124293091579648 - ✅ Loaded video VID111: 2146 frames, 1024-dims embeddings
+2025-06-17 20:13:16,560 - INFO - FixedBC_124293091579648 - ✅ Loaded video VID14: 1709 frames, 1024-dims embeddings
+2025-06-17 20:13:16,624 - INFO - FixedBC_124293091579648 - ✅ Loaded video VID23: 1636 frames, 1024-dims embeddings
+2025-06-17 20:13:16,709 - INFO - FixedBC_124293091579648 - ✅ Loaded video VID25: 2130 frames, 1024-dims embeddings
+2025-06-17 20:13:16,753 - INFO - FixedBC_124293091579648 - ✅ Loaded video VID50: 1095 frames, 1024-dims embeddings
+2025-06-17 20:13:16,875 - INFO - FixedBC_124293091579648 - ✅ Loaded video VID51: 2945 frames, 1024-dims embeddings
+2025-06-17 20:13:16,948 - INFO - FixedBC_124293091579648 - ✅ Loaded video VID66: 1825 frames, 1024-dims embeddings
+2025-06-17 20:13:17,087 - INFO - FixedBC_124293091579648 - ✅ Loaded video VID79: 3415 frames, 1024-dims embeddings
+2025-06-17 20:13:17,087 - INFO - FixedBC_124293091579648 - 📂 Loaded 10 videos from test split
+2025-06-17 20:13:17,088 - INFO - FixedBC_124293091579648 - 📂 Loading trained models...
+2025-06-17 20:13:18,791 - INFO - FixedBC_124293091579648 - ✅ World model loaded successfully
+2025-06-17 20:13:18,791 - INFO - FixedBC_124293091579648 - 🔧 Step 1: Creating supervised-to-RL adapter...
+2025-06-17 20:13:19,262 - INFO - FixedBC_124293091579648 - ✅ Loaded supervised model for behavioral cloning
+2025-06-17 20:13:19,262 - INFO - FixedBC_124293091579648 -    Original performance: 48.3% mAP
+2025-06-17 20:13:19,262 - INFO - FixedBC_124293091579648 -    Model handles sparse actions (0-3 out of 100)
+2025-06-17 20:13:19,262 - INFO - FixedBC_124293091579648 - 🎯 Step 2: Creating sparse action environment...
+2025-06-17 20:13:19,263 - INFO - FixedBC_124293091579648 - 🎯 Sparse Action Environment initialized
+2025-06-17 20:13:19,263 - INFO - FixedBC_124293091579648 -    Optimized for 0-3 actions out of 100
+2025-06-17 20:13:19,263 - INFO - FixedBC_124293091579648 -    Reward weights: {'sparse_expert_matching': 100.0, 'sparsity_reward': 20.0, 'false_positive_penalty': 30.0, 'completion_bonus': 5.0}
+2025-06-17 20:13:19,263 - INFO - FixedBC_124293091579648 - 🎓 Step 3: Creating calibrated RL policy...
+2025-06-17 20:13:19,263 - INFO - FixedBC_124293091579648 - 🔧 Creating calibrated RL policy from supervised model...
+2025-06-17 20:13:19,275 - INFO - FixedBC_124293091579648 - 🎓 Step 4: Behavioral cloning pre-training...
+2025-06-17 20:13:19,275 - INFO - FixedBC_124293091579648 - 🎓 Pre-training RL policy with behavioral cloning...
+2025-06-17 20:13:19,275 - INFO - FixedBC_124293091579648 -    Handling sparse action space (0-3 actions out of 100)
+2025-06-17 20:13:19,276 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID01, frame 0: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,276 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID01, frame 91: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,276 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID01, frame 182: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,276 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID01, frame 273: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,276 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID01, frame 364: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,276 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID01, frame 456: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,276 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID01, frame 547: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,276 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID01, frame 638: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,276 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID01, frame 729: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,276 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID01, frame 820: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,276 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID01, frame 912: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,276 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID01, frame 1003: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,276 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID01, frame 1094: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,276 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID01, frame 1185: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,276 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID01, frame 1276: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,276 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID01, frame 1368: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,276 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID01, frame 1459: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,276 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID01, frame 1550: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,276 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID01, frame 1641: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,277 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID01, frame 1733: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,277 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID04, frame 0: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,277 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID04, frame 80: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,277 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID04, frame 160: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,277 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID04, frame 240: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,277 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID04, frame 320: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,277 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID04, frame 400: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,277 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID04, frame 480: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,277 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID04, frame 560: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,277 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID04, frame 640: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,277 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID04, frame 720: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,277 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID04, frame 801: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,277 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID04, frame 881: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,277 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID04, frame 961: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,277 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID04, frame 1041: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,277 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID04, frame 1121: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,277 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID04, frame 1201: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,277 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID04, frame 1281: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,277 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID04, frame 1361: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,277 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID04, frame 1441: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,277 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID04, frame 1522: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,278 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID05, frame 0: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,278 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID05, frame 123: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,278 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID05, frame 246: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,278 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID05, frame 370: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,278 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID05, frame 493: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,278 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID05, frame 616: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,278 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID05, frame 740: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,278 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID05, frame 863: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,278 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID05, frame 986: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,278 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID05, frame 1110: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,278 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID05, frame 1233: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,278 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID05, frame 1357: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,278 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID05, frame 1480: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,278 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID05, frame 1603: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,278 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID05, frame 1727: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,278 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID05, frame 1850: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,278 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID05, frame 1973: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,278 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID05, frame 2097: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,278 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID05, frame 2220: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,278 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID05, frame 2344: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,278 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID08, frame 0: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,279 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID08, frame 79: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,279 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID08, frame 159: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,279 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID08, frame 239: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,279 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID08, frame 319: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,279 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID08, frame 399: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,279 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID08, frame 479: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,279 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID08, frame 559: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,279 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID08, frame 639: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,279 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID08, frame 719: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,279 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID08, frame 799: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,279 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID08, frame 879: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,279 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID08, frame 959: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,279 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID08, frame 1039: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,279 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID08, frame 1119: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,279 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID08, frame 1199: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,279 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID08, frame 1279: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,279 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID08, frame 1359: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,279 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID08, frame 1439: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,279 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID08, frame 1519: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,279 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID10, frame 0: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,279 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID10, frame 92: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,279 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID10, frame 184: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,280 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID10, frame 276: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,280 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID10, frame 368: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,280 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID10, frame 460: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,280 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID10, frame 552: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,280 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID10, frame 644: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,280 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID10, frame 736: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,280 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID10, frame 828: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,280 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID10, frame 920: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,280 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID10, frame 1012: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,280 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID10, frame 1104: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,280 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID10, frame 1196: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,280 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID10, frame 1288: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,280 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID10, frame 1380: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,280 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID10, frame 1472: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,280 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID10, frame 1564: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,280 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID10, frame 1656: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,280 - WARNING - FixedBC_124293091579648 - BC data collection failed for video VID10, frame 1749: not enough values to unpack (expected 3, got 2)
+2025-06-17 20:13:19,280 - ERROR - FixedBC_124293091579648 - ❌ Only collected 0 BC samples! Need at least 10.
+2025-06-17 20:13:19,280 - INFO - FixedBC_124293091579648 - 🔍 Step 5: Testing initial calibration...
+2025-06-17 20:13:19,296 - INFO - FixedBC_124293091579648 -    Sparsity analysis: Expert 1.4, Predicted 0.0
+2025-06-17 20:13:19,296 - INFO - FixedBC_124293091579648 -    Initial test mAP after BC: 0.2305
+2025-06-17 20:13:19,296 - INFO - FixedBC_124293091579648 - 🚀 Step 6: Sparse action optimized RL training...

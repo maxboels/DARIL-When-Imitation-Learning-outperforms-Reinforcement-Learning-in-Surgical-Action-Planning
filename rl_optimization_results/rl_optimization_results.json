@@ -1,0 +1,155 @@
+{
+  "action_analysis": {
+    "total_samples": 500,
+    "prediction_statistics": {
+      "mean": 0.0760306566953659,
+      "std": 0.10990610718727112,
+      "min": 0.0,
+      "max": 0.6641818881034851,
+      "median": 0.0,
+      "q25": 0.0,
+      "q75": 0.13675425946712494
+    },
+    "action_density_analysis": {
+      "expert_avg_actions": 1.514,
+      "expert_std_actions": 0.7653783378173177,
+      "predicted_avg_actions_0.5": 0.492,
+      "predicted_avg_actions_0.3": 5.014,
+      "predicted_avg_actions_0.7": 0.0
+    },
+    "threshold_comparison": {
+      "0.1": {
+        "mAP": 0.03541489999642212,
+        "predicted_density": 32.832,
+        "expert_density": 1.514,
+        "density_ratio": 21.685601056803172,
+        "density_difference": 31.318,
+        "exact_match_rate": 0.0,
+        "hamming_accuracy": 0.66546
+      },
+      "0.2": {
+        "mAP": 0.03541489999642212,
+        "predicted_density": 13.752,
+        "expert_density": 1.514,
+        "density_ratio": 9.08322324966975,
+        "density_difference": 12.238000000000001,
+        "exact_match_rate": 0.0,
+        "hamming_accuracy": 0.84842
+      },
+      "0.3": {
+        "mAP": 0.03541489999642212,
+        "predicted_density": 5.014,
+        "expert_density": 1.514,
+        "density_ratio": 3.311756935270806,
+        "density_difference": 3.5,
+        "exact_match_rate": 0.004,
+        "hamming_accuracy": 0.9348
+      },
+      "0.4": {
+        "mAP": 0.03541489999642212,
+        "predicted_density": 1.906,
+        "expert_density": 1.514,
+        "density_ratio": 1.2589167767503302,
+        "density_difference": 0.3919999999999999,
+        "exact_match_rate": 0.032,
+        "hamming_accuracy": 0.9658
+      },
+      "0.5": {
+        "mAP": 0.03541489999642212,
+        "predicted_density": 0.492,
+        "expert_density": 1.514,
+        "density_ratio": 0.3249669749009247,
+        "density_difference": 1.022,
+        "exact_match_rate": 0.098,
+        "hamming_accuracy": 0.97994
+      },
+      "0.6": {
+        "mAP": 0.03541489999642212,
+        "predicted_density": 0.056,
+        "expert_density": 1.514,
+        "density_ratio": 0.036988110964332896,
+        "density_difference": 1.458,
+        "exact_match_rate": 0.102,
+        "hamming_accuracy": 0.9843
+      },
+      "0.7": {
+        "mAP": 0.03541489999642212,
+        "predicted_density": 0.0,
+        "expert_density": 1.514,
+        "density_ratio": 0.0,
+        "density_difference": 1.514,
+        "exact_match_rate": 0.102,
+        "hamming_accuracy": 0.98486
+      },
+      "0.8": {
+        "mAP": 0.03541489999642212,
+        "predicted_density": 0.0,
+        "expert_density": 1.514,
+        "density_ratio": 0.0,
+        "density_difference": 1.514,
+        "exact_match_rate": 0.102,
+        "hamming_accuracy": 0.98486
+      },
+      "0.9": {
+        "mAP": 0.03541489999642212,
+        "predicted_density": 0.0,
+        "expert_density": 1.514,
+        "density_ratio": 0.0,
+        "density_difference": 1.514,
+        "exact_match_rate": 0.102,
+        "hamming_accuracy": 0.98486
+      }
+    },
+    "optimal_threshold_analysis": {
+      "best_threshold": 0.1,
+      "best_mAP": 0.03541489999642212,
+      "improvement_vs_0.5": 0.0,
+      "best_density_matching": 0.4
+    }
+  },
+  "optimization_report": {
+    "current_performance": {
+      "mAP": 0.1143,
+      "action_density": 0.492,
+      "expert_density": 1.514,
+      "density_ratio": 0.3249669749009247
+    },
+    "optimization_strategy": {
+      "increase_sparsity_penalty": "1.5x increase",
+      "add_over_prediction_penalty": true,
+      "use_optimal_threshold": 0.1,
+      "extend_training": "50k timesteps",
+      "target_mAP": "20% (40% of supervised baseline)"
+    },
+    "expected_improvements": {
+      "threshold_optimization": "+0.000 mAP",
+      "sparsity_optimization": "Reduce action density by 50-70%",
+      "extended_training": "Additional 2-5% mAP improvement"
+    },
+    "optimized_config": {
+      "data": {
+        "paths": {
+          "data_dir": "/home/maxboels/datasets/CholecT50",
+          "fold": 0,
+          "metadata_file": "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv"
+        }
+      },
+      "rl_training": {
+        "rl_horizon": 20,
+        "timesteps": 50000,
+        "reward_weights": {
+          "expert_f1": 100.0,
+          "action_sparsity": 10.0,
+          "completion_bonus": 2.0,
+          "over_prediction_penalty": 2.0
+        },
+        "optimal_threshold": 0.1,
+        "early_stopping": {
+          "enabled": true,
+          "target_mAP": 0.2,
+          "patience": 10000
+        }
+      }
+    }
+  }
+}

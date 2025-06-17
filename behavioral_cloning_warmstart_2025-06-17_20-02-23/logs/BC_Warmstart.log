@@ -1,0 +1,63 @@
+2025-06-17 20:02:23,488 - INFO - BC_Warmstart_131331023121360 - Shared experiment log directory: behavioral_cloning_warmstart_2025-06-17_20-02-23/logs
+2025-06-17 20:02:23,488 - INFO - BC_Warmstart_131331023121360 - 🎓 BEHAVIORAL CLONING WARM-START + CALIBRATED RL
+2025-06-17 20:02:23,488 - INFO - BC_Warmstart_131331023121360 - ============================================================
+2025-06-17 20:02:23,488 - INFO - BC_Warmstart_131331023121360 - Goal: Fix overfitting and calibration issues
+2025-06-17 20:02:23,488 - INFO - BC_Warmstart_131331023121360 - Strategy: Initialize RL with 48.3% mAP supervised model
+2025-06-17 20:02:23,488 - INFO - BC_Warmstart_131331023121360 - 📂 Loading data...
+2025-06-17 20:02:23,489 - INFO - BC_Warmstart_131331023121360 - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-17 20:02:23,886 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (78968, 156)
+2025-06-17 20:02:23,886 - INFO - BC_Warmstart_131331023121360 - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-17 20:02:23,886 - INFO - BC_Warmstart_131331023121360 - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-17 20:02:23,888 - INFO - BC_Warmstart_131331023121360 - [Train] Found 20 videos in metadata file
+2025-06-17 20:02:23,888 - INFO - BC_Warmstart_131331023121360 - [Train] Loading data for 20 videos
+2025-06-17 20:02:23,971 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID01: 1734 frames, 1024-dims embeddings
+2025-06-17 20:02:24,034 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID04: 1523 frames, 1024-dims embeddings
+2025-06-17 20:02:24,131 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID05: 2345 frames, 1024-dims embeddings
+2025-06-17 20:02:24,356 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID08: 1520 frames, 1024-dims embeddings
+2025-06-17 20:02:24,427 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID10: 1750 frames, 1024-dims embeddings
+2025-06-17 20:02:24,517 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID103: 2220 frames, 1024-dims embeddings
+2025-06-17 20:02:24,606 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID110: 2177 frames, 1024-dims embeddings
+2025-06-17 20:02:24,654 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID12: 1091 frames, 1024-dims embeddings
+2025-06-17 20:02:24,697 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID13: 982 frames, 1024-dims embeddings
+2025-06-17 20:02:24,785 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID15: 2059 frames, 1024-dims embeddings
+2025-06-17 20:02:24,867 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID18: 1943 frames, 1024-dims embeddings
+2025-06-17 20:02:24,934 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID22: 1533 frames, 1024-dims embeddings
+2025-06-17 20:02:25,012 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID26: 1774 frames, 1024-dims embeddings
+2025-06-17 20:02:25,102 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID27: 2085 frames, 1024-dims embeddings
+2025-06-17 20:02:25,204 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID29: 2351 frames, 1024-dims embeddings
+2025-06-17 20:02:25,371 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID31: 3946 frames, 1024-dims embeddings
+2025-06-17 20:02:25,458 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID32: 2117 frames, 1024-dims embeddings
+2025-06-17 20:02:25,547 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID35: 2107 frames, 1024-dims embeddings
+2025-06-17 20:02:25,649 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID36: 2388 frames, 1024-dims embeddings
+2025-06-17 20:02:25,743 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID40: 2223 frames, 1024-dims embeddings
+2025-06-17 20:02:25,743 - INFO - BC_Warmstart_131331023121360 - 📂 Loaded 20 videos from train split
+2025-06-17 20:02:25,743 - INFO - BC_Warmstart_131331023121360 - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-17 20:02:25,834 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (21895, 156)
+2025-06-17 20:02:25,834 - INFO - BC_Warmstart_131331023121360 - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-17 20:02:25,834 - INFO - BC_Warmstart_131331023121360 - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-17 20:02:25,835 - INFO - BC_Warmstart_131331023121360 - [Test] Found 10 videos in metadata file
+2025-06-17 20:02:25,835 - INFO - BC_Warmstart_131331023121360 - [Test] Loading data for 10 videos
+2025-06-17 20:02:25,952 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID02: 2840 frames, 1024-dims embeddings
+2025-06-17 20:02:26,038 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID06: 2154 frames, 1024-dims embeddings
+2025-06-17 20:02:26,123 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID111: 2146 frames, 1024-dims embeddings
+2025-06-17 20:02:26,192 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID14: 1709 frames, 1024-dims embeddings
+2025-06-17 20:02:26,263 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID23: 1636 frames, 1024-dims embeddings
+2025-06-17 20:02:26,350 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID25: 2130 frames, 1024-dims embeddings
+2025-06-17 20:02:26,396 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID50: 1095 frames, 1024-dims embeddings
+2025-06-17 20:02:26,515 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID51: 2945 frames, 1024-dims embeddings
+2025-06-17 20:02:26,589 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID66: 1825 frames, 1024-dims embeddings
+2025-06-17 20:02:26,728 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded video VID79: 3415 frames, 1024-dims embeddings
+2025-06-17 20:02:26,728 - INFO - BC_Warmstart_131331023121360 - 📂 Loaded 10 videos from test split
+2025-06-17 20:02:26,728 - INFO - BC_Warmstart_131331023121360 - 📂 Loading trained models...
+2025-06-17 20:02:28,453 - INFO - BC_Warmstart_131331023121360 - 🔧 Step 1: Creating supervised-to-RL adapter...
+2025-06-17 20:02:28,940 - INFO - BC_Warmstart_131331023121360 - ✅ Loaded supervised model for behavioral cloning
+2025-06-17 20:02:28,940 - INFO - BC_Warmstart_131331023121360 -    Original performance: 48.3% mAP
+2025-06-17 20:02:28,940 - INFO - BC_Warmstart_131331023121360 - 🎯 Step 2: Creating calibrated environment...
+2025-06-17 20:02:28,941 - INFO - BC_Warmstart_131331023121360 - 🎯 Calibrated Environment initialized
+2025-06-17 20:02:28,941 - INFO - BC_Warmstart_131331023121360 -    Focus: Prevent overfitting + maintain calibration
+2025-06-17 20:02:28,941 - INFO - BC_Warmstart_131331023121360 - 🎓 Step 3: Creating calibrated RL policy...
+2025-06-17 20:02:28,941 - INFO - BC_Warmstart_131331023121360 - 🔧 Creating calibrated RL policy from supervised model...
+2025-06-17 20:02:28,982 - INFO - BC_Warmstart_131331023121360 - 🔧 Initializing RL policy with supervised weights...
+2025-06-17 20:02:28,982 - INFO - BC_Warmstart_131331023121360 - ✅ Initialized 0 RL policy layers from supervised model
+2025-06-17 20:02:28,982 - INFO - BC_Warmstart_131331023121360 - 🎓 Step 4: Behavioral cloning pre-training...
+2025-06-17 20:02:28,982 - INFO - BC_Warmstart_131331023121360 - 🎓 Pre-training RL policy with behavioral cloning...

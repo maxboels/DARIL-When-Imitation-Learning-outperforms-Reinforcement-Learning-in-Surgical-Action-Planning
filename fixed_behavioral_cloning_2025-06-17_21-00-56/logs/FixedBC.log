@@ -1,0 +1,96 @@
+2025-06-17 21:00:56,065 - INFO - FixedBC_139645061413392 - Shared experiment log directory: fixed_behavioral_cloning_2025-06-17_21-00-56/logs
+2025-06-17 21:00:56,065 - INFO - FixedBC_139645061413392 - 🎓 FIXED BEHAVIORAL CLONING WARM-START + SPARSE ACTION RL
+2025-06-17 21:00:56,065 - INFO - FixedBC_139645061413392 - ============================================================
+2025-06-17 21:00:56,065 - INFO - FixedBC_139645061413392 - Goal: Fix overfitting and optimize for sparse actions (0-3 out of 100)
+2025-06-17 21:00:56,065 - INFO - FixedBC_139645061413392 - Key insight: Most predictions should be near zero for this domain!
+2025-06-17 21:00:56,065 - INFO - FixedBC_139645061413392 - 📂 Loading data...
+2025-06-17 21:00:56,065 - INFO - FixedBC_139645061413392 - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-17 21:00:56,462 - INFO - FixedBC_139645061413392 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (78968, 156)
+2025-06-17 21:00:56,463 - INFO - FixedBC_139645061413392 - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-17 21:00:56,463 - INFO - FixedBC_139645061413392 - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-17 21:00:56,464 - INFO - FixedBC_139645061413392 - [Train] Found 15 videos in metadata file
+2025-06-17 21:00:56,464 - INFO - FixedBC_139645061413392 - [Train] Loading data for 15 videos
+2025-06-17 21:00:56,540 - INFO - FixedBC_139645061413392 - ✅ Loaded video VID01: 1734 frames, 1024-dims embeddings
+2025-06-17 21:00:56,603 - INFO - FixedBC_139645061413392 - ✅ Loaded video VID04: 1523 frames, 1024-dims embeddings
+2025-06-17 21:00:56,698 - INFO - FixedBC_139645061413392 - ✅ Loaded video VID05: 2345 frames, 1024-dims embeddings
+2025-06-17 21:00:56,762 - INFO - FixedBC_139645061413392 - ✅ Loaded video VID08: 1520 frames, 1024-dims embeddings
+2025-06-17 21:00:56,834 - INFO - FixedBC_139645061413392 - ✅ Loaded video VID10: 1750 frames, 1024-dims embeddings
+2025-06-17 21:00:56,924 - INFO - FixedBC_139645061413392 - ✅ Loaded video VID103: 2220 frames, 1024-dims embeddings
+2025-06-17 21:00:57,014 - INFO - FixedBC_139645061413392 - ✅ Loaded video VID110: 2177 frames, 1024-dims embeddings
+2025-06-17 21:00:57,060 - INFO - FixedBC_139645061413392 - ✅ Loaded video VID12: 1091 frames, 1024-dims embeddings
+2025-06-17 21:00:57,102 - INFO - FixedBC_139645061413392 - ✅ Loaded video VID13: 982 frames, 1024-dims embeddings
+2025-06-17 21:00:57,186 - INFO - FixedBC_139645061413392 - ✅ Loaded video VID15: 2059 frames, 1024-dims embeddings
+2025-06-17 21:00:57,266 - INFO - FixedBC_139645061413392 - ✅ Loaded video VID18: 1943 frames, 1024-dims embeddings
+2025-06-17 21:00:57,332 - INFO - FixedBC_139645061413392 - ✅ Loaded video VID22: 1533 frames, 1024-dims embeddings
+2025-06-17 21:00:57,410 - INFO - FixedBC_139645061413392 - ✅ Loaded video VID26: 1774 frames, 1024-dims embeddings
+2025-06-17 21:00:57,498 - INFO - FixedBC_139645061413392 - ✅ Loaded video VID27: 2085 frames, 1024-dims embeddings
+2025-06-17 21:00:57,595 - INFO - FixedBC_139645061413392 - ✅ Loaded video VID29: 2351 frames, 1024-dims embeddings
+2025-06-17 21:00:57,596 - INFO - FixedBC_139645061413392 - 📂 Loaded 15 videos from train split
+2025-06-17 21:00:57,598 - INFO - FixedBC_139645061413392 - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-17 21:00:57,689 - INFO - FixedBC_139645061413392 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (21895, 156)
+2025-06-17 21:00:57,689 - INFO - FixedBC_139645061413392 - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-17 21:00:57,689 - INFO - FixedBC_139645061413392 - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-17 21:00:57,690 - INFO - FixedBC_139645061413392 - [Test] Found 10 videos in metadata file
+2025-06-17 21:00:57,690 - INFO - FixedBC_139645061413392 - [Test] Loading data for 10 videos
+2025-06-17 21:00:57,799 - INFO - FixedBC_139645061413392 - ✅ Loaded video VID02: 2840 frames, 1024-dims embeddings
+2025-06-17 21:00:57,884 - INFO - FixedBC_139645061413392 - ✅ Loaded video VID06: 2154 frames, 1024-dims embeddings
+2025-06-17 21:00:57,969 - INFO - FixedBC_139645061413392 - ✅ Loaded video VID111: 2146 frames, 1024-dims embeddings
+2025-06-17 21:00:58,038 - INFO - FixedBC_139645061413392 - ✅ Loaded video VID14: 1709 frames, 1024-dims embeddings
+2025-06-17 21:00:58,104 - INFO - FixedBC_139645061413392 - ✅ Loaded video VID23: 1636 frames, 1024-dims embeddings
+2025-06-17 21:00:58,188 - INFO - FixedBC_139645061413392 - ✅ Loaded video VID25: 2130 frames, 1024-dims embeddings
+2025-06-17 21:00:58,234 - INFO - FixedBC_139645061413392 - ✅ Loaded video VID50: 1095 frames, 1024-dims embeddings
+2025-06-17 21:00:58,354 - INFO - FixedBC_139645061413392 - ✅ Loaded video VID51: 2945 frames, 1024-dims embeddings
+2025-06-17 21:00:58,429 - INFO - FixedBC_139645061413392 - ✅ Loaded video VID66: 1825 frames, 1024-dims embeddings
+2025-06-17 21:00:58,571 - INFO - FixedBC_139645061413392 - ✅ Loaded video VID79: 3415 frames, 1024-dims embeddings
+2025-06-17 21:00:58,571 - INFO - FixedBC_139645061413392 - 📂 Loaded 10 videos from test split
+2025-06-17 21:00:58,571 - INFO - FixedBC_139645061413392 - 📂 Loading trained models...
+2025-06-17 21:00:58,769 - INFO - FixedBC_139645061413392 - ✅ World model loaded successfully
+2025-06-17 21:00:58,769 - INFO - FixedBC_139645061413392 - 🔧 Step 1: Creating supervised-to-RL adapter...
+2025-06-17 21:00:59,243 - INFO - FixedBC_139645061413392 - ✅ Loaded supervised model for behavioral cloning
+2025-06-17 21:00:59,243 - INFO - FixedBC_139645061413392 -    Original performance: 48.3% mAP
+2025-06-17 21:00:59,243 - INFO - FixedBC_139645061413392 -    Model handles sparse actions (0-3 out of 100)
+2025-06-17 21:00:59,243 - INFO - FixedBC_139645061413392 - 🎯 Step 2: Creating sparse action environment...
+2025-06-17 21:00:59,243 - INFO - FixedBC_139645061413392 - 🎯 Sparse Action Environment initialized
+2025-06-17 21:00:59,243 - INFO - FixedBC_139645061413392 -    Optimized for 0-3 actions out of 100
+2025-06-17 21:00:59,243 - INFO - FixedBC_139645061413392 -    Reward weights: {'sparse_expert_matching': 100.0, 'sparsity_reward': 20.0, 'false_positive_penalty': 30.0, 'completion_bonus': 5.0}
+2025-06-17 21:00:59,243 - INFO - FixedBC_139645061413392 - 🎓 Step 3: Creating calibrated RL policy...
+2025-06-17 21:00:59,243 - INFO - FixedBC_139645061413392 - 🔧 Creating calibrated RL policy from supervised model...
+2025-06-17 21:00:59,260 - INFO - FixedBC_139645061413392 - 🎓 Step 4: Behavioral cloning pre-training...
+2025-06-17 21:00:59,260 - INFO - FixedBC_139645061413392 - 🎓 Pre-training RL policy with behavioral cloning...
+2025-06-17 21:00:59,260 - INFO - FixedBC_139645061413392 -    Handling sparse action space (0-3 actions out of 100)
+2025-06-17 21:00:59,550 - INFO - FixedBC_139645061413392 - ✅ Collected 100 behavioral cloning samples
+2025-06-17 21:00:59,551 - INFO - FixedBC_139645061413392 -    Average active actions per frame: 1.2
+2025-06-17 21:00:59,551 - INFO - FixedBC_139645061413392 -    Action sparsity: 98.8%
+2025-06-17 21:00:59,568 - WARNING - FixedBC_139645061413392 - BC training batch failed: mat1 and mat2 shapes cannot be multiplied (8x1024 and 64x100)
+2025-06-17 21:00:59,568 - WARNING - FixedBC_139645061413392 - BC training batch failed: mat1 and mat2 shapes cannot be multiplied (8x1024 and 64x100)
+2025-06-17 21:00:59,569 - WARNING - FixedBC_139645061413392 - BC training batch failed: mat1 and mat2 shapes cannot be multiplied (8x1024 and 64x100)
+2025-06-17 21:00:59,569 - WARNING - FixedBC_139645061413392 - BC training batch failed: mat1 and mat2 shapes cannot be multiplied (8x1024 and 64x100)
+2025-06-17 21:00:59,569 - WARNING - FixedBC_139645061413392 - BC training batch failed: mat1 and mat2 shapes cannot be multiplied (8x1024 and 64x100)
+2025-06-17 21:00:59,569 - WARNING - FixedBC_139645061413392 - BC training batch failed: mat1 and mat2 shapes cannot be multiplied (8x1024 and 64x100)
+2025-06-17 21:00:59,569 - WARNING - FixedBC_139645061413392 - BC training batch failed: mat1 and mat2 shapes cannot be multiplied (8x1024 and 64x100)
+2025-06-17 21:00:59,569 - WARNING - FixedBC_139645061413392 - BC training batch failed: mat1 and mat2 shapes cannot be multiplied (8x1024 and 64x100)
+2025-06-17 21:00:59,569 - WARNING - FixedBC_139645061413392 - BC training batch failed: mat1 and mat2 shapes cannot be multiplied (8x1024 and 64x100)
+2025-06-17 21:00:59,569 - WARNING - FixedBC_139645061413392 - BC training batch failed: mat1 and mat2 shapes cannot be multiplied (8x1024 and 64x100)
+2025-06-17 21:00:59,569 - WARNING - FixedBC_139645061413392 - BC training batch failed: mat1 and mat2 shapes cannot be multiplied (8x1024 and 64x100)
+2025-06-17 21:00:59,569 - WARNING - FixedBC_139645061413392 - BC training batch failed: mat1 and mat2 shapes cannot be multiplied (8x1024 and 64x100)
+2025-06-17 21:00:59,569 - WARNING - FixedBC_139645061413392 - BC training batch failed: mat1 and mat2 shapes cannot be multiplied (4x1024 and 64x100)
+2025-06-17 21:00:59,569 - ERROR - FixedBC_139645061413392 - ❌ No successful batches in epoch 1
+2025-06-17 21:00:59,569 - WARNING - FixedBC_139645061413392 - BC training batch failed: mat1 and mat2 shapes cannot be multiplied (8x1024 and 64x100)
+2025-06-17 21:00:59,569 - WARNING - FixedBC_139645061413392 - BC training batch failed: mat1 and mat2 shapes cannot be multiplied (8x1024 and 64x100)
+2025-06-17 21:00:59,569 - WARNING - FixedBC_139645061413392 - BC training batch failed: mat1 and mat2 shapes cannot be multiplied (8x1024 and 64x100)
+2025-06-17 21:00:59,569 - WARNING - FixedBC_139645061413392 - BC training batch failed: mat1 and mat2 shapes cannot be multiplied (8x1024 and 64x100)
+2025-06-17 21:00:59,570 - WARNING - FixedBC_139645061413392 - BC training batch failed: mat1 and mat2 shapes cannot be multiplied (8x1024 and 64x100)
+2025-06-17 21:00:59,570 - WARNING - FixedBC_139645061413392 - BC training batch failed: mat1 and mat2 shapes cannot be multiplied (8x1024 and 64x100)
+2025-06-17 21:00:59,570 - WARNING - FixedBC_139645061413392 - BC training batch failed: mat1 and mat2 shapes cannot be multiplied (8x1024 and 64x100)
+2025-06-17 21:00:59,570 - WARNING - FixedBC_139645061413392 - BC training batch failed: mat1 and mat2 shapes cannot be multiplied (8x1024 and 64x100)
+2025-06-17 21:00:59,570 - WARNING - FixedBC_139645061413392 - BC training batch failed: mat1 and mat2 shapes cannot be multiplied (8x1024 and 64x100)
+2025-06-17 21:00:59,570 - WARNING - FixedBC_139645061413392 - BC training batch failed: mat1 and mat2 shapes cannot be multiplied (8x1024 and 64x100)
+2025-06-17 21:00:59,570 - WARNING - FixedBC_139645061413392 - BC training batch failed: mat1 and mat2 shapes cannot be multiplied (8x1024 and 64x100)
+2025-06-17 21:00:59,570 - WARNING - FixedBC_139645061413392 - BC training batch failed: mat1 and mat2 shapes cannot be multiplied (8x1024 and 64x100)
+2025-06-17 21:00:59,570 - WARNING - FixedBC_139645061413392 - BC training batch failed: mat1 and mat2 shapes cannot be multiplied (4x1024 and 64x100)
+2025-06-17 21:00:59,570 - ERROR - FixedBC_139645061413392 - ❌ No successful batches in epoch 2
+2025-06-17 21:00:59,570 - INFO - FixedBC_139645061413392 - ✅ Behavioral cloning pre-training completed
+2025-06-17 21:00:59,570 - INFO - FixedBC_139645061413392 - 🔍 Step 5: Testing initial calibration...
+2025-06-17 21:00:59,592 - INFO - FixedBC_139645061413392 -    Sparsity analysis: Expert 1.4, Predicted 0.0
+2025-06-17 21:00:59,592 - INFO - FixedBC_139645061413392 -    Initial test mAP after BC: 0.2130
+2025-06-17 21:00:59,592 - INFO - FixedBC_139645061413392 - 🚀 Step 6: Sparse action optimized RL training...

@@ -6,7 +6,7 @@ experiment:
     max_videos: 40  # INCREASED for better RL training
   test:
     max_videos: 10  # INCREASED for better evaluation
-    test_on_train: true  # Set to true for debugging purposes
+    test_on_train: false  # Set to true for debugging purposes
     
   # Imitation Learning
   autoregressive_il:
