@@ -1,0 +1,206 @@
+{
+  "experiment_name": "2025-06-23_14-48-59",
+  "config": {
+    "debug": false,
+    "experiment": {
+      "train": {
+        "max_videos": 40
+      },
+      "test": {
+        "max_videos": 10,
+        "test_on_train": false
+      },
+      "autoregressive_il": {
+        "enabled": true,
+        "il_model_path": null
+      },
+      "world_model": {
+        "enabled": false,
+        "wm_model_path": "results/fixed_rl_2025-06-13_19-22-25/logs/checkpoints/world_model_best_epoch_1.pt"
+      },
+      "rl_experiments": {
+        "enabled": false,
+        "eval_episodes": 10
+      }
+    },
+    "training": {
+      "epochs": 2,
+      "batch_size": 16,
+      "learning_rate": 3e-05,
+      "log_every_n_steps": 50,
+      "scheduler": {
+        "type": "cosine",
+        "warmup_steps": 100
+      },
+      "weight_decay": 0.01,
+      "gradient_clip_val": 1.0,
+      "dropout": 0.1,
+      "num_workers": 4,
+      "pin_memory": true,
+      "log_dir": "logs",
+      "checkpoint_dir": "checkpoints",
+      "eval_epoch_interval": 1,
+      "save_model": true
+    },
+    "evaluation": {
+      "prediction_horizon": 15,
+      "supervised": {
+        "action_prediction": true
+      },
+      "rl": {
+        "rollout_horizon": 15,
+        "use_best_actions": true
+      },
+      "comparison": {
+        "statistical_tests": true,
+        "effect_size_threshold": 0.2
+      },
+      "world_model": {
+        "use_memory": false,
+        "overall_horizon": 1
+      }
+    },
+    "rl_training": {
+      "action_space_type": "continuous",
+      "outcome_based_rewards": true,
+      "rl_horizon": 30,
+      "reward_mode": "dense",
+      "normalize_rewards": true,
+      "early_termination": true,
+      "timesteps": 50000,
+      "reward_weights": {
+        "expert_matching": 10.0,
+        "action_sparsity": 1.0,
+        "world_model_rewards": 0.5,
+        "completion_bonus": 5.0,
+        "consistency_bonus": 1.0,
+        "phase_completion": 1.0,
+        "risk_penalty": -0.5
+      },
+      "ppo": {
+        "learning_rate": "5e-5",
+        "n_steps": 512,
+        "batch_size": 64,
+        "n_epochs": 10,
+        "gamma": 0.95,
+        "gae_lambda": 0.9,
+        "clip_range": 0.1,
+        "ent_coef": 0.05,
+        "vf_coef": 0.5,
+        "max_grad_norm": 0.5
+      },
+      "a2c": {
+        "learning_rate": "1e-4",
+        "n_steps": 32,
+        "gamma": 0.95,
+        "gae_lambda": 0.9,
+        "ent_coef": 0.05,
+        "vf_coef": 0.25,
+        "max_grad_norm": 0.5
+      }
+    },
+    "data": {
+      "context_length": 20,
+      "train_shift": 1,
+      "padding_value": 0.0,
+      "max_horizon": 15,
+      "paths": {
+        "data_dir": "/nfs/home/mboels/datasets/CholecT50",
+        "class_labels_file_path": "./data/labels.json",
+        "fold": 0,
+        "metadata_file": "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv",
+        "video_global_outcome_file": "embeddings_f1_swin_bas_129_with_enhanced_global_metrics.csv"
+      },
+      "frame_risk_agg": "max"
+    },
+    "training_mode": "rl",
+    "preprocess": {
+      "extract_rewards": false,
+      "analyze_rewards": false,
+      "rewards": {
+        "grounded": {
+          "phase_completion": true,
+          "phase_transition": true,
+          "phase_progression": true,
+          "global_progression": true
+        },
+        "imitation": {
+          "action_distribution": true
+        },
+        "expert_knowledge": {
+          "risk_score": true,
+          "frame_risk_agg": "max"
+        }
+      }
+    },
+    "models": {
+      "autoregressive_il": {
+        "hidden_dim": 768,
+        "embedding_dim": 1024,
+        "n_layer": 6,
+        "num_action_classes": 100,
+        "num_phase_classes": 7,
+        "dropout": 0.1,
+        "max_length": 1024
+      },
+      "conditional_world_model": {
+        "hidden_dim": 512,
+        "embedding_dim": 1024,
+        "action_embedding_dim": 128,
+        "n_layer": 4,
+        "num_action_classes": 100,
+        "num_phase_classes": 7,
+        "dropout": 0.1,
+        "max_sequence_length": 512
+      }
+    },
+    "fair_evaluation": {
+      "enabled": true,
+      "include_traditional_metrics": true,
+      "include_clinical_metrics": true,
+      "clinical_outcome_weights": {
+        "phase_progression": 2.0,
+        "innovation": 0.5
+      }
+    },
+    "supervised_learning": {
+      "data_augmentation": false
+    },
+    "research_comparison": {
+      "methods": [
+        "autoregressive_il",
+        "conditional_world_model",
+        "direct_video_rl"
+      ]
+    },
+    "advanced": {
+      "mixed_precision": false
+    },
+    "hardware": {
+      "persistent_workers": true
+    },
+    "rl_debugging": {
+      "enabled": true,
+      "save_training_curves": true,
+      "monitor_expert_matching": true,
+      "log_action_distributions": true,
+      "convergence_analysis": true,
+      "episode_log_frequency": 10,
+      "eval_frequency": 1000,
+      "reward_improvement_threshold": 0.1,
+      "expert_matching_threshold": 0.5,
+      "debug_dir": "rl_debug",
+      "plot_dir": "rl_plots"
+    }
+  },
+  "timestamp": "2025-06-23_14-48-59",
+  "results_dir": "results/2025-06-23_14-48-59/fold0",
+  "method_1_autoregressive_il": {
+    "status": "failed",
+    "error": "name 'calculate_ivt_metrics' is not defined"
+  },
+  "comprehensive_evaluation": {
+    "status": "failed",
+    "error": "No test loaders available"
+  }
+}

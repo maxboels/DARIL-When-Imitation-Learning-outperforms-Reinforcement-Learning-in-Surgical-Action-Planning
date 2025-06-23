@@ -49,16 +49,18 @@ class AutoregressiveDataset(Dataset):
                 
                 # Build sequences
                 for j in range(max(0, i - context_length + 1), i + 1):
+                    # Pad if index is negative
                     if j < 0:
                         input_frames.append([padding_value] * embedding_dim)
                         target_next_frames.append([padding_value] * embedding_dim)
-                        target_actions.append([0] * num_actions)  # FIXED: Use num_actions
+                        target_actions.append([0] * num_actions)
                         target_phases.append(0)
                     else:
                         input_frames.append(embeddings[j])
+                        # Target next frame and next action 
                         if j + 1 < num_frames:
-                            target_next_frames.append(embeddings[j + 1])
-                            target_actions.append(actions[j + 1])
+                            target_next_frames.append(embeddings[j + 1]) # Next frame at t+1
+                            target_actions.append(actions[j + 1])  # Actions at t+1
                             if len(phases) > j + 1:
                                 target_phases.append(np.argmax(phases[j + 1]))
                             else:

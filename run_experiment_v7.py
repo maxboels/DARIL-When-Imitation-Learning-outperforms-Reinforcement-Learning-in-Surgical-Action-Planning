@@ -69,7 +69,7 @@ class ExperimentRunner:
         # Create experiment directory with timestamp
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         self.experiment_name = f"{timestamp}"
-        self.results_dir = Path("results") / self.experiment_name
+        self.results_dir = Path("results") / self.experiment_name / f"fold{self.config['data']['paths']['fold']}"
         self.results_dir.mkdir(parents=True, exist_ok=True)
         
         # Initialize logger
@@ -109,16 +109,33 @@ class ExperimentRunner:
             method1_results = {'status': 'skipped', 'reason': 'Autoregressive IL disabled in config'}
             self.results['method_1_autoregressive_il'] = method1_results
         
-        # Method 2: Conditional World Model + RL
-        method2_results = self._run_method2_wm_rl(train_data, test_data)
-        self.results['method_2_conditional_world_model'] = method2_results
-        
-        # Method 3: Direct Video RL
-        method3_results = self._run_method3_direct_rl(train_data, test_data)
-        self.results['method_3_direct_video_rl'] = method3_results
+        if self.config.get('experiment', {}).get('world_model', {}).get('enabled', True):
+            # Method 2: Conditional World Model + RL
+            method2_results = self._run_method2_wm_rl(train_data, test_data)
+            self.results['method_2_conditional_world_model'] = method2_results
+        else:
+            self.logger.info("🌍 Method 2: Conditional World Model + RL is disable")
+
+        if self.config.get('experiment', {}).get('rl_experiments', {}).get('enabled', True):
+            # Method 3: Direct Video RL
+            method3_results = self._run_method3_direct_rl(train_data, test_data)
+            self.results['method_3_direct_video_rl'] = method3_results
+        else:
+            self.logger.info("📹 Method 3: Direct Video RL is disabled in config")
         
         # Comprehensive evaluation - with proper handling
-        evaluation_results = self._run_comprehensive_evaluation_fixed()
+        # evaluation_results = self._run_comprehensive_evaluation_fixed()
+        if not hasattr(self, 'test_loaders') or not self.test_loaders:
+            self.logger.error("❌ No test loaders available for evaluation")
+            return {'status': 'failed', 'error': 'No test loaders available'}
+                
+        evaluation_results = run_integrated_evaluation(
+            experiment_results=self.results,
+            test_data=self.test_loaders,
+            results_dir=str(self.results_dir),
+            logger=self.logger,
+            horizon=self.config['evaluation']['prediction_horizon']
+        )
         self.results['comprehensive_evaluation'] = evaluation_results
         
         # Analysis and comparison

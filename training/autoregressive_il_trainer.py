@@ -24,6 +24,13 @@ import json
 
 from evaluation.evaluation_metrics import calculate_comprehensive_action_metrics, surgical_metrics
 
+try:
+    import ivtmetrics
+    IVT_AVAILABLE = True
+except ImportError:
+    IVT_AVAILABLE = False
+    print("⚠️  ivtmetrics not available. Install with: pip install ivtmetrics")
+
 
 class AutoregressiveILTrainer:
     """
@@ -237,6 +244,7 @@ class AutoregressiveILTrainer:
         
         with tqdm(train_loader, desc=f"Training Epoch {epoch+1}") as pbar:
             for batch_idx, batch in enumerate(pbar):
+                
                 # Move data to device
                 input_frames = batch['input_frames'].to(self.device)
                 target_next_frames = batch['target_next_frames'].to(self.device)
@@ -300,7 +308,11 @@ class AutoregressiveILTrainer:
         """
         
         self.model.eval()
-        
+
+        ivt_rec = None
+        if IVT_AVAILABLE:
+            ivt_rec = ivtmetrics.Recognition(num_class=100)
+
         # Store metrics per video
         video_loss_metrics = {}
         video_action_metrics = {}
@@ -338,7 +350,26 @@ class AutoregressiveILTrainer:
                     action_probs = outputs['action_pred']  # [batch, seq_len, num_actions]
                     video_predictions.append(action_probs.cpu().numpy())
                     video_targets.append(target_actions.cpu().numpy())
-                
+
+                    if ivt_rec is not None:
+                        # Handle sequence dimension
+                        if action_probs.ndim == 3:  # [batch, seq_len, num_actions]
+                            action_probs_flat = action_probs[:, -1, :].cpu().numpy()  # Last timestep
+                            target_actions_flat = target_actions[:, -1, :].cpu().numpy()
+                        else:
+                            action_probs_flat = action_probs.cpu().numpy()
+                            target_actions_flat = target_actions.cpu().numpy()
+                        
+                        # Convert targets to int (ivtmetrics expects binary labels)
+                        target_actions_int = (target_actions_flat > 0.5).astype(int)
+                        
+                        # Update IVT recognizer (standard protocol)
+                        ivt_rec.update(target_actions_int, action_probs_flat)
+            
+                # ADD THIS: Signal end of video to IVT (CRITICAL for standard protocol)
+                if ivt_rec is not None:
+                    ivt_rec.video_end()
+
                 # 🎯 PER-VIDEO: Compute action metrics for this specific video
                 if video_predictions:
                     # Concatenate all batches for this video
@@ -434,7 +465,7 @@ class AutoregressiveILTrainer:
                 'action_f1': aggregated_action_metrics.get('f1', 0.0),  # F1 on surgical actions
                 'action_sparsity': aggregated_action_metrics.get('action_sparsity', 0.0),  # Sparsity of surgical actions
                 'num_actions_present': aggregated_action_metrics.get('num_actions_present', 0.0),  # Present surgical actions
-                
+                                
                 # 🔧 NEW: Add alternative metrics for comparison (with null verbs)
                 'action_mAP_with_null_verb': aggregated_action_metrics.get('mAP_present_only_with_null_verb', 0.0),
                 'action_exact_match_with_null_verb': aggregated_action_metrics.get('exact_match_with_null_verb', 0.0),
@@ -454,17 +485,53 @@ class AutoregressiveILTrainer:
                 }
                 final_metrics.update(variance_mapping)
         
-        # 📊 LOG: Summary of aggregated results with updated naming
+
+        # ADD THIS: Get IVT metrics (following standard protocol)
+        if ivt_rec is not None:
+            try:
+                # Standard IVT video-wise mAP (main metric for publication)
+                ivt_result = ivt_rec.compute_video_AP("ivt")
+                final_metrics['ivt_mAP'] = ivt_result["mAP"]
+                
+                # Optional: Get component-wise results
+                for component in ['i', 'v', 't', 'iv', 'it']:
+                    try:
+                        comp_result = ivt_rec.compute_video_AP(component)
+                        final_metrics[f'ivt_{component}_mAP'] = comp_result["mAP"]
+                    except:
+                        final_metrics[f'ivt_{component}_mAP'] = 0.0
+                
+                # Comparison metrics
+                current_map = final_metrics.get('action_mAP', 0.0)
+                ivt_map = final_metrics.get('ivt_mAP', 0.0)
+                final_metrics['ivt_vs_current_diff'] = abs(current_map - ivt_map)
+                final_metrics['evaluation_consistent'] = final_metrics['ivt_vs_current_diff'] < 0.02
+                
+            except Exception as e:
+                self.logger.error(f"Error computing IVT metrics: {e}")
+                final_metrics['ivt_mAP'] = 0.0
+        else:
+            final_metrics['ivt_mAP'] = 0.0
+        
+        # MODIFY YOUR LOGGING: Add IVT metrics
         num_videos = len(video_action_metrics)
         map_std = final_metrics.get('action_mAP_std', 0.0)
+        current_map = final_metrics.get('action_mAP', 0.0)
+        ivt_map = final_metrics.get('ivt_mAP', 0.0)
         
         self.logger.info(f"📊 Validation Summary (averaged across {num_videos} videos):")
-        self.logger.info(f"   🎯 Main mAP (surgical actions): {final_metrics.get('action_mAP', 0):.4f} ± {map_std:.4f}")
-        self.logger.info(f"   📊 mAP with null verbs: {final_metrics.get('action_mAP_with_null_verb', 0):.4f}")
-        self.logger.info(f"   📋 Actions evaluated: {final_metrics.get('num_actions_present', 0):.0f}/{final_metrics.get('num_actions_total', 0):.0f} surgical actions")
-        self.logger.info(f"   📈 Surgical action sparsity: {final_metrics.get('action_sparsity', 0):.4f}")
-        self.logger.info(f"   🔄 Total Loss: {final_metrics.get('total_loss', 0):.4f}")
+        self.logger.info(f"   🎯 Current System mAP:     {current_map:.4f} ± {map_std:.4f}")
+        self.logger.info(f"   📊 IVT Standard mAP:       {ivt_map:.4f}")
+        self.logger.info(f"   🏆 Publication Metric:     {ivt_map:.4f} (IVT mAP)")
+        self.logger.info(f"   📋 Actions evaluated:      {final_metrics.get('num_actions_present', 0):.0f} surgical actions")
+        self.logger.info(f"   🔄 Total Loss:             {final_metrics.get('total_loss', 0):.4f}")
 
+        # Log IVT component-wise metrics
+        for comp in ['i', 'v', 't', 'iv', 'it']:
+            comp_map = final_metrics.get(f'ivt_{comp}_mAP', 0.0)
+            self.logger.info(f"   📊 IVT {comp.upper()} mAP:     {comp_map:.4f}")
+
+        
         # Store detailed per-video results for analysis
         self.last_validation_details = {
             'epoch': epoch,
@@ -532,8 +599,19 @@ class AutoregressiveILTrainer:
             'model_type': 'AutoregressiveIL',
             'evaluation_approach': 'per_video_aggregation',
             'num_videos_evaluated': detailed_results.get('num_videos', 0),
+
+            'publication_metrics': {
+                'primary_mAP': overall_metrics.get('ivt_mAP', 0.0),      # Use for publication
+                'current_mAP': overall_metrics.get('action_mAP', 0.0),   # Your analysis
+                'ivt_i_mAP': overall_metrics.get('ivt_i_mAP', 0.0),
+                'ivt_v_mAP': overall_metrics.get('ivt_v_mAP', 0.0),
+                'ivt_t_mAP': overall_metrics.get('ivt_t_mAP', 0.0),
+                'evaluation_standard': 'CholecT50_ivtmetrics_video_wise',
+                'fair_comparison_ready': IVT_AVAILABLE
+            },
+
             'evaluation_summary': {
-                'best_metric': 'action_mAP',
+                'best_metric': 'ivt_mAP',
                 'best_value': overall_metrics.get('action_mAP', 0.0),
                 'best_value_std': overall_metrics.get('mAP_std', 0.0),
                 'strength': 'Causal frame generation and action prediction',
@@ -542,14 +620,21 @@ class AutoregressiveILTrainer:
             }
         }
         
-        # Generate comprehensive performance analysis
-        performance_analysis = self._analyze_video_performance(detailed_results.get('video_action_metrics', {}))
-        evaluation_results['performance_analysis'] = performance_analysis
+        if hasattr(self, '_analyze_video_performance'):
+            performance_analysis = self._analyze_video_performance(detailed_results.get('video_action_metrics', {}))
+            evaluation_results['performance_analysis'] = performance_analysis
         
-        self.logger.info(f"✅ Per-video evaluation completed")
-        self.logger.info(f"📊 Overall Action mAP: {overall_metrics.get('action_mAP', 0):.4f} ± {overall_metrics.get('mAP_std', 0):.4f}")
-        self.logger.info(f"📊 Videos evaluated: {detailed_results.get('num_videos', 0)}")
-        self.logger.info(f"🎯 Aggregation: Per-video metrics → averaged")
+        # ENHANCED LOGGING
+        current_map = overall_metrics.get('action_mAP', 0.0)
+        ivt_map = overall_metrics.get('ivt_mAP', 0.0)
+        map_std = overall_metrics.get('action_mAP_std', 0.0)
+        
+        self.logger.info(f"✅ Evaluation completed with IVT integration")
+        self.logger.info(f"📊 Current System mAP:     {current_map:.4f} ± {map_std:.4f}")
+        self.logger.info(f"📊 IVT Standard mAP:       {ivt_map:.4f}")
+        self.logger.info(f"📊 Videos evaluated:       {detailed_results.get('num_videos', 0)}")
+        self.logger.info(f"🎯 Publication metric:     {ivt_map:.4f} (use this for comparison)")
+        self.logger.info(f"🔬 Fair comparison ready:  {IVT_AVAILABLE}")
         
         return evaluation_results
     
@@ -803,17 +888,41 @@ class AutoregressiveILTrainer:
             axes[1, 1].plot(self.metrics_history['val_action_exact_match'], color='orange')
             axes[1, 1].set_title('Exact Match Accuracy')
             axes[1, 1].grid(True)
-        
-        # Action sparsity tracking
-        if 'val_action_sparsity' in self.metrics_history:
-            axes[1, 2].plot(self.metrics_history['val_action_sparsity'], color='purple')
-            axes[1, 2].set_title('Action Sparsity')
+
+        # ADD THIS: IVT vs Current comparison plot
+        if 'val_ivt_mAP' in self.metrics_history and 'val_action_mAP' in self.metrics_history:
+            epochs = range(len(self.metrics_history['val_action_mAP']))
+            
+            axes[1, 2].plot(epochs, self.metrics_history['val_action_mAP'], 
+                        'b-', linewidth=2, label='Current System')
+            axes[1, 2].plot(epochs, self.metrics_history['val_ivt_mAP'], 
+                        'r-', linewidth=2, label='IVT Standard')
+            
+            axes[1, 2].set_title('Current vs IVT Standard mAP')
+            axes[1, 2].set_xlabel('Epoch')
+            axes[1, 2].set_ylabel('mAP')
+            axes[1, 2].legend()
             axes[1, 2].grid(True)
         
+        # YOUR EXISTING SAVE CODE
         plt.tight_layout()
-        plot_path = os.path.join(self.log_dir, 'autoregressive_il_training_curves_per_video.png')
+        plot_path = os.path.join(self.log_dir, 'training_curves_with_ivt.png')
         plt.savefig(plot_path, dpi=300, bbox_inches='tight')
         plt.close()
+        
+        self.logger.info(f"📊 Training plots with IVT comparison saved to: {plot_path}")
+
+
+        # # Action sparsity tracking
+        # if 'val_action_sparsity' in self.metrics_history:
+        #     axes[1, 2].plot(self.metrics_history['val_action_sparsity'], color='purple')
+        #     axes[1, 2].set_title('Action Sparsity')
+        #     axes[1, 2].grid(True)
+        
+        # plt.tight_layout()
+        # plot_path = os.path.join(self.log_dir, 'autoregressive_il_training_curves_per_video.png')
+        # plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+        # plt.close()
         
         # Save metrics to JSON
         metrics_path = os.path.join(self.log_dir, 'autoregressive_il_metrics_per_video.json')
