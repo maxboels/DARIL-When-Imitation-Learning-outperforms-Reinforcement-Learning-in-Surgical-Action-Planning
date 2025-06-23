@@ -10,19 +10,19 @@ experiment:
     
   # Imitation Learning
   autoregressive_il:
-    enabled: false
+    enabled: true
     il_model_path: null
     # il_model_path: "results/2025-06-10_19-45-51/logs/checkpoints/autoregressive_il_best_epoch_1.pt"  # Path to the best IL model
   
   # Conditional World Model
   world_model:
-    enabled: true
+    enabled: false
     # wm_model_path: null
     wm_model_path: "results/fixed_rl_2025-06-13_19-22-25/logs/checkpoints/world_model_best_epoch_1.pt"
 
   # RL Experiments
   rl_experiments:
-    enabled: true
+    enabled: false
     eval_episodes: 10
 
 # Training parameters
@@ -128,9 +128,15 @@ data:
     data_dir: "/home/maxboels/datasets/CholecT50"
     # data_dir: "/nfs/home/mboels/datasets/CholecT50"
     class_labels_file_path: "./data/labels.json"
-    fold: 0
-    metadata_file: "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv"
-    video_global_outcome_file: "embeddings_f0_swin_bas_129_with_enhanced_global_metrics.csv"
+    # Folds: 0, 1, 2, 3, 4
+    fold: 1
+    # metadata_file: "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv"
+    metadata_file: "embeddings_f1_swin_bas_129.csv"
+    # metadata_file: "embeddings_f2_swin_bas_129.csv"
+    # metadata_file: "embeddings_f3_swin_bas_129.csv"
+    # metadata_file: "embeddings_f4_swin_bas_129.csv"
+
+    video_global_outcome_file: "embeddings_f1_swin_bas_129_with_enhanced_global_metrics.csv"
   
   frame_risk_agg: 'max'
 

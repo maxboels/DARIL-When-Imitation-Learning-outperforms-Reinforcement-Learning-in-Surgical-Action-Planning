@@ -1,0 +1,11 @@
+2025-06-23 09:50:34,290 - INFO - SuRL_FixedRL_125274211139712 - Shared experiment log directory: results/2025-06-23_09-50-34/logs
+2025-06-23 09:50:34,291 - INFO - SuRL_FixedRL_125274211139712 - 🎯 RL Experiment: 2025-06-23_09-50-34
+2025-06-23 09:50:34,291 - INFO - SuRL_FixedRL_125274211139712 - 📁 Results dir: results/2025-06-23_09-50-34
+2025-06-23 09:50:34,291 - INFO - SuRL_FixedRL_125274211139712 - 🚀 Starting Complete RL Comparison
+2025-06-23 09:50:34,291 - INFO - SuRL_FixedRL_125274211139712 - ============================================================
+2025-06-23 09:50:34,291 - INFO - SuRL_FixedRL_125274211139712 - 📂 Loading CholecT50 data...
+2025-06-23 09:50:34,291 - INFO - SuRL_FixedRL_125274211139712 -    Training videos: 40
+2025-06-23 09:50:34,291 - INFO - SuRL_FixedRL_125274211139712 -    Test videos: 10
+2025-06-23 09:50:34,291 - INFO - SuRL_FixedRL_125274211139712 - Loading train data from /home/maxboels/datasets/CholecT50 with fold 1
+2025-06-23 09:50:44,460 - INFO - SuRL_FixedRL_125274211139712 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_train_set/fold1/embeddings_f1_swin_bas_129.csv - Shape: (81623, 144)
+2025-06-23 09:50:44,460 - INFO - SuRL_FixedRL_125274211139712 - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold1/embeddings_f1_swin_bas_129.csv

@@ -1,0 +1,422 @@
+2025-06-23 10:31:20,639 - INFO - SuRL_FixedRL_137112641998864 - Shared experiment log directory: results/2025-06-23_10-31-20/logs
+2025-06-23 10:31:20,639 - INFO - SuRL_FixedRL_137112641998864 - 🎯 RL Experiment: 2025-06-23_10-31-20
+2025-06-23 10:31:20,639 - INFO - SuRL_FixedRL_137112641998864 - 📁 Results dir: results/2025-06-23_10-31-20
+2025-06-23 10:31:20,639 - INFO - SuRL_FixedRL_137112641998864 - 🚀 Starting Complete RL Comparison
+2025-06-23 10:31:20,639 - INFO - SuRL_FixedRL_137112641998864 - ============================================================
+2025-06-23 10:31:20,639 - INFO - SuRL_FixedRL_137112641998864 - 📂 Loading CholecT50 data...
+2025-06-23 10:31:20,639 - INFO - SuRL_FixedRL_137112641998864 -    Training videos: 40
+2025-06-23 10:31:20,639 - INFO - SuRL_FixedRL_137112641998864 -    Test videos: 10
+2025-06-23 10:31:20,640 - INFO - SuRL_FixedRL_137112641998864 - Loading train data from /home/maxboels/datasets/CholecT50 with fold 3
+2025-06-23 10:31:21,021 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_train_set/fold3/embeddings_f3_swin_bas_129.csv - Shape: (79910, 144)
+2025-06-23 10:31:21,021 - INFO - SuRL_FixedRL_137112641998864 - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold3/embeddings_f3_swin_bas_129.csv
+2025-06-23 10:31:25,673 - INFO - SuRL_FixedRL_137112641998864 - [Train] Cleaned metadata file paths in /home/maxboels/datasets/CholecT50/embeddings_train_set/fold3/embeddings_f3_swin_bas_129.csv
+2025-06-23 10:31:27,627 - INFO - SuRL_FixedRL_137112641998864 - [Train] Saved cleaned metadata to /home/maxboels/datasets/CholecT50/embeddings_train_set/fold3/embeddings_f3_swin_bas_129.csv
+2025-06-23 10:32:36,715 - INFO - SuRL_FixedRL_137112641998864 - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold3/embeddings_f3_swin_bas_129.csv
+2025-06-23 10:32:36,719 - INFO - SuRL_FixedRL_137112641998864 - [Train] Found 40 videos in metadata file
+2025-06-23 10:32:36,719 - INFO - SuRL_FixedRL_137112641998864 - [Train] Loading data for 40 videos
+2025-06-23 10:32:36,930 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID01
+2025-06-23 10:32:36,930 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID01
+2025-06-23 10:32:36,931 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID01
+2025-06-23 10:32:36,931 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID01
+2025-06-23 10:32:36,931 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID01
+2025-06-23 10:32:36,931 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID01
+2025-06-23 10:32:36,931 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID01
+2025-06-23 10:32:36,931 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID01
+2025-06-23 10:32:36,931 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID01
+2025-06-23 10:32:36,944 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID01: 1734 frames, 1024-dims embeddings
+2025-06-23 10:32:37,266 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID02
+2025-06-23 10:32:37,266 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID02
+2025-06-23 10:32:37,267 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID02
+2025-06-23 10:32:37,267 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID02
+2025-06-23 10:32:37,267 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID02
+2025-06-23 10:32:37,267 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID02
+2025-06-23 10:32:37,267 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID02
+2025-06-23 10:32:37,267 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID02
+2025-06-23 10:32:37,267 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID02
+2025-06-23 10:32:37,279 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID02: 2840 frames, 1024-dims embeddings
+2025-06-23 10:32:37,454 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID04
+2025-06-23 10:32:37,455 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID04
+2025-06-23 10:32:37,455 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID04
+2025-06-23 10:32:37,455 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID04
+2025-06-23 10:32:37,455 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID04
+2025-06-23 10:32:37,455 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID04
+2025-06-23 10:32:37,455 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID04
+2025-06-23 10:32:37,455 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID04
+2025-06-23 10:32:37,455 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID04
+2025-06-23 10:32:37,467 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID04: 1523 frames, 1024-dims embeddings
+2025-06-23 10:32:37,735 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID05
+2025-06-23 10:32:37,735 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID05
+2025-06-23 10:32:37,735 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID05
+2025-06-23 10:32:37,735 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID05
+2025-06-23 10:32:37,735 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID05
+2025-06-23 10:32:37,735 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID05
+2025-06-23 10:32:37,735 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID05
+2025-06-23 10:32:37,735 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID05
+2025-06-23 10:32:37,735 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID05
+2025-06-23 10:32:37,747 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID05: 2345 frames, 1024-dims embeddings
+2025-06-23 10:32:37,994 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID06
+2025-06-23 10:32:37,994 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID06
+2025-06-23 10:32:37,994 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID06
+2025-06-23 10:32:37,995 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID06
+2025-06-23 10:32:37,995 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID06
+2025-06-23 10:32:37,995 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID06
+2025-06-23 10:32:37,995 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID06
+2025-06-23 10:32:37,995 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID06
+2025-06-23 10:32:37,995 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID06
+2025-06-23 10:32:38,007 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID06: 2154 frames, 1024-dims embeddings
+2025-06-23 10:32:38,180 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID08
+2025-06-23 10:32:38,181 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID08
+2025-06-23 10:32:38,181 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID08
+2025-06-23 10:32:38,181 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID08
+2025-06-23 10:32:38,181 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID08
+2025-06-23 10:32:38,181 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID08
+2025-06-23 10:32:38,181 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID08
+2025-06-23 10:32:38,181 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID08
+2025-06-23 10:32:38,181 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID08
+2025-06-23 10:32:38,193 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID08: 1520 frames, 1024-dims embeddings
+2025-06-23 10:32:38,399 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID10
+2025-06-23 10:32:38,399 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID10
+2025-06-23 10:32:38,399 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID10
+2025-06-23 10:32:38,399 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID10
+2025-06-23 10:32:38,399 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID10
+2025-06-23 10:32:38,399 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID10
+2025-06-23 10:32:38,400 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID10
+2025-06-23 10:32:38,400 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID10
+2025-06-23 10:32:38,400 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID10
+2025-06-23 10:32:38,411 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID10: 1750 frames, 1024-dims embeddings
+2025-06-23 10:32:38,675 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID103
+2025-06-23 10:32:38,675 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID103
+2025-06-23 10:32:38,675 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID103
+2025-06-23 10:32:38,675 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID103
+2025-06-23 10:32:38,675 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID103
+2025-06-23 10:32:38,675 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID103
+2025-06-23 10:32:38,676 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID103
+2025-06-23 10:32:38,676 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID103
+2025-06-23 10:32:38,676 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID103
+2025-06-23 10:32:38,687 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID103: 2220 frames, 1024-dims embeddings
+2025-06-23 10:32:38,934 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID111
+2025-06-23 10:32:38,935 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID111
+2025-06-23 10:32:38,935 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID111
+2025-06-23 10:32:38,935 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID111
+2025-06-23 10:32:38,935 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID111
+2025-06-23 10:32:38,935 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID111
+2025-06-23 10:32:38,935 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID111
+2025-06-23 10:32:38,935 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID111
+2025-06-23 10:32:38,935 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID111
+2025-06-23 10:32:38,947 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID111: 2146 frames, 1024-dims embeddings
+2025-06-23 10:32:39,061 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID13
+2025-06-23 10:32:39,061 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID13
+2025-06-23 10:32:39,061 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID13
+2025-06-23 10:32:39,061 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID13
+2025-06-23 10:32:39,061 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID13
+2025-06-23 10:32:39,061 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID13
+2025-06-23 10:32:39,061 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID13
+2025-06-23 10:32:39,061 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID13
+2025-06-23 10:32:39,061 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID13
+2025-06-23 10:32:39,073 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID13: 982 frames, 1024-dims embeddings
+2025-06-23 10:32:39,272 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID14
+2025-06-23 10:32:39,272 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID14
+2025-06-23 10:32:39,272 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID14
+2025-06-23 10:32:39,272 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID14
+2025-06-23 10:32:39,272 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID14
+2025-06-23 10:32:39,272 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID14
+2025-06-23 10:32:39,272 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID14
+2025-06-23 10:32:39,272 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID14
+2025-06-23 10:32:39,272 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID14
+2025-06-23 10:32:39,284 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID14: 1709 frames, 1024-dims embeddings
+2025-06-23 10:32:39,520 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID15
+2025-06-23 10:32:39,520 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID15
+2025-06-23 10:32:39,520 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID15
+2025-06-23 10:32:39,520 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID15
+2025-06-23 10:32:39,521 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID15
+2025-06-23 10:32:39,521 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID15
+2025-06-23 10:32:39,521 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID15
+2025-06-23 10:32:39,521 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID15
+2025-06-23 10:32:39,521 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID15
+2025-06-23 10:32:39,533 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID15: 2059 frames, 1024-dims embeddings
+2025-06-23 10:32:39,757 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID18
+2025-06-23 10:32:39,757 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID18
+2025-06-23 10:32:39,757 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID18
+2025-06-23 10:32:39,757 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID18
+2025-06-23 10:32:39,757 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID18
+2025-06-23 10:32:39,757 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID18
+2025-06-23 10:32:39,757 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID18
+2025-06-23 10:32:39,757 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID18
+2025-06-23 10:32:39,758 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID18
+2025-06-23 10:32:39,770 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID18: 1943 frames, 1024-dims embeddings
+2025-06-23 10:32:39,959 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID23
+2025-06-23 10:32:39,960 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID23
+2025-06-23 10:32:39,960 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID23
+2025-06-23 10:32:39,960 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID23
+2025-06-23 10:32:39,960 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID23
+2025-06-23 10:32:39,960 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID23
+2025-06-23 10:32:39,960 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID23
+2025-06-23 10:32:39,960 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID23
+2025-06-23 10:32:39,960 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID23
+2025-06-23 10:32:39,972 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID23: 1636 frames, 1024-dims embeddings
+2025-06-23 10:32:40,216 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID25
+2025-06-23 10:32:40,217 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID25
+2025-06-23 10:32:40,217 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID25
+2025-06-23 10:32:40,217 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID25
+2025-06-23 10:32:40,217 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID25
+2025-06-23 10:32:40,217 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID25
+2025-06-23 10:32:40,217 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID25
+2025-06-23 10:32:40,217 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID25
+2025-06-23 10:32:40,217 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID25
+2025-06-23 10:32:40,230 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID25: 2130 frames, 1024-dims embeddings
+2025-06-23 10:32:40,434 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID26
+2025-06-23 10:32:40,434 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID26
+2025-06-23 10:32:40,434 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID26
+2025-06-23 10:32:40,434 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID26
+2025-06-23 10:32:40,435 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID26
+2025-06-23 10:32:40,435 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID26
+2025-06-23 10:32:40,435 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID26
+2025-06-23 10:32:40,435 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID26
+2025-06-23 10:32:40,435 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID26
+2025-06-23 10:32:40,447 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID26: 1774 frames, 1024-dims embeddings
+2025-06-23 10:32:40,897 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID31
+2025-06-23 10:32:40,897 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID31
+2025-06-23 10:32:40,897 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID31
+2025-06-23 10:32:40,897 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID31
+2025-06-23 10:32:40,897 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID31
+2025-06-23 10:32:40,897 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID31
+2025-06-23 10:32:40,897 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID31
+2025-06-23 10:32:40,897 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID31
+2025-06-23 10:32:40,897 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID31
+2025-06-23 10:32:40,909 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID31: 3946 frames, 1024-dims embeddings
+2025-06-23 10:32:41,155 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID32
+2025-06-23 10:32:41,155 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID32
+2025-06-23 10:32:41,155 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID32
+2025-06-23 10:32:41,155 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID32
+2025-06-23 10:32:41,155 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID32
+2025-06-23 10:32:41,155 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID32
+2025-06-23 10:32:41,155 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID32
+2025-06-23 10:32:41,155 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID32
+2025-06-23 10:32:41,155 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID32
+2025-06-23 10:32:41,167 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID32: 2117 frames, 1024-dims embeddings
+2025-06-23 10:32:41,413 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID35
+2025-06-23 10:32:41,413 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID35
+2025-06-23 10:32:41,413 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID35
+2025-06-23 10:32:41,413 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID35
+2025-06-23 10:32:41,413 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID35
+2025-06-23 10:32:41,413 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID35
+2025-06-23 10:32:41,413 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID35
+2025-06-23 10:32:41,413 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID35
+2025-06-23 10:32:41,413 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID35
+2025-06-23 10:32:41,425 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID35: 2107 frames, 1024-dims embeddings
+2025-06-23 10:32:41,701 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID36
+2025-06-23 10:32:41,702 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID36
+2025-06-23 10:32:41,702 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID36
+2025-06-23 10:32:41,702 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID36
+2025-06-23 10:32:41,702 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID36
+2025-06-23 10:32:41,702 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID36
+2025-06-23 10:32:41,702 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID36
+2025-06-23 10:32:41,702 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID36
+2025-06-23 10:32:41,702 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID36
+2025-06-23 10:32:41,714 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID36: 2388 frames, 1024-dims embeddings
+2025-06-23 10:32:41,971 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID40
+2025-06-23 10:32:41,971 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID40
+2025-06-23 10:32:41,971 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID40
+2025-06-23 10:32:41,972 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID40
+2025-06-23 10:32:41,972 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID40
+2025-06-23 10:32:41,972 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID40
+2025-06-23 10:32:41,972 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID40
+2025-06-23 10:32:41,972 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID40
+2025-06-23 10:32:41,972 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID40
+2025-06-23 10:32:41,984 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID40: 2223 frames, 1024-dims embeddings
+2025-06-23 10:32:42,255 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID43
+2025-06-23 10:32:42,256 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID43
+2025-06-23 10:32:42,256 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID43
+2025-06-23 10:32:42,256 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID43
+2025-06-23 10:32:42,256 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID43
+2025-06-23 10:32:42,256 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID43
+2025-06-23 10:32:42,256 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID43
+2025-06-23 10:32:42,256 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID43
+2025-06-23 10:32:42,256 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID43
+2025-06-23 10:32:42,268 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID43: 2363 frames, 1024-dims embeddings
+2025-06-23 10:32:42,529 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID47
+2025-06-23 10:32:42,530 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID47
+2025-06-23 10:32:42,530 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID47
+2025-06-23 10:32:42,530 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID47
+2025-06-23 10:32:42,530 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID47
+2025-06-23 10:32:42,530 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID47
+2025-06-23 10:32:42,530 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID47
+2025-06-23 10:32:42,530 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID47
+2025-06-23 10:32:42,530 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID47
+2025-06-23 10:32:42,542 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID47: 2260 frames, 1024-dims embeddings
+2025-06-23 10:32:42,753 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID48
+2025-06-23 10:32:42,753 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID48
+2025-06-23 10:32:42,753 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID48
+2025-06-23 10:32:42,753 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID48
+2025-06-23 10:32:42,753 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID48
+2025-06-23 10:32:42,753 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID48
+2025-06-23 10:32:42,754 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID48
+2025-06-23 10:32:42,754 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID48
+2025-06-23 10:32:42,754 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID48
+2025-06-23 10:32:42,765 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID48: 1835 frames, 1024-dims embeddings
+2025-06-23 10:32:42,894 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID50
+2025-06-23 10:32:42,895 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID50
+2025-06-23 10:32:42,895 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID50
+2025-06-23 10:32:42,895 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID50
+2025-06-23 10:32:42,895 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID50
+2025-06-23 10:32:42,895 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID50
+2025-06-23 10:32:42,895 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID50
+2025-06-23 10:32:42,895 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID50
+2025-06-23 10:32:42,895 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID50
+2025-06-23 10:32:42,907 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID50: 1095 frames, 1024-dims embeddings
+2025-06-23 10:32:43,246 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID51
+2025-06-23 10:32:43,246 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID51
+2025-06-23 10:32:43,246 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID51
+2025-06-23 10:32:43,246 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID51
+2025-06-23 10:32:43,246 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID51
+2025-06-23 10:32:43,246 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID51
+2025-06-23 10:32:43,246 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID51
+2025-06-23 10:32:43,246 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID51
+2025-06-23 10:32:43,246 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID51
+2025-06-23 10:32:43,258 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID51: 2945 frames, 1024-dims embeddings
+2025-06-23 10:32:43,483 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID52
+2025-06-23 10:32:43,483 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID52
+2025-06-23 10:32:43,483 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID52
+2025-06-23 10:32:43,483 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID52
+2025-06-23 10:32:43,483 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID52
+2025-06-23 10:32:43,483 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID52
+2025-06-23 10:32:43,483 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID52
+2025-06-23 10:32:43,484 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID52
+2025-06-23 10:32:43,484 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID52
+2025-06-23 10:32:43,496 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID52: 1967 frames, 1024-dims embeddings
+2025-06-23 10:32:43,709 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID56
+2025-06-23 10:32:43,709 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID56
+2025-06-23 10:32:43,709 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID56
+2025-06-23 10:32:43,709 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID56
+2025-06-23 10:32:43,709 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID56
+2025-06-23 10:32:43,709 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID56
+2025-06-23 10:32:43,710 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID56
+2025-06-23 10:32:43,710 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID56
+2025-06-23 10:32:43,710 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID56
+2025-06-23 10:32:43,722 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID56: 1837 frames, 1024-dims embeddings
+2025-06-23 10:32:44,025 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID57
+2025-06-23 10:32:44,025 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID57
+2025-06-23 10:32:44,025 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID57
+2025-06-23 10:32:44,025 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID57
+2025-06-23 10:32:44,026 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID57
+2025-06-23 10:32:44,026 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID57
+2025-06-23 10:32:44,026 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID57
+2025-06-23 10:32:44,026 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID57
+2025-06-23 10:32:44,026 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID57
+2025-06-23 10:32:44,038 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID57: 2633 frames, 1024-dims embeddings
+2025-06-23 10:32:44,272 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID62
+2025-06-23 10:32:44,273 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID62
+2025-06-23 10:32:44,273 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID62
+2025-06-23 10:32:44,273 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID62
+2025-06-23 10:32:44,273 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID62
+2025-06-23 10:32:44,273 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID62
+2025-06-23 10:32:44,273 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID62
+2025-06-23 10:32:44,273 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID62
+2025-06-23 10:32:44,273 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID62
+2025-06-23 10:32:44,285 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID62: 2033 frames, 1024-dims embeddings
+2025-06-23 10:32:44,497 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID66
+2025-06-23 10:32:44,497 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID66
+2025-06-23 10:32:44,497 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID66
+2025-06-23 10:32:44,497 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID66
+2025-06-23 10:32:44,497 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID66
+2025-06-23 10:32:44,498 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID66
+2025-06-23 10:32:44,498 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID66
+2025-06-23 10:32:44,498 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID66
+2025-06-23 10:32:44,498 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID66
+2025-06-23 10:32:44,509 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID66: 1825 frames, 1024-dims embeddings
+2025-06-23 10:32:44,738 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID68
+2025-06-23 10:32:44,738 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID68
+2025-06-23 10:32:44,738 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID68
+2025-06-23 10:32:44,738 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID68
+2025-06-23 10:32:44,738 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID68
+2025-06-23 10:32:44,738 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID68
+2025-06-23 10:32:44,738 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID68
+2025-06-23 10:32:44,738 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID68
+2025-06-23 10:32:44,738 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID68
+2025-06-23 10:32:44,751 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID68: 1973 frames, 1024-dims embeddings
+2025-06-23 10:32:44,889 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID70
+2025-06-23 10:32:44,889 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID70
+2025-06-23 10:32:44,890 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID70
+2025-06-23 10:32:44,890 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID70
+2025-06-23 10:32:44,890 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID70
+2025-06-23 10:32:44,890 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID70
+2025-06-23 10:32:44,890 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID70
+2025-06-23 10:32:44,890 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID70
+2025-06-23 10:32:44,890 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID70
+2025-06-23 10:32:44,902 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID70: 1195 frames, 1024-dims embeddings
+2025-06-23 10:32:45,062 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID73
+2025-06-23 10:32:45,062 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID73
+2025-06-23 10:32:45,062 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID73
+2025-06-23 10:32:45,062 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID73
+2025-06-23 10:32:45,062 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID73
+2025-06-23 10:32:45,062 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID73
+2025-06-23 10:32:45,062 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID73
+2025-06-23 10:32:45,062 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID73
+2025-06-23 10:32:45,062 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID73
+2025-06-23 10:32:45,074 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID73: 1357 frames, 1024-dims embeddings
+2025-06-23 10:32:45,267 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID74
+2025-06-23 10:32:45,267 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID74
+2025-06-23 10:32:45,267 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID74
+2025-06-23 10:32:45,267 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID74
+2025-06-23 10:32:45,267 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID74
+2025-06-23 10:32:45,267 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID74
+2025-06-23 10:32:45,267 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID74
+2025-06-23 10:32:45,267 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID74
+2025-06-23 10:32:45,267 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID74
+2025-06-23 10:32:45,280 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID74: 1635 frames, 1024-dims embeddings
+2025-06-23 10:32:45,366 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID78
+2025-06-23 10:32:45,366 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID78
+2025-06-23 10:32:45,366 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID78
+2025-06-23 10:32:45,366 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID78
+2025-06-23 10:32:45,367 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID78
+2025-06-23 10:32:45,367 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID78
+2025-06-23 10:32:45,367 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID78
+2025-06-23 10:32:45,367 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID78
+2025-06-23 10:32:45,367 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID78
+2025-06-23 10:32:45,379 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID78: 740 frames, 1024-dims embeddings
+2025-06-23 10:32:45,772 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID79
+2025-06-23 10:32:45,772 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID79
+2025-06-23 10:32:45,772 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID79
+2025-06-23 10:32:45,772 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID79
+2025-06-23 10:32:45,772 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID79
+2025-06-23 10:32:45,772 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID79
+2025-06-23 10:32:45,772 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID79
+2025-06-23 10:32:45,772 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID79
+2025-06-23 10:32:45,772 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID79
+2025-06-23 10:32:45,785 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID79: 3415 frames, 1024-dims embeddings
+2025-06-23 10:32:45,987 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID80
+2025-06-23 10:32:45,987 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID80
+2025-06-23 10:32:45,987 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID80
+2025-06-23 10:32:45,987 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID80
+2025-06-23 10:32:45,987 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID80
+2025-06-23 10:32:45,987 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID80
+2025-06-23 10:32:45,987 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID80
+2025-06-23 10:32:45,987 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID80
+2025-06-23 10:32:45,987 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID80
+2025-06-23 10:32:45,999 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID80: 1725 frames, 1024-dims embeddings
+2025-06-23 10:32:46,245 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID92
+2025-06-23 10:32:46,246 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID92
+2025-06-23 10:32:46,246 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID92
+2025-06-23 10:32:46,246 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID92
+2025-06-23 10:32:46,246 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID92
+2025-06-23 10:32:46,246 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID92
+2025-06-23 10:32:46,246 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID92
+2025-06-23 10:32:46,246 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID92
+2025-06-23 10:32:46,246 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID92
+2025-06-23 10:32:46,258 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID92: 2124 frames, 1024-dims embeddings
+2025-06-23 10:32:46,451 - WARNING - SuRL_FixedRL_137112641998864 - Reward column risk_score_max not found for VID96
+2025-06-23 10:32:46,451 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_completion_reward not found for VID96
+2025-06-23 10:32:46,451 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_initiation_reward not found for VID96
+2025-06-23 10:32:46,451 - WARNING - SuRL_FixedRL_137112641998864 - Reward column phase_prog not found for VID96
+2025-06-23 10:32:46,451 - WARNING - SuRL_FixedRL_137112641998864 - Reward column global_prog not found for VID96
+2025-06-23 10:32:46,451 - WARNING - SuRL_FixedRL_137112641998864 - Reward column action_reward not found for VID96
+2025-06-23 10:32:46,451 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_avg_risk not found for VID96
+2025-06-23 10:32:46,451 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_critical_risk_events not found for VID96
+2025-06-23 10:32:46,451 - WARNING - SuRL_FixedRL_137112641998864 - Outcome column glob_global_outcome_score not found for VID96
+2025-06-23 10:32:46,464 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded video VID96: 1707 frames, 1024-dims embeddings
+2025-06-23 10:32:46,464 - INFO - SuRL_FixedRL_137112641998864 - 📂 Loaded 40 videos from train split
+2025-06-23 10:32:50,958 - INFO - SuRL_FixedRL_137112641998864 - Loading test data from /home/maxboels/datasets/CholecT50 with fold 3
+2025-06-23 10:32:51,073 - INFO - SuRL_FixedRL_137112641998864 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_test_set/fold3/embeddings_f3_swin_bas_129.csv - Shape: (20953, 144)
+2025-06-23 10:32:51,074 - INFO - SuRL_FixedRL_137112641998864 - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold3/embeddings_f3_swin_bas_129.csv
+2025-06-23 10:32:52,993 - INFO - SuRL_FixedRL_137112641998864 - [Test] Cleaned metadata file paths in /home/maxboels/datasets/CholecT50/embeddings_test_set/fold3/embeddings_f3_swin_bas_129.csv
+2025-06-23 10:32:53,529 - INFO - SuRL_FixedRL_137112641998864 - [Test] Saved cleaned metadata to /home/maxboels/datasets/CholecT50/embeddings_test_set/fold3/embeddings_f3_swin_bas_129.csv

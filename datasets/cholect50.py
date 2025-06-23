@@ -45,6 +45,20 @@ except ImportError:
     REWARD_ANALYZER_AVAILABLE = False
 
 
+def clean_csv_file_path(metadata, split='train', fold=0):
+
+    remove_root_1 = f'/nfs/home/mboels/projects/self-distilled-swin/outputs/embeddings_{split}_set/fold{fold}/'
+    if remove_root_1 in metadata['embedding_path'][0]:
+        metadata['embedding_path'] = metadata['embedding_path'].apply(lambda x: x.replace(remove_root_1, f'fold{fold}/'))
+        cleaned = True
+    elif f'/fold{fold}/' in metadata['embedding_path'][0]:
+        metadata['embedding_path'] = metadata['embedding_path'].apply(lambda x: x.replace(f'/fold{fold}/', f'fold{fold}/'))
+        cleaned = True
+    else:
+        print(f"Root not found in embedding path, skipping")
+        cleaned = False
+    return metadata, cleaned
+
 # Step 1: Data Loading from CholecT50 Dataset
 def load_cholect50_data(cfg, logger, split='train', max_videos=None, test_on_train=False):
     """
@@ -59,7 +73,7 @@ def load_cholect50_data(cfg, logger, split='train', max_videos=None, test_on_tra
     paths_config = cfg_data['paths']
     data_dir = paths_config['data_dir']
     metadata_file = paths_config['metadata_file']
-    fold = paths_config.get('fold', 0)
+    fold = paths_config['fold']
 
     # Set split to 'train' if test_on_train is True
     if test_on_train and split == 'test':
@@ -103,6 +117,14 @@ def load_cholect50_data(cfg, logger, split='train', max_videos=None, test_on_tra
     split_desc = split.capitalize()
     
     logger.info(f"[{split_desc}] Start processing metadata file {metadata_path}")
+
+    # Clean the metadata file path
+    metadata_df, cleaned = clean_csv_file_path(metadata_df, split=split, fold=fold)
+    if cleaned:
+        logger.info(f"[{split_desc}] Cleaned metadata file paths in {metadata_path}")
+        # Save cleaned metadata back to file
+        metadata_df.to_csv(metadata_path, index=False)
+        logger.info(f"[{split_desc}] Saved cleaned metadata to {metadata_path}")
     
     # RESTORED: Full preprocessing pipeline with proper error handling
     if cfg.get('preprocess', {}).get('extract_rewards', False) and PREPROCESSING_AVAILABLE:
