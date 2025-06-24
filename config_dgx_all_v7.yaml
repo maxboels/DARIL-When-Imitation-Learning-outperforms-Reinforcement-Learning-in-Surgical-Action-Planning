@@ -11,6 +11,8 @@ experiment:
   # Imitation Learning
   autoregressive_il:
     enabled: true
+    train: true
+    evaluate: true
     il_model_path: null
     # il_model_path: "results/2025-06-10_19-45-51/logs/checkpoints/autoregressive_il_best_epoch_1.pt"  # Path to the best IL model
   

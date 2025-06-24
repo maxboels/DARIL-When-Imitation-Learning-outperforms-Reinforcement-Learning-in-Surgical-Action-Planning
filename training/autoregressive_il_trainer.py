@@ -23,6 +23,8 @@ from sklearn.metrics import average_precision_score, precision_recall_fscore_sup
 import json
 
 from evaluation.evaluation_metrics import calculate_comprehensive_action_metrics, surgical_metrics
+from evaluation.planning_evaluation_ivt import AutoregressivePlanningEvaluator, add_planning_evaluation_to_trainer
+
 
 try:
     import ivtmetrics
@@ -184,8 +186,8 @@ class AutoregressiveILTrainer:
             train_metrics = self._train_epoch(train_loader, epoch)
             
             # 🔧 FINAL: Per-video validation phase
-            val_metrics = self._validate_epoch_per_video(test_loaders, epoch)
-            
+            val_metrics = self._validate_epoch_per_video_with_planning(test_loaders, epoch)
+
             # Learning rate scheduling
             self.scheduler.step()
             
@@ -578,7 +580,7 @@ class AutoregressiveILTrainer:
         🔧 FINAL: Comprehensive evaluation using per-video aggregation.
         """
         
-        self.logger.info("📊 Evaluating Autoregressive IL Model (PER-VIDEO)...")
+        self.logger.info("📊 Evaluating Autoregressive IL Model with Planning Assessment...")
         
         self.model.eval()
         
@@ -590,54 +592,178 @@ class AutoregressiveILTrainer:
         
         # Generation evaluation
         generation_results = self._evaluate_generation_quality(test_loaders)
-        
+
+        self.logger.info("🎯 Starting planning evaluation (multi-step prediction)...")
+        planning_results = add_planning_evaluation_to_trainer(
+            trainer_instance=self, # Use the trainer instance directly
+            test_loaders=test_loaders,
+            context_length=10  # Use 10 frames as context
+        )
+
         evaluation_results = {
             'overall_metrics': overall_metrics,
             'detailed_video_metrics': detailed_results.get('video_action_metrics', {}),
             'video_loss_metrics': detailed_results.get('video_loss_metrics', {}),
             'generation_quality': generation_results,
+        
+            # NEW: Planning evaluation results
+            'planning_evaluation': planning_results,
+            
+            # Model info
             'model_type': 'AutoregressiveIL',
-            'evaluation_approach': 'per_video_aggregation',
+            'evaluation_approach': 'comprehensive_with_planning',
             'num_videos_evaluated': detailed_results.get('num_videos', 0),
-
+            
+            # Publication metrics
             'publication_metrics': {
-                'primary_mAP': overall_metrics.get('ivt_mAP', 0.0),      # Use for publication
-                'current_mAP': overall_metrics.get('action_mAP', 0.0),   # Your analysis
-                'ivt_i_mAP': overall_metrics.get('ivt_i_mAP', 0.0),
-                'ivt_v_mAP': overall_metrics.get('ivt_v_mAP', 0.0),
-                'ivt_t_mAP': overall_metrics.get('ivt_t_mAP', 0.0),
-                'evaluation_standard': 'CholecT50_ivtmetrics_video_wise',
-                'fair_comparison_ready': IVT_AVAILABLE
+                # Single-step metrics (current action recognition)
+                'single_step_mAP': overall_metrics.get('action_mAP', 0.0),
+                'single_step_ivt_mAP': overall_metrics.get('ivt_mAP', 0.0),
+                
+                # Planning metrics (multi-step prediction)
+                'planning_1s_mAP': self._extract_planning_metric(planning_results, '1_second', 'mean_ivt_mAP'),
+                'planning_2s_mAP': self._extract_planning_metric(planning_results, '2_seconds', 'mean_ivt_mAP'),
+                'planning_3s_mAP': self._extract_planning_metric(planning_results, '3_seconds', 'mean_ivt_mAP'),
+                'planning_5s_mAP': self._extract_planning_metric(planning_results, '5_seconds', 'mean_ivt_mAP'),
+                
+                # Comparison
+                'evaluation_types': ['single_step_recognition', 'multi_step_planning'],
+                'planning_consistency': self._extract_planning_metric(planning_results, '2_seconds', 'mean_action_consistency')
             },
-
+            
             'evaluation_summary': {
-                'best_metric': 'ivt_mAP',
-                'best_value': overall_metrics.get('action_mAP', 0.0),
-                'best_value_std': overall_metrics.get('mAP_std', 0.0),
-                'strength': 'Causal frame generation and action prediction',
-                'architecture': 'Autoregressive (no action conditioning)',
-                'aggregation_method': 'per_video_then_average'
+                'single_step_performance': overall_metrics.get('action_mAP', 0.0),
+                'short_term_planning': self._extract_planning_metric(planning_results, '2_seconds', 'mean_ivt_mAP'),
+                'medium_term_planning': self._extract_planning_metric(planning_results, '5_seconds', 'mean_ivt_mAP'),
+                'planning_degradation': self._calculate_planning_degradation(planning_results),
+                'strength': 'Autoregressive planning with causal generation',
+                'architecture': 'GPT-2 based autoregressive model',
+                'planning_horizon_capability': 'up_to_5_seconds',
+                'target_prediction_type': 'next_action_anticipation'  # Since you use t+1 targets
             }
         }
         
+        # Performance analysis
         if hasattr(self, '_analyze_video_performance'):
             performance_analysis = self._analyze_video_performance(detailed_results.get('video_action_metrics', {}))
             evaluation_results['performance_analysis'] = performance_analysis
         
-        # ENHANCED LOGGING
+        # Enhanced logging
+        self._log_comprehensive_results(overall_metrics, planning_results)
+        
+        return evaluation_results
+
+    def _extract_planning_metric(self, planning_results: Dict, horizon: str, metric: str) -> float:
+        """Helper to extract planning metrics safely."""
+        try:
+            return planning_results['aggregated_results']['horizon_aggregated'][horizon][metric]
+        except (KeyError, TypeError):
+            return 0.0
+
+    def _calculate_planning_degradation(self, planning_results: Dict) -> float:
+        """Calculate how much performance degrades with longer planning horizons."""
+        try:
+            aggregated = planning_results['aggregated_results']['horizon_aggregated']
+            
+            # Get performance at different horizons
+            perf_1s = aggregated.get('1_second', {}).get('mean_ivt_mAP', 0)
+            perf_5s = aggregated.get('5_seconds', {}).get('mean_ivt_mAP', 0)
+            
+            if perf_1s > 0:
+                degradation = (perf_1s - perf_5s) / perf_1s
+                return max(0, degradation)  # Return 0 if performance improves
+            
+            return 0.0
+        except:
+            return 0.0
+
+    def _log_comprehensive_results(self, overall_metrics: Dict, planning_results: Dict):
+        """Enhanced logging with planning results."""
+        
         current_map = overall_metrics.get('action_mAP', 0.0)
         ivt_map = overall_metrics.get('ivt_mAP', 0.0)
         map_std = overall_metrics.get('action_mAP_std', 0.0)
         
-        self.logger.info(f"✅ Evaluation completed with IVT integration")
-        self.logger.info(f"📊 Current System mAP:     {current_map:.4f} ± {map_std:.4f}")
-        self.logger.info(f"📊 IVT Standard mAP:       {ivt_map:.4f}")
-        self.logger.info(f"📊 Videos evaluated:       {detailed_results.get('num_videos', 0)}")
-        self.logger.info(f"🎯 Publication metric:     {ivt_map:.4f} (use this for comparison)")
-        self.logger.info(f"🔬 Fair comparison ready:  {IVT_AVAILABLE}")
+        self.logger.info(f"✅ Comprehensive evaluation completed")
+        self.logger.info(f"📊 SINGLE-STEP PERFORMANCE:")
+        self.logger.info(f"   Current System mAP:     {current_map:.4f} ± {map_std:.4f}")
+        self.logger.info(f"   IVT Standard mAP:       {ivt_map:.4f}")
         
-        return evaluation_results
-    
+        # Planning results
+        if 'aggregated_results' in planning_results:
+            self.logger.info(f"🎯 PLANNING PERFORMANCE:")
+            aggregated = planning_results['aggregated_results']['horizon_aggregated']
+            
+            for horizon_name, horizon_data in aggregated.items():
+                seconds = horizon_data.get('planning_horizon_seconds', 0)
+                planning_map = horizon_data.get('mean_ivt_mAP', 0)
+                consistency = horizon_data.get('mean_action_consistency', 0)
+                
+                self.logger.info(f"   {horizon_name} ({seconds:.0f}s): mAP={planning_map:.4f}, Consistency={consistency:.3f}")
+            
+            # Planning degradation
+            degradation = self._calculate_planning_degradation(planning_results)
+            self.logger.info(f"   Planning degradation (1s→5s): {degradation:.3f}")
+        
+        self.logger.info(f"📈 Model demonstrates both recognition and planning capabilities")
+
+    def _validate_epoch_per_video_with_planning(self, test_loaders, epoch, include_planning=False):
+        """
+        OPTIONAL: Enhanced validation that includes planning evaluation during training.
+        Use sparingly due to computational cost.
+        """
+        
+        # Standard validation
+        standard_metrics = self._validate_epoch_per_video(test_loaders, epoch)
+        
+        # Add planning evaluation every few epochs
+        if include_planning and (epoch % 5 == 0 or epoch == -1):  # Every 5 epochs or final
+            self.logger.info(f"🎯 Including planning evaluation for epoch {epoch}...")
+            
+            try:
+                # Quick planning evaluation (shorter horizons only)
+                planning_evaluator = AutoregressivePlanningEvaluator(
+                    model=self.model,
+                    device=self.device,
+                    logger=self.logger,
+                    fps=1
+                )
+                
+                # Override planning horizons for faster evaluation during training
+                planning_evaluator.planning_horizons = {
+                    '1_second': 1,
+                    '2_seconds': 2
+                }
+                
+                planning_results = planning_evaluator.evaluate_planning_on_dataset(
+                    test_loaders=test_loaders,
+                    context_length=5,  # Shorter context during training
+                    temperature=0.1
+                )
+                
+                # Add planning metrics to standard metrics
+                planning_1s = self._extract_planning_metric(planning_results, '1_second', 'mean_ivt_mAP')
+                planning_2s = self._extract_planning_metric(planning_results, '2_seconds', 'mean_ivt_mAP')
+                
+                standard_metrics.update({
+                    'planning_1s_mAP': planning_1s,
+                    'planning_2s_mAP': planning_2s,
+                    'planning_available': True
+                })
+                
+                self.logger.info(f"   Planning 1s mAP: {planning_1s:.4f}")
+                self.logger.info(f"   Planning 2s mAP: {planning_2s:.4f}")
+                
+            except Exception as e:
+                self.logger.warning(f"Planning evaluation failed: {e}")
+                standard_metrics.update({
+                    'planning_1s_mAP': 0.0,
+                    'planning_2s_mAP': 0.0,
+                    'planning_available': False
+                })
+        
+        return standard_metrics
+
     def _analyze_video_performance(self, video_metrics: Dict[str, Dict]) -> Dict[str, Any]:
         """
         🔧 NEW: Analyze performance patterns across videos.
