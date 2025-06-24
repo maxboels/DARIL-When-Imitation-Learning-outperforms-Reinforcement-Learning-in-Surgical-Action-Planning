@@ -183,20 +183,33 @@ class ExperimentRunner:
         try:
             # Check if pretrained model is configured
             il_config = self.config.get('experiment', {}).get('autoregressive_il', {})
+            training_enabled = il_config.get('train', True)
+            evaluate_enabled = il_config.get('evaluate', True)
             il_enabled = il_config.get('enabled', False)
             il_model_path = il_config.get('il_model_path', None)
     
-            train_data = None  if il_enabled and il_model_path else train_data
+            # FIXED: Initialize best_model_path to handle all cases
+            best_model_path = None
             
-            if il_enabled:
-                if not il_model_path:
-                    self.logger.warning("⚠️ Pretrained model enabled but no path specified")
-                elif not os.path.exists(il_model_path):
-                    self.logger.warning(f"⚠️ Pretrained model path does not exist: {il_model_path}")
-                else:
-                    self.logger.info("🏋️ Training IL model from scratch...")
+            # Determine if we should use pretrained model
+            use_pretrained = il_enabled and il_model_path and os.path.exists(il_model_path)
+            
+            if use_pretrained:
+                self.logger.info(f"📂 Loading pretrained IL model from: {il_model_path}")
+                # Load pretrained model
+                model = AutoregressiveILModel.load_model(il_model_path, device=DEVICE)
+                self.logger.info("✅ Pretrained IL model loaded successfully")
                 
-                # Original training code
+                # FIXED: Set best_model_path to the loaded model path
+                best_model_path = il_model_path
+                
+                # Use None for train_data since we're using pretrained model
+                train_data_for_loader = None
+                
+            elif il_enabled:
+                self.logger.info("🏋️ Training IL model from scratch...")
+                
+                # Create model from scratch
                 model = AutoregressiveILModel(
                     hidden_dim=self.config['models']['autoregressive_il']['hidden_dim'],
                     embedding_dim=self.config['models']['autoregressive_il']['embedding_dim'],
@@ -205,57 +218,42 @@ class ExperimentRunner:
                     dropout=self.config['models']['autoregressive_il']['dropout']
                 ).to(DEVICE)
                 
-                # Create datasets
-                train_loader, test_loaders = create_autoregressive_dataloaders(
-                    config=self.config['data'],
-                    train_data=train_data,
-                    test_data=test_data,
-                    batch_size=self.config['training']['batch_size'],
-                    num_workers=self.config['training']['num_workers']
-                )
+                # Use original training data
+                train_data_for_loader = train_data
                 
-                # Create trainer
-                trainer = AutoregressiveILTrainer(
-                    model=model,
-                    config=self.config,
-                    logger=self.logger,
-                    device=DEVICE
-                )
+            else:
+                self.logger.info("❌ Autoregressive IL is disabled in config, skipping...")
+                return {'status': 'skipped', 'reason': 'Autoregressive IL disabled in config'}
+            
+            # Create datasets
+            train_loader, test_loaders = create_autoregressive_dataloaders(
+                config=self.config['data'],
+                train_data=train_data_for_loader,  # None if using pretrained model
+                test_data=test_data,
+                batch_size=self.config['training']['batch_size'],
+                num_workers=self.config['training']['num_workers']
+            )
+            
+            # Create trainer
+            trainer = AutoregressiveILTrainer(
+                model=model,
+                config=self.config,
+                logger=self.logger,
+                device=DEVICE
+            )
 
-                if self.config.get('experiment', {}).get('autoregressive_il', {}).get('train', True):
-                    self.logger.info("🌟 Training Autoregressive IL model...")                
-                    best_model_path = trainer.train(train_loader, test_loaders)
+            # Training phase (only if not using pretrained model and training is enabled)
+            if training_enabled and not use_pretrained:
+                self.logger.info("🌟 Training Autoregressive IL model...")                
+                best_model_path = trainer.train(train_loader, test_loaders)
+            elif use_pretrained:
+                self.logger.info("📊 Skipping training (using pretrained model)")
+            else:
+                self.logger.info("📊 Skipping training (training disabled)")
 
-                if self.config.get('experiment', {}).get('autoregressive_il', {}).get('evaluate', True):
-                    self.logger.info("📊 Evaluating Autoregressive IL model...")
-                    evaluation_results = trainer.evaluate_model()
-                
-                return {
-                    'status': 'success',
-                    'model_path': best_model_path,
-                    'model_type': 'AutoregressiveILModel',
-                    'approach': 'Pure causal frame generation → action prediction',
-                    'evaluation': evaluation_results,
-                    'method_description': 'Autoregressive IL without action conditioning',
-                    'pretrained': False
-                }
-            elif il_enabled and il_model_path:
-                self.logger.info(f"📂 Loading pretrained IL model from: {il_model_path}")
-                
-                # Load pretrained model
-                model = AutoregressiveILModel.load_model(il_model_path, device=DEVICE)
-                self.logger.info("✅ Pretrained IL model loaded successfully")
-                
-                # Create trainer for evaluation only
-                trainer = AutoregressiveILTrainer(
-                    model=model,
-                    config=self.config,
-                    logger=self.logger,
-                    device=DEVICE
-                )
-                
-                # Evaluate pretrained model
-                self.logger.info("📊 Evaluating pretrained IL model...")
+            # Evaluation phase
+            if evaluate_enabled:
+                self.logger.info("📊 Evaluating Autoregressive IL model...")
                 evaluation_results = trainer.evaluate_model(test_loaders)
                 
                 # Extract key metrics for comparison
@@ -265,7 +263,7 @@ class ExperimentRunner:
                 
                 return {
                     'status': 'success',
-                    'model_path': best_model_path,
+                    'model_path': best_model_path,  # This is now always defined
                     'model_type': 'AutoregressiveIL',
                     'approach': 'Causal frame generation → action anticipation',
                     'evaluation': evaluation_results,
@@ -281,11 +279,20 @@ class ExperimentRunner:
                     
                     # Your t+1 target choice is PERFECT for planning!
                     'target_type': 'next_action_prediction',  # This is ideal for planning evaluation
-                    'planning_ready': True
+                    'planning_ready': True,
+                    'pretrained': use_pretrained
                 }
             else:
-                self.logger.info("❌ Autoregressive IL is disabled in config, skipping...")
-                return {'status': 'skipped', 'reason': 'Autoregressive IL disabled in config'}
+                self.logger.info("📊 Evaluation disabled, returning basic results")
+                return {
+                    'status': 'success',
+                    'model_path': best_model_path,  # This is now always defined
+                    'model_type': 'AutoregressiveIL',
+                    'approach': 'Causal frame generation → action anticipation',
+                    'evaluation': None,
+                    'method_description': 'Autoregressive IL (evaluation skipped)',
+                    'pretrained': use_pretrained
+                }
         
         except Exception as e:
             self.logger.error(f"❌ Method 1 failed: {e}")

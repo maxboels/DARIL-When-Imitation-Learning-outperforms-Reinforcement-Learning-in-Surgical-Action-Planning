@@ -28,6 +28,7 @@ class AutoregressiveDataset(Dataset):
         self.samples = []
         
         context_length = config.get('context_length', 10)
+        future_length = config.get('future_length', 5)
         padding_value = config.get('padding_value', 0.0)
         
         for video in data:
@@ -46,6 +47,7 @@ class AutoregressiveDataset(Dataset):
                 target_next_frames = []
                 target_actions = []
                 target_phases = []
+                target_future_actions = []
                 
                 # Build sequences
                 for j in range(max(0, i - context_length + 1), i + 1):
@@ -72,6 +74,13 @@ class AutoregressiveDataset(Dataset):
                                 target_phases.append(np.argmax(phases[j]))
                             else:
                                 target_phases.append(0)
+
+                # Future actions (t+2, t+3, etc.)
+                for k in range(1, future_length + 1):
+                    if j + k < num_frames:
+                        target_future_actions.append(actions[j + k])
+                    else:
+                        target_future_actions.append([0] * num_actions)
                 
                 # Ensure all sequences have the same length
                 while len(input_frames) < context_length:
@@ -86,7 +95,8 @@ class AutoregressiveDataset(Dataset):
                     'input_frames': input_frames,
                     'target_next_frames': target_next_frames,
                     'target_actions': target_actions,
-                    'target_phases': target_phases
+                    'target_phases': target_phases,
+                    'target_future_actions': target_future_actions
                 })
     
     def __len__(self):
@@ -100,6 +110,7 @@ class AutoregressiveDataset(Dataset):
             'target_next_frames': torch.tensor(np.array(sample['target_next_frames']), dtype=torch.float32),
             'target_actions': torch.tensor(np.array(sample['target_actions']), dtype=torch.float32),
             'target_phases': torch.tensor(np.array(sample['target_phases']), dtype=torch.long),
+            'target_future_actions': torch.tensor(np.array(sample['target_future_actions']), dtype=torch.float32),
             'video_id': sample['video_id'],
             'frame_idx': sample['frame_idx']
         }

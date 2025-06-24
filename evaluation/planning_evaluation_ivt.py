@@ -48,18 +48,12 @@ class AutoregressivePlanningEvaluator:
         
         # Planning horizons to evaluate (in seconds and frames)
         self.planning_horizons = {
-            '1_second': 1 * fps,   # 1 frame at 1fps
-            '2_seconds': 2 * fps,  # 2 frames at 1fps  
-            '3_seconds': 3 * fps,  # 3 frames at 1fps
-            '5_seconds': 5 * fps   # 5 frames at 1fps
+            '1s': 1 * fps,   # 1 frame at 1fps
+            '2s': 2 * fps,  # 2 frames at 1fps  
+            '3s': 3 * fps,  # 3 frames at 1fps
+            '5s': 5 * fps   # 5 frames at 1fps
         }
-        
-        # Initialize IVT evaluators for each horizon
-        self.ivt_evaluators = {}
-        if IVT_AVAILABLE:
-            for horizon_name in self.planning_horizons.keys():
-                self.ivt_evaluators[horizon_name] = ivtmetrics.Recognition(num_class=100)
-        
+
         # Results storage
         self.planning_results = {}
         self.detailed_results = {}
@@ -73,6 +67,7 @@ class AutoregressivePlanningEvaluator:
                                   video_dataloader,
                                   video_id: str,
                                   context_length: int = 10,
+                                  future_length: int = 10,
                                   temperature: float = 0.1,
                                   deterministic: bool = True) -> Dict[str, Any]:
         """
@@ -82,6 +77,7 @@ class AutoregressivePlanningEvaluator:
             video_dataloader: DataLoader for single video
             video_id: Video identifier
             context_length: Number of context frames to use
+            future_length: Number of context frames to use
             temperature: Sampling temperature (lower = more deterministic)
             deterministic: Whether to use deterministic prediction
             
@@ -104,52 +100,51 @@ class AutoregressivePlanningEvaluator:
                 try:
                     # Get batch data
                     input_frames = batch['input_frames'].to(self.device)  # [batch, seq, dim]
-                    target_actions = batch['target_actions'].to(self.device)  # [batch, seq, actions]
+                    target_actions = batch['target_future_actions'].to(self.device)  # [batch, seq, actions]
                     
                     batch_size, seq_len, _ = input_frames.shape
+                    _, target_seq_len, num_actions = target_actions.shape
                     
                     # For each sample in batch
                     for sample_idx in range(batch_size):
                         sample_frames = input_frames[sample_idx:sample_idx+1]  # [1, seq, dim]
                         sample_targets = target_actions[sample_idx]  # [seq, actions]
                         
-                        # Use first part as context, predict for different horizons
-                        if seq_len > context_length:
-                            context_frames = sample_frames[:, :context_length]  # [1, context, dim]
-                            
-                            # Get maximum horizon we can evaluate
-                            max_horizon = min(max(self.planning_horizons.values()), 
-                                            seq_len - context_length)
-                            
-                            if max_horizon > 0:
-                                # Generate sequence for maximum horizon
-                                generation_result = self.model.generate_sequence(
-                                    initial_frames=context_frames,
-                                    horizon=max_horizon,
-                                    temperature=temperature if not deterministic else 0.1
-                                )
-                                
-                                predicted_actions = generation_result['predicted_actions']  # [1, horizon, actions]
-                                predicted_actions = predicted_actions[0]  # [horizon, actions]
-                                
-                                # Evaluate for each planning horizon
-                                for horizon_name, horizon_frames in self.planning_horizons.items():
-                                    if horizon_frames <= max_horizon:
-                                        # Get predictions for this horizon
-                                        horizon_preds = predicted_actions[:horizon_frames]  # [horizon_frames, actions]
-                                        
-                                        # Get ground truth for this horizon
-                                        gt_start = context_length
-                                        gt_end = context_length + horizon_frames
-                                        horizon_gt = sample_targets[gt_start:gt_end]  # [horizon_frames, actions]
-                                        
-                                        # Store predictions and ground truth
-                                        horizon_predictions[horizon_name].append(horizon_preds.cpu().numpy())
-                                        horizon_ground_truth[horizon_name].append(horizon_gt.cpu().numpy())
-                                
-                                successful_predictions += 1
+                        # Use last context_length frames as context
+                        context_frames = sample_frames[:, -context_length:, :] # [1, context_length, dim]
                         
-                        total_sequences += 1
+                        # Get maximum horizon we can evaluate
+                        max_horizon = target_seq_len
+                        
+                        if max_horizon > 0:
+                            # Generate sequence for maximum horizon
+                            generation_result = self.model.generate_sequence(
+                                initial_frames=context_frames,
+                                horizon=max_horizon,
+                                temperature=temperature if not deterministic else 0.1
+                            )
+                            
+                            predicted_actions = generation_result['predicted_actions']  # [1, horizon, actions]
+                            predicted_actions = predicted_actions[0]  # [horizon, actions]
+
+                            # FIXED: Evaluate only the target step for each horizon
+                            for horizon_name, horizon_frames in self.planning_horizons.items():
+                                if horizon_frames <= max_horizon:
+                                    # Get prediction for ONLY the target step
+                                    target_step_idx = horizon_frames - 1  # 0-indexed
+                                    horizon_preds = predicted_actions[target_step_idx:target_step_idx+1]  # [1, actions]
+                                    
+                                    # Get ground truth for ONLY the target step  
+                                    gt_target_idx = horizon_frames - 1
+                                    horizon_gt = sample_targets[gt_target_idx:gt_target_idx+1]  # [1, actions]
+                                    
+                                    # Store predictions and ground truth
+                                    horizon_predictions[horizon_name].append(horizon_preds.cpu().numpy())
+                                    horizon_ground_truth[horizon_name].append(horizon_gt.cpu().numpy())                                
+
+                            successful_predictions += 1
+                    
+                    total_sequences += 1
                         
                 except Exception as e:
                     if self.logger:
@@ -300,7 +295,7 @@ class AutoregressivePlanningEvaluator:
     
     def evaluate_planning_on_dataset(self, 
                                     test_loaders: Dict[str, torch.utils.data.DataLoader],
-                                    context_length: int = 10,
+                                    context_length: int = 20,
                                     temperature: float = 0.1) -> Dict[str, Any]:
         """
         Evaluate planning capabilities on entire dataset.
@@ -409,15 +404,8 @@ class AutoregressivePlanningEvaluator:
         
         self.logger.info(f"📈 Planning Horizon Results:")
         for horizon_name, horizon_data in overall['horizon_aggregated'].items():
-            seconds = horizon_data['planning_horizon_seconds']
-            frames = horizon_data['planning_horizon_frames'] 
             ivt_map = horizon_data.get('mean_ivt_mAP', 0)
-            consistency = horizon_data.get('mean_action_consistency', 0)
-            
-            self.logger.info(f"   {horizon_name} ({seconds:.0f}s, {frames} frames):")
-            self.logger.info(f"     IVT mAP: {ivt_map:.4f}")
-            self.logger.info(f"     Action Consistency: {consistency:.4f}")
-            self.logger.info(f"     Videos: {horizon_data['num_videos_evaluated']}")
+            self.logger.info(f"   Planning at {horizon_name} mAP: {ivt_map:.3f}")
     
     def save_planning_results(self, output_dir: str):
         """Save planning evaluation results."""

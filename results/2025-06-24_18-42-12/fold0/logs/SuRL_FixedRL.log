@@ -1,0 +1,75 @@
+2025-06-24 18:42:12,117 - INFO - SuRL_FixedRL_125040100692416 - Shared experiment log directory: results/2025-06-24_18-42-12/fold0/logs
+2025-06-24 18:42:12,118 - INFO - SuRL_FixedRL_125040100692416 - 🎯 RL Experiment: 2025-06-24_18-42-12
+2025-06-24 18:42:12,118 - INFO - SuRL_FixedRL_125040100692416 - 📁 Results dir: results/2025-06-24_18-42-12/fold0
+2025-06-24 18:42:12,118 - INFO - SuRL_FixedRL_125040100692416 - 🚀 Starting Complete RL Comparison
+2025-06-24 18:42:12,118 - INFO - SuRL_FixedRL_125040100692416 - ============================================================
+2025-06-24 18:42:12,118 - INFO - SuRL_FixedRL_125040100692416 - 📂 Loading CholecT50 data...
+2025-06-24 18:42:12,118 - INFO - SuRL_FixedRL_125040100692416 -    Training videos: 2
+2025-06-24 18:42:12,118 - INFO - SuRL_FixedRL_125040100692416 -    Test videos: 10
+2025-06-24 18:42:12,118 - INFO - SuRL_FixedRL_125040100692416 - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-24 18:42:12,522 - INFO - SuRL_FixedRL_125040100692416 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (78968, 156)
+2025-06-24 18:42:12,523 - INFO - SuRL_FixedRL_125040100692416 - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-24 18:42:12,523 - INFO - SuRL_FixedRL_125040100692416 - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-24 18:42:12,525 - INFO - SuRL_FixedRL_125040100692416 - [Train] Found 2 videos in metadata file
+2025-06-24 18:42:12,525 - INFO - SuRL_FixedRL_125040100692416 - [Train] Loading data for 2 videos
+2025-06-24 18:42:12,607 - INFO - SuRL_FixedRL_125040100692416 - ✅ Loaded video VID01: 1734 frames, 1024-dims embeddings
+2025-06-24 18:42:12,670 - INFO - SuRL_FixedRL_125040100692416 - ✅ Loaded video VID04: 1523 frames, 1024-dims embeddings
+2025-06-24 18:42:12,671 - INFO - SuRL_FixedRL_125040100692416 - 📂 Loaded 2 videos from train split
+2025-06-24 18:42:12,671 - INFO - SuRL_FixedRL_125040100692416 - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-24 18:42:12,758 - INFO - SuRL_FixedRL_125040100692416 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (21895, 156)
+2025-06-24 18:42:12,758 - INFO - SuRL_FixedRL_125040100692416 - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-24 18:42:12,758 - INFO - SuRL_FixedRL_125040100692416 - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-24 18:42:12,759 - INFO - SuRL_FixedRL_125040100692416 - [Test] Found 10 videos in metadata file
+2025-06-24 18:42:12,759 - INFO - SuRL_FixedRL_125040100692416 - [Test] Loading data for 10 videos
+2025-06-24 18:42:12,869 - INFO - SuRL_FixedRL_125040100692416 - ✅ Loaded video VID02: 2840 frames, 1024-dims embeddings
+2025-06-24 18:42:12,957 - INFO - SuRL_FixedRL_125040100692416 - ✅ Loaded video VID06: 2154 frames, 1024-dims embeddings
+2025-06-24 18:42:13,041 - INFO - SuRL_FixedRL_125040100692416 - ✅ Loaded video VID111: 2146 frames, 1024-dims embeddings
+2025-06-24 18:42:13,109 - INFO - SuRL_FixedRL_125040100692416 - ✅ Loaded video VID14: 1709 frames, 1024-dims embeddings
+2025-06-24 18:42:13,175 - INFO - SuRL_FixedRL_125040100692416 - ✅ Loaded video VID23: 1636 frames, 1024-dims embeddings
+2025-06-24 18:42:13,260 - INFO - SuRL_FixedRL_125040100692416 - ✅ Loaded video VID25: 2130 frames, 1024-dims embeddings
+2025-06-24 18:42:13,304 - INFO - SuRL_FixedRL_125040100692416 - ✅ Loaded video VID50: 1095 frames, 1024-dims embeddings
+2025-06-24 18:42:13,422 - INFO - SuRL_FixedRL_125040100692416 - ✅ Loaded video VID51: 2945 frames, 1024-dims embeddings
+2025-06-24 18:42:13,495 - INFO - SuRL_FixedRL_125040100692416 - ✅ Loaded video VID66: 1825 frames, 1024-dims embeddings
+2025-06-24 18:42:13,636 - INFO - SuRL_FixedRL_125040100692416 - ✅ Loaded video VID79: 3415 frames, 1024-dims embeddings
+2025-06-24 18:42:13,636 - INFO - SuRL_FixedRL_125040100692416 - 📂 Loaded 10 videos from test split
+2025-06-24 18:42:13,636 - INFO - SuRL_FixedRL_125040100692416 - ✅ Data loaded successfully
+2025-06-24 18:42:13,636 - INFO - SuRL_FixedRL_125040100692416 -    Training videos: 2
+2025-06-24 18:42:13,636 - INFO - SuRL_FixedRL_125040100692416 -    Test videos: 10
+2025-06-24 18:42:13,636 - INFO - SuRL_FixedRL_125040100692416 - 🎓 Running Method 1: Autoregressive IL
+2025-06-24 18:42:13,637 - INFO - SuRL_FixedRL_125040100692416 - 🎓 Method 1: Autoregressive IL
+2025-06-24 18:42:13,637 - INFO - SuRL_FixedRL_125040100692416 - ----------------------------------------
+2025-06-24 18:42:13,637 - INFO - SuRL_FixedRL_125040100692416 - 📂 Loading pretrained IL model from: results/2025-06-24_11-09-35/fold0/logs/checkpoints/autoregressive_il_best_epoch_1.pt
+2025-06-24 18:42:14,211 - INFO - SuRL_FixedRL_125040100692416 - ✅ Pretrained IL model loaded successfully
+2025-06-24 18:42:15,183 - INFO - SuRL_FixedRL_125040100692416 - 🎓 Autoregressive IL Trainer initialized (FIXED)
+2025-06-24 18:42:15,183 - INFO - SuRL_FixedRL_125040100692416 -    Device: cuda
+2025-06-24 18:42:15,183 - INFO - SuRL_FixedRL_125040100692416 -    Epochs: 2
+2025-06-24 18:42:15,183 - INFO - SuRL_FixedRL_125040100692416 -    Learning rate: 3e-05
+2025-06-24 18:42:15,183 - INFO - SuRL_FixedRL_125040100692416 -    ✅ Per-video aggregation + shared metrics + efficient validation
+2025-06-24 18:42:15,183 - INFO - SuRL_FixedRL_125040100692416 - 📊 Skipping training (using pretrained model)
+2025-06-24 18:42:15,183 - INFO - SuRL_FixedRL_125040100692416 - 📊 Evaluating Autoregressive IL model...
+2025-06-24 18:42:15,183 - INFO - SuRL_FixedRL_125040100692416 - 📊 Evaluating Autoregressive IL Model with Planning Assessment...
+2025-06-24 18:42:25,619 - ERROR - SuRL_FixedRL_125040100692416 - Error computing IVT metrics: cannot access local variable 'final_metrics' where it is not associated with a value
+2025-06-24 18:42:25,620 - ERROR - SuRL_FixedRL_125040100692416 - ❌ Method 1 failed: cannot access local variable 'final_metrics' where it is not associated with a value
+2025-06-24 18:42:25,621 - ERROR - SuRL_FixedRL_125040100692416 - Full traceback: Traceback (most recent call last):
+  File "/home/maxboels/projects/surl/training/autoregressive_il_trainer.py", line 421, in _validate_epoch_per_video
+    final_metrics['ivt_mAP'] = ivt_result["mAP"]
+    ^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'final_metrics' where it is not associated with a value
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/maxboels/projects/surl/run_experiment_v7.py", line 257, in _run_method1_autoregressive_il
+    evaluation_results = trainer.evaluate_model(test_loaders)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/projects/surl/training/autoregressive_il_trainer.py", line 590, in evaluate_model
+    evaluate_results = self._validate_epoch_per_video_with_planning(
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/projects/surl/training/autoregressive_il_trainer.py", line 767, in _validate_epoch_per_video_with_planning
+    standard_metrics = self._validate_epoch_per_video(test_loaders, epoch)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/projects/surl/training/autoregressive_il_trainer.py", line 439, in _validate_epoch_per_video
+    final_metrics['ivt_mAP'] = 0.0
+    ^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'final_metrics' where it is not associated with a value
+

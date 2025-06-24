@@ -3,17 +3,18 @@ debug: false
 experiment:
   # max_videos: 50  # Deprecated, use train/test specific
   train:
-    max_videos: 40  # INCREASED for better RL training
+    max_videos: 2  # default is 40
   test:
-    max_videos: 10  # INCREASED for better evaluation
-    test_on_train: false  # Set to true for debugging purposes
+    max_videos: 10  # default is 10
+    test_on_train: false
     
   # Imitation Learning
   autoregressive_il:
     enabled: true
-    train: true
+    train: false
     evaluate: true
-    il_model_path: null
+    # il_model_path: null
+    il_model_path: "results/2025-06-24_11-09-35/fold0/logs/checkpoints/autoregressive_il_best_epoch_1.pt"
     # il_model_path: "results/2025-06-10_19-45-51/logs/checkpoints/autoregressive_il_best_epoch_1.pt"  # Path to the best IL model
   
   # Conditional World Model
@@ -127,15 +128,15 @@ data:
   max_horizon: 15
   
   paths:
-    # data_dir: "/home/maxboels/datasets/CholecT50"
-    data_dir: "/nfs/home/mboels/datasets/CholecT50"
+    data_dir: "/home/maxboels/datasets/CholecT50"
+    # data_dir: "/nfs/home/mboels/datasets/CholecT50"
     class_labels_file_path: "./data/labels.json"
     # Folds: 0, 1, 2, 3, 4
-    fold: 4
-    # metadata_file: "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv"
+    fold: 0
+    metadata_file: "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv"
     # metadata_file: "embeddings_f1_swin_bas_129.csv"
     # metadata_file: "embeddings_f3_swin_bas_129.csv"
-    metadata_file: "embeddings_f4_swin_bas_129.csv"
+    # metadata_file: "embeddings_f4_swin_bas_129.csv"
 
     video_global_outcome_file: "embeddings_f1_swin_bas_129_with_enhanced_global_metrics.csv"
   
