@@ -16,7 +16,10 @@ experiment:
     il_model_path: null
     # il_model_path: "results/2025-06-24_11-09-35/fold0/logs/checkpoints/autoregressive_il_best_epoch_1.pt"
     # il_model_path: "results/2025-06-10_19-45-51/logs/checkpoints/autoregressive_il_best_epoch_1.pt"  # Path to the best IL model
-  
+    recognition: # We use the results from the Distil-Swin codebase
+      enabled: false
+      ivt_map: 36.1 # this is the IVT map we get when running the Distil-Swin model, which is 36.1% for 5 folds cross-validation
+
   # Conditional World Model
   world_model:
     enabled: false
