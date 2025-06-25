@@ -1,0 +1,2780 @@
+{
+  "experiment_name": "2025-06-25_12-13-55",
+  "config": {
+    "debug": false,
+    "experiment": {
+      "train": {
+        "max_videos": 2
+      },
+      "test": {
+        "max_videos": 10,
+        "test_on_train": false
+      },
+      "autoregressive_il": {
+        "enabled": true,
+        "train": false,
+        "evaluate": true,
+        "il_model_path": "results/2025-06-24_11-09-35/fold0/logs/checkpoints/autoregressive_il_best_epoch_1.pt"
+      },
+      "world_model": {
+        "enabled": false,
+        "wm_model_path": "results/fixed_rl_2025-06-13_19-22-25/logs/checkpoints/world_model_best_epoch_1.pt"
+      },
+      "rl_experiments": {
+        "enabled": false,
+        "eval_episodes": 10
+      }
+    },
+    "training": {
+      "epochs": 2,
+      "batch_size": 16,
+      "learning_rate": 3e-05,
+      "log_every_n_steps": 50,
+      "scheduler": {
+        "type": "cosine",
+        "warmup_steps": 100
+      },
+      "weight_decay": 0.01,
+      "gradient_clip_val": 1.0,
+      "dropout": 0.1,
+      "num_workers": 4,
+      "pin_memory": true,
+      "log_dir": "logs",
+      "checkpoint_dir": "checkpoints",
+      "eval_epoch_interval": 1,
+      "save_model": true
+    },
+    "evaluation": {
+      "prediction_horizon": 15,
+      "supervised": {
+        "action_prediction": true
+      },
+      "rl": {
+        "rollout_horizon": 15,
+        "use_best_actions": true
+      },
+      "comparison": {
+        "statistical_tests": true,
+        "effect_size_threshold": 0.2
+      },
+      "world_model": {
+        "use_memory": false,
+        "overall_horizon": 1
+      }
+    },
+    "rl_training": {
+      "action_space_type": "continuous",
+      "outcome_based_rewards": true,
+      "rl_horizon": 30,
+      "reward_mode": "dense",
+      "normalize_rewards": true,
+      "early_termination": true,
+      "timesteps": 50000,
+      "reward_weights": {
+        "expert_matching": 10.0,
+        "action_sparsity": 1.0,
+        "world_model_rewards": 0.5,
+        "completion_bonus": 5.0,
+        "consistency_bonus": 1.0,
+        "phase_completion": 1.0,
+        "risk_penalty": -0.5
+      },
+      "ppo": {
+        "learning_rate": "5e-5",
+        "n_steps": 512,
+        "batch_size": 64,
+        "n_epochs": 10,
+        "gamma": 0.95,
+        "gae_lambda": 0.9,
+        "clip_range": 0.1,
+        "ent_coef": 0.05,
+        "vf_coef": 0.5,
+        "max_grad_norm": 0.5
+      },
+      "a2c": {
+        "learning_rate": "1e-4",
+        "n_steps": 32,
+        "gamma": 0.95,
+        "gae_lambda": 0.9,
+        "ent_coef": 0.05,
+        "vf_coef": 0.25,
+        "max_grad_norm": 0.5
+      }
+    },
+    "data": {
+      "context_length": 20,
+      "train_shift": 1,
+      "padding_value": 0.0,
+      "max_horizon": 15,
+      "paths": {
+        "data_dir": "/home/maxboels/datasets/CholecT50",
+        "class_labels_file_path": "./data/labels.json",
+        "fold": 0,
+        "metadata_file": "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv",
+        "video_global_outcome_file": "embeddings_f1_swin_bas_129_with_enhanced_global_metrics.csv"
+      },
+      "frame_risk_agg": "max"
+    },
+    "training_mode": "rl",
+    "preprocess": {
+      "extract_rewards": false,
+      "analyze_rewards": false,
+      "rewards": {
+        "grounded": {
+          "phase_completion": true,
+          "phase_transition": true,
+          "phase_progression": true,
+          "global_progression": true
+        },
+        "imitation": {
+          "action_distribution": true
+        },
+        "expert_knowledge": {
+          "risk_score": true,
+          "frame_risk_agg": "max"
+        }
+      }
+    },
+    "models": {
+      "autoregressive_il": {
+        "hidden_dim": 768,
+        "embedding_dim": 1024,
+        "n_layer": 6,
+        "num_action_classes": 100,
+        "num_phase_classes": 7,
+        "dropout": 0.1,
+        "max_length": 1024
+      },
+      "conditional_world_model": {
+        "hidden_dim": 512,
+        "embedding_dim": 1024,
+        "action_embedding_dim": 128,
+        "n_layer": 4,
+        "num_action_classes": 100,
+        "num_phase_classes": 7,
+        "dropout": 0.1,
+        "max_sequence_length": 512
+      }
+    },
+    "fair_evaluation": {
+      "enabled": true,
+      "include_traditional_metrics": true,
+      "include_clinical_metrics": true,
+      "clinical_outcome_weights": {
+        "phase_progression": 2.0,
+        "innovation": 0.5
+      }
+    },
+    "supervised_learning": {
+      "data_augmentation": false
+    },
+    "research_comparison": {
+      "methods": [
+        "autoregressive_il",
+        "conditional_world_model",
+        "direct_video_rl"
+      ]
+    },
+    "advanced": {
+      "mixed_precision": false
+    },
+    "hardware": {
+      "persistent_workers": true
+    },
+    "rl_debugging": {
+      "enabled": true,
+      "save_training_curves": true,
+      "monitor_expert_matching": true,
+      "log_action_distributions": true,
+      "convergence_analysis": true,
+      "episode_log_frequency": 10,
+      "eval_frequency": 1000,
+      "reward_improvement_threshold": 0.1,
+      "expert_matching_threshold": 0.5,
+      "debug_dir": "rl_debug",
+      "plot_dir": "rl_plots"
+    }
+  },
+  "timestamp": "2025-06-25_12-13-55",
+  "results_dir": "results/2025-06-25_12-13-55/fold0",
+  "method_1_autoregressive_il": {
+    "status": "success",
+    "model_path": "results/2025-06-24_11-09-35/fold0/logs/checkpoints/autoregressive_il_best_epoch_1.pt",
+    "model_type": "AutoregressiveIL",
+    "approach": "Causal frame generation \u2192 action anticipation",
+    "evaluation": {
+      "overall_metrics": {
+        "ivt_mAP": 0.31649240109804294,
+        "ivt_i_mAP": 0.8787016322840118,
+        "ivt_v_mAP": 0.6717470979990642,
+        "ivt_t_mAP": 0.5057956590684263,
+        "ivt_iv_mAP": 0.3857278508474804,
+        "ivt_it_mAP": 0.4164956077690457,
+        "ivt_vs_current_diff": 0.31649240109804294,
+        "evaluation_consistent": "False",
+        "frame_loss": 0.17695386546957614,
+        "phase_loss": 0.657468127670737,
+        "total_loss": 0.5703169832855788,
+        "action_loss": 0.03231452696195354,
+        "action_mAP": 0.49633374183430173,
+        "action_mAP_standard": 0.8255143522984465,
+        "action_mAP_freq_weighted": 0.765989503695176,
+        "action_exact_match": 0.47588972737719476,
+        "action_hamming_accuracy": 0.9915760561118766,
+        "action_precision": 0.8826907987510572,
+        "action_recall": 0.814257487251561,
+        "action_f1": 0.8446998026287884,
+        "action_sparsity": 0.7308510638297873,
+        "num_actions_present": 25.3,
+        "action_mAP_with_null_verb": 0.4525390615416504,
+        "action_exact_match_with_null_verb": 0.4245653777686777,
+        "action_sparsity_with_null_verb": 0.7030000000000001,
+        "num_actions_total": 94.0,
+        "num_actions_total_with_null_verb": 100.0,
+        "action_mAP_std": 0.09588298173347166,
+        "action_exact_match_std": 0.03390763844694414,
+        "action_sparsity_std": 0.05729886387019247,
+        "planning_1s_mAP": 0.23616049071763356,
+        "planning_2s_mAP": 0.2254793583757316,
+        "planning_3s_mAP": 0.21349694899933339,
+        "planning_5s_mAP": 0.191308154764762,
+        "planning_available": true
+      },
+      "detailed_video_metrics": {
+        "VID02": {
+          "mAP": 0.45369539218286714,
+          "mAP_info": {
+            "calculated_from": "subset_excluding_last_classes_present_actions_only",
+            "excluded_classes": 6,
+            "subset_size": 94,
+            "present_actions_in_subset": "28",
+            "subset_action_sparsity": 0.7021276595744681
+          },
+          "mAP_standard_with_null_verb": 0.7196807751963624,
+          "mAP_present_only_with_null_verb": 0.4108258094010658,
+          "mAP_freq_weighted_with_null_verb": 0.7043365929812628,
+          "mAP_sample_wise_with_null_verb": 0.7287841268817575,
+          "mAP_standard_all_actions": 0.7196807751963624,
+          "mAP_present_only_all_actions": 0.4108258094010658,
+          "mAP_freq_weighted_all_actions": 0.7043365929812628,
+          "mAP_sample_wise_all_actions": 0.7287841268817575,
+          "exact_match_with_null_verb": 0.39591405424445225,
+          "hamming_accuracy_with_null_verb": 0.990158506516379,
+          "precision_with_null_verb": 0.8491157740562592,
+          "recall_with_null_verb": 0.7684255409495403,
+          "f1_with_null_verb": 0.8033184513381713,
+          "num_predictions": 2839,
+          "num_actions_total_with_null_verb": 100,
+          "num_actions_present_with_null_verb": "34",
+          "action_sparsity_with_null_verb": 0.6599999999999999,
+          "task": "single_step_action_prediction",
+          "method_name": "AutoregressiveIL_video_VID02_epoch_-1",
+          "exclude_last_n": 6,
+          "mAP_standard": 0.7521645849055348,
+          "mAP_present_only": 0.45369539218286714,
+          "mAP_freq_weighted": 0.7275228549720008,
+          "exact_match": 0.42937654103557593,
+          "hamming_accuracy": 0.9908231097254802,
+          "precision": 0.8655126040317003,
+          "recall": 0.7790603353282708,
+          "f1": 0.8162958505978481,
+          "num_actions_total": 94,
+          "num_actions_present": "28",
+          "action_sparsity": 0.7021276595744681
+        },
+        "VID06": {
+          "mAP": 0.5349787979669166,
+          "mAP_info": {
+            "calculated_from": "subset_excluding_last_classes_present_actions_only",
+            "excluded_classes": 6,
+            "subset_size": 94,
+            "present_actions_in_subset": "26",
+            "subset_action_sparsity": 0.7234042553191489
+          },
+          "mAP_standard_with_null_verb": 0.8286863275440551,
+          "mAP_present_only_with_null_verb": 0.49562109181351716,
+          "mAP_freq_weighted_with_null_verb": 0.7630840525508162,
+          "mAP_sample_wise_with_null_verb": 0.831260476043804,
+          "mAP_standard_all_actions": 0.8286863275440551,
+          "mAP_present_only_all_actions": 0.49562109181351716,
+          "mAP_freq_weighted_all_actions": 0.7630840525508162,
+          "mAP_sample_wise_all_actions": 0.831260476043804,
+          "exact_match_with_null_verb": 0.3660009289363679,
+          "hamming_accuracy_with_null_verb": 0.9907013469577334,
+          "precision_with_null_verb": 0.8987708816346373,
+          "recall_with_null_verb": 0.8063869280623164,
+          "f1_with_null_verb": 0.8462934425074607,
+          "num_predictions": 2153,
+          "num_actions_total_with_null_verb": 100,
+          "num_actions_present_with_null_verb": "30",
+          "action_sparsity_with_null_verb": 0.7,
+          "task": "single_step_action_prediction",
+          "method_name": "AutoregressiveIL_video_VID06_epoch_-1",
+          "exclude_last_n": 6,
+          "mAP_standard": 0.8501005185865939,
+          "mAP_present_only": 0.5349787979669166,
+          "mAP_freq_weighted": 0.8012983865788673,
+          "exact_match": 0.4407803065490014,
+          "hamming_accuracy": 0.9915654554258778,
+          "precision": 0.905550905346751,
+          "recall": 0.826197485396795,
+          "f1": 0.8614074273605463,
+          "num_actions_total": 94,
+          "num_actions_present": "26",
+          "action_sparsity": 0.7234042553191489
+        },
+        "VID111": {
+          "mAP": 0.4751673164879733,
+          "mAP_info": {
+            "calculated_from": "subset_excluding_last_classes_present_actions_only",
+            "excluded_classes": 6,
+            "subset_size": 94,
+            "present_actions_in_subset": "25",
+            "subset_action_sparsity": 0.7340425531914894
+          },
+          "mAP_standard_with_null_verb": 0.8068976858170086,
+          "mAP_present_only_with_null_verb": 0.4375782269552023,
+          "mAP_freq_weighted_with_null_verb": 0.627352425447587,
+          "mAP_sample_wise_with_null_verb": 0.6985564684144517,
+          "mAP_standard_all_actions": 0.8068976858170086,
+          "mAP_present_only_all_actions": 0.4375782269552023,
+          "mAP_freq_weighted_all_actions": 0.627352425447587,
+          "mAP_sample_wise_all_actions": 0.6985564684144517,
+          "exact_match_with_null_verb": 0.45174825174825173,
+          "hamming_accuracy_with_null_verb": 0.9895664335664336,
+          "precision_with_null_verb": 0.7917956956706316,
+          "recall_with_null_verb": 0.7412429788744682,
+          "f1_with_null_verb": 0.7640426853654192,
+          "num_predictions": 2145,
+          "num_actions_total_with_null_verb": 100,
+          "num_actions_present_with_null_verb": "29",
+          "action_sparsity_with_null_verb": 0.71,
+          "task": "single_step_action_prediction",
+          "method_name": "AutoregressiveIL_video_VID111_epoch_-1",
+          "exclude_last_n": 6,
+          "mAP_standard": 0.8391402437468013,
+          "mAP_present_only": 0.4751673164879733,
+          "mAP_freq_weighted": 0.6667387762254551,
+          "exact_match": 0.5156177156177156,
+          "hamming_accuracy": 0.9912314635718891,
+          "precision": 0.802154605430187,
+          "recall": 0.7805731676326582,
+          "f1": 0.7909523759248178,
+          "num_actions_total": 94,
+          "num_actions_present": "25",
+          "action_sparsity": 0.7340425531914894
+        },
+        "VID14": {
+          "mAP": 0.32882127530481264,
+          "mAP_info": {
+            "calculated_from": "subset_excluding_last_classes_present_actions_only",
+            "excluded_classes": 6,
+            "subset_size": 94,
+            "present_actions_in_subset": "36",
+            "subset_action_sparsity": 0.6170212765957447
+          },
+          "mAP_standard_with_null_verb": 0.7066026505781057,
+          "mAP_present_only_with_null_verb": 0.3087869526295258,
+          "mAP_freq_weighted_with_null_verb": 0.6818124824540821,
+          "mAP_sample_wise_with_null_verb": 0.7685148385265889,
+          "mAP_standard_all_actions": 0.7066026505781057,
+          "mAP_present_only_all_actions": 0.3087869526295258,
+          "mAP_freq_weighted_all_actions": 0.6818124824540821,
+          "mAP_sample_wise_all_actions": 0.7685148385265889,
+          "exact_match_with_null_verb": 0.41100702576112413,
+          "hamming_accuracy_with_null_verb": 0.9904918032786886,
+          "precision_with_null_verb": 0.8768145761117316,
+          "recall_with_null_verb": 0.7801863995679539,
+          "f1_with_null_verb": 0.8211454662486258,
+          "num_predictions": 1708,
+          "num_actions_total_with_null_verb": 100,
+          "num_actions_present_with_null_verb": "41",
+          "action_sparsity_with_null_verb": 0.5900000000000001,
+          "task": "single_step_action_prediction",
+          "method_name": "AutoregressiveIL_video_VID14_epoch_-1",
+          "exclude_last_n": 6,
+          "mAP_standard": 0.7323145309678005,
+          "mAP_present_only": 0.32882127530481264,
+          "mAP_freq_weighted": 0.7075050878600736,
+          "exact_match": 0.46662763466042156,
+          "hamming_accuracy": 0.9910994568737854,
+          "precision": 0.8844036628286038,
+          "recall": 0.7973097428851195,
+          "f1": 0.8350988828185593,
+          "num_actions_total": 94,
+          "num_actions_present": "36",
+          "action_sparsity": 0.6170212765957447
+        },
+        "VID23": {
+          "mAP": 0.44190359656189926,
+          "mAP_info": {
+            "calculated_from": "subset_excluding_last_classes_present_actions_only",
+            "excluded_classes": 6,
+            "subset_size": 94,
+            "present_actions_in_subset": "26",
+            "subset_action_sparsity": 0.7234042553191489
+          },
+          "mAP_standard_with_null_verb": 0.7637337905026778,
+          "mAP_present_only_with_null_verb": 0.39914125968605696,
+          "mAP_freq_weighted_with_null_verb": 0.6686950634006166,
+          "mAP_sample_wise_with_null_verb": 0.7497734590497523,
+          "mAP_standard_all_actions": 0.7637337905026778,
+          "mAP_present_only_all_actions": 0.39914125968605696,
+          "mAP_freq_weighted_all_actions": 0.6686950634006166,
+          "mAP_sample_wise_all_actions": 0.7497734590497523,
+          "exact_match_with_null_verb": 0.3889908256880734,
+          "hamming_accuracy_with_null_verb": 0.9898776758409786,
+          "precision_with_null_verb": 0.8711943433225884,
+          "recall_with_null_verb": 0.7693066915141831,
+          "f1_with_null_verb": 0.8118547082959707,
+          "num_predictions": 1635,
+          "num_actions_total_with_null_verb": 100,
+          "num_actions_present_with_null_verb": "31",
+          "action_sparsity_with_null_verb": 0.69,
+          "task": "single_step_action_prediction",
+          "method_name": "AutoregressiveIL_video_VID23_epoch_-1",
+          "exclude_last_n": 6,
+          "mAP_standard": 0.7924414203256317,
+          "mAP_present_only": 0.44190359656189926,
+          "mAP_freq_weighted": 0.693940258365958,
+          "exact_match": 0.46788990825688076,
+          "hamming_accuracy": 0.9908387012818011,
+          "precision": 0.8803066294971209,
+          "recall": 0.7894933731383997,
+          "f1": 0.8285287907182545,
+          "num_actions_total": 94,
+          "num_actions_present": "26",
+          "action_sparsity": 0.7234042553191489
+        },
+        "VID25": {
+          "mAP": 0.6515556967246449,
+          "mAP_info": {
+            "calculated_from": "subset_excluding_last_classes_present_actions_only",
+            "excluded_classes": 6,
+            "subset_size": 94,
+            "present_actions_in_subset": "21",
+            "subset_action_sparsity": 0.7765957446808511
+          },
+          "mAP_standard_with_null_verb": 0.8842820692907545,
+          "mAP_present_only_with_null_verb": 0.5549310357336703,
+          "mAP_freq_weighted_with_null_verb": 0.7784982955073393,
+          "mAP_sample_wise_with_null_verb": 0.8089756232836075,
+          "mAP_standard_all_actions": 0.8842820692907545,
+          "mAP_present_only_all_actions": 0.5549310357336703,
+          "mAP_freq_weighted_all_actions": 0.7784982955073393,
+          "mAP_sample_wise_all_actions": 0.8089756232836075,
+          "exact_match_with_null_verb": 0.4279004227336778,
+          "hamming_accuracy_with_null_verb": 0.9914185063410051,
+          "precision_with_null_verb": 0.901262614496714,
+          "recall_with_null_verb": 0.814501111692918,
+          "f1_with_null_verb": 0.8524301673647598,
+          "num_predictions": 2129,
+          "num_actions_total_with_null_verb": 100,
+          "num_actions_present_with_null_verb": "26",
+          "action_sparsity_with_null_verb": 0.74,
+          "task": "single_step_action_prediction",
+          "method_name": "AutoregressiveIL_video_VID25_epoch_-1",
+          "exclude_last_n": 6,
+          "mAP_standard": 0.9221560599065696,
+          "mAP_present_only": 0.6515556967246449,
+          "mAP_freq_weighted": 0.8181614090124388,
+          "exact_match": 0.47111319868482854,
+          "hamming_accuracy": 0.9920749927545647,
+          "precision": 0.906576592432329,
+          "recall": 0.8318458632571795,
+          "f1": 0.8652912620699941,
+          "num_actions_total": 94,
+          "num_actions_present": "21",
+          "action_sparsity": 0.7765957446808511
+        },
+        "VID50": {
+          "mAP": 0.5815507423680483,
+          "mAP_info": {
+            "calculated_from": "subset_excluding_last_classes_present_actions_only",
+            "excluded_classes": 6,
+            "subset_size": 94,
+            "present_actions_in_subset": "16",
+            "subset_action_sparsity": 0.8297872340425532
+          },
+          "mAP_standard_with_null_verb": 0.8954344389197573,
+          "mAP_present_only_with_null_verb": 0.5301913273319848,
+          "mAP_freq_weighted_with_null_verb": 0.779175854427179,
+          "mAP_sample_wise_with_null_verb": 0.8467649119203622,
+          "mAP_standard_all_actions": 0.8954344389197573,
+          "mAP_present_only_all_actions": 0.5301913273319848,
+          "mAP_freq_weighted_all_actions": 0.779175854427179,
+          "mAP_sample_wise_all_actions": 0.8467649119203622,
+          "exact_match_with_null_verb": 0.48171846435100546,
+          "hamming_accuracy_with_null_verb": 0.99172760511883,
+          "precision_with_null_verb": 0.8928686592490748,
+          "recall_with_null_verb": 0.8362861420900454,
+          "f1_with_null_verb": 0.8622990323626287,
+          "num_predictions": 1094,
+          "num_actions_total_with_null_verb": 100,
+          "num_actions_present_with_null_verb": "18",
+          "action_sparsity_with_null_verb": 0.8200000000000001,
+          "task": "single_step_action_prediction",
+          "method_name": "AutoregressiveIL_video_VID50_epoch_-1",
+          "exclude_last_n": 6,
+          "mAP_standard": 0.9074979987009443,
+          "mAP_present_only": 0.5815507423680483,
+          "mAP_freq_weighted": 0.814248068073398,
+          "exact_match": 0.5237659963436929,
+          "hamming_accuracy": 0.9925026255396943,
+          "precision": 0.903680867913419,
+          "recall": 0.8543736298297402,
+          "f1": 0.8773632457385043,
+          "num_actions_total": 94,
+          "num_actions_present": "16",
+          "action_sparsity": 0.8297872340425532
+        },
+        "VID51": {
+          "mAP": 0.48224605009561,
+          "mAP_info": {
+            "calculated_from": "subset_excluding_last_classes_present_actions_only",
+            "excluded_classes": 6,
+            "subset_size": 94,
+            "present_actions_in_subset": "24",
+            "subset_action_sparsity": 0.7446808510638299
+          },
+          "mAP_standard_with_null_verb": 0.7799836936764223,
+          "mAP_present_only_with_null_verb": 0.44821963336697335,
+          "mAP_freq_weighted_with_null_verb": 0.7177120481161889,
+          "mAP_sample_wise_with_null_verb": 0.7697526286287806,
+          "mAP_standard_all_actions": 0.7799836936764223,
+          "mAP_present_only_all_actions": 0.44821963336697335,
+          "mAP_freq_weighted_all_actions": 0.7177120481161889,
+          "mAP_sample_wise_all_actions": 0.7697526286287806,
+          "exact_match_with_null_verb": 0.3811141304347826,
+          "hamming_accuracy_with_null_verb": 0.9899898097826086,
+          "precision_with_null_verb": 0.8500028894997693,
+          "recall_with_null_verb": 0.7882336381234011,
+          "f1_with_null_verb": 0.8160192814149803,
+          "num_predictions": 2944,
+          "num_actions_total_with_null_verb": 100,
+          "num_actions_present_with_null_verb": "29",
+          "action_sparsity_with_null_verb": 0.71,
+          "task": "single_step_action_prediction",
+          "method_name": "AutoregressiveIL_video_VID51_epoch_-1",
+          "exclude_last_n": 6,
+          "mAP_standard": 0.803977714918028,
+          "mAP_present_only": 0.48224605009561,
+          "mAP_freq_weighted": 0.755954416621518,
+          "exact_match": 0.4391983695652174,
+          "hamming_accuracy": 0.9912046137835338,
+          "precision": 0.8668759059438923,
+          "recall": 0.8038969815104935,
+          "f1": 0.8323283600787521,
+          "num_actions_total": 94,
+          "num_actions_present": "24",
+          "action_sparsity": 0.7446808510638299
+        },
+        "VID66": {
+          "mAP": 0.6193666075509946,
+          "mAP_info": {
+            "calculated_from": "subset_excluding_last_classes_present_actions_only",
+            "excluded_classes": 6,
+            "subset_size": 94,
+            "present_actions_in_subset": "20",
+            "subset_action_sparsity": 0.7872340425531915
+          },
+          "mAP_standard_with_null_verb": 0.8505257682489868,
+          "mAP_present_only_with_null_verb": 0.5675033402129861,
+          "mAP_freq_weighted_with_null_verb": 0.8429977820233758,
+          "mAP_sample_wise_with_null_verb": 0.8596656412339877,
+          "mAP_standard_all_actions": 0.8505257682489868,
+          "mAP_present_only_all_actions": 0.5675033402129861,
+          "mAP_freq_weighted_all_actions": 0.8429977820233758,
+          "mAP_sample_wise_all_actions": 0.8596656412339877,
+          "exact_match_with_null_verb": 0.506578947368421,
+          "hamming_accuracy_with_null_verb": 0.9929276315789474,
+          "precision_with_null_verb": 0.912542227417324,
+          "recall_with_null_verb": 0.8468967440003865,
+          "f1_with_null_verb": 0.8767825887849064,
+          "num_predictions": 1824,
+          "num_actions_total_with_null_verb": 100,
+          "num_actions_present_with_null_verb": "23",
+          "action_sparsity_with_null_verb": 0.77,
+          "task": "single_step_action_prediction",
+          "method_name": "AutoregressiveIL_video_VID66_epoch_-1",
+          "exclude_last_n": 6,
+          "mAP_standard": 0.8870992782023392,
+          "mAP_present_only": 0.6193666075509946,
+          "mAP_freq_weighted": 0.864133688871406,
+          "exact_match": 0.5279605263157895,
+          "hamming_accuracy": 0.9932635778275476,
+          "precision": 0.9209000793675668,
+          "recall": 0.8575699281934416,
+          "f1": 0.886566382335627,
+          "num_actions_total": 94,
+          "num_actions_present": "20",
+          "action_sparsity": 0.7872340425531915
+        },
+        "VID79": {
+          "mAP": 0.3940519430992508,
+          "mAP_info": {
+            "calculated_from": "subset_excluding_last_classes_present_actions_only",
+            "excluded_classes": 6,
+            "subset_size": 94,
+            "present_actions_in_subset": "31",
+            "subset_action_sparsity": 0.6702127659574468
+          },
+          "mAP_standard_with_null_verb": 0.7441330977827875,
+          "mAP_present_only_with_null_verb": 0.37259193828552095,
+          "mAP_freq_weighted_with_null_verb": 0.7818074581789812,
+          "mAP_sample_wise_with_null_verb": 0.789822778295273,
+          "mAP_standard_all_actions": 0.7441330977827875,
+          "mAP_present_only_all_actions": 0.37259193828552095,
+          "mAP_freq_weighted_all_actions": 0.7818074581789812,
+          "mAP_sample_wise_all_actions": 0.789822778295273,
+          "exact_match_with_null_verb": 0.434680726420621,
+          "hamming_accuracy_with_null_verb": 0.9904012888107792,
+          "precision_with_null_verb": 0.874052323022936,
+          "recall_with_null_verb": 0.8120688286599567,
+          "f1_with_null_verb": 0.8401513186827245,
+          "num_predictions": 3414,
+          "num_actions_total_with_null_verb": 100,
+          "num_actions_present_with_null_verb": "36",
+          "action_sparsity_with_null_verb": 0.64,
+          "task": "single_step_action_prediction",
+          "method_name": "AutoregressiveIL_video_VID79_epoch_-1",
+          "exclude_last_n": 6,
+          "mAP_standard": 0.7682511727242209,
+          "mAP_present_only": 0.3940519430992508,
+          "mAP_freq_weighted": 0.8103920903706449,
+          "exact_match": 0.47656707674282367,
+          "hamming_accuracy": 0.9911565643345922,
+          "precision": 0.8909461347190013,
+          "recall": 0.8222543653435108,
+          "f1": 0.8531654486449811,
+          "num_actions_total": 94,
+          "num_actions_present": "31",
+          "action_sparsity": 0.6702127659574468
+        }
+      },
+      "video_loss_metrics": {
+        "VID02": {
+          "frame_loss": 0.1788600171298793,
+          "action_loss": 0.03433401491283701,
+          "phase_loss": 0.5851155650275404,
+          "total_loss": 0.5400858270736892
+        },
+        "VID06": {
+          "frame_loss": 0.17658804122496535,
+          "action_loss": 0.03137709669191045,
+          "phase_loss": 0.4195250075829487,
+          "total_loss": 0.4491047394496423
+        },
+        "VID111": {
+          "frame_loss": 0.1715840872618611,
+          "action_loss": 0.030559592552243782,
+          "phase_loss": 1.3980607350521799,
+          "total_loss": 0.9317336363372979
+        },
+        "VID14": {
+          "frame_loss": 0.18788217687457104,
+          "action_loss": 0.03668005961628857,
+          "phase_loss": 0.9612920707439575,
+          "total_loss": 0.7418883325201329
+        },
+        "VID23": {
+          "frame_loss": 0.19632293312873655,
+          "action_loss": 0.044613492125260994,
+          "phase_loss": 1.1492260642844971,
+          "total_loss": 0.8601629472907307
+        },
+        "VID25": {
+          "frame_loss": 0.17431034281182645,
+          "action_loss": 0.030322866739336846,
+          "phase_loss": 0.7026742846983172,
+          "total_loss": 0.5862932182403643
+        },
+        "VID50": {
+          "frame_loss": 0.16319819388614185,
+          "action_loss": 0.028262963994284688,
+          "phase_loss": 0.1656307433887193,
+          "total_loss": 0.3025394949144211
+        },
+        "VID51": {
+          "frame_loss": 0.15968507499960455,
+          "action_loss": 0.03455362597560452,
+          "phase_loss": 0.6638078598053552,
+          "total_loss": 0.5606962586348148
+        },
+        "VID66": {
+          "frame_loss": 0.17574943948471755,
+          "action_loss": 0.021581124940559294,
+          "phase_loss": 0.2586047742380296,
+          "total_loss": 0.34821407895600587
+        },
+        "VID79": {
+          "frame_loss": 0.18535834789345754,
+          "action_loss": 0.03086043207120927,
+          "phase_loss": 0.2707441718858261,
+          "total_loss": 0.3824512994386882
+        }
+      },
+      "generation_quality": {
+        "frame_smoothness": 1.087605059146881,
+        "action_diversity": 0.00021081852416197458
+      },
+      "planning_evaluation": {
+        "aggregated_results": {
+          "num_videos": 10,
+          "overall_success_rate": 15.931928166277917,
+          "horizon_aggregated": {
+            "1s": {
+              "num_videos_evaluated": 10,
+              "planning_horizon_frames": 1,
+              "planning_horizon_seconds": 1.0,
+              "mean_ivt_mAP": 0.23616049071763356,
+              "std_ivt_mAP": 0.06073015822121043,
+              "mean_exact_match_rate": 0.4234022897293531,
+              "std_exact_match_rate": 0.042261320534880714,
+              "mean_hamming_accuracy": 0.9906909728537301,
+              "std_hamming_accuracy": 0.0009597493855859303,
+              "mean_action_consistency": 0.9961560370460827,
+              "std_action_consistency": 0.0002908322844576871,
+              "mean_temporal_smoothness": "0.99616355",
+              "std_temporal_smoothness": "0.00028967755",
+              "mean_sparsity_similarity": 0.9968123120474923,
+              "std_sparsity_similarity": 0.0007282997606568055,
+              "mean_ivt_i_mAP": 0.63393995354589,
+              "mean_ivt_v_mAP": 0.47575116423076214,
+              "mean_ivt_t_mAP": 0.32471311996624025,
+              "mean_ivt_iv_mAP": 0.2859080324904933,
+              "mean_ivt_it_mAP": 0.2778940055875942
+            },
+            "2s": {
+              "num_videos_evaluated": 10,
+              "planning_horizon_frames": 2,
+              "planning_horizon_seconds": 2.0,
+              "mean_ivt_mAP": 0.2254793583757316,
+              "std_ivt_mAP": 0.05899495336364771,
+              "mean_exact_match_rate": 0.41837576704987356,
+              "std_exact_match_rate": 0.04429263942916868,
+              "mean_hamming_accuracy": 0.990248053791962,
+              "std_hamming_accuracy": 0.0010585317884032332,
+              "mean_action_consistency": 0.9965183582913542,
+              "std_action_consistency": 0.00034348415035850453,
+              "mean_temporal_smoothness": "0.99652445",
+              "std_temporal_smoothness": "0.00034229478",
+              "mean_sparsity_similarity": 0.9975648402606729,
+              "std_sparsity_similarity": 0.0008234271153830522,
+              "mean_ivt_i_mAP": 0.6204091161737508,
+              "mean_ivt_v_mAP": 0.46254641206930625,
+              "mean_ivt_t_mAP": 0.32002538061342756,
+              "mean_ivt_iv_mAP": 0.2751099158427893,
+              "mean_ivt_it_mAP": 0.26679676748854525
+            },
+            "3s": {
+              "num_videos_evaluated": 10,
+              "planning_horizon_frames": 3,
+              "planning_horizon_seconds": 3.0,
+              "mean_ivt_mAP": 0.21349694899933339,
+              "std_ivt_mAP": 0.054273463869193385,
+              "mean_exact_match_rate": 0.4094391403079401,
+              "std_exact_match_rate": 0.045401479625869955,
+              "mean_hamming_accuracy": 0.9898532065590004,
+              "std_hamming_accuracy": 0.0010768749563206154,
+              "mean_action_consistency": 0.9967124856882992,
+              "std_action_consistency": 0.0004387156855627641,
+              "mean_temporal_smoothness": "0.99671805",
+              "std_temporal_smoothness": "0.00043726937",
+              "mean_sparsity_similarity": 0.9979573112332162,
+              "std_sparsity_similarity": 0.0008287857225245354,
+              "mean_ivt_i_mAP": 0.6033639947178878,
+              "mean_ivt_v_mAP": 0.4453098649408675,
+              "mean_ivt_t_mAP": 0.3130087176622682,
+              "mean_ivt_iv_mAP": 0.26414250091567176,
+              "mean_ivt_it_mAP": 0.25458629667309984
+            },
+            "5s": {
+              "num_videos_evaluated": 10,
+              "planning_horizon_frames": 5,
+              "planning_horizon_seconds": 5.0,
+              "mean_ivt_mAP": 0.191308154764762,
+              "std_ivt_mAP": 0.048257102592801956,
+              "mean_exact_match_rate": 0.38231219623267554,
+              "std_exact_match_rate": 0.04446044222024412,
+              "mean_hamming_accuracy": 0.9891120049759776,
+              "std_hamming_accuracy": 0.0011188232707490876,
+              "mean_action_consistency": 0.9970724764659151,
+              "std_action_consistency": 0.00039248139197130293,
+              "mean_temporal_smoothness": "0.99707687",
+              "std_temporal_smoothness": "0.00039132062",
+              "mean_sparsity_similarity": 0.9983084026565562,
+              "std_sparsity_similarity": 0.0008735129315383885,
+              "mean_ivt_i_mAP": 0.5608178069061898,
+              "mean_ivt_v_mAP": 0.41360685602071046,
+              "mean_ivt_t_mAP": 0.2977605750869853,
+              "mean_ivt_iv_mAP": 0.24432363294936055,
+              "mean_ivt_it_mAP": 0.22970455720169541
+            }
+          }
+        },
+        "detailed_video_results": {
+          "VID02": {
+            "video_id": "VID02",
+            "total_sequences": 178,
+            "successful_predictions": 2839,
+            "success_rate": 15.94943820224719,
+            "horizon_results": {
+              "1s": {
+                "num_sequences": 2839,
+                "total_frames": 2839,
+                "horizon_frames": 1,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.18781331548779984,
+                "ivt_i_mAP": 0.5900117716899458,
+                "ivt_v_mAP": 0.40391709135413656,
+                "ivt_t_mAP": 0.2690661210251713,
+                "ivt_iv_mAP": 0.22900696237501167,
+                "ivt_it_mAP": 0.228143334724954,
+                "exact_match_rate": 0.39203945051074324,
+                "hamming_accuracy": 0.9900986262768581,
+                "action_consistency": 0.9956166314305849,
+                "temporal_smoothness": "0.9956262",
+                "pred_sparsity": 0.011060232476224022,
+                "gt_sparsity": 0.014346600915815428,
+                "sparsity_similarity": 0.9967136315604086
+              },
+              "2s": {
+                "num_sequences": 2839,
+                "total_frames": 2839,
+                "horizon_frames": 2,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.1855447330896327,
+                "ivt_i_mAP": 0.5513892328399036,
+                "ivt_v_mAP": 0.3907540057795771,
+                "ivt_t_mAP": 0.26418127522659424,
+                "ivt_iv_mAP": 0.2146517214983271,
+                "ivt_it_mAP": 0.22305249697386875,
+                "exact_match_rate": 0.3913349771046143,
+                "hamming_accuracy": 0.9901408946812258,
+                "action_consistency": 0.9961310782241015,
+                "temporal_smoothness": "0.9961386",
+                "pred_sparsity": 0.011187037689327228,
+                "gt_sparsity": 0.014346600915815428,
+                "sparsity_similarity": 0.9968404367735118
+              },
+              "3s": {
+                "num_sequences": 2839,
+                "total_frames": 2839,
+                "horizon_frames": 3,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.18155533527900056,
+                "ivt_i_mAP": 0.530351190772326,
+                "ivt_v_mAP": 0.37469974776827486,
+                "ivt_t_mAP": 0.2652205244182461,
+                "ivt_iv_mAP": 0.20341788973567287,
+                "ivt_it_mAP": 0.21823886891409877,
+                "exact_match_rate": 0.38288129623106726,
+                "hamming_accuracy": 0.9899577315956323,
+                "action_consistency": 0.9960394644115574,
+                "temporal_smoothness": "0.99604726",
+                "pred_sparsity": 0.011532229658330399,
+                "gt_sparsity": 0.014346600915815428,
+                "sparsity_similarity": 0.9971856287425149
+              },
+              "5s": {
+                "num_sequences": 2839,
+                "total_frames": 2839,
+                "horizon_frames": 5,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.16604709605805248,
+                "ivt_i_mAP": 0.4850121225147914,
+                "ivt_v_mAP": 0.3434437911974002,
+                "ivt_t_mAP": 0.24829059237496365,
+                "ivt_iv_mAP": 0.1863758852211453,
+                "ivt_it_mAP": 0.19964386163462372,
+                "exact_match_rate": 0.3642127509686509,
+                "hamming_accuracy": 0.9896935540683339,
+                "action_consistency": 0.996430584918957,
+                "temporal_smoothness": "0.9964369",
+                "pred_sparsity": 0.011768228249383585,
+                "gt_sparsity": 0.014346600915815428,
+                "sparsity_similarity": 0.9974216273335682
+              }
+            }
+          },
+          "VID06": {
+            "video_id": "VID06",
+            "total_sequences": 135,
+            "successful_predictions": 2153,
+            "success_rate": 15.948148148148148,
+            "horizon_results": {
+              "1s": {
+                "num_sequences": 2153,
+                "total_frames": 2153,
+                "horizon_frames": 1,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.19651786634028762,
+                "ivt_i_mAP": 0.5720321232966697,
+                "ivt_v_mAP": 0.3629612327693586,
+                "ivt_t_mAP": 0.2970597028545423,
+                "ivt_iv_mAP": 0.21976471596914615,
+                "ivt_it_mAP": 0.25021791685114225,
+                "exact_match_rate": 0.36414305620065024,
+                "hamming_accuracy": 0.9906549001393404,
+                "action_consistency": 0.9964126394052044,
+                "temporal_smoothness": "0.996419",
+                "pred_sparsity": 0.013353460287970274,
+                "gt_sparsity": 0.01740362285183465,
+                "sparsity_similarity": 0.9959498374361356
+              },
+              "2s": {
+                "num_sequences": 2153,
+                "total_frames": 2153,
+                "horizon_frames": 2,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.19348447011288178,
+                "ivt_i_mAP": 0.5545515668191201,
+                "ivt_v_mAP": 0.3545433831920442,
+                "ivt_t_mAP": 0.29747897753018687,
+                "ivt_iv_mAP": 0.21385103477701206,
+                "ivt_it_mAP": 0.24420291692488616,
+                "exact_match_rate": 0.36553646075243845,
+                "hamming_accuracy": 0.9902647468648398,
+                "action_consistency": 0.9963197026022305,
+                "temporal_smoothness": "0.99632645",
+                "pred_sparsity": 0.014133766836971668,
+                "gt_sparsity": 0.01740362285183465,
+                "sparsity_similarity": 0.996730143985137
+              },
+              "3s": {
+                "num_sequences": 2153,
+                "total_frames": 2153,
+                "horizon_frames": 3,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.1775177397037951,
+                "ivt_i_mAP": 0.5367770534911646,
+                "ivt_v_mAP": 0.3365565142144046,
+                "ivt_t_mAP": 0.28565455225811714,
+                "ivt_iv_mAP": 0.20264409550923257,
+                "ivt_it_mAP": 0.22473848597527155,
+                "exact_match_rate": 0.36414305620065024,
+                "hamming_accuracy": 0.989921040408732,
+                "action_consistency": 0.9964126394052044,
+                "temporal_smoothness": "0.996419",
+                "pred_sparsity": 0.014663260566651185,
+                "gt_sparsity": 0.01740362285183465,
+                "sparsity_similarity": 0.9972596377148165
+              },
+              "5s": {
+                "num_sequences": 2153,
+                "total_frames": 2153,
+                "horizon_frames": 5,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.166808292976692,
+                "ivt_i_mAP": 0.517246171498473,
+                "ivt_v_mAP": 0.32119803115857964,
+                "ivt_t_mAP": 0.2705087649927832,
+                "ivt_iv_mAP": 0.19265218304095091,
+                "ivt_it_mAP": 0.2111495949161095,
+                "exact_match_rate": 0.3307013469577334,
+                "hamming_accuracy": 0.9891128657686948,
+                "action_consistency": 0.9966635687732343,
+                "temporal_smoothness": "0.9966692",
+                "pred_sparsity": 0.015174175568973526,
+                "gt_sparsity": 0.01740362285183465,
+                "sparsity_similarity": 0.9977705527171389
+              }
+            }
+          },
+          "VID111": {
+            "video_id": "VID111",
+            "total_sequences": 135,
+            "successful_predictions": 2145,
+            "success_rate": 15.88888888888889,
+            "horizon_results": {
+              "1s": {
+                "num_sequences": 2145,
+                "total_frames": 2145,
+                "horizon_frames": 1,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.23248901649998774,
+                "ivt_i_mAP": 0.6251750147885986,
+                "ivt_v_mAP": 0.48168725603317797,
+                "ivt_t_mAP": 0.285741184532039,
+                "ivt_iv_mAP": 0.2941344450299572,
+                "ivt_it_mAP": 0.27087754690415017,
+                "exact_match_rate": 0.4484848484848485,
+                "hamming_accuracy": 0.9895337995337995,
+                "action_consistency": 0.9961380597014925,
+                "temporal_smoothness": "0.99614555",
+                "pred_sparsity": 0.010065268065268066,
+                "gt_sparsity": 0.012251748251748252,
+                "sparsity_similarity": 0.9978135198135198
+              },
+              "2s": {
+                "num_sequences": 2145,
+                "total_frames": 2145,
+                "horizon_frames": 2,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.23001734320103134,
+                "ivt_i_mAP": 0.6328829058365567,
+                "ivt_v_mAP": 0.4666767023460415,
+                "ivt_t_mAP": 0.28349198537364406,
+                "ivt_iv_mAP": 0.2851239215092811,
+                "ivt_it_mAP": 0.2738490407642833,
+                "exact_match_rate": 0.4331002331002331,
+                "hamming_accuracy": 0.988983682983683,
+                "action_consistency": 0.996268656716418,
+                "temporal_smoothness": "0.99627566",
+                "pred_sparsity": 0.010717948717948718,
+                "gt_sparsity": 0.012251748251748252,
+                "sparsity_similarity": 0.9984662004662005
+              },
+              "3s": {
+                "num_sequences": 2145,
+                "total_frames": 2145,
+                "horizon_frames": 3,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.2181347180859753,
+                "ivt_i_mAP": 0.621585306583019,
+                "ivt_v_mAP": 0.4313367859104825,
+                "ivt_t_mAP": 0.30528223917934155,
+                "ivt_iv_mAP": 0.26432632800500777,
+                "ivt_it_mAP": 0.26892092191758876,
+                "exact_match_rate": 0.4256410256410256,
+                "hamming_accuracy": 0.9885920745920745,
+                "action_consistency": 0.996679104477612,
+                "temporal_smoothness": "0.99668455",
+                "pred_sparsity": 0.010867132867132867,
+                "gt_sparsity": 0.012251748251748252,
+                "sparsity_similarity": 0.9986153846153846
+              },
+              "5s": {
+                "num_sequences": 2145,
+                "total_frames": 2145,
+                "horizon_frames": 5,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.17700778684395657,
+                "ivt_i_mAP": 0.5680502457732881,
+                "ivt_v_mAP": 0.3935773476254153,
+                "ivt_t_mAP": 0.2901320295249939,
+                "ivt_iv_mAP": 0.23978709979743068,
+                "ivt_it_mAP": 0.21822235651980315,
+                "exact_match_rate": 0.41305361305361304,
+                "hamming_accuracy": 0.9878508158508158,
+                "action_consistency": 0.9967537313432836,
+                "temporal_smoothness": "0.99675894",
+                "pred_sparsity": 0.011291375291375291,
+                "gt_sparsity": 0.012251748251748252,
+                "sparsity_similarity": 0.999039627039627
+              }
+            }
+          },
+          "VID14": {
+            "video_id": "VID14",
+            "total_sequences": 107,
+            "successful_predictions": 1708,
+            "success_rate": 15.962616822429906,
+            "horizon_results": {
+              "1s": {
+                "num_sequences": 1708,
+                "total_frames": 1708,
+                "horizon_frames": 1,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.15883379193778885,
+                "ivt_i_mAP": 0.55732168029298,
+                "ivt_v_mAP": 0.41848468649570403,
+                "ivt_t_mAP": 0.2710035713635012,
+                "ivt_iv_mAP": 0.21789779529689318,
+                "ivt_it_mAP": 0.21271659697197912,
+                "exact_match_rate": 0.40749414519906324,
+                "hamming_accuracy": 0.9905093676814988,
+                "action_consistency": 0.9964850615114236,
+                "temporal_smoothness": "0.99649125",
+                "pred_sparsity": 0.011492974238875879,
+                "gt_sparsity": 0.015480093676814988,
+                "sparsity_similarity": 0.9960128805620609
+              },
+              "2s": {
+                "num_sequences": 1708,
+                "total_frames": 1708,
+                "horizon_frames": 2,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.13300863965574494,
+                "ivt_i_mAP": 0.5335617682825419,
+                "ivt_v_mAP": 0.3846017061609847,
+                "ivt_t_mAP": 0.26252915154119083,
+                "ivt_iv_mAP": 0.19950616727074807,
+                "ivt_it_mAP": 0.18001309527325746,
+                "exact_match_rate": 0.3911007025761124,
+                "hamming_accuracy": 0.9900175644028103,
+                "action_consistency": 0.9969771528998242,
+                "temporal_smoothness": "0.9969817",
+                "pred_sparsity": 0.012324355971896956,
+                "gt_sparsity": 0.015480093676814988,
+                "sparsity_similarity": 0.9968442622950819
+              },
+              "3s": {
+                "num_sequences": 1708,
+                "total_frames": 1708,
+                "horizon_frames": 3,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.12952604093116615,
+                "ivt_i_mAP": 0.5164662700886653,
+                "ivt_v_mAP": 0.3835993984998982,
+                "ivt_t_mAP": 0.2567589974579044,
+                "ivt_iv_mAP": 0.19959513494023634,
+                "ivt_it_mAP": 0.17478541531017622,
+                "exact_match_rate": 0.3770491803278688,
+                "hamming_accuracy": 0.9896428571428572,
+                "action_consistency": 0.997211482132396,
+                "temporal_smoothness": "0.9972154",
+                "pred_sparsity": 0.012804449648711944,
+                "gt_sparsity": 0.015480093676814988,
+                "sparsity_similarity": 0.997324355971897
+              },
+              "5s": {
+                "num_sequences": 1708,
+                "total_frames": 1708,
+                "horizon_frames": 5,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.11764478443714604,
+                "ivt_i_mAP": 0.48459683991522295,
+                "ivt_v_mAP": 0.3596827350614007,
+                "ivt_t_mAP": 0.251041696354925,
+                "ivt_iv_mAP": 0.18567911205618826,
+                "ivt_it_mAP": 0.1582290469558406,
+                "exact_match_rate": 0.34601873536299765,
+                "hamming_accuracy": 0.9887470725995317,
+                "action_consistency": 0.9974458113649678,
+                "temporal_smoothness": "0.99744904",
+                "pred_sparsity": 0.013079625292740047,
+                "gt_sparsity": 0.015480093676814988,
+                "sparsity_similarity": 0.9975995316159251
+              }
+            }
+          },
+          "VID23": {
+            "video_id": "VID23",
+            "total_sequences": 103,
+            "successful_predictions": 1635,
+            "success_rate": 15.87378640776699,
+            "horizon_results": {
+              "1s": {
+                "num_sequences": 1635,
+                "total_frames": 1635,
+                "horizon_frames": 1,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.22569239392209797,
+                "ivt_i_mAP": 0.5223743968538551,
+                "ivt_v_mAP": 0.40232466796653854,
+                "ivt_t_mAP": 0.27970456105490876,
+                "ivt_iv_mAP": 0.255050951245067,
+                "ivt_it_mAP": 0.25068527130892015,
+                "exact_match_rate": 0.39021406727828745,
+                "hamming_accuracy": 0.9898470948012232,
+                "action_consistency": 0.9964932680538555,
+                "temporal_smoothness": "0.9964994",
+                "pred_sparsity": 0.011504587155963303,
+                "gt_sparsity": 0.0158348623853211,
+                "sparsity_similarity": 0.9956697247706422
+              },
+              "2s": {
+                "num_sequences": 1635,
+                "total_frames": 1635,
+                "horizon_frames": 2,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.20512277028423992,
+                "ivt_i_mAP": 0.5220159017693808,
+                "ivt_v_mAP": 0.4024693336579819,
+                "ivt_t_mAP": 0.2798348315166371,
+                "ivt_iv_mAP": 0.2495116498474122,
+                "ivt_it_mAP": 0.22966562565134493,
+                "exact_match_rate": 0.3785932721712538,
+                "hamming_accuracy": 0.9894189602446484,
+                "action_consistency": 0.9969583843329254,
+                "temporal_smoothness": "0.996963",
+                "pred_sparsity": 0.012238532110091743,
+                "gt_sparsity": 0.01582262996941896,
+                "sparsity_similarity": 0.9964159021406728
+              },
+              "3s": {
+                "num_sequences": 1635,
+                "total_frames": 1635,
+                "horizon_frames": 3,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.19231164773911352,
+                "ivt_i_mAP": 0.508587598229233,
+                "ivt_v_mAP": 0.39003053190800674,
+                "ivt_t_mAP": 0.2764799108699155,
+                "ivt_iv_mAP": 0.2439707263256255,
+                "ivt_it_mAP": 0.21621236964327728,
+                "exact_match_rate": 0.36636085626911313,
+                "hamming_accuracy": 0.9890275229357798,
+                "action_consistency": 0.9971909424724602,
+                "temporal_smoothness": "0.99719495",
+                "pred_sparsity": 0.012581039755351683,
+                "gt_sparsity": 0.01581039755351682,
+                "sparsity_similarity": 0.9967706422018349
+              },
+              "5s": {
+                "num_sequences": 1635,
+                "total_frames": 1635,
+                "horizon_frames": 5,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.17083263096045462,
+                "ivt_i_mAP": 0.4805353176700075,
+                "ivt_v_mAP": 0.3755116463894867,
+                "ivt_t_mAP": 0.27202384890381404,
+                "ivt_iv_mAP": 0.2383367886227279,
+                "ivt_it_mAP": 0.191962297179156,
+                "exact_match_rate": 0.3516819571865443,
+                "hamming_accuracy": 0.988525993883792,
+                "action_consistency": 0.997484700122399,
+                "temporal_smoothness": "0.9974879",
+                "pred_sparsity": 0.012801223241590214,
+                "gt_sparsity": 0.01578593272171254,
+                "sparsity_similarity": 0.9970152905198777
+              }
+            }
+          },
+          "VID25": {
+            "video_id": "VID25",
+            "total_sequences": 134,
+            "successful_predictions": 2129,
+            "success_rate": 15.888059701492537,
+            "horizon_results": {
+              "1s": {
+                "num_sequences": 2129,
+                "total_frames": 2129,
+                "horizon_frames": 1,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.3436198159476999,
+                "ivt_i_mAP": 0.7442129675550425,
+                "ivt_v_mAP": 0.4941324919368134,
+                "ivt_t_mAP": 0.4388696685257491,
+                "ivt_iv_mAP": 0.31915407134092116,
+                "ivt_it_mAP": 0.38305732889196625,
+                "exact_match_rate": 0.4321277595115077,
+                "hamming_accuracy": 0.9914279004227337,
+                "action_consistency": 0.9961278195488722,
+                "temporal_smoothness": "0.99613535",
+                "pred_sparsity": 0.012959135744480977,
+                "gt_sparsity": 0.01657116016909347,
+                "sparsity_similarity": 0.9963879755753875
+              },
+              "2s": {
+                "num_sequences": 2129,
+                "total_frames": 2129,
+                "horizon_frames": 2,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.3273656135791224,
+                "ivt_i_mAP": 0.7248808834267022,
+                "ivt_v_mAP": 0.47715688842722914,
+                "ivt_t_mAP": 0.4228064824765654,
+                "ivt_iv_mAP": 0.3038122646311565,
+                "ivt_it_mAP": 0.3655561876074878,
+                "exact_match_rate": 0.44387036167214655,
+                "hamming_accuracy": 0.991211836542978,
+                "action_consistency": 0.9966353383458647,
+                "temporal_smoothness": "0.99664104",
+                "pred_sparsity": 0.013550962893377172,
+                "gt_sparsity": 0.01657116016909347,
+                "sparsity_similarity": 0.9969798027242837
+              },
+              "3s": {
+                "num_sequences": 2129,
+                "total_frames": 2129,
+                "horizon_frames": 3,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.30750026283817933,
+                "ivt_i_mAP": 0.7010156139461995,
+                "ivt_v_mAP": 0.45386681237767557,
+                "ivt_t_mAP": 0.4063879808135639,
+                "ivt_iv_mAP": 0.28754868984990745,
+                "ivt_it_mAP": 0.3424770220571803,
+                "exact_match_rate": 0.44997651479567874,
+                "hamming_accuracy": 0.990901831845937,
+                "action_consistency": 0.9970864661654135,
+                "temporal_smoothness": "0.9970907",
+                "pred_sparsity": 0.013879755753875058,
+                "gt_sparsity": 0.01657116016909347,
+                "sparsity_similarity": 0.9973085955847816
+              },
+              "5s": {
+                "num_sequences": 2129,
+                "total_frames": 2129,
+                "horizon_frames": 5,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.27792966739896763,
+                "ivt_i_mAP": 0.6528790400850231,
+                "ivt_v_mAP": 0.42882556663096005,
+                "ivt_t_mAP": 0.3886174773383305,
+                "ivt_iv_mAP": 0.269804450267331,
+                "ivt_it_mAP": 0.3104531216563165,
+                "exact_match_rate": 0.43259746359793333,
+                "hamming_accuracy": 0.9902583372475341,
+                "action_consistency": 0.9974953007518798,
+                "temporal_smoothness": "0.99749845",
+                "pred_sparsity": 0.014279004227336778,
+                "gt_sparsity": 0.01657116016909347,
+                "sparsity_similarity": 0.9977078440582433
+              }
+            }
+          },
+          "VID50": {
+            "video_id": "VID50",
+            "total_sequences": 69,
+            "successful_predictions": 1094,
+            "success_rate": 15.855072463768115,
+            "horizon_results": {
+              "1s": {
+                "num_sequences": 1094,
+                "total_frames": 1094,
+                "horizon_frames": 1,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.3182106877763694,
+                "ivt_i_mAP": 0.8276241000369235,
+                "ivt_v_mAP": 0.655151188261485,
+                "ivt_t_mAP": 0.3216942239464149,
+                "ivt_iv_mAP": 0.4452923302491167,
+                "ivt_it_mAP": 0.34349319148802765,
+                "exact_match_rate": 0.47714808043875684,
+                "hamming_accuracy": 0.991617915904936,
+                "action_consistency": 0.9958645928636779,
+                "temporal_smoothness": "0.9958732",
+                "pred_sparsity": 0.01403107861060329,
+                "gt_sparsity": 0.016453382084095063,
+                "sparsity_similarity": 0.9975776965265082
+              },
+              "2s": {
+                "num_sequences": 1094,
+                "total_frames": 1094,
+                "horizon_frames": 2,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.28971730493580333,
+                "ivt_i_mAP": 0.7551439248554525,
+                "ivt_v_mAP": 0.5969598446899788,
+                "ivt_t_mAP": 0.325118643642354,
+                "ivt_iv_mAP": 0.39948465743940303,
+                "ivt_it_mAP": 0.32377224947133276,
+                "exact_match_rate": 0.473491773308958,
+                "hamming_accuracy": 0.9909689213893967,
+                "action_consistency": 0.9960567246111619,
+                "temporal_smoothness": "0.9960645",
+                "pred_sparsity": 0.014844606946983547,
+                "gt_sparsity": 0.01643510054844607,
+                "sparsity_similarity": 0.9984095063985374
+              },
+              "3s": {
+                "num_sequences": 1094,
+                "total_frames": 1094,
+                "horizon_frames": 3,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.26792180903489754,
+                "ivt_i_mAP": 0.7154972946314038,
+                "ivt_v_mAP": 0.5651290030820179,
+                "ivt_t_mAP": 0.3006462445664876,
+                "ivt_iv_mAP": 0.3780010495587771,
+                "ivt_it_mAP": 0.2991923793312892,
+                "exact_match_rate": 0.463436928702011,
+                "hamming_accuracy": 0.9904204753199268,
+                "action_consistency": 0.9960750228728271,
+                "temporal_smoothness": "0.9960827",
+                "pred_sparsity": 0.01530164533820841,
+                "gt_sparsity": 0.016416819012797075,
+                "sparsity_similarity": 0.9988848263254113
+              },
+              "5s": {
+                "num_sequences": 1094,
+                "total_frames": 1094,
+                "horizon_frames": 5,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.2246798643906602,
+                "ivt_i_mAP": 0.6107445252045464,
+                "ivt_v_mAP": 0.49065488452360156,
+                "ivt_t_mAP": 0.27423135659751247,
+                "ivt_iv_mAP": 0.3280510096007474,
+                "ivt_it_mAP": 0.24894561124739972,
+                "exact_match_rate": 0.4040219378427788,
+                "hamming_accuracy": 0.9891042047531993,
+                "action_consistency": 0.9968069533394327,
+                "temporal_smoothness": "0.9968121",
+                "pred_sparsity": 0.015676416819012797,
+                "gt_sparsity": 0.01640767824497258,
+                "sparsity_similarity": 0.9992687385740402
+              }
+            }
+          },
+          "VID51": {
+            "video_id": "VID51",
+            "total_sequences": 184,
+            "successful_predictions": 2944,
+            "success_rate": 16.0,
+            "horizon_results": {
+              "1s": {
+                "num_sequences": 2944,
+                "total_frames": 2944,
+                "horizon_frames": 1,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.21966253211962053,
+                "ivt_i_mAP": 0.6285598159809155,
+                "ivt_v_mAP": 0.47036131381043506,
+                "ivt_t_mAP": 0.38020998100818676,
+                "ivt_iv_mAP": 0.270080528468246,
+                "ivt_it_mAP": 0.26792400965583346,
+                "exact_match_rate": 0.382133152173913,
+                "hamming_accuracy": 0.9899456521739131,
+                "action_consistency": 0.9963404689092763,
+                "temporal_smoothness": "0.9963472",
+                "pred_sparsity": 0.012489809782608696,
+                "gt_sparsity": 0.015146059782608697,
+                "sparsity_similarity": 0.99734375
+              },
+              "2s": {
+                "num_sequences": 2944,
+                "total_frames": 2944,
+                "horizon_frames": 2,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.2283878496782868,
+                "ivt_i_mAP": 0.6712792508684089,
+                "ivt_v_mAP": 0.4980254057393168,
+                "ivt_t_mAP": 0.3887746643398978,
+                "ivt_iv_mAP": 0.2822366030115239,
+                "ivt_it_mAP": 0.2757405342587486,
+                "exact_match_rate": 0.3797554347826087,
+                "hamming_accuracy": 0.9894055706521739,
+                "action_consistency": 0.9968025823989127,
+                "temporal_smoothness": "0.99680775",
+                "pred_sparsity": 0.013162364130434782,
+                "gt_sparsity": 0.015142663043478262,
+                "sparsity_similarity": 0.9980197010869565
+              },
+              "3s": {
+                "num_sequences": 2944,
+                "total_frames": 2944,
+                "horizon_frames": 3,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.21581002263561241,
+                "ivt_i_mAP": 0.6723062001572636,
+                "ivt_v_mAP": 0.4912721902186731,
+                "ivt_t_mAP": 0.3742428761471993,
+                "ivt_iv_mAP": 0.2778775107407592,
+                "ivt_it_mAP": 0.26912018914678343,
+                "exact_match_rate": 0.36141304347826086,
+                "hamming_accuracy": 0.9890217391304348,
+                "action_consistency": 0.9971219843696908,
+                "temporal_smoothness": "0.99712616",
+                "pred_sparsity": 0.01335258152173913,
+                "gt_sparsity": 0.015139266304347827,
+                "sparsity_similarity": 0.9982133152173913
+              },
+              "5s": {
+                "num_sequences": 2944,
+                "total_frames": 2944,
+                "horizon_frames": 5,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.19511844676763304,
+                "ivt_i_mAP": 0.655863558538491,
+                "ivt_v_mAP": 0.46259501167172934,
+                "ivt_t_mAP": 0.34451372545759024,
+                "ivt_iv_mAP": 0.25709656185403756,
+                "ivt_it_mAP": 0.2560080590014493,
+                "exact_match_rate": 0.336616847826087,
+                "hamming_accuracy": 0.988305027173913,
+                "action_consistency": 0.9974345905538566,
+                "temporal_smoothness": "0.99743783",
+                "pred_sparsity": 0.013519021739130435,
+                "gt_sparsity": 0.015132472826086957,
+                "sparsity_similarity": 0.9983865489130435
+              }
+            }
+          },
+          "VID66": {
+            "video_id": "VID66",
+            "total_sequences": 114,
+            "successful_predictions": 1824,
+            "success_rate": 16.0,
+            "horizon_results": {
+              "1s": {
+                "num_sequences": 1824,
+                "total_frames": 1824,
+                "horizon_frames": 1,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.3037930112195304,
+                "ivt_i_mAP": 0.6109866789572516,
+                "ivt_v_mAP": 0.5230780535446737,
+                "ivt_t_mAP": 0.37667605098085044,
+                "ivt_iv_mAP": 0.35568716238193837,
+                "ivt_it_mAP": 0.331142479058616,
+                "exact_match_rate": 0.5043859649122807,
+                "hamming_accuracy": 0.9928673245614035,
+                "action_consistency": 0.996286341195831,
+                "temporal_smoothness": "0.9962931",
+                "pred_sparsity": 0.013278508771929825,
+                "gt_sparsity": 0.015838815789473683,
+                "sparsity_similarity": 0.9974396929824562
+              },
+              "2s": {
+                "num_sequences": 1824,
+                "total_frames": 1824,
+                "horizon_frames": 2,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.29672847752497716,
+                "ivt_i_mAP": 0.628305682013717,
+                "ivt_v_mAP": 0.534425453922226,
+                "ivt_t_mAP": 0.36148302216746675,
+                "ivt_iv_mAP": 0.36308807062435816,
+                "ivt_it_mAP": 0.32441320428869325,
+                "exact_match_rate": 0.5098684210526315,
+                "hamming_accuracy": 0.9926864035087719,
+                "action_consistency": 0.9968458584750411,
+                "temporal_smoothness": "0.9968508",
+                "pred_sparsity": 0.014336622807017543,
+                "gt_sparsity": 0.015838815789473683,
+                "sparsity_similarity": 0.9984978070175439
+              },
+              "3s": {
+                "num_sequences": 1824,
+                "total_frames": 1824,
+                "horizon_frames": 3,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.28422984301743087,
+                "ivt_i_mAP": 0.6064381864981684,
+                "ivt_v_mAP": 0.5144036411558102,
+                "ivt_t_mAP": 0.34598531576681013,
+                "ivt_iv_mAP": 0.348532966415622,
+                "ivt_it_mAP": 0.3105911517987181,
+                "exact_match_rate": 0.49780701754385964,
+                "hamming_accuracy": 0.9922916666666667,
+                "action_consistency": 0.9969555677454744,
+                "temporal_smoothness": "0.9969602",
+                "pred_sparsity": 0.014819078947368421,
+                "gt_sparsity": 0.015838815789473683,
+                "sparsity_similarity": 0.9989802631578948
+              },
+              "5s": {
+                "num_sequences": 1824,
+                "total_frames": 1824,
+                "horizon_frames": 5,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.2667131650364503,
+                "ivt_i_mAP": 0.5743003579616581,
+                "ivt_v_mAP": 0.482075955173054,
+                "ivt_t_mAP": 0.32753664701772767,
+                "ivt_iv_mAP": 0.3261756298728304,
+                "ivt_it_mAP": 0.29142431574192784,
+                "exact_match_rate": 0.47368421052631576,
+                "hamming_accuracy": 0.991672149122807,
+                "action_consistency": 0.9973944048272079,
+                "temporal_smoothness": "0.99739784",
+                "pred_sparsity": 0.015328947368421053,
+                "gt_sparsity": 0.015827850877192982,
+                "sparsity_similarity": 0.9995010964912281
+              }
+            }
+          },
+          "VID79": {
+            "video_id": "VID79",
+            "total_sequences": 214,
+            "successful_predictions": 3414,
+            "success_rate": 15.953271028037383,
+            "horizon_results": {
+              "1s": {
+                "num_sequences": 3414,
+                "total_frames": 3414,
+                "horizon_frames": 1,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.1749724759251535,
+                "ivt_i_mAP": 0.6611009860067169,
+                "ivt_v_mAP": 0.5454136601352982,
+                "ivt_t_mAP": 0.32710613437103864,
+                "ivt_iv_mAP": 0.253011362548636,
+                "ivt_it_mAP": 0.24068238002035272,
+                "exact_match_rate": 0.4358523725834798,
+                "hamming_accuracy": 0.9904071470415935,
+                "action_consistency": 0.9957954878406095,
+                "temporal_smoothness": "0.99580437",
+                "pred_sparsity": 0.013857644991212654,
+                "gt_sparsity": 0.01664323374340949,
+                "sparsity_similarity": 0.9972144112478032
+              },
+              "2s": {
+                "num_sequences": 3414,
+                "total_frames": 3414,
+                "horizon_frames": 2,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.1654163816955956,
+                "ivt_i_mAP": 0.6300800450257239,
+                "ivt_v_mAP": 0.5198513967776828,
+                "ivt_t_mAP": 0.3145547723197393,
+                "ivt_iv_mAP": 0.23983306781867084,
+                "ivt_it_mAP": 0.22770232367154955,
+                "exact_match_rate": 0.4171060339777387,
+                "hamming_accuracy": 0.989381956649092,
+                "action_consistency": 0.9961881043070613,
+                "temporal_smoothness": "0.9961953",
+                "pred_sparsity": 0.015084944346807265,
+                "gt_sparsity": 0.016640304628002343,
+                "sparsity_similarity": 0.9984446397188049
+              },
+              "3s": {
+                "num_sequences": 3414,
+                "total_frames": 3414,
+                "horizon_frames": 3,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.16046207072816318,
+                "ivt_i_mAP": 0.6246152327814348,
+                "ivt_v_mAP": 0.5122040242734314,
+                "ivt_t_mAP": 0.3134285351450963,
+                "ivt_iv_mAP": 0.23551061807587662,
+                "ivt_it_mAP": 0.22158616263661468,
+                "exact_match_rate": 0.4056824838898653,
+                "hamming_accuracy": 0.9887551259519625,
+                "action_consistency": 0.9963521828303545,
+                "temporal_smoothness": "0.9963588",
+                "pred_sparsity": 0.015667838312829526,
+                "gt_sparsity": 0.016637375512595195,
+                "sparsity_similarity": 0.9990304628002343
+              },
+              "5s": {
+                "num_sequences": 3414,
+                "total_frames": 3414,
+                "horizon_frames": 5,
+                "avg_frames_per_sequence": 1.0,
+                "ivt_mAP": 0.15029981277760707,
+                "ivt_i_mAP": 0.5789498899003965,
+                "ivt_v_mAP": 0.47850359077547666,
+                "ivt_t_mAP": 0.31070961230721206,
+                "ivt_iv_mAP": 0.21927760916021588,
+                "ivt_it_mAP": 0.21100730716432753,
+                "exact_match_rate": 0.37053309900410075,
+                "hamming_accuracy": 0.9878500292911541,
+                "action_consistency": 0.996815118663932,
+                "temporal_smoothness": "0.9968203",
+                "pred_sparsity": 0.016004686584651436,
+                "gt_sparsity": 0.016631517281780903,
+                "sparsity_similarity": 0.9993731693028706
+              }
+            }
+          }
+        },
+        "evaluation_settings": {
+          "context_length": 20,
+          "temperature": 0.1,
+          "planning_horizons": {
+            "1s": 1,
+            "2s": 2,
+            "3s": 3,
+            "5s": 5
+          },
+          "num_videos": 10
+        }
+      },
+      "model_type": "AutoregressiveIL",
+      "evaluation_approach": "comprehensive_with_planning",
+      "num_videos_evaluated": 10,
+      "publication_metrics": {
+        "single_step_mAP": 0.49633374183430173,
+        "single_step_ivt_mAP": 0.31649240109804294,
+        "planning_1s_mAP": 0.23616049071763356,
+        "planning_2s_mAP": 0.2254793583757316,
+        "planning_3s_mAP": 0.21349694899933339,
+        "planning_5s_mAP": 0.191308154764762,
+        "evaluation_types": [
+          "single_step_recognition",
+          "multi_step_planning"
+        ],
+        "planning_consistency": 0.9965183582913542
+      },
+      "evaluation_summary": {
+        "single_step_performance": 0.49633374183430173,
+        "short_term_planning": 0.2254793583757316,
+        "medium_term_planning": 0.191308154764762,
+        "planning_degradation": 0.18992311464367453,
+        "strength": "Autoregressive planning with causal generation",
+        "architecture": "GPT-2 based autoregressive model",
+        "planning_horizon_capability": "up_to_5_seconds",
+        "target_prediction_type": "next_action_anticipation"
+      },
+      "performance_analysis": {
+        "summary_stats": {
+          "num_videos": 10,
+          "mAP_stats": {
+            "mean": 0.49633374183430173,
+            "std": 0.09588298173347166,
+            "min": 0.32882127530481264,
+            "max": 0.6515556967246449,
+            "median": 0.47870668329179167,
+            "q25": 0.44485154546714123,
+            "q75": 0.5699077562677654
+          },
+          "sparsity_stats": {
+            "mean": 0.7308510638297873,
+            "std": 0.05729886387019247,
+            "correlation_with_mAP": 0.8885819900093335
+          }
+        },
+        "performance_categories": {
+          "high_performers": [
+            "VID25",
+            "VID66"
+          ],
+          "low_performers": [
+            "VID14",
+            "VID79"
+          ],
+          "consistent_performers": [
+            "VID02",
+            "VID06",
+            "VID111",
+            "VID23",
+            "VID50",
+            "VID51"
+          ]
+        },
+        "detailed_rankings": [
+          [
+            "VID25",
+            0.6515556967246449
+          ],
+          [
+            "VID66",
+            0.6193666075509946
+          ],
+          [
+            "VID50",
+            0.5815507423680483
+          ],
+          [
+            "VID06",
+            0.5349787979669166
+          ],
+          [
+            "VID51",
+            0.48224605009561
+          ],
+          [
+            "VID111",
+            0.4751673164879733
+          ],
+          [
+            "VID02",
+            0.45369539218286714
+          ],
+          [
+            "VID23",
+            0.44190359656189926
+          ],
+          [
+            "VID79",
+            0.3940519430992508
+          ],
+          [
+            "VID14",
+            0.32882127530481264
+          ]
+        ]
+      }
+    },
+    "method_description": "Autoregressive IL with multi-step planning capabilities",
+    "capabilities": {
+      "single_step_recognition": 0.49633374183430173,
+      "short_term_planning_2s": 0.2254793583757316,
+      "planning_degradation": 0.18992311464367453,
+      "planning_horizon": "up_to_5_seconds"
+    },
+    "target_type": "next_action_prediction",
+    "planning_ready": true,
+    "pretrained": true
+  },
+  "comprehensive_evaluation": {
+    "evaluator": "<evaluation.integrated_evaluation.IntegratedEvaluationFramework object at 0x720e74872180>",
+    "results": {
+      "status": "success",
+      "evaluation_type": "comprehensive_evaluation_with_proper_batches",
+      "num_models": 1,
+      "num_videos": 10,
+      "horizon": 15,
+      "video_results": {
+        "VID02": {
+          "video_id": "VID02",
+          "evaluation_type": "comprehensive_fair_evaluation_with_proper_batches",
+          "single_step_evaluation": {
+            "AutoregressiveIL": {
+              "metrics": {
+                "mAP": 0.4131367254324308,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "28",
+                  "subset_action_sparsity": 0.7021276595744681
+                },
+                "mAP_standard_with_null_verb": 0.6980818665261936,
+                "mAP_present_only_with_null_verb": 0.37671137213586364,
+                "mAP_freq_weighted_with_null_verb": 0.6824366100030327,
+                "mAP_sample_wise_with_null_verb": 0.713833566682863,
+                "mAP_standard_all_actions": 0.6980818665261936,
+                "mAP_present_only_all_actions": 0.37671137213586364,
+                "mAP_freq_weighted_all_actions": 0.6824366100030327,
+                "mAP_sample_wise_all_actions": 0.713833566682863,
+                "exact_match_with_null_verb": 0.3754843254667136,
+                "hamming_accuracy_with_null_verb": 0.9899084184572032,
+                "precision_with_null_verb": 0.8463197300752954,
+                "recall_with_null_verb": 0.7582579329285377,
+                "f1_with_null_verb": 0.7956561780309357,
+                "num_predictions": 2839,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "34",
+                "action_sparsity_with_null_verb": 0.6599999999999999,
+                "task": "single_step_action_prediction",
+                "method_name": "AutoregressiveIL",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.7294449820437029,
+                "mAP_present_only": 0.4131367254324308,
+                "mAP_freq_weighted": 0.7041875106651216,
+                "exact_match": 0.40894681225783724,
+                "hamming_accuracy": 0.9905233338079785,
+                "precision": 0.8624573650812246,
+                "recall": 0.7673422552203435,
+                "f1": 0.807479151798683,
+                "num_actions_total": 94,
+                "num_actions_present": "28",
+                "action_sparsity": 0.7021276595744681
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": true
+            }
+          },
+          "planning_evaluation": {
+            "AutoregressiveIL": {}
+          },
+          "summary": {
+            "primary_comparison": {
+              "AutoregressiveIL": {
+                "mAP": 0.4131367254324308,
+                "exact_match": 0.40894681225783724,
+                "task": "single_step_action_prediction"
+              }
+            },
+            "secondary_analysis": {},
+            "overall_ranking": {},
+            "paradigm_insights": {
+              "fair_comparison_task": "single_step_action_prediction",
+              "planning_analysis": "shows_method_specific_strengths",
+              "evaluation_approach": "respects_training_paradigms"
+            }
+          },
+          "fairness_report": {
+            "evaluation_design": {
+              "primary_evaluation": "single_step_fair_comparison",
+              "secondary_evaluation": "method_specific_planning_analysis",
+              "data_handling": "uses_dataloader_batches_like_training",
+              "temporal_structure": "maintained_for_il_model",
+              "ground_truth_leakage": "eliminated"
+            },
+            "method_fairness": {
+              "AutoregressiveIL": "evaluated_with_proper_temporal_sequences",
+              "WorldModelRL": "evaluated_with_consistent_batch_approach",
+              "DirectVideoRL": "evaluated_with_consistent_batch_approach"
+            },
+            "data_integrity": {
+              "temporal_context": "preserved_for_models_that_need_it",
+              "batch_structure": "mirrors_training_approach",
+              "evaluation_consistency": "matches_model_training_interface"
+            },
+            "comparison_validity": {
+              "single_step_comparison": "valid_and_fair_with_proper_data_handling",
+              "planning_comparison": "method_specific_respecting_capabilities",
+              "overall_approach": "methodologically_sound_and_consistent_with_training"
+            }
+          }
+        },
+        "VID06": {
+          "video_id": "VID06",
+          "evaluation_type": "comprehensive_fair_evaluation_with_proper_batches",
+          "single_step_evaluation": {
+            "AutoregressiveIL": {
+              "metrics": {
+                "mAP": 0.5349787979669166,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "26",
+                  "subset_action_sparsity": 0.7234042553191489
+                },
+                "mAP_standard_with_null_verb": 0.8286863275440551,
+                "mAP_present_only_with_null_verb": 0.49562109181351716,
+                "mAP_freq_weighted_with_null_verb": 0.7630840525508162,
+                "mAP_sample_wise_with_null_verb": 0.831260476043804,
+                "mAP_standard_all_actions": 0.8286863275440551,
+                "mAP_present_only_all_actions": 0.49562109181351716,
+                "mAP_freq_weighted_all_actions": 0.7630840525508162,
+                "mAP_sample_wise_all_actions": 0.831260476043804,
+                "exact_match_with_null_verb": 0.3660009289363679,
+                "hamming_accuracy_with_null_verb": 0.9907013469577334,
+                "precision_with_null_verb": 0.8987708816346373,
+                "recall_with_null_verb": 0.8063869280623164,
+                "f1_with_null_verb": 0.8462934425074607,
+                "num_predictions": 2153,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "30",
+                "action_sparsity_with_null_verb": 0.7,
+                "task": "single_step_action_prediction",
+                "method_name": "AutoregressiveIL",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.8501005185865939,
+                "mAP_present_only": 0.5349787979669166,
+                "mAP_freq_weighted": 0.8012983865788673,
+                "exact_match": 0.4407803065490014,
+                "hamming_accuracy": 0.9915654554258778,
+                "precision": 0.905550905346751,
+                "recall": 0.826197485396795,
+                "f1": 0.8614074273605463,
+                "num_actions_total": 94,
+                "num_actions_present": "26",
+                "action_sparsity": 0.7234042553191489
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": true
+            }
+          },
+          "planning_evaluation": {
+            "AutoregressiveIL": {}
+          },
+          "summary": {
+            "primary_comparison": {
+              "AutoregressiveIL": {
+                "mAP": 0.5349787979669166,
+                "exact_match": 0.4407803065490014,
+                "task": "single_step_action_prediction"
+              }
+            },
+            "secondary_analysis": {},
+            "overall_ranking": {},
+            "paradigm_insights": {
+              "fair_comparison_task": "single_step_action_prediction",
+              "planning_analysis": "shows_method_specific_strengths",
+              "evaluation_approach": "respects_training_paradigms"
+            }
+          },
+          "fairness_report": {
+            "evaluation_design": {
+              "primary_evaluation": "single_step_fair_comparison",
+              "secondary_evaluation": "method_specific_planning_analysis",
+              "data_handling": "uses_dataloader_batches_like_training",
+              "temporal_structure": "maintained_for_il_model",
+              "ground_truth_leakage": "eliminated"
+            },
+            "method_fairness": {
+              "AutoregressiveIL": "evaluated_with_proper_temporal_sequences",
+              "WorldModelRL": "evaluated_with_consistent_batch_approach",
+              "DirectVideoRL": "evaluated_with_consistent_batch_approach"
+            },
+            "data_integrity": {
+              "temporal_context": "preserved_for_models_that_need_it",
+              "batch_structure": "mirrors_training_approach",
+              "evaluation_consistency": "matches_model_training_interface"
+            },
+            "comparison_validity": {
+              "single_step_comparison": "valid_and_fair_with_proper_data_handling",
+              "planning_comparison": "method_specific_respecting_capabilities",
+              "overall_approach": "methodologically_sound_and_consistent_with_training"
+            }
+          }
+        },
+        "VID111": {
+          "video_id": "VID111",
+          "evaluation_type": "comprehensive_fair_evaluation_with_proper_batches",
+          "single_step_evaluation": {
+            "AutoregressiveIL": {
+              "metrics": {
+                "mAP": 0.4751673164879733,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "25",
+                  "subset_action_sparsity": 0.7340425531914894
+                },
+                "mAP_standard_with_null_verb": 0.8068976858170086,
+                "mAP_present_only_with_null_verb": 0.4375782269552023,
+                "mAP_freq_weighted_with_null_verb": 0.627352425447587,
+                "mAP_sample_wise_with_null_verb": 0.6985564684144517,
+                "mAP_standard_all_actions": 0.8068976858170086,
+                "mAP_present_only_all_actions": 0.4375782269552023,
+                "mAP_freq_weighted_all_actions": 0.627352425447587,
+                "mAP_sample_wise_all_actions": 0.6985564684144517,
+                "exact_match_with_null_verb": 0.45174825174825173,
+                "hamming_accuracy_with_null_verb": 0.9895664335664336,
+                "precision_with_null_verb": 0.7917956956706316,
+                "recall_with_null_verb": 0.7412429788744682,
+                "f1_with_null_verb": 0.7640426853654192,
+                "num_predictions": 2145,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "29",
+                "action_sparsity_with_null_verb": 0.71,
+                "task": "single_step_action_prediction",
+                "method_name": "AutoregressiveIL",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.8391402437468013,
+                "mAP_present_only": 0.4751673164879733,
+                "mAP_freq_weighted": 0.6667387762254551,
+                "exact_match": 0.5156177156177156,
+                "hamming_accuracy": 0.9912314635718891,
+                "precision": 0.802154605430187,
+                "recall": 0.7805731676326582,
+                "f1": 0.7909523759248178,
+                "num_actions_total": 94,
+                "num_actions_present": "25",
+                "action_sparsity": 0.7340425531914894
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": true
+            }
+          },
+          "planning_evaluation": {
+            "AutoregressiveIL": {}
+          },
+          "summary": {
+            "primary_comparison": {
+              "AutoregressiveIL": {
+                "mAP": 0.4751673164879733,
+                "exact_match": 0.5156177156177156,
+                "task": "single_step_action_prediction"
+              }
+            },
+            "secondary_analysis": {},
+            "overall_ranking": {},
+            "paradigm_insights": {
+              "fair_comparison_task": "single_step_action_prediction",
+              "planning_analysis": "shows_method_specific_strengths",
+              "evaluation_approach": "respects_training_paradigms"
+            }
+          },
+          "fairness_report": {
+            "evaluation_design": {
+              "primary_evaluation": "single_step_fair_comparison",
+              "secondary_evaluation": "method_specific_planning_analysis",
+              "data_handling": "uses_dataloader_batches_like_training",
+              "temporal_structure": "maintained_for_il_model",
+              "ground_truth_leakage": "eliminated"
+            },
+            "method_fairness": {
+              "AutoregressiveIL": "evaluated_with_proper_temporal_sequences",
+              "WorldModelRL": "evaluated_with_consistent_batch_approach",
+              "DirectVideoRL": "evaluated_with_consistent_batch_approach"
+            },
+            "data_integrity": {
+              "temporal_context": "preserved_for_models_that_need_it",
+              "batch_structure": "mirrors_training_approach",
+              "evaluation_consistency": "matches_model_training_interface"
+            },
+            "comparison_validity": {
+              "single_step_comparison": "valid_and_fair_with_proper_data_handling",
+              "planning_comparison": "method_specific_respecting_capabilities",
+              "overall_approach": "methodologically_sound_and_consistent_with_training"
+            }
+          }
+        },
+        "VID14": {
+          "video_id": "VID14",
+          "evaluation_type": "comprehensive_fair_evaluation_with_proper_batches",
+          "single_step_evaluation": {
+            "AutoregressiveIL": {
+              "metrics": {
+                "mAP": 0.32882127530481264,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "36",
+                  "subset_action_sparsity": 0.6170212765957447
+                },
+                "mAP_standard_with_null_verb": 0.7066026505781057,
+                "mAP_present_only_with_null_verb": 0.3087869526295258,
+                "mAP_freq_weighted_with_null_verb": 0.6818124824540821,
+                "mAP_sample_wise_with_null_verb": 0.7685148385265889,
+                "mAP_standard_all_actions": 0.7066026505781057,
+                "mAP_present_only_all_actions": 0.3087869526295258,
+                "mAP_freq_weighted_all_actions": 0.6818124824540821,
+                "mAP_sample_wise_all_actions": 0.7685148385265889,
+                "exact_match_with_null_verb": 0.41100702576112413,
+                "hamming_accuracy_with_null_verb": 0.9904918032786886,
+                "precision_with_null_verb": 0.8768145761117316,
+                "recall_with_null_verb": 0.7801863995679539,
+                "f1_with_null_verb": 0.8211454662486258,
+                "num_predictions": 1708,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "41",
+                "action_sparsity_with_null_verb": 0.5900000000000001,
+                "task": "single_step_action_prediction",
+                "method_name": "AutoregressiveIL",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.7323145309678005,
+                "mAP_present_only": 0.32882127530481264,
+                "mAP_freq_weighted": 0.7075050878600736,
+                "exact_match": 0.46662763466042156,
+                "hamming_accuracy": 0.9910994568737854,
+                "precision": 0.8844036628286038,
+                "recall": 0.7973097428851195,
+                "f1": 0.8350988828185593,
+                "num_actions_total": 94,
+                "num_actions_present": "36",
+                "action_sparsity": 0.6170212765957447
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": true
+            }
+          },
+          "planning_evaluation": {
+            "AutoregressiveIL": {}
+          },
+          "summary": {
+            "primary_comparison": {
+              "AutoregressiveIL": {
+                "mAP": 0.32882127530481264,
+                "exact_match": 0.46662763466042156,
+                "task": "single_step_action_prediction"
+              }
+            },
+            "secondary_analysis": {},
+            "overall_ranking": {},
+            "paradigm_insights": {
+              "fair_comparison_task": "single_step_action_prediction",
+              "planning_analysis": "shows_method_specific_strengths",
+              "evaluation_approach": "respects_training_paradigms"
+            }
+          },
+          "fairness_report": {
+            "evaluation_design": {
+              "primary_evaluation": "single_step_fair_comparison",
+              "secondary_evaluation": "method_specific_planning_analysis",
+              "data_handling": "uses_dataloader_batches_like_training",
+              "temporal_structure": "maintained_for_il_model",
+              "ground_truth_leakage": "eliminated"
+            },
+            "method_fairness": {
+              "AutoregressiveIL": "evaluated_with_proper_temporal_sequences",
+              "WorldModelRL": "evaluated_with_consistent_batch_approach",
+              "DirectVideoRL": "evaluated_with_consistent_batch_approach"
+            },
+            "data_integrity": {
+              "temporal_context": "preserved_for_models_that_need_it",
+              "batch_structure": "mirrors_training_approach",
+              "evaluation_consistency": "matches_model_training_interface"
+            },
+            "comparison_validity": {
+              "single_step_comparison": "valid_and_fair_with_proper_data_handling",
+              "planning_comparison": "method_specific_respecting_capabilities",
+              "overall_approach": "methodologically_sound_and_consistent_with_training"
+            }
+          }
+        },
+        "VID23": {
+          "video_id": "VID23",
+          "evaluation_type": "comprehensive_fair_evaluation_with_proper_batches",
+          "single_step_evaluation": {
+            "AutoregressiveIL": {
+              "metrics": {
+                "mAP": 0.44190359656189926,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "26",
+                  "subset_action_sparsity": 0.7234042553191489
+                },
+                "mAP_standard_with_null_verb": 0.7637337905026778,
+                "mAP_present_only_with_null_verb": 0.39914125968605696,
+                "mAP_freq_weighted_with_null_verb": 0.6686950634006166,
+                "mAP_sample_wise_with_null_verb": 0.7497734590497523,
+                "mAP_standard_all_actions": 0.7637337905026778,
+                "mAP_present_only_all_actions": 0.39914125968605696,
+                "mAP_freq_weighted_all_actions": 0.6686950634006166,
+                "mAP_sample_wise_all_actions": 0.7497734590497523,
+                "exact_match_with_null_verb": 0.3889908256880734,
+                "hamming_accuracy_with_null_verb": 0.9898776758409786,
+                "precision_with_null_verb": 0.8711943433225884,
+                "recall_with_null_verb": 0.7693066915141831,
+                "f1_with_null_verb": 0.8118547082959707,
+                "num_predictions": 1635,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "31",
+                "action_sparsity_with_null_verb": 0.69,
+                "task": "single_step_action_prediction",
+                "method_name": "AutoregressiveIL",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.7924414203256317,
+                "mAP_present_only": 0.44190359656189926,
+                "mAP_freq_weighted": 0.693940258365958,
+                "exact_match": 0.46788990825688076,
+                "hamming_accuracy": 0.9908387012818011,
+                "precision": 0.8803066294971209,
+                "recall": 0.7894933731383997,
+                "f1": 0.8285287907182545,
+                "num_actions_total": 94,
+                "num_actions_present": "26",
+                "action_sparsity": 0.7234042553191489
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": true
+            }
+          },
+          "planning_evaluation": {
+            "AutoregressiveIL": {}
+          },
+          "summary": {
+            "primary_comparison": {
+              "AutoregressiveIL": {
+                "mAP": 0.44190359656189926,
+                "exact_match": 0.46788990825688076,
+                "task": "single_step_action_prediction"
+              }
+            },
+            "secondary_analysis": {},
+            "overall_ranking": {},
+            "paradigm_insights": {
+              "fair_comparison_task": "single_step_action_prediction",
+              "planning_analysis": "shows_method_specific_strengths",
+              "evaluation_approach": "respects_training_paradigms"
+            }
+          },
+          "fairness_report": {
+            "evaluation_design": {
+              "primary_evaluation": "single_step_fair_comparison",
+              "secondary_evaluation": "method_specific_planning_analysis",
+              "data_handling": "uses_dataloader_batches_like_training",
+              "temporal_structure": "maintained_for_il_model",
+              "ground_truth_leakage": "eliminated"
+            },
+            "method_fairness": {
+              "AutoregressiveIL": "evaluated_with_proper_temporal_sequences",
+              "WorldModelRL": "evaluated_with_consistent_batch_approach",
+              "DirectVideoRL": "evaluated_with_consistent_batch_approach"
+            },
+            "data_integrity": {
+              "temporal_context": "preserved_for_models_that_need_it",
+              "batch_structure": "mirrors_training_approach",
+              "evaluation_consistency": "matches_model_training_interface"
+            },
+            "comparison_validity": {
+              "single_step_comparison": "valid_and_fair_with_proper_data_handling",
+              "planning_comparison": "method_specific_respecting_capabilities",
+              "overall_approach": "methodologically_sound_and_consistent_with_training"
+            }
+          }
+        },
+        "VID25": {
+          "video_id": "VID25",
+          "evaluation_type": "comprehensive_fair_evaluation_with_proper_batches",
+          "single_step_evaluation": {
+            "AutoregressiveIL": {
+              "metrics": {
+                "mAP": 0.6515556967246449,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "21",
+                  "subset_action_sparsity": 0.7765957446808511
+                },
+                "mAP_standard_with_null_verb": 0.8842820692907545,
+                "mAP_present_only_with_null_verb": 0.5549310357336703,
+                "mAP_freq_weighted_with_null_verb": 0.7784982955073393,
+                "mAP_sample_wise_with_null_verb": 0.8089756232836075,
+                "mAP_standard_all_actions": 0.8842820692907545,
+                "mAP_present_only_all_actions": 0.5549310357336703,
+                "mAP_freq_weighted_all_actions": 0.7784982955073393,
+                "mAP_sample_wise_all_actions": 0.8089756232836075,
+                "exact_match_with_null_verb": 0.4279004227336778,
+                "hamming_accuracy_with_null_verb": 0.9914185063410051,
+                "precision_with_null_verb": 0.901262614496714,
+                "recall_with_null_verb": 0.814501111692918,
+                "f1_with_null_verb": 0.8524301673647598,
+                "num_predictions": 2129,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "26",
+                "action_sparsity_with_null_verb": 0.74,
+                "task": "single_step_action_prediction",
+                "method_name": "AutoregressiveIL",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.9221560599065696,
+                "mAP_present_only": 0.6515556967246449,
+                "mAP_freq_weighted": 0.8181614090124388,
+                "exact_match": 0.47111319868482854,
+                "hamming_accuracy": 0.9920749927545647,
+                "precision": 0.906576592432329,
+                "recall": 0.8318458632571795,
+                "f1": 0.8652912620699941,
+                "num_actions_total": 94,
+                "num_actions_present": "21",
+                "action_sparsity": 0.7765957446808511
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": true
+            }
+          },
+          "planning_evaluation": {
+            "AutoregressiveIL": {}
+          },
+          "summary": {
+            "primary_comparison": {
+              "AutoregressiveIL": {
+                "mAP": 0.6515556967246449,
+                "exact_match": 0.47111319868482854,
+                "task": "single_step_action_prediction"
+              }
+            },
+            "secondary_analysis": {},
+            "overall_ranking": {},
+            "paradigm_insights": {
+              "fair_comparison_task": "single_step_action_prediction",
+              "planning_analysis": "shows_method_specific_strengths",
+              "evaluation_approach": "respects_training_paradigms"
+            }
+          },
+          "fairness_report": {
+            "evaluation_design": {
+              "primary_evaluation": "single_step_fair_comparison",
+              "secondary_evaluation": "method_specific_planning_analysis",
+              "data_handling": "uses_dataloader_batches_like_training",
+              "temporal_structure": "maintained_for_il_model",
+              "ground_truth_leakage": "eliminated"
+            },
+            "method_fairness": {
+              "AutoregressiveIL": "evaluated_with_proper_temporal_sequences",
+              "WorldModelRL": "evaluated_with_consistent_batch_approach",
+              "DirectVideoRL": "evaluated_with_consistent_batch_approach"
+            },
+            "data_integrity": {
+              "temporal_context": "preserved_for_models_that_need_it",
+              "batch_structure": "mirrors_training_approach",
+              "evaluation_consistency": "matches_model_training_interface"
+            },
+            "comparison_validity": {
+              "single_step_comparison": "valid_and_fair_with_proper_data_handling",
+              "planning_comparison": "method_specific_respecting_capabilities",
+              "overall_approach": "methodologically_sound_and_consistent_with_training"
+            }
+          }
+        },
+        "VID50": {
+          "video_id": "VID50",
+          "evaluation_type": "comprehensive_fair_evaluation_with_proper_batches",
+          "single_step_evaluation": {
+            "AutoregressiveIL": {
+              "metrics": {
+                "mAP": 0.5815507423680483,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "16",
+                  "subset_action_sparsity": 0.8297872340425532
+                },
+                "mAP_standard_with_null_verb": 0.8954344389197573,
+                "mAP_present_only_with_null_verb": 0.5301913273319848,
+                "mAP_freq_weighted_with_null_verb": 0.779175854427179,
+                "mAP_sample_wise_with_null_verb": 0.8467649119203622,
+                "mAP_standard_all_actions": 0.8954344389197573,
+                "mAP_present_only_all_actions": 0.5301913273319848,
+                "mAP_freq_weighted_all_actions": 0.779175854427179,
+                "mAP_sample_wise_all_actions": 0.8467649119203622,
+                "exact_match_with_null_verb": 0.48171846435100546,
+                "hamming_accuracy_with_null_verb": 0.99172760511883,
+                "precision_with_null_verb": 0.8928686592490748,
+                "recall_with_null_verb": 0.8362861420900454,
+                "f1_with_null_verb": 0.8622990323626287,
+                "num_predictions": 1094,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "18",
+                "action_sparsity_with_null_verb": 0.8200000000000001,
+                "task": "single_step_action_prediction",
+                "method_name": "AutoregressiveIL",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.9074979987009443,
+                "mAP_present_only": 0.5815507423680483,
+                "mAP_freq_weighted": 0.814248068073398,
+                "exact_match": 0.5237659963436929,
+                "hamming_accuracy": 0.9925026255396943,
+                "precision": 0.903680867913419,
+                "recall": 0.8543736298297402,
+                "f1": 0.8773632457385043,
+                "num_actions_total": 94,
+                "num_actions_present": "16",
+                "action_sparsity": 0.8297872340425532
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": true
+            }
+          },
+          "planning_evaluation": {
+            "AutoregressiveIL": {}
+          },
+          "summary": {
+            "primary_comparison": {
+              "AutoregressiveIL": {
+                "mAP": 0.5815507423680483,
+                "exact_match": 0.5237659963436929,
+                "task": "single_step_action_prediction"
+              }
+            },
+            "secondary_analysis": {},
+            "overall_ranking": {},
+            "paradigm_insights": {
+              "fair_comparison_task": "single_step_action_prediction",
+              "planning_analysis": "shows_method_specific_strengths",
+              "evaluation_approach": "respects_training_paradigms"
+            }
+          },
+          "fairness_report": {
+            "evaluation_design": {
+              "primary_evaluation": "single_step_fair_comparison",
+              "secondary_evaluation": "method_specific_planning_analysis",
+              "data_handling": "uses_dataloader_batches_like_training",
+              "temporal_structure": "maintained_for_il_model",
+              "ground_truth_leakage": "eliminated"
+            },
+            "method_fairness": {
+              "AutoregressiveIL": "evaluated_with_proper_temporal_sequences",
+              "WorldModelRL": "evaluated_with_consistent_batch_approach",
+              "DirectVideoRL": "evaluated_with_consistent_batch_approach"
+            },
+            "data_integrity": {
+              "temporal_context": "preserved_for_models_that_need_it",
+              "batch_structure": "mirrors_training_approach",
+              "evaluation_consistency": "matches_model_training_interface"
+            },
+            "comparison_validity": {
+              "single_step_comparison": "valid_and_fair_with_proper_data_handling",
+              "planning_comparison": "method_specific_respecting_capabilities",
+              "overall_approach": "methodologically_sound_and_consistent_with_training"
+            }
+          }
+        },
+        "VID51": {
+          "video_id": "VID51",
+          "evaluation_type": "comprehensive_fair_evaluation_with_proper_batches",
+          "single_step_evaluation": {
+            "AutoregressiveIL": {
+              "metrics": {
+                "mAP": 0.48224605009561,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "24",
+                  "subset_action_sparsity": 0.7446808510638299
+                },
+                "mAP_standard_with_null_verb": 0.7799836936764223,
+                "mAP_present_only_with_null_verb": 0.44821963336697335,
+                "mAP_freq_weighted_with_null_verb": 0.7177120481161889,
+                "mAP_sample_wise_with_null_verb": 0.7697526286287806,
+                "mAP_standard_all_actions": 0.7799836936764223,
+                "mAP_present_only_all_actions": 0.44821963336697335,
+                "mAP_freq_weighted_all_actions": 0.7177120481161889,
+                "mAP_sample_wise_all_actions": 0.7697526286287806,
+                "exact_match_with_null_verb": 0.3811141304347826,
+                "hamming_accuracy_with_null_verb": 0.9899898097826086,
+                "precision_with_null_verb": 0.8500028894997693,
+                "recall_with_null_verb": 0.7882336381234011,
+                "f1_with_null_verb": 0.8160192814149803,
+                "num_predictions": 2944,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "29",
+                "action_sparsity_with_null_verb": 0.71,
+                "task": "single_step_action_prediction",
+                "method_name": "AutoregressiveIL",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.803977714918028,
+                "mAP_present_only": 0.48224605009561,
+                "mAP_freq_weighted": 0.755954416621518,
+                "exact_match": 0.4391983695652174,
+                "hamming_accuracy": 0.9912046137835338,
+                "precision": 0.8668759059438923,
+                "recall": 0.8038969815104935,
+                "f1": 0.8323283600787521,
+                "num_actions_total": 94,
+                "num_actions_present": "24",
+                "action_sparsity": 0.7446808510638299
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": true
+            }
+          },
+          "planning_evaluation": {
+            "AutoregressiveIL": {}
+          },
+          "summary": {
+            "primary_comparison": {
+              "AutoregressiveIL": {
+                "mAP": 0.48224605009561,
+                "exact_match": 0.4391983695652174,
+                "task": "single_step_action_prediction"
+              }
+            },
+            "secondary_analysis": {},
+            "overall_ranking": {},
+            "paradigm_insights": {
+              "fair_comparison_task": "single_step_action_prediction",
+              "planning_analysis": "shows_method_specific_strengths",
+              "evaluation_approach": "respects_training_paradigms"
+            }
+          },
+          "fairness_report": {
+            "evaluation_design": {
+              "primary_evaluation": "single_step_fair_comparison",
+              "secondary_evaluation": "method_specific_planning_analysis",
+              "data_handling": "uses_dataloader_batches_like_training",
+              "temporal_structure": "maintained_for_il_model",
+              "ground_truth_leakage": "eliminated"
+            },
+            "method_fairness": {
+              "AutoregressiveIL": "evaluated_with_proper_temporal_sequences",
+              "WorldModelRL": "evaluated_with_consistent_batch_approach",
+              "DirectVideoRL": "evaluated_with_consistent_batch_approach"
+            },
+            "data_integrity": {
+              "temporal_context": "preserved_for_models_that_need_it",
+              "batch_structure": "mirrors_training_approach",
+              "evaluation_consistency": "matches_model_training_interface"
+            },
+            "comparison_validity": {
+              "single_step_comparison": "valid_and_fair_with_proper_data_handling",
+              "planning_comparison": "method_specific_respecting_capabilities",
+              "overall_approach": "methodologically_sound_and_consistent_with_training"
+            }
+          }
+        },
+        "VID66": {
+          "video_id": "VID66",
+          "evaluation_type": "comprehensive_fair_evaluation_with_proper_batches",
+          "single_step_evaluation": {
+            "AutoregressiveIL": {
+              "metrics": {
+                "mAP": 0.6193666075509946,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "20",
+                  "subset_action_sparsity": 0.7872340425531915
+                },
+                "mAP_standard_with_null_verb": 0.8505257682489868,
+                "mAP_present_only_with_null_verb": 0.5675033402129861,
+                "mAP_freq_weighted_with_null_verb": 0.8429977820233758,
+                "mAP_sample_wise_with_null_verb": 0.8596656412339877,
+                "mAP_standard_all_actions": 0.8505257682489868,
+                "mAP_present_only_all_actions": 0.5675033402129861,
+                "mAP_freq_weighted_all_actions": 0.8429977820233758,
+                "mAP_sample_wise_all_actions": 0.8596656412339877,
+                "exact_match_with_null_verb": 0.506578947368421,
+                "hamming_accuracy_with_null_verb": 0.9929276315789474,
+                "precision_with_null_verb": 0.912542227417324,
+                "recall_with_null_verb": 0.8468967440003865,
+                "f1_with_null_verb": 0.8767825887849064,
+                "num_predictions": 1824,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "23",
+                "action_sparsity_with_null_verb": 0.77,
+                "task": "single_step_action_prediction",
+                "method_name": "AutoregressiveIL",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.8870992782023392,
+                "mAP_present_only": 0.6193666075509946,
+                "mAP_freq_weighted": 0.864133688871406,
+                "exact_match": 0.5279605263157895,
+                "hamming_accuracy": 0.9932635778275476,
+                "precision": 0.9209000793675668,
+                "recall": 0.8575699281934416,
+                "f1": 0.886566382335627,
+                "num_actions_total": 94,
+                "num_actions_present": "20",
+                "action_sparsity": 0.7872340425531915
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": true
+            }
+          },
+          "planning_evaluation": {
+            "AutoregressiveIL": {}
+          },
+          "summary": {
+            "primary_comparison": {
+              "AutoregressiveIL": {
+                "mAP": 0.6193666075509946,
+                "exact_match": 0.5279605263157895,
+                "task": "single_step_action_prediction"
+              }
+            },
+            "secondary_analysis": {},
+            "overall_ranking": {},
+            "paradigm_insights": {
+              "fair_comparison_task": "single_step_action_prediction",
+              "planning_analysis": "shows_method_specific_strengths",
+              "evaluation_approach": "respects_training_paradigms"
+            }
+          },
+          "fairness_report": {
+            "evaluation_design": {
+              "primary_evaluation": "single_step_fair_comparison",
+              "secondary_evaluation": "method_specific_planning_analysis",
+              "data_handling": "uses_dataloader_batches_like_training",
+              "temporal_structure": "maintained_for_il_model",
+              "ground_truth_leakage": "eliminated"
+            },
+            "method_fairness": {
+              "AutoregressiveIL": "evaluated_with_proper_temporal_sequences",
+              "WorldModelRL": "evaluated_with_consistent_batch_approach",
+              "DirectVideoRL": "evaluated_with_consistent_batch_approach"
+            },
+            "data_integrity": {
+              "temporal_context": "preserved_for_models_that_need_it",
+              "batch_structure": "mirrors_training_approach",
+              "evaluation_consistency": "matches_model_training_interface"
+            },
+            "comparison_validity": {
+              "single_step_comparison": "valid_and_fair_with_proper_data_handling",
+              "planning_comparison": "method_specific_respecting_capabilities",
+              "overall_approach": "methodologically_sound_and_consistent_with_training"
+            }
+          }
+        },
+        "VID79": {
+          "video_id": "VID79",
+          "evaluation_type": "comprehensive_fair_evaluation_with_proper_batches",
+          "single_step_evaluation": {
+            "AutoregressiveIL": {
+              "metrics": {
+                "mAP": 0.3940519430992508,
+                "mAP_info": {
+                  "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                  "excluded_classes": 6,
+                  "subset_size": 94,
+                  "present_actions_in_subset": "31",
+                  "subset_action_sparsity": 0.6702127659574468
+                },
+                "mAP_standard_with_null_verb": 0.7441330977827875,
+                "mAP_present_only_with_null_verb": 0.37259193828552095,
+                "mAP_freq_weighted_with_null_verb": 0.7818074581789812,
+                "mAP_sample_wise_with_null_verb": 0.789822778295273,
+                "mAP_standard_all_actions": 0.7441330977827875,
+                "mAP_present_only_all_actions": 0.37259193828552095,
+                "mAP_freq_weighted_all_actions": 0.7818074581789812,
+                "mAP_sample_wise_all_actions": 0.789822778295273,
+                "exact_match_with_null_verb": 0.434680726420621,
+                "hamming_accuracy_with_null_verb": 0.9904012888107792,
+                "precision_with_null_verb": 0.874052323022936,
+                "recall_with_null_verb": 0.8120688286599567,
+                "f1_with_null_verb": 0.8401513186827245,
+                "num_predictions": 3414,
+                "num_actions_total_with_null_verb": 100,
+                "num_actions_present_with_null_verb": "36",
+                "action_sparsity_with_null_verb": 0.64,
+                "task": "single_step_action_prediction",
+                "method_name": "AutoregressiveIL",
+                "exclude_last_n": 6,
+                "mAP_standard": 0.7682511727242209,
+                "mAP_present_only": 0.3940519430992508,
+                "mAP_freq_weighted": 0.8103920903706449,
+                "exact_match": 0.47656707674282367,
+                "hamming_accuracy": 0.9911565643345922,
+                "precision": 0.8909461347190013,
+                "recall": 0.8222543653435108,
+                "f1": 0.8531654486449811,
+                "num_actions_total": 94,
+                "num_actions_present": "31",
+                "action_sparsity": 0.6702127659574468
+              },
+              "evaluation_type": "next_action_prediction",
+              "used_temporal_context": true
+            }
+          },
+          "planning_evaluation": {
+            "AutoregressiveIL": {}
+          },
+          "summary": {
+            "primary_comparison": {
+              "AutoregressiveIL": {
+                "mAP": 0.3940519430992508,
+                "exact_match": 0.47656707674282367,
+                "task": "single_step_action_prediction"
+              }
+            },
+            "secondary_analysis": {},
+            "overall_ranking": {},
+            "paradigm_insights": {
+              "fair_comparison_task": "single_step_action_prediction",
+              "planning_analysis": "shows_method_specific_strengths",
+              "evaluation_approach": "respects_training_paradigms"
+            }
+          },
+          "fairness_report": {
+            "evaluation_design": {
+              "primary_evaluation": "single_step_fair_comparison",
+              "secondary_evaluation": "method_specific_planning_analysis",
+              "data_handling": "uses_dataloader_batches_like_training",
+              "temporal_structure": "maintained_for_il_model",
+              "ground_truth_leakage": "eliminated"
+            },
+            "method_fairness": {
+              "AutoregressiveIL": "evaluated_with_proper_temporal_sequences",
+              "WorldModelRL": "evaluated_with_consistent_batch_approach",
+              "DirectVideoRL": "evaluated_with_consistent_batch_approach"
+            },
+            "data_integrity": {
+              "temporal_context": "preserved_for_models_that_need_it",
+              "batch_structure": "mirrors_training_approach",
+              "evaluation_consistency": "matches_model_training_interface"
+            },
+            "comparison_validity": {
+              "single_step_comparison": "valid_and_fair_with_proper_data_handling",
+              "planning_comparison": "method_specific_respecting_capabilities",
+              "overall_approach": "methodologically_sound_and_consistent_with_training"
+            }
+          }
+        }
+      },
+      "aggregate_results": {
+        "single_step_comparison": {
+          "AutoregressiveIL": {
+            "mean_mAP": 0.492277875159258,
+            "std_mAP": 0.09842493382945731,
+            "mean_exact_match": 0.4738467544994209,
+            "std_exact_match": 0.037112557779976574,
+            "num_videos": 10,
+            "evaluation_type": "single_step_fair_comparison"
+          }
+        },
+        "planning_analysis": {},
+        "method_rankings": {
+          "single_step_ranking": [
+            [
+              "AutoregressiveIL",
+              0.492277875159258
+            ]
+          ],
+          "planning_ranking": []
+        }
+      },
+      "statistical_tests": {},
+      "evaluation_design": {
+        "data_handling": "uses_dataloader_batches_like_training",
+        "temporal_structure": "maintained_properly",
+        "model_interfaces": "consistent_with_training",
+        "primary_evaluation": "single_step_action_prediction_with_proper_context",
+        "secondary_evaluation": "multi_step_planning_analysis",
+        "fairness_approach": "respects_training_paradigms_and_data_structure"
+      },
+      "timestamp": "2025-06-25 12:24:59.801019"
+    },
+    "file_paths": {
+      "evaluation": "results/2025-06-25_12-13-55/fold0/integrated_evaluation/evaluation_results.json",
+      "fair_comparison": "results/2025-06-25_12-13-55/fold0/integrated_evaluation/fair_single_step_comparison.csv",
+      "planning_analysis": "results/2025-06-25_12-13-55/fold0/integrated_evaluation/planning_capability_analysis.csv"
+    }
+  },
+  "generated_plots": {
+    "per_video_performance": "results/2025-06-25_12-13-55/fold0/publication_plots/per_video_performance_analysis.png",
+    "performance_dashboard": "results/2025-06-25_12-13-55/fold0/publication_plots/performance_dashboard.png"
+  }
+}

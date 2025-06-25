@@ -36,6 +36,10 @@ from environment.direct_video_env import DirectVideoSB3Trainer, test_direct_vide
 # Import evaluation framework
 from evaluation.integrated_evaluation import run_integrated_evaluation
 from evaluation.paper_generator import generate_research_paper
+from evaluation.publication_plots import create_publication_plots
+
+
+# Import logger for logging
 from utils.logger import SimpleLogger
 
 # UPDATED: Import debugging tools
@@ -71,7 +75,10 @@ class ExperimentRunner:
         self.experiment_name = f"{timestamp}"
         self.results_dir = Path("results") / self.experiment_name / f"fold{self.config['data']['paths']['fold']}"
         self.results_dir.mkdir(parents=True, exist_ok=True)
-        
+
+        self.plots_dir = self.results_dir / "publication_plots"
+        self.plots_dir.mkdir(parents=True, exist_ok=True)
+
         # Initialize logger
         self.logger = SimpleLogger(
             log_dir=str(self.results_dir),
@@ -89,7 +96,8 @@ class ExperimentRunner:
         
         self.logger.info(f"🎯 RL Experiment: {self.experiment_name}")
         self.logger.info(f"📁 Results dir: {self.results_dir}")
-    
+        self.logger.info(f"📂 Plots dir: {self.plots_dir}")
+
     def run_complete_comparison(self) -> Dict[str, Any]:
         """Run the complete three-method comparison with RL."""
         
@@ -137,7 +145,15 @@ class ExperimentRunner:
             horizon=self.config['evaluation']['prediction_horizon']
         )
         self.results['comprehensive_evaluation'] = evaluation_results
-        
+
+        self.logger.info("📊 Generating publication-quality plots...")
+        plot_paths = create_publication_plots(
+            experiment_results=self.results,
+            output_dir=str(self.plots_dir),
+            logger=self.logger
+        )
+        self.results['generated_plots'] = plot_paths
+
         # Analysis and comparison
         self.logger.info("🏆 Analyzing Results and Architectural Insights")
         self._print_method_comparison(self.results)
@@ -233,6 +249,8 @@ class ExperimentRunner:
                 batch_size=self.config['training']['batch_size'],
                 num_workers=self.config['training']['num_workers']
             )
+
+            self.test_loaders = test_loaders  # Store test loaders for evaluation
             
             # Create trainer
             trainer = AutoregressiveILTrainer(
@@ -515,7 +533,15 @@ class ExperimentRunner:
             self.logger.info(f"   Approach: Pure causal generation → actions")
         else:
             self.logger.info(f"🎓 Method 1: ❌ Failed - {method1.get('error', 'Unknown')}")
+
+        generated_plots = aggregate_results.get('generated_plots', {})
+        if generated_plots:
+            self.logger.info(f"")
+            self.logger.info(f"📊 PUBLICATION PLOTS GENERATED:")
+            for plot_type, plot_path in generated_plots.items():
+                self.logger.info(f"   📈 {plot_type}: {plot_path}")
         
+
         # Method 2 results 
         method2 = aggregate_results.get('method_2_conditional_world_model', {})
         if method2.get('status') == 'success':
@@ -630,7 +656,11 @@ class ExperimentRunner:
         self.logger.info(f"💾 All RL results saved to: {self.results_dir}")
         self.logger.info(f"📄 Complete results: {results_path}")
         self.logger.info(f"📄 Summary: {summary_path}")
-    
+
+        generated_plots = self.results.get('generated_plots', {})
+        if generated_plots:
+            self.logger.info(f"📊 Publication plots: {self.plots_dir}")
+
     def _create_evaluation_summary(self, results: Dict) -> Dict:
         """Create evaluation summary focusing on RL improvements."""
         
@@ -754,10 +784,16 @@ def main():
         print("\n🎉  RL EXPERIMENT COMPLETED SUCCESSFULLY!")
         print("=" * 50)
         print(f"📁 Results saved to: {experiment.results_dir}")
-        print(f"📊 Methods compared: 3")
-        print(f"🎯 Focus:  RL with expert demonstration matching")
-        print(f"🔧 All RL issues resolved!")
-        print(f"📈 Expected: Positive rewards and learning progress")
+        generated_plots = results.get('generated_plots', {})
+        
+        if generated_plots:
+            print(f"📊 Publication plots generated:")
+            for plot_type, plot_path in generated_plots.items():
+                print(f"   📈 {plot_type}: {plot_path}")
+        else:
+            print(f"⚠️ No plots generated (check for errors)")
+        
+        print(f"🎯 Ready for publication!")
         
     except Exception as e:
         print(f"\n❌  RL EXPERIMENT FAILED: {e}")
