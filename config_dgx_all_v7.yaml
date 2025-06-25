@@ -3,9 +3,9 @@ debug: false
 experiment:
   # max_videos: 50  # Deprecated, use train/test specific
   train:
-    max_videos: 2  # default is 40
+    max_videos: 40  # default: 40
   test:
-    max_videos: 2  # default is 10
+    max_videos: 10  # default: 10
     test_on_train: false
     
   # Imitation Learning
@@ -30,7 +30,7 @@ experiment:
 
 # Training parameters
 training:
-  epochs: 2  # INCREASED for better convergence
+  epochs: 4  # INCREASED for better convergence
   batch_size: 16  # OPTIMIZED batch size
   learning_rate: 0.00003 # 0.0001
   log_every_n_steps: 50
@@ -128,8 +128,8 @@ data:
   max_horizon: 15
   
   paths:
-    data_dir: "/home/maxboels/datasets/CholecT50"
-    # data_dir: "/nfs/home/mboels/datasets/CholecT50"
+    # data_dir: "/home/maxboels/datasets/CholecT50"
+    data_dir: "/nfs/home/mboels/datasets/CholecT50"
     class_labels_file_path: "./data/labels.json"
     # Folds: 0, 1, 2, 3, 4
     fold: 0
