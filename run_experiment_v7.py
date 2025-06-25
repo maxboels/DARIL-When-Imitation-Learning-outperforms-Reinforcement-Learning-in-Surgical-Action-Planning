@@ -529,7 +529,6 @@ class ExperimentRunner:
             self.logger.info(f"🎓 Method 1 (Autoregressive IL):")
             self.logger.info(f"   Status: ✅ Success")
             self.logger.info(f"   Action mAP: {eval_results.get('action_mAP', 0):.4f}")
-            self.logger.info(f"   Exact Match: {eval_results.get('action_exact_match', 0):.4f}")
             self.logger.info(f"   Approach: Pure causal generation → actions")
         else:
             self.logger.info(f"🎓 Method 1: ❌ Failed - {method1.get('error', 'Unknown')}")

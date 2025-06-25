@@ -108,9 +108,6 @@ class AutoregressivePlanningEvaluator:
                 try:
                     # For recognition (current state) - slice sequence dimension 
                     input_frames = batch['target_next_frames'][:, :-1].to(self.device)  # [batch_size, context_length, embedding_dim]
-                    
-                    # Get batch data
-                    input_frames = batch['input_frames'].to(self.device)  # [batch, seq, dim]
                     target_actions = batch['target_future_actions'].to(self.device)  # [batch, seq, actions]
                     
                     batch_size, seq_len, _ = input_frames.shape
