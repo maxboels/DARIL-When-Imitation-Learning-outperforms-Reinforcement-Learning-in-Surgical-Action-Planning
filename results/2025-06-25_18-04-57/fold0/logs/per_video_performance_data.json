@@ -1,0 +1,117 @@
+{
+  "video_performance_history": {
+    "VID02": [
+      {
+        "epoch": 0,
+        "mAP": 0.2852068763270967,
+        "exact_match": 0.38076787601268053
+      },
+      {
+        "epoch": 1,
+        "mAP": 0.3240231142967129,
+        "exact_match": 0.3955618175413878
+      }
+    ],
+    "VID06": [
+      {
+        "epoch": 0,
+        "mAP": 0.24944036218452578,
+        "exact_match": 0.30004644681839293
+      },
+      {
+        "epoch": 1,
+        "mAP": 0.3147151835841034,
+        "exact_match": 0.32187645146307475
+      }
+    ]
+  },
+  "final_video_metrics": {
+    "VID02": {
+      "mAP": 0.3240231142967129,
+      "mAP_info": {
+        "calculated_from": "subset_excluding_last_classes_present_actions_only",
+        "excluded_classes": 6,
+        "subset_size": 94,
+        "present_actions_in_subset": "28",
+        "subset_action_sparsity": 0.7021276595744681
+      },
+      "mAP_standard_with_null_verb": 0.7355048327802328,
+      "mAP_present_only_with_null_verb": 0.28089656700068477,
+      "mAP_freq_weighted_with_null_verb": 0.6262560672122944,
+      "mAP_sample_wise_with_null_verb": 0.6263257095658568,
+      "mAP_standard_all_actions": 0.7355048327802328,
+      "mAP_present_only_all_actions": 0.28089656700068477,
+      "mAP_freq_weighted_all_actions": 0.6262560672122944,
+      "mAP_sample_wise_all_actions": 0.6263257095658568,
+      "exact_match_with_null_verb": 0.3603381472349419,
+      "hamming_accuracy_with_null_verb": 0.9887530820711519,
+      "precision_with_null_verb": 0.8181513000680498,
+      "recall_with_null_verb": 0.7398888522342788,
+      "f1_with_null_verb": 0.7733336286796182,
+      "num_predictions": 2839,
+      "num_actions_total_with_null_verb": 100,
+      "num_actions_present_with_null_verb": "34",
+      "action_sparsity_with_null_verb": 0.6599999999999999,
+      "task": "single_step_action_prediction",
+      "method_name": "AutoregressiveIL_video_VID02_epoch_1",
+      "exclude_last_n": 6,
+      "mAP_standard": 0.7773685872373188,
+      "mAP_present_only": 0.3240231142967129,
+      "mAP_freq_weighted": 0.6573314161170856,
+      "exact_match": 0.3955618175413878,
+      "hamming_accuracy": 0.9890094654245951,
+      "precision": 0.8210119710768518,
+      "recall": 0.7537231685399379,
+      "f1": 0.7832851810129446,
+      "num_actions_total": 94,
+      "num_actions_present": "28",
+      "action_sparsity": 0.7021276595744681
+    },
+    "VID06": {
+      "mAP": 0.3147151835841034,
+      "mAP_info": {
+        "calculated_from": "subset_excluding_last_classes_present_actions_only",
+        "excluded_classes": 6,
+        "subset_size": 94,
+        "present_actions_in_subset": "26",
+        "subset_action_sparsity": 0.7234042553191489
+      },
+      "mAP_standard_with_null_verb": 0.78660706710918,
+      "mAP_present_only_with_null_verb": 0.28869022369726705,
+      "mAP_freq_weighted_with_null_verb": 0.6512447569141718,
+      "mAP_sample_wise_with_null_verb": 0.7281993520413419,
+      "mAP_standard_all_actions": 0.78660706710918,
+      "mAP_present_only_all_actions": 0.28869022369726705,
+      "mAP_freq_weighted_all_actions": 0.6512447569141718,
+      "mAP_sample_wise_all_actions": 0.7281993520413419,
+      "exact_match_with_null_verb": 0.2712494194147701,
+      "hamming_accuracy_with_null_verb": 0.9878959591267998,
+      "precision_with_null_verb": 0.8398411547459523,
+      "recall_with_null_verb": 0.7769089949542399,
+      "f1_with_null_verb": 0.8050256563478667,
+      "num_predictions": 2153,
+      "num_actions_total_with_null_verb": 100,
+      "num_actions_present_with_null_verb": "30",
+      "action_sparsity_with_null_verb": 0.7,
+      "task": "single_step_action_prediction",
+      "method_name": "AutoregressiveIL_video_VID06_epoch_1",
+      "exclude_last_n": 6,
+      "mAP_standard": 0.8104531358849647,
+      "mAP_present_only": 0.3147151835841034,
+      "mAP_freq_weighted": 0.6850127366003094,
+      "exact_match": 0.32187645146307475,
+      "hamming_accuracy": 0.9884920595705151,
+      "precision": 0.8407423507731315,
+      "recall": 0.7983157980579412,
+      "f1": 0.8180598819621434,
+      "num_actions_total": 94,
+      "num_actions_present": "26",
+      "action_sparsity": 0.7234042553191489
+    }
+  },
+  "training_summary": {
+    "epochs": 2,
+    "final_mAP": 0.31936914894040813,
+    "best_mAP": 0.31936914894040813
+  }
+}

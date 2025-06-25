@@ -249,23 +249,23 @@ class AutoregressiveILTrainer:
         with tqdm(train_loader, desc=f"Training Epoch {epoch+1}") as pbar:
             for batch_idx, batch in enumerate(pbar):
                 
-                # For recognition (current state) - slice sequence dimension 
-                input_frames = batch['target_next_frames'][:, :-1].to(self.device)  # [batch_size, context_length, embedding_dim]
-                current_actions = batch['target_next_actions'][:, :-1].to(self.device)  # [batch_size, context_length, num_actions]  
-                current_phases = batch['target_next_phases'][:, :-1].to(self.device)    # [batch_size, context_length]
+                # For recognition (current state)
+                input_frames = batch['target_next_frames'][:-1].to(self.device)  # Exclude last frame for current state
+                current_actions = batch['target_actions'][:-1].to(self.device)  # Exclude last action for current state
+                current_phases = batch['target_phases'][:-1].to(self.device)  # Exclude last phase for current state
 
-                # For next frame prediction - slice sequence dimension
-                next_frames = batch['target_next_frames'][:, 1:].to(self.device)    # [batch_size, context_length, embedding_dim]
-                next_actions = batch['target_next_actions'][:, 1:].to(self.device)  # [batch_size, context_length, num_actions]
-                next_phases = batch['target_next_phases'][:, 1:].to(self.device)    # [batch_size, context_length]
-
+                # For next frame prediction
+                next_frames = batch['target_next_frames'][1:].to(self.device)  # Exclude first frame for next prediction
+                next_actions = batch['target_actions'][1:].to(self.device)  # Exclude first action for next prediction
+                next_phases = batch['target_phases'][1:].to(self.device)  # Exclude first phase for next prediction
+                
                 # Forward pass (no action conditioning!)
                 outputs = self.model(
                     frame_embeddings=input_frames,
                     target_next_frames=next_frames,
                     target_current_actions=current_actions,  # Use current actions for recognition
                     target_actions=next_actions,  # Use next actions for prediction
-                    target_phases=next_phases  # Use next phases for prediction (integers, not one-hot)
+                    target_phases=next_phases  # Use next phases for prediction
                 )
                 
                 loss = outputs['total_loss']
@@ -290,7 +290,6 @@ class AutoregressiveILTrainer:
                     'loss': f"{loss.item():.4f}",
                     'frame': f"{outputs.get('frame_loss', 0):.4f}",
                     'action': f"{outputs.get('action_loss', 0):.4f}"
-                    # 'action_rec_loss': f"{outputs.get('action_rec_loss', 0):.4f}",
                 })
                 
                 # Log to tensorboard
@@ -309,7 +308,7 @@ class AutoregressiveILTrainer:
     
     def _validate_epoch_per_video(self, test_loaders: Dict[str, DataLoader], epoch: int) -> Dict[str, float]:
         """
-        🔧 FIXED: Per-video validation with correct variable naming.
+        🔧 FIXED: Per-video validation with single-pass efficiency.
         
         Process:
         1. For each video: compute metrics individually
@@ -335,26 +334,26 @@ class AutoregressiveILTrainer:
             for video_id, test_loader in test_loaders.items():
                 
                 # Per-video collections
-                # Current frame recognition
+                # Current frame
                 video_actions_recognition = []
-                video_actions_targets_curr = []
-                # Next frame prediction
+                video_actions_targets = []
+                # Next frame
                 video_predictions = []
                 video_targets = []
                 video_losses = defaultdict(float)
                 num_batches = len(test_loader)
                 
-                for batch in tqdm(test_loader, desc=f"Validating {video_id}", leave=True):
+                for batch in tqdm(test_loader, desc=f"Validating {video_id}", leave=False):
 
-                    # For recognition (current state) - slice sequence dimension 
-                    input_frames = batch['target_next_frames'][:, :-1].to(self.device)  # [batch_size, context_length, embedding_dim]
-                    current_actions = batch['target_next_actions'][:, :-1].to(self.device)  # [batch_size, context_length, num_actions]  
-                    current_phases = batch['target_next_phases'][:, :-1].to(self.device)    # [batch_size, context_length]
+                    # For recognition (current state)
+                    input_frames = batch['target_next_frames'][:-1].to(self.device)  # Exclude last frame for current state
+                    current_actions = batch['target_actions'][:-1].to(self.device)  # Exclude last action for current state
+                    current_phases = batch['target_phases'][:-1].to(self.device)  # Exclude last phase for current state
 
-                    # For next frame prediction - slice sequence dimension
-                    next_frames = batch['target_next_frames'][:, 1:].to(self.device)    # [batch_size, context_length, embedding_dim]
-                    next_actions = batch['target_next_actions'][:, 1:].to(self.device)  # [batch_size, context_length, num_actions]
-                    next_phases = batch['target_next_phases'][:, 1:].to(self.device)    # [batch_size, context_length]
+                    # For next frame prediction
+                    next_frames = batch['target_next_frames'][1:].to(self.device)  # Exclude first frame for next prediction
+                    next_actions = batch['target_actions'][1:].to(self.device)  # Exclude first action for next prediction
+                    next_phases = batch['target_phases'][1:].to(self.device)  # Exclude first phase for next prediction
                     
                     # Forward pass (no action conditioning!)
                     outputs = self.model(
@@ -371,52 +370,46 @@ class AutoregressiveILTrainer:
                             video_losses[key] += value.item()
                     
                     # Current action recognition
-                    # FIXED: Get action recognition predictions properly
-                    if 'action_rec_probs' in outputs:
-                        action_rec_probs = outputs['action_rec_probs']
-                        
-                        # Collect action recognition predictions
-                        video_actions_recognition.append(action_rec_probs.cpu().numpy())
-                        video_actions_targets_curr.append(current_actions.cpu().numpy())
 
-                        # Handle sequence dimension for IVT metrics
-                        if action_rec_probs.ndim == 3:  # [batch, seq_len, num_actions]
-                            action_rec_probs_flat = action_rec_probs[:, -1, :].cpu().numpy()  # Current timestep
-                            target_current_actions_flat = current_actions[:, -1, :].cpu().numpy()
-                        else:
-                            action_rec_probs_flat = action_rec_probs.cpu().numpy()
-                            target_current_actions_flat = current_actions.cpu().numpy()
+                    # Collect action recognition predictions
+                    # action_rec_probs = outputs['action_rec_probs']
+                    # video_actions_recognition.append(action_rec_probs.cpu().numpy())
+                    # video_actions_targets.append(current_actions.cpu().numpy())
 
-                        # Convert targets to int (ivtmetrics expects binary labels)
-                        target_current_actions_int = (target_current_actions_flat > 0.5).astype(int)
+                    action_rec_probs_flat = action_rec_probs[:, -1, :].cpu().numpy()  # Current timestep
+                    target_current_actions_flat = current_actions[:, -1, :].cpu().numpy()
 
-                        # Update IVT recognizer for current actions (standard protocol)
-                        if ivt_rec_curr is not None:
-                            ivt_rec_curr.update(target_current_actions_int, action_rec_probs_flat)
+                    # Convert targets to int (ivtmetrics expects binary labels)
+                    target_current_actions_int = (target_current_actions_flat > 0.5).astype(int)
+
+                    # Update IVT recognizer (standard protocol)
+                    if ivt_rec_curr is not None:
+                        ivt_rec_curr.update(target_current_actions_int, action_rec_probs_flat)
                     
                     # Next actions predictions
-                    # FIXED: Use correct variable name 'next_actions'
+
                     # Collect next action predictions for this video
                     action_probs = outputs['action_pred']  # [batch, seq_len, num_actions]
                     video_predictions.append(action_probs.cpu().numpy())
-                    video_targets.append(next_actions.cpu().numpy())  # FIXED: next_actions instead of target_actions
+                    video_targets.append(target_actions.cpu().numpy())
 
                     if ivt_rec_next is not None:
                         # Handle sequence dimension
                         if action_probs.ndim == 3:  # [batch, seq_len, num_actions]
                             action_probs_flat = action_probs[:, -1, :].cpu().numpy()  # Last timestep
-                            next_actions_flat = next_actions[:, -1, :].cpu().numpy()  # FIXED: next_actions
+                            target_actions_flat = target_actions[:, -1, :].cpu().numpy()
                         else:
                             action_probs_flat = action_probs.cpu().numpy()
-                            next_actions_flat = next_actions.cpu().numpy()  # FIXED: next_actions
+                            target_actions_flat = target_actions.cpu().numpy()
                         
                         # Convert targets to int (ivtmetrics expects binary labels)
-                        next_actions_int = (next_actions_flat > 0.5).astype(int)  # FIXED: next_actions
+                        target_actions_int = (target_actions_flat > 0.5).astype(int)
                         
                         # Update IVT recognizer (standard protocol)
-                        ivt_rec_next.update(next_actions_int, action_probs_flat)
+                        ivt_rec_next.update(target_actions_int, action_probs_flat)
             
                 # ADD THIS: Signal end of video to IVT (CRITICAL for standard protocol)
+
                 if ivt_rec_curr is not None:
                     ivt_rec_curr.video_end()
 
@@ -461,60 +454,61 @@ class AutoregressiveILTrainer:
                 # Store this video's loss metrics
                 video_loss_metrics[video_id] = dict(video_losses)
 
-            # IVT metrics computation
-            final_metrics = {}
-            ivt_metrics = {}
+                # IVT metrics computation
+                final_metrics = {}
+                ivt_metrics = {}
 
-            if ivt_rec_curr is not None:
-                try:
-                    # Standard IVT video-wise mAP (main metric for publication)
-                    ivt_result = ivt_rec_curr.compute_video_AP("ivt")
-                    ivt_metrics['ivt_rec_mAP'] = ivt_result["mAP"]
+                if ivt_rec_curr is not None:
+                    try:
+                        # Standard IVT video-wise mAP (main metric for publication)
+                        ivt_result = ivt_rec_curr.compute_video_AP("ivt")
+                        ivt_metrics['ivt_rec_mAP'] = ivt_result["mAP"]
 
-                    # Optional: Get component-wise results
-                    for component in ['i', 'v', 't', 'iv', 'it']:
-                        try:
-                            comp_result = ivt_rec_curr.compute_video_AP(component)
-                            ivt_metrics[f'ivt_rec_{component}_mAP'] = comp_result["mAP"]
-                        except:
-                            ivt_metrics[f'ivt_rec_{component}_mAP'] = 0.0
-                except Exception as e:
-                    self.logger.error(f"Error computing IVT metrics for current actions: {e}")
-                    ivt_metrics['ivt_rec_mAP'] = 0.0
+                        # Optional: Get component-wise results
+                        for component in ['i', 'v', 't', 'iv', 'it']:
+                            try:
+                                comp_result = ivt_rec_curr.compute_video_AP(component)
+                                ivt_metrics[f'ivt_rec_{component}_mAP'] = comp_result["mAP"]
+                            except:
+                                ivt_metrics[f'ivt_rec_{component}_mAP'] = 0.0
+                    except Exception as e:
+                        self.logger.error(f"Error computing IVT metrics for current video: {e}")
+                        ivt_metrics['ivt_rec_mAP'] = 0.0
 
-            if ivt_rec_next is not None:
-                try:
-                    # Standard IVT video-wise mAP (main metric for publication)
-                    ivt_result = ivt_rec_next.compute_video_AP("ivt")
-                    ivt_metrics['ivt_mAP'] = ivt_result["mAP"]
+                if ivt_rec_next is not None:
+                    try:
+                        # Standard IVT video-wise mAP (main metric for publication)
+                        ivt_result = ivt_rec_next.compute_video_AP("ivt")
+                        ivt_metrics['ivt_mAP'] = ivt_result["mAP"]
+                        
+                        # Optional: Get component-wise results
+                        for component in ['i', 'v', 't', 'iv', 'it']:
+                            try:
+                                comp_result = ivt_rec_next.compute_video_AP(component)
+                                ivt_metrics[f'ivt_{component}_mAP'] = comp_result["mAP"]
+                            except:
+                                ivt_metrics[f'ivt_{component}_mAP'] = 0.0
                     
-                    # Optional: Get component-wise results
-                    for component in ['i', 'v', 't', 'iv', 'it']:
-                        try:
-                            comp_result = ivt_rec_next.compute_video_AP(component)
-                            ivt_metrics[f'ivt_{component}_mAP'] = comp_result["mAP"]
-                        except:
-                            ivt_metrics[f'ivt_{component}_mAP'] = 0.0
+                    except Exception as e:
+                        self.logger.error(f"Error computing IVT metrics: {e}")
+                        final_metrics['ivt_mAP'] = 0.0
+                else:
+                    final_metrics['ivt_mAP'] = 0.0
                 
-                except Exception as e:
-                    self.logger.error(f"Error computing IVT metrics for next actions: {e}")
-                    ivt_metrics['ivt_mAP'] = 0.0
-            else:
-                ivt_metrics['ivt_mAP'] = 0.0
-            
-            final_metrics.update(ivt_metrics)
+                final_metrics.update(ivt_metrics)
 
-            next_map = final_metrics.get('action_mAP', 0.0)
-            ivt_map = final_metrics.get('ivt_mAP', 0.0)
-            final_metrics['ivt_vs_current_diff'] = abs(next_map - ivt_map)
-            final_metrics['evaluation_consistent'] = final_metrics['ivt_vs_current_diff'] < 0.02
+                next_map = final_metrics.get('action_mAP', 0.0)
+                ivt_map = final_metrics.get('ivt_mAP', 0.0)
+                final_metrics['ivt_vs_current_diff'] = abs(next_map - ivt_map)
+                final_metrics['evaluation_consistent'] = final_metrics['ivt_vs_current_diff'] < 0.02
 
-            self.logger.info(
-                f"✅ Video {video_id} validation: "
-                f"   Loss: {video_losses.get('total_loss', 0):.4f}, "
-                f"   IVT current mAP: {final_metrics.get('ivt_rec_mAP', 0):.4f}, "
-                f"   IVT next mAP: {final_metrics.get('ivt_mAP', 0):.4f}, "
-            )
+                self.logger.info(
+                    f"✅ Video {video_id} validation: "
+                    f"   Loss: {video_losses.get('total_loss', 0):.4f}, "
+                    f"   Action next mAP: {video_action_metrics.get(video_id, {}).get('mAP', 0):.4f}, "
+                    f"   IVT next mAP: {final_metrics.get('ivt_mAP', 0):.4f}, "
+                    f"   IVT current mAP: {final_metrics.get('ivt_rec_mAP', 0):.4f}, "
+                )
 
         # 🎯 AGGREGATE: Average metrics across all videos
         aggregated_loss_metrics = {}
@@ -590,24 +584,25 @@ class AutoregressiveILTrainer:
         ivt_map = final_metrics.get('ivt_mAP', 0.0)
         
         self.logger.info(f"📊 Validation Summary (averaged across {num_videos} videos):")
-        # self.logger.info(f"   🎯 Current System mAP:     {next_map:.4f} ± {map_std:.4f}")
-        self.logger.info(f"   📊 IVT mAP:                {ivt_map:.4f}")
+        self.logger.info(f"   🎯 Current System mAP:     {next_map:.4f} ± {map_std:.4f}")
+        self.logger.info(f"   📊 IVT Standard mAP:       {ivt_map:.4f}")
+        self.logger.info(f"   🏆 Publication Metric:     {ivt_map:.4f} (IVT mAP)")
         self.logger.info(f"   📋 Actions evaluated:      {final_metrics.get('num_actions_present', 0):.0f} surgical actions")
         self.logger.info(f"   🔄 Total Loss:             {final_metrics.get('total_loss', 0):.4f}")
 
         # Log IVT component-wise metrics
         for comp in ['i', 'v', 't', 'iv', 'it']:
             comp_map = final_metrics.get(f'ivt_{comp}_mAP', 0.0)
-            self.logger.info(f"   📊 IVT next {comp.upper()} mAP:     {comp_map:.4f}")
+            self.logger.info(f"   📊 IVT {comp.upper()} mAP:     {comp_map:.4f}")
         
         # Add the current recognition task mAP
         if ivt_rec_curr is not None:
             curr_ivt_map = final_metrics.get('ivt_rec_mAP', 0.0)
-            self.logger.info(f"   📊 IVT current mAP:         {curr_ivt_map:.4f}")
+            self.logger.info(f"   📊 IVT Current mAP:         {curr_ivt_map:.4f}")
         
         for comp in ['i', 'v', 't', 'iv', 'it']:
             comp_map = final_metrics.get(f'ivt_rec_{comp}_mAP', 0.0)
-            self.logger.info(f"   📊 IVT current {comp.upper()} mAP: {comp_map:.4f}")
+            self.logger.info(f"   📊 IVT Current {comp.upper()} mAP: {comp_map:.4f}")
 
         
         # Store detailed per-video results for analysis

@@ -1,0 +1,14 @@
+{
+    "VID02": {
+        "AutoregressiveIL": {
+            "mAP": 0.24822976369628708,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID06": {
+        "AutoregressiveIL": {
+            "mAP": 0.23971396673113773,
+            "evaluation_type": "next_action_prediction"
+        }
+    }
+}

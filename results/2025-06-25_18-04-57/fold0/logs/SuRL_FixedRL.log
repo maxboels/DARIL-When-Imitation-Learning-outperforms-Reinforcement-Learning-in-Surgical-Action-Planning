@@ -1,0 +1,1176 @@
+2025-06-25 18:04:57,817 - INFO - SuRL_FixedRL_133259340610112 - Shared experiment log directory: results/2025-06-25_18-04-57/fold0/logs
+2025-06-25 18:04:57,817 - INFO - SuRL_FixedRL_133259340610112 - 🎯 RL Experiment: 2025-06-25_18-04-57
+2025-06-25 18:04:57,817 - INFO - SuRL_FixedRL_133259340610112 - 📁 Results dir: results/2025-06-25_18-04-57/fold0
+2025-06-25 18:04:57,817 - INFO - SuRL_FixedRL_133259340610112 - 📂 Plots dir: results/2025-06-25_18-04-57/fold0/publication_plots
+2025-06-25 18:04:57,817 - INFO - SuRL_FixedRL_133259340610112 - 🚀 Starting Complete RL Comparison
+2025-06-25 18:04:57,817 - INFO - SuRL_FixedRL_133259340610112 - ============================================================
+2025-06-25 18:04:57,817 - INFO - SuRL_FixedRL_133259340610112 - 📂 Loading CholecT50 data...
+2025-06-25 18:04:57,817 - INFO - SuRL_FixedRL_133259340610112 -    Training videos: 2
+2025-06-25 18:04:57,817 - INFO - SuRL_FixedRL_133259340610112 -    Test videos: 2
+2025-06-25 18:04:57,817 - INFO - SuRL_FixedRL_133259340610112 - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-25 18:04:58,214 - INFO - SuRL_FixedRL_133259340610112 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (78968, 156)
+2025-06-25 18:04:58,215 - INFO - SuRL_FixedRL_133259340610112 - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-25 18:04:58,215 - INFO - SuRL_FixedRL_133259340610112 - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-25 18:04:58,217 - INFO - SuRL_FixedRL_133259340610112 - [Train] Found 2 videos in metadata file
+2025-06-25 18:04:58,217 - INFO - SuRL_FixedRL_133259340610112 - [Train] Loading data for 2 videos
+2025-06-25 18:04:58,289 - INFO - SuRL_FixedRL_133259340610112 - ✅ Loaded video VID01: 1734 frames, 1024-dims embeddings
+2025-06-25 18:04:58,353 - INFO - SuRL_FixedRL_133259340610112 - ✅ Loaded video VID04: 1523 frames, 1024-dims embeddings
+2025-06-25 18:04:58,353 - INFO - SuRL_FixedRL_133259340610112 - 📂 Loaded 2 videos from train split
+2025-06-25 18:04:58,355 - INFO - SuRL_FixedRL_133259340610112 - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-25 18:04:58,430 - INFO - SuRL_FixedRL_133259340610112 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (21895, 156)
+2025-06-25 18:04:58,431 - INFO - SuRL_FixedRL_133259340610112 - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-25 18:04:58,431 - INFO - SuRL_FixedRL_133259340610112 - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-25 18:04:58,431 - INFO - SuRL_FixedRL_133259340610112 - [Test] Found 2 videos in metadata file
+2025-06-25 18:04:58,431 - INFO - SuRL_FixedRL_133259340610112 - [Test] Loading data for 2 videos
+2025-06-25 18:04:58,666 - INFO - SuRL_FixedRL_133259340610112 - ✅ Loaded video VID02: 2840 frames, 1024-dims embeddings
+2025-06-25 18:04:58,753 - INFO - SuRL_FixedRL_133259340610112 - ✅ Loaded video VID06: 2154 frames, 1024-dims embeddings
+2025-06-25 18:04:58,753 - INFO - SuRL_FixedRL_133259340610112 - 📂 Loaded 2 videos from test split
+2025-06-25 18:04:58,754 - INFO - SuRL_FixedRL_133259340610112 - ✅ Data loaded successfully
+2025-06-25 18:04:58,754 - INFO - SuRL_FixedRL_133259340610112 -    Training videos: 2
+2025-06-25 18:04:58,754 - INFO - SuRL_FixedRL_133259340610112 -    Test videos: 2
+2025-06-25 18:04:58,754 - INFO - SuRL_FixedRL_133259340610112 - 🎓 Running Method 1: Autoregressive IL
+2025-06-25 18:04:58,754 - INFO - SuRL_FixedRL_133259340610112 - 🎓 Method 1: Autoregressive IL
+2025-06-25 18:04:58,754 - INFO - SuRL_FixedRL_133259340610112 - ----------------------------------------
+2025-06-25 18:04:58,754 - INFO - SuRL_FixedRL_133259340610112 - 🏋️ Training IL model from scratch...
+2025-06-25 18:04:59,483 - INFO - SuRL_FixedRL_133259340610112 - 🎓 Autoregressive IL Trainer initialized (FIXED)
+2025-06-25 18:04:59,483 - INFO - SuRL_FixedRL_133259340610112 -    Device: cuda
+2025-06-25 18:04:59,483 - INFO - SuRL_FixedRL_133259340610112 -    Epochs: 2
+2025-06-25 18:04:59,483 - INFO - SuRL_FixedRL_133259340610112 -    Learning rate: 3e-05
+2025-06-25 18:04:59,483 - INFO - SuRL_FixedRL_133259340610112 -    ✅ Per-video aggregation + shared metrics + efficient validation
+2025-06-25 18:04:59,483 - INFO - SuRL_FixedRL_133259340610112 - 🌟 Training Autoregressive IL model...
+2025-06-25 18:04:59,483 - INFO - SuRL_FixedRL_133259340610112 - 🎓 Starting Autoregressive IL Training...
+2025-06-25 18:04:59,483 - INFO - SuRL_FixedRL_133259340610112 - 🎯 Goal: Learn causal frame generation → action prediction
+2025-06-25 18:04:59,483 - INFO - SuRL_FixedRL_133259340610112 - 📊 Evaluation: Per-video aggregation for robust metrics
+2025-06-25 18:05:31,194 - INFO - SuRL_FixedRL_133259340610112 - ✅ Video VID06 validation:    Loss: 1.3571,    Action next mAP: 0.2494,    IVT next mAP: 0.2065,    IVT current mAP: 0.1408, 
+2025-06-25 18:05:31,195 - INFO - SuRL_FixedRL_133259340610112 - 📊 Validation Summary (averaged across 2 videos):
+2025-06-25 18:05:31,195 - INFO - SuRL_FixedRL_133259340610112 -    🎯 Current System mAP:     0.2673 ± 0.0179
+2025-06-25 18:05:31,195 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT Standard mAP:       0.2065
+2025-06-25 18:05:31,195 - INFO - SuRL_FixedRL_133259340610112 -    🏆 Publication Metric:     0.2065 (IVT mAP)
+2025-06-25 18:05:31,195 - INFO - SuRL_FixedRL_133259340610112 -    📋 Actions evaluated:      27 surgical actions
+2025-06-25 18:05:31,195 - INFO - SuRL_FixedRL_133259340610112 -    🔄 Total Loss:             1.2288
+2025-06-25 18:05:31,195 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT I mAP:     0.8033
+2025-06-25 18:05:31,195 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT V mAP:     0.5159
+2025-06-25 18:05:31,195 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT T mAP:     0.3553
+2025-06-25 18:05:31,195 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT IV mAP:     0.3088
+2025-06-25 18:05:31,195 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT IT mAP:     0.2541
+2025-06-25 18:05:31,195 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT Current mAP:         0.1408
+2025-06-25 18:05:31,195 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT Current I mAP: 0.5729
+2025-06-25 18:05:31,195 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT Current V mAP: 0.3738
+2025-06-25 18:05:31,195 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT Current T mAP: 0.3149
+2025-06-25 18:05:31,195 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT Current IV mAP: 0.2141
+2025-06-25 18:05:31,195 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT Current IT mAP: 0.1749
+2025-06-25 18:05:31,324 - INFO - SuRL_FixedRL_133259340610112 - ✅ New best model saved: results/2025-06-25_18-04-57/fold0/logs/checkpoints/autoregressive_il_best_epoch_1.pt
+2025-06-25 18:05:31,324 - INFO - SuRL_FixedRL_133259340610112 - Epoch 1/2 | Train Loss: 1.4065 | Val Loss: 1.2288 | Action mAP: 0.2673±0.0179 (2 videos) | Frame MSE: 0.5671
+2025-06-25 18:06:03,457 - INFO - SuRL_FixedRL_133259340610112 - ✅ Video VID06 validation:    Loss: 1.3301,    Action next mAP: 0.3147,    IVT next mAP: 0.2481,    IVT current mAP: 0.1624, 
+2025-06-25 18:06:03,458 - INFO - SuRL_FixedRL_133259340610112 - 📊 Validation Summary (averaged across 2 videos):
+2025-06-25 18:06:03,458 - INFO - SuRL_FixedRL_133259340610112 -    🎯 Current System mAP:     0.3194 ± 0.0047
+2025-06-25 18:06:03,458 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT Standard mAP:       0.2481
+2025-06-25 18:06:03,458 - INFO - SuRL_FixedRL_133259340610112 -    🏆 Publication Metric:     0.2481 (IVT mAP)
+2025-06-25 18:06:03,458 - INFO - SuRL_FixedRL_133259340610112 -    📋 Actions evaluated:      27 surgical actions
+2025-06-25 18:06:03,458 - INFO - SuRL_FixedRL_133259340610112 -    🔄 Total Loss:             1.1993
+2025-06-25 18:06:03,458 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT I mAP:     0.8257
+2025-06-25 18:06:03,458 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT V mAP:     0.5743
+2025-06-25 18:06:03,458 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT T mAP:     0.3776
+2025-06-25 18:06:03,458 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT IV mAP:     0.3442
+2025-06-25 18:06:03,458 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT IT mAP:     0.2994
+2025-06-25 18:06:03,458 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT Current mAP:         0.1624
+2025-06-25 18:06:03,458 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT Current I mAP: 0.6568
+2025-06-25 18:06:03,458 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT Current V mAP: 0.4402
+2025-06-25 18:06:03,458 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT Current T mAP: 0.3389
+2025-06-25 18:06:03,458 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT Current IV mAP: 0.2502
+2025-06-25 18:06:03,458 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT Current IT mAP: 0.1984
+2025-06-25 18:06:03,589 - INFO - SuRL_FixedRL_133259340610112 - ✅ New best model saved: results/2025-06-25_18-04-57/fold0/logs/checkpoints/autoregressive_il_best_epoch_2.pt
+2025-06-25 18:06:03,589 - INFO - SuRL_FixedRL_133259340610112 - Epoch 2/2 | Train Loss: 0.4831 | Val Loss: 1.1993 | Action mAP: 0.3194±0.0047 (2 videos) | Frame MSE: 0.5071
+2025-06-25 18:06:04,563 - INFO - SuRL_FixedRL_133259340610112 - 📊 Per-video analysis saved to: results/2025-06-25_18-04-57/fold0/logs/per_video_performance_analysis.png
+2025-06-25 18:06:04,563 - INFO - SuRL_FixedRL_133259340610112 - 📊 Performance data saved to: results/2025-06-25_18-04-57/fold0/logs/per_video_performance_data.json
+2025-06-25 18:06:04,563 - INFO - SuRL_FixedRL_133259340610112 - ✅ Autoregressive IL Training completed!
+2025-06-25 18:06:04,563 - INFO - SuRL_FixedRL_133259340610112 - 📄 Best model: results/2025-06-25_18-04-57/fold0/logs/checkpoints/autoregressive_il_best_epoch_2.pt
+2025-06-25 18:06:04,563 - INFO - SuRL_FixedRL_133259340610112 - 📄 Final model: results/2025-06-25_18-04-57/fold0/logs/checkpoints/autoregressive_il_final.pt
+2025-06-25 18:06:04,563 - INFO - SuRL_FixedRL_133259340610112 - 📊 Per-video analysis saved
+2025-06-25 18:06:04,563 - INFO - SuRL_FixedRL_133259340610112 - 📊 Evaluating Autoregressive IL model...
+2025-06-25 18:06:04,564 - INFO - SuRL_FixedRL_133259340610112 - 📊 Evaluating Autoregressive IL Model with Planning Assessment...
+2025-06-25 18:06:27,448 - INFO - SuRL_FixedRL_133259340610112 - ✅ Video VID06 validation:    Loss: 1.3301,    Action next mAP: 0.3147,    IVT next mAP: 0.2481,    IVT current mAP: 0.1624, 
+2025-06-25 18:06:27,449 - INFO - SuRL_FixedRL_133259340610112 - 📊 Validation Summary (averaged across 2 videos):
+2025-06-25 18:06:27,449 - INFO - SuRL_FixedRL_133259340610112 -    🎯 Current System mAP:     0.3194 ± 0.0047
+2025-06-25 18:06:27,449 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT Standard mAP:       0.2481
+2025-06-25 18:06:27,449 - INFO - SuRL_FixedRL_133259340610112 -    🏆 Publication Metric:     0.2481 (IVT mAP)
+2025-06-25 18:06:27,449 - INFO - SuRL_FixedRL_133259340610112 -    📋 Actions evaluated:      27 surgical actions
+2025-06-25 18:06:27,449 - INFO - SuRL_FixedRL_133259340610112 -    🔄 Total Loss:             1.1993
+2025-06-25 18:06:27,449 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT I mAP:     0.8257
+2025-06-25 18:06:27,449 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT V mAP:     0.5743
+2025-06-25 18:06:27,449 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT T mAP:     0.3776
+2025-06-25 18:06:27,449 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT IV mAP:     0.3442
+2025-06-25 18:06:27,449 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT IT mAP:     0.2994
+2025-06-25 18:06:27,449 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT Current mAP:         0.1624
+2025-06-25 18:06:27,449 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT Current I mAP: 0.6568
+2025-06-25 18:06:27,449 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT Current V mAP: 0.4402
+2025-06-25 18:06:27,449 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT Current T mAP: 0.3389
+2025-06-25 18:06:27,449 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT Current IV mAP: 0.2502
+2025-06-25 18:06:27,449 - INFO - SuRL_FixedRL_133259340610112 -    📊 IVT Current IT mAP: 0.1984
+2025-06-25 18:06:27,451 - INFO - SuRL_FixedRL_133259340610112 - 🎯 Including planning evaluation for epoch -1...
+2025-06-25 18:06:27,451 - INFO - SuRL_FixedRL_133259340610112 - 🎯 Planning Evaluator initialized
+2025-06-25 18:06:27,451 - INFO - SuRL_FixedRL_133259340610112 -    Planning horizons: ['1s', '2s', '3s', '5s']
+2025-06-25 18:06:27,451 - INFO - SuRL_FixedRL_133259340610112 -    IVT available: True
+2025-06-25 18:06:27,451 - INFO - SuRL_FixedRL_133259340610112 - 🎯 Starting comprehensive planning evaluation...
+2025-06-25 18:06:27,451 - INFO - SuRL_FixedRL_133259340610112 - 📹 Evaluating planning on video VID02...
+2025-06-25 18:06:27,559 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 0: 'input_frames'
+2025-06-25 18:06:27,561 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 1: 'input_frames'
+2025-06-25 18:06:27,562 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 2: 'input_frames'
+2025-06-25 18:06:27,563 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 3: 'input_frames'
+2025-06-25 18:06:27,565 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 4: 'input_frames'
+2025-06-25 18:06:27,567 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 5: 'input_frames'
+2025-06-25 18:06:27,569 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 6: 'input_frames'
+2025-06-25 18:06:27,571 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 7: 'input_frames'
+2025-06-25 18:06:27,573 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 8: 'input_frames'
+2025-06-25 18:06:27,573 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 9: 'input_frames'
+2025-06-25 18:06:27,574 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 10: 'input_frames'
+2025-06-25 18:06:27,577 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 11: 'input_frames'
+2025-06-25 18:06:27,579 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 12: 'input_frames'
+2025-06-25 18:06:27,582 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 13: 'input_frames'
+2025-06-25 18:06:27,582 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 14: 'input_frames'
+2025-06-25 18:06:27,584 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 15: 'input_frames'
+2025-06-25 18:06:27,588 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 16: 'input_frames'
+2025-06-25 18:06:27,590 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 17: 'input_frames'
+2025-06-25 18:06:27,590 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 18: 'input_frames'
+2025-06-25 18:06:27,591 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 19: 'input_frames'
+2025-06-25 18:06:27,592 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 20: 'input_frames'
+2025-06-25 18:06:27,594 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 21: 'input_frames'
+2025-06-25 18:06:27,595 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 22: 'input_frames'
+2025-06-25 18:06:27,596 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 23: 'input_frames'
+2025-06-25 18:06:27,598 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 24: 'input_frames'
+2025-06-25 18:06:27,599 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 25: 'input_frames'
+2025-06-25 18:06:27,601 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 26: 'input_frames'
+2025-06-25 18:06:27,603 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 27: 'input_frames'
+2025-06-25 18:06:27,604 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 28: 'input_frames'
+2025-06-25 18:06:27,606 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 29: 'input_frames'
+2025-06-25 18:06:27,608 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 30: 'input_frames'
+2025-06-25 18:06:27,610 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 31: 'input_frames'
+2025-06-25 18:06:27,611 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 32: 'input_frames'
+2025-06-25 18:06:27,613 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 33: 'input_frames'
+2025-06-25 18:06:27,615 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 34: 'input_frames'
+2025-06-25 18:06:27,616 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 35: 'input_frames'
+2025-06-25 18:06:27,618 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 36: 'input_frames'
+2025-06-25 18:06:27,621 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 37: 'input_frames'
+2025-06-25 18:06:27,623 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 38: 'input_frames'
+2025-06-25 18:06:27,625 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 39: 'input_frames'
+2025-06-25 18:06:27,626 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 40: 'input_frames'
+2025-06-25 18:06:27,628 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 41: 'input_frames'
+2025-06-25 18:06:27,629 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 42: 'input_frames'
+2025-06-25 18:06:27,631 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 43: 'input_frames'
+2025-06-25 18:06:27,633 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 44: 'input_frames'
+2025-06-25 18:06:27,634 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 45: 'input_frames'
+2025-06-25 18:06:27,636 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 46: 'input_frames'
+2025-06-25 18:06:27,638 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 47: 'input_frames'
+2025-06-25 18:06:27,640 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 48: 'input_frames'
+2025-06-25 18:06:27,641 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 49: 'input_frames'
+2025-06-25 18:06:27,644 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 50: 'input_frames'
+2025-06-25 18:06:27,646 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 51: 'input_frames'
+2025-06-25 18:06:27,647 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 52: 'input_frames'
+2025-06-25 18:06:27,649 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 53: 'input_frames'
+2025-06-25 18:06:27,650 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 54: 'input_frames'
+2025-06-25 18:06:27,652 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 55: 'input_frames'
+2025-06-25 18:06:27,654 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 56: 'input_frames'
+2025-06-25 18:06:27,656 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 57: 'input_frames'
+2025-06-25 18:06:27,658 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 58: 'input_frames'
+2025-06-25 18:06:27,660 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 59: 'input_frames'
+2025-06-25 18:06:27,665 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 60: 'input_frames'
+2025-06-25 18:06:27,666 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 61: 'input_frames'
+2025-06-25 18:06:27,666 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 62: 'input_frames'
+2025-06-25 18:06:27,668 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 63: 'input_frames'
+2025-06-25 18:06:27,674 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 64: 'input_frames'
+2025-06-25 18:06:27,675 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 65: 'input_frames'
+2025-06-25 18:06:27,677 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 66: 'input_frames'
+2025-06-25 18:06:27,680 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 67: 'input_frames'
+2025-06-25 18:06:27,683 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 68: 'input_frames'
+2025-06-25 18:06:27,685 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 69: 'input_frames'
+2025-06-25 18:06:27,690 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 70: 'input_frames'
+2025-06-25 18:06:27,691 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 71: 'input_frames'
+2025-06-25 18:06:27,692 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 72: 'input_frames'
+2025-06-25 18:06:27,694 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 73: 'input_frames'
+2025-06-25 18:06:27,696 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 74: 'input_frames'
+2025-06-25 18:06:27,698 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 75: 'input_frames'
+2025-06-25 18:06:27,700 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 76: 'input_frames'
+2025-06-25 18:06:27,702 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 77: 'input_frames'
+2025-06-25 18:06:27,704 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 78: 'input_frames'
+2025-06-25 18:06:27,707 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 79: 'input_frames'
+2025-06-25 18:06:27,708 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 80: 'input_frames'
+2025-06-25 18:06:27,709 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 81: 'input_frames'
+2025-06-25 18:06:27,711 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 82: 'input_frames'
+2025-06-25 18:06:27,713 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 83: 'input_frames'
+2025-06-25 18:06:27,714 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 84: 'input_frames'
+2025-06-25 18:06:27,719 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 85: 'input_frames'
+2025-06-25 18:06:27,721 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 86: 'input_frames'
+2025-06-25 18:06:27,724 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 87: 'input_frames'
+2025-06-25 18:06:27,727 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 88: 'input_frames'
+2025-06-25 18:06:27,730 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 89: 'input_frames'
+2025-06-25 18:06:27,736 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 90: 'input_frames'
+2025-06-25 18:06:27,740 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 91: 'input_frames'
+2025-06-25 18:06:27,742 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 92: 'input_frames'
+2025-06-25 18:06:27,745 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 93: 'input_frames'
+2025-06-25 18:06:27,746 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 94: 'input_frames'
+2025-06-25 18:06:27,747 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 95: 'input_frames'
+2025-06-25 18:06:27,749 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 96: 'input_frames'
+2025-06-25 18:06:27,751 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 97: 'input_frames'
+2025-06-25 18:06:27,754 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 98: 'input_frames'
+2025-06-25 18:06:27,756 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 99: 'input_frames'
+2025-06-25 18:06:27,758 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 100: 'input_frames'
+2025-06-25 18:06:27,759 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 101: 'input_frames'
+2025-06-25 18:06:27,761 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 102: 'input_frames'
+2025-06-25 18:06:27,763 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 103: 'input_frames'
+2025-06-25 18:06:27,764 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 104: 'input_frames'
+2025-06-25 18:06:27,766 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 105: 'input_frames'
+2025-06-25 18:06:27,769 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 106: 'input_frames'
+2025-06-25 18:06:27,770 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 107: 'input_frames'
+2025-06-25 18:06:27,772 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 108: 'input_frames'
+2025-06-25 18:06:27,774 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 109: 'input_frames'
+2025-06-25 18:06:27,776 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 110: 'input_frames'
+2025-06-25 18:06:27,777 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 111: 'input_frames'
+2025-06-25 18:06:27,779 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 112: 'input_frames'
+2025-06-25 18:06:27,780 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 113: 'input_frames'
+2025-06-25 18:06:27,783 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 114: 'input_frames'
+2025-06-25 18:06:27,784 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 115: 'input_frames'
+2025-06-25 18:06:27,786 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 116: 'input_frames'
+2025-06-25 18:06:27,788 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 117: 'input_frames'
+2025-06-25 18:06:27,790 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 118: 'input_frames'
+2025-06-25 18:06:27,792 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 119: 'input_frames'
+2025-06-25 18:06:27,793 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 120: 'input_frames'
+2025-06-25 18:06:27,795 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 121: 'input_frames'
+2025-06-25 18:06:27,796 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 122: 'input_frames'
+2025-06-25 18:06:27,798 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 123: 'input_frames'
+2025-06-25 18:06:27,800 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 124: 'input_frames'
+2025-06-25 18:06:27,805 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 125: 'input_frames'
+2025-06-25 18:06:27,807 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 126: 'input_frames'
+2025-06-25 18:06:27,809 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 127: 'input_frames'
+2025-06-25 18:06:27,812 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 128: 'input_frames'
+2025-06-25 18:06:27,816 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 129: 'input_frames'
+2025-06-25 18:06:27,820 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 130: 'input_frames'
+2025-06-25 18:06:27,823 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 131: 'input_frames'
+2025-06-25 18:06:27,825 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 132: 'input_frames'
+2025-06-25 18:06:27,831 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 133: 'input_frames'
+2025-06-25 18:06:27,832 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 134: 'input_frames'
+2025-06-25 18:06:27,835 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 135: 'input_frames'
+2025-06-25 18:06:27,837 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 136: 'input_frames'
+2025-06-25 18:06:27,839 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 137: 'input_frames'
+2025-06-25 18:06:27,846 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 138: 'input_frames'
+2025-06-25 18:06:27,850 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 139: 'input_frames'
+2025-06-25 18:06:27,852 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 140: 'input_frames'
+2025-06-25 18:06:27,853 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 141: 'input_frames'
+2025-06-25 18:06:27,855 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 142: 'input_frames'
+2025-06-25 18:06:27,858 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 143: 'input_frames'
+2025-06-25 18:06:27,860 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 144: 'input_frames'
+2025-06-25 18:06:27,861 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 145: 'input_frames'
+2025-06-25 18:06:27,863 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 146: 'input_frames'
+2025-06-25 18:06:27,865 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 147: 'input_frames'
+2025-06-25 18:06:27,868 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 148: 'input_frames'
+2025-06-25 18:06:27,869 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 149: 'input_frames'
+2025-06-25 18:06:27,871 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 150: 'input_frames'
+2025-06-25 18:06:27,873 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 151: 'input_frames'
+2025-06-25 18:06:27,874 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 152: 'input_frames'
+2025-06-25 18:06:27,880 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 153: 'input_frames'
+2025-06-25 18:06:27,883 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 154: 'input_frames'
+2025-06-25 18:06:27,885 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 155: 'input_frames'
+2025-06-25 18:06:27,887 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 156: 'input_frames'
+2025-06-25 18:06:27,892 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 157: 'input_frames'
+2025-06-25 18:06:27,896 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 158: 'input_frames'
+2025-06-25 18:06:27,897 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 159: 'input_frames'
+2025-06-25 18:06:27,900 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 160: 'input_frames'
+2025-06-25 18:06:27,901 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 161: 'input_frames'
+2025-06-25 18:06:27,904 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 162: 'input_frames'
+2025-06-25 18:06:27,906 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 163: 'input_frames'
+2025-06-25 18:06:27,908 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 164: 'input_frames'
+2025-06-25 18:06:27,911 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 165: 'input_frames'
+2025-06-25 18:06:27,912 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 166: 'input_frames'
+2025-06-25 18:06:27,914 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 167: 'input_frames'
+2025-06-25 18:06:27,916 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 168: 'input_frames'
+2025-06-25 18:06:27,918 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 169: 'input_frames'
+2025-06-25 18:06:27,920 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 170: 'input_frames'
+2025-06-25 18:06:27,922 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 171: 'input_frames'
+2025-06-25 18:06:27,924 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 172: 'input_frames'
+2025-06-25 18:06:27,925 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 173: 'input_frames'
+2025-06-25 18:06:27,926 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 174: 'input_frames'
+2025-06-25 18:06:27,928 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 175: 'input_frames'
+2025-06-25 18:06:27,929 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 176: 'input_frames'
+2025-06-25 18:06:27,930 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 177: 'input_frames'
+2025-06-25 18:06:27,965 - INFO - SuRL_FixedRL_133259340610112 - 📹 Evaluating planning on video VID06...
+2025-06-25 18:06:28,060 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 0: 'input_frames'
+2025-06-25 18:06:28,061 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 1: 'input_frames'
+2025-06-25 18:06:28,062 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 2: 'input_frames'
+2025-06-25 18:06:28,063 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 3: 'input_frames'
+2025-06-25 18:06:28,064 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 4: 'input_frames'
+2025-06-25 18:06:28,064 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 5: 'input_frames'
+2025-06-25 18:06:28,064 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 6: 'input_frames'
+2025-06-25 18:06:28,065 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 7: 'input_frames'
+2025-06-25 18:06:28,065 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 8: 'input_frames'
+2025-06-25 18:06:28,086 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 9: 'input_frames'
+2025-06-25 18:06:28,088 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 10: 'input_frames'
+2025-06-25 18:06:28,089 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 11: 'input_frames'
+2025-06-25 18:06:28,090 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 12: 'input_frames'
+2025-06-25 18:06:28,094 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 13: 'input_frames'
+2025-06-25 18:06:28,096 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 14: 'input_frames'
+2025-06-25 18:06:28,096 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 15: 'input_frames'
+2025-06-25 18:06:28,097 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 16: 'input_frames'
+2025-06-25 18:06:28,098 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 17: 'input_frames'
+2025-06-25 18:06:28,098 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 18: 'input_frames'
+2025-06-25 18:06:28,099 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 19: 'input_frames'
+2025-06-25 18:06:28,099 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 20: 'input_frames'
+2025-06-25 18:06:28,101 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 21: 'input_frames'
+2025-06-25 18:06:28,104 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 22: 'input_frames'
+2025-06-25 18:06:28,105 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 23: 'input_frames'
+2025-06-25 18:06:28,106 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 24: 'input_frames'
+2025-06-25 18:06:28,120 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 25: 'input_frames'
+2025-06-25 18:06:28,121 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 26: 'input_frames'
+2025-06-25 18:06:28,122 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 27: 'input_frames'
+2025-06-25 18:06:28,122 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 28: 'input_frames'
+2025-06-25 18:06:28,124 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 29: 'input_frames'
+2025-06-25 18:06:28,127 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 30: 'input_frames'
+2025-06-25 18:06:28,130 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 31: 'input_frames'
+2025-06-25 18:06:28,130 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 32: 'input_frames'
+2025-06-25 18:06:28,131 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 33: 'input_frames'
+2025-06-25 18:06:28,138 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 34: 'input_frames'
+2025-06-25 18:06:28,138 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 35: 'input_frames'
+2025-06-25 18:06:28,139 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 36: 'input_frames'
+2025-06-25 18:06:28,141 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 37: 'input_frames'
+2025-06-25 18:06:28,142 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 38: 'input_frames'
+2025-06-25 18:06:28,143 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 39: 'input_frames'
+2025-06-25 18:06:28,145 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 40: 'input_frames'
+2025-06-25 18:06:28,147 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 41: 'input_frames'
+2025-06-25 18:06:28,148 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 42: 'input_frames'
+2025-06-25 18:06:28,150 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 43: 'input_frames'
+2025-06-25 18:06:28,151 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 44: 'input_frames'
+2025-06-25 18:06:28,154 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 45: 'input_frames'
+2025-06-25 18:06:28,155 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 46: 'input_frames'
+2025-06-25 18:06:28,157 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 47: 'input_frames'
+2025-06-25 18:06:28,158 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 48: 'input_frames'
+2025-06-25 18:06:28,163 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 49: 'input_frames'
+2025-06-25 18:06:28,165 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 50: 'input_frames'
+2025-06-25 18:06:28,167 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 51: 'input_frames'
+2025-06-25 18:06:28,172 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 52: 'input_frames'
+2025-06-25 18:06:28,178 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 53: 'input_frames'
+2025-06-25 18:06:28,180 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 54: 'input_frames'
+2025-06-25 18:06:28,182 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 55: 'input_frames'
+2025-06-25 18:06:28,183 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 56: 'input_frames'
+2025-06-25 18:06:28,185 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 57: 'input_frames'
+2025-06-25 18:06:28,186 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 58: 'input_frames'
+2025-06-25 18:06:28,190 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 59: 'input_frames'
+2025-06-25 18:06:28,192 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 60: 'input_frames'
+2025-06-25 18:06:28,194 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 61: 'input_frames'
+2025-06-25 18:06:28,196 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 62: 'input_frames'
+2025-06-25 18:06:28,198 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 63: 'input_frames'
+2025-06-25 18:06:28,202 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 64: 'input_frames'
+2025-06-25 18:06:28,204 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 65: 'input_frames'
+2025-06-25 18:06:28,207 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 66: 'input_frames'
+2025-06-25 18:06:28,208 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 67: 'input_frames'
+2025-06-25 18:06:28,217 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 68: 'input_frames'
+2025-06-25 18:06:28,220 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 69: 'input_frames'
+2025-06-25 18:06:28,221 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 70: 'input_frames'
+2025-06-25 18:06:28,222 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 71: 'input_frames'
+2025-06-25 18:06:28,226 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 72: 'input_frames'
+2025-06-25 18:06:28,227 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 73: 'input_frames'
+2025-06-25 18:06:28,229 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 74: 'input_frames'
+2025-06-25 18:06:28,234 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 75: 'input_frames'
+2025-06-25 18:06:28,236 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 76: 'input_frames'
+2025-06-25 18:06:28,238 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 77: 'input_frames'
+2025-06-25 18:06:28,240 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 78: 'input_frames'
+2025-06-25 18:06:28,243 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 79: 'input_frames'
+2025-06-25 18:06:28,249 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 80: 'input_frames'
+2025-06-25 18:06:28,253 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 81: 'input_frames'
+2025-06-25 18:06:28,256 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 82: 'input_frames'
+2025-06-25 18:06:28,258 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 83: 'input_frames'
+2025-06-25 18:06:28,260 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 84: 'input_frames'
+2025-06-25 18:06:28,262 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 85: 'input_frames'
+2025-06-25 18:06:28,264 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 86: 'input_frames'
+2025-06-25 18:06:28,271 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 87: 'input_frames'
+2025-06-25 18:06:28,274 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 88: 'input_frames'
+2025-06-25 18:06:28,277 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 89: 'input_frames'
+2025-06-25 18:06:28,280 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 90: 'input_frames'
+2025-06-25 18:06:28,281 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 91: 'input_frames'
+2025-06-25 18:06:28,282 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 92: 'input_frames'
+2025-06-25 18:06:28,284 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 93: 'input_frames'
+2025-06-25 18:06:28,286 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 94: 'input_frames'
+2025-06-25 18:06:28,288 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 95: 'input_frames'
+2025-06-25 18:06:28,291 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 96: 'input_frames'
+2025-06-25 18:06:28,293 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 97: 'input_frames'
+2025-06-25 18:06:28,294 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 98: 'input_frames'
+2025-06-25 18:06:28,297 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 99: 'input_frames'
+2025-06-25 18:06:28,297 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 100: 'input_frames'
+2025-06-25 18:06:28,299 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 101: 'input_frames'
+2025-06-25 18:06:28,301 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 102: 'input_frames'
+2025-06-25 18:06:28,303 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 103: 'input_frames'
+2025-06-25 18:06:28,306 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 104: 'input_frames'
+2025-06-25 18:06:28,308 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 105: 'input_frames'
+2025-06-25 18:06:28,311 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 106: 'input_frames'
+2025-06-25 18:06:28,313 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 107: 'input_frames'
+2025-06-25 18:06:28,317 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 108: 'input_frames'
+2025-06-25 18:06:28,318 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 109: 'input_frames'
+2025-06-25 18:06:28,319 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 110: 'input_frames'
+2025-06-25 18:06:28,320 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 111: 'input_frames'
+2025-06-25 18:06:28,325 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 112: 'input_frames'
+2025-06-25 18:06:28,326 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 113: 'input_frames'
+2025-06-25 18:06:28,334 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 114: 'input_frames'
+2025-06-25 18:06:28,337 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 115: 'input_frames'
+2025-06-25 18:06:28,344 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 116: 'input_frames'
+2025-06-25 18:06:28,344 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 117: 'input_frames'
+2025-06-25 18:06:28,345 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 118: 'input_frames'
+2025-06-25 18:06:28,346 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 119: 'input_frames'
+2025-06-25 18:06:28,349 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 120: 'input_frames'
+2025-06-25 18:06:28,353 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 121: 'input_frames'
+2025-06-25 18:06:28,358 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 122: 'input_frames'
+2025-06-25 18:06:28,362 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 123: 'input_frames'
+2025-06-25 18:06:28,366 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 124: 'input_frames'
+2025-06-25 18:06:28,377 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 125: 'input_frames'
+2025-06-25 18:06:28,378 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 126: 'input_frames'
+2025-06-25 18:06:28,379 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 127: 'input_frames'
+2025-06-25 18:06:28,380 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 128: 'input_frames'
+2025-06-25 18:06:28,382 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 129: 'input_frames'
+2025-06-25 18:06:28,385 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 130: 'input_frames'
+2025-06-25 18:06:28,387 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 131: 'input_frames'
+2025-06-25 18:06:28,390 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 132: 'input_frames'
+2025-06-25 18:06:28,398 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 133: 'input_frames'
+2025-06-25 18:06:28,400 - WARNING - SuRL_FixedRL_133259340610112 - Error processing batch 134: 'input_frames'
+2025-06-25 18:06:28,436 - INFO - SuRL_FixedRL_133259340610112 - ✅ Planning evaluation completed
+2025-06-25 18:06:28,436 - INFO - SuRL_FixedRL_133259340610112 - 🎯 PLANNING EVALUATION SUMMARY
+2025-06-25 18:06:28,436 - INFO - SuRL_FixedRL_133259340610112 - ============================================================
+2025-06-25 18:06:28,436 - INFO - SuRL_FixedRL_133259340610112 - 📊 Overall Results:
+2025-06-25 18:06:28,436 - INFO - SuRL_FixedRL_133259340610112 -    Videos evaluated: 2
+2025-06-25 18:06:28,436 - INFO - SuRL_FixedRL_133259340610112 -    Success rate: 0.000
+2025-06-25 18:06:28,436 - INFO - SuRL_FixedRL_133259340610112 - 📈 Planning Horizon Results:
+2025-06-25 18:06:28,436 - INFO - SuRL_FixedRL_133259340610112 - 📊 Evaluating generation quality...
+2025-06-25 18:06:28,796 - INFO - SuRL_FixedRL_133259340610112 - 📊 Extracting planning results from validation phase...
+2025-06-25 18:06:28,797 - INFO - SuRL_FixedRL_133259340610112 - ✅ Comprehensive evaluation completed
+2025-06-25 18:06:28,797 - INFO - SuRL_FixedRL_133259340610112 - 📊 SINGLE-STEP PERFORMANCE:
+2025-06-25 18:06:28,797 - INFO - SuRL_FixedRL_133259340610112 -    Current System mAP:     0.3194 ± 0.0047
+2025-06-25 18:06:28,797 - INFO - SuRL_FixedRL_133259340610112 -    IVT Standard mAP:       0.2481
+2025-06-25 18:06:28,797 - INFO - SuRL_FixedRL_133259340610112 - 🎯 PLANNING PERFORMANCE:
+2025-06-25 18:06:28,797 - INFO - SuRL_FixedRL_133259340610112 -    Planning degradation (1s→5s): 0.000
+2025-06-25 18:06:28,797 - INFO - SuRL_FixedRL_133259340610112 - 📈 Model demonstrates both recognition and planning capabilities
+2025-06-25 18:06:28,808 - INFO - SuRL_FixedRL_133259340610112 - 🌍 Method 2: Conditional World Model + RL is disable
+2025-06-25 18:06:28,808 - INFO - SuRL_FixedRL_133259340610112 - 📹 Method 3: Direct Video RL is disabled in config
+2025-06-25 18:06:28,808 - INFO - SuRL_FixedRL_133259340610112 - 🔬 Evaluation Framework initialized
+2025-06-25 18:06:28,808 - INFO - SuRL_FixedRL_133259340610112 - 📁 Results will be saved to: results/2025-06-25_18-04-57/fold0/integrated_evaluation
+2025-06-25 18:06:28,808 - INFO - SuRL_FixedRL_133259340610112 - 🔬 Evaluation Framework initialized with METRICS MODULE
+2025-06-25 18:06:29,311 - INFO - SuRL_FixedRL_133259340610112 - ✅ Loaded AutoregressiveIL model
+2025-06-25 18:06:29,311 - INFO - SuRL_FixedRL_133259340610112 - 📊 Loaded 1 models for comprehensive evaluation
+2025-06-25 18:06:29,311 - INFO - SuRL_FixedRL_133259340610112 - 🎯 Evaluation approach:
+2025-06-25 18:06:29,311 - INFO - SuRL_FixedRL_133259340610112 -    Primary: Single-step action prediction (fair comparison)
+2025-06-25 18:06:29,311 - INFO - SuRL_FixedRL_133259340610112 -    Secondary: Multi-step planning analysis (paradigm-specific)
+2025-06-25 18:06:29,311 - INFO - SuRL_FixedRL_133259340610112 - 📊 Loaded models for evaluation:
+2025-06-25 18:06:29,311 - INFO - SuRL_FixedRL_133259340610112 -    AutoregressiveIL: supervised_imitation_learning
+2025-06-25 18:06:29,311 - INFO - SuRL_FixedRL_133259340610112 - 🚀 Running evaluation on 2 videos...
+2025-06-25 18:06:29,311 - INFO - SuRL_FixedRL_133259340610112 - 🚀 Starting FIXED comprehensive evaluation (using proper batches)
+2025-06-25 18:06:29,311 - INFO - SuRL_FixedRL_133259340610112 - 📊 Models: 1, Videos: 2
+2025-06-25 18:06:29,311 - INFO - SuRL_FixedRL_133259340610112 - 🎯 Evaluation approach:
+2025-06-25 18:06:29,311 - INFO - SuRL_FixedRL_133259340610112 -    ✅ Uses DataLoader batches directly (like training)
+2025-06-25 18:06:29,311 - INFO - SuRL_FixedRL_133259340610112 -    ✅ Maintains temporal structure for IL model
+2025-06-25 18:06:29,311 - INFO - SuRL_FixedRL_133259340610112 -    ✅ Consistent model interfaces
+2025-06-25 18:06:29,311 - INFO - SuRL_FixedRL_133259340610112 - 📹 Evaluating video: VID02
+2025-06-25 18:06:29,433 - INFO - SuRL_FixedRL_133259340610112 - 📹 Comprehensive evaluation: VID02
+2025-06-25 18:06:29,433 - INFO - SuRL_FixedRL_133259340610112 - 🎯 PRIMARY: Single-step action prediction
+2025-06-25 18:06:29,433 - INFO - SuRL_FixedRL_133259340610112 -   🤖 AutoregressiveIL: Single-step action prediction
+2025-06-25 18:06:29,527 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,527 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,528 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,528 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,531 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,531 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,531 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,531 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,537 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,538 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,538 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,538 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,545 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,546 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,546 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,546 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,548 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,551 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,552 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,553 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,556 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,556 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,556 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,559 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,561 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,565 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,565 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,567 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,570 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,572 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,572 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,574 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,576 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,579 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,580 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,582 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,583 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,587 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,587 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,589 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,591 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,594 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,595 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,596 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,597 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,599 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,600 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,602 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,604 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,608 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,608 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,609 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,611 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,612 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,614 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,616 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,618 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,622 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,622 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,624 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,626 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,627 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,628 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,630 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,631 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,633 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,634 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,635 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,637 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,639 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,641 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,644 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,645 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,647 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,649 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,651 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,652 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,654 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,656 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,659 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,660 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,661 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,662 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,664 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,666 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,669 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,672 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,674 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,677 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,679 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,681 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,683 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,685 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,687 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,688 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,690 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,693 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,695 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,698 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,699 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,701 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,703 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,704 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,707 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,710 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,712 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,713 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,715 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,717 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,719 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,720 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,722 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,723 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,726 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,728 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,730 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,732 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,733 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,736 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,737 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,738 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,740 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,741 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,742 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,744 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,746 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,748 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,749 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,751 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,753 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,755 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,756 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,758 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,760 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,761 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,763 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,764 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,765 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,766 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,768 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,770 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,772 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,773 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,775 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,776 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,777 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,778 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,780 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,781 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,783 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,784 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,785 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,786 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,787 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,789 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,790 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,792 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,794 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,795 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,796 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,797 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,798 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,800 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,801 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,802 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,804 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,806 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,808 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,810 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,812 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,813 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,815 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,817 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,819 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,820 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,822 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,824 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,825 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:29,857 - INFO - SuRL_FixedRL_133259340610112 -   AutoregressiveIL evaluation completed: 0 batches processed
+2025-06-25 18:06:29,863 - INFO - SuRL_FixedRL_133259340610112 -     📊 Single-step mAP: 0.0000
+2025-06-25 18:06:29,864 - INFO - SuRL_FixedRL_133259340610112 - 🚀 SECONDARY: Planning capability analysis
+2025-06-25 18:06:29,864 - INFO - SuRL_FixedRL_133259340610112 -   🧠 AutoregressiveIL: Planning capability analysis
+2025-06-25 18:06:29,960 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:29,960 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:29,960 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:29,961 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:29,966 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:29,966 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:29,966 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:29,967 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:29,968 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:29,969 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:29,971 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:29,973 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:29,975 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:29,977 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:29,979 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:29,981 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:29,985 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:29,985 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:29,987 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:29,988 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:29,990 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:29,992 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:29,994 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:29,997 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,000 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,000 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,003 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,005 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,007 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,009 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,010 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,012 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,016 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,017 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,019 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,021 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,022 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,024 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,025 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,027 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,028 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,030 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,032 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,034 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,036 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,040 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,040 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,042 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,043 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,045 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,047 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,049 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,051 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,055 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,055 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,057 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,058 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,059 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,061 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,062 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,063 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,066 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,066 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,067 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,069 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,071 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,073 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,075 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,076 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,078 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,078 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,081 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,081 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,083 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,084 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,086 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,088 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,091 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,091 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,093 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,095 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,097 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,098 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,099 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,101 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,104 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,105 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,106 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,108 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,110 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,112 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,114 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,115 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,117 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,119 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,121 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,123 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,125 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,126 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,127 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,129 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,130 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,131 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,132 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,133 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,134 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,135 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,137 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,139 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,141 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,144 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,144 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,145 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,146 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,148 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,149 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,150 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,151 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,153 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,154 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,155 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,156 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,158 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,159 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,160 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,162 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,163 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,164 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,166 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,167 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,169 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,171 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,172 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,174 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,175 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,176 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,177 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,178 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,179 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,181 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,183 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,187 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,187 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,188 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,189 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,190 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,192 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,193 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,194 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,197 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,197 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,200 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,200 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,202 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,204 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,206 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,207 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,209 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,210 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,211 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,212 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,214 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,216 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,217 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,219 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,223 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,223 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,226 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,227 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,228 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,229 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,231 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,232 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,234 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,234 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,237 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,237 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,237 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,267 - INFO - SuRL_FixedRL_133259340610112 -     📊 Planning stability: 0.0000
+2025-06-25 18:06:30,267 - INFO - SuRL_FixedRL_133259340610112 -   AutoregressiveIL: mAP = 0.0000
+2025-06-25 18:06:30,267 - INFO - SuRL_FixedRL_133259340610112 - 📹 Evaluating video: VID06
+2025-06-25 18:06:30,388 - INFO - SuRL_FixedRL_133259340610112 - 📹 Comprehensive evaluation: VID06
+2025-06-25 18:06:30,389 - INFO - SuRL_FixedRL_133259340610112 - 🎯 PRIMARY: Single-step action prediction
+2025-06-25 18:06:30,389 - INFO - SuRL_FixedRL_133259340610112 -   🤖 AutoregressiveIL: Single-step action prediction
+2025-06-25 18:06:30,476 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,476 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,476 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,476 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,481 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,481 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,481 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,481 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,485 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,485 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,486 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,487 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,488 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,493 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,493 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,494 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,499 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,499 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,499 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,501 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,503 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,505 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,508 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,508 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,516 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,516 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,516 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,516 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,518 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,521 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,524 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,524 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,531 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,532 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,532 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,532 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,535 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,535 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,539 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,540 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,543 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,543 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,545 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,547 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,550 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,550 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,551 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,552 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,554 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,555 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,556 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,557 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,561 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,561 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,563 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,564 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,567 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,567 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,568 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,570 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,573 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,573 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,575 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,576 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,577 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,578 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,579 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,581 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,582 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,584 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,585 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,587 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,588 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,590 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,592 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,594 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,596 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,597 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,599 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,601 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,603 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,605 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,607 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,609 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,611 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,612 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,614 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,616 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,618 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,620 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,622 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,624 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,625 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,628 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,629 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,631 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,633 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,634 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,636 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,639 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,640 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,642 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,643 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,644 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,645 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,648 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,650 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,652 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,654 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,655 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,657 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,659 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,661 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,663 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,665 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,667 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,668 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,670 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,671 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,672 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,673 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,675 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,677 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,678 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,679 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,681 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,683 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,684 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,686 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,687 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,688 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,689 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,690 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,691 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,692 - WARNING - SuRL_FixedRL_133259340610112 - Batch evaluation failed for AutoregressiveIL: 'current_states'
+2025-06-25 18:06:30,722 - INFO - SuRL_FixedRL_133259340610112 -   AutoregressiveIL evaluation completed: 0 batches processed
+2025-06-25 18:06:30,727 - INFO - SuRL_FixedRL_133259340610112 -     📊 Single-step mAP: 0.0000
+2025-06-25 18:06:30,727 - INFO - SuRL_FixedRL_133259340610112 - 🚀 SECONDARY: Planning capability analysis
+2025-06-25 18:06:30,727 - INFO - SuRL_FixedRL_133259340610112 -   🧠 AutoregressiveIL: Planning capability analysis
+2025-06-25 18:06:30,817 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,817 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,817 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,818 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,821 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,822 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,822 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,823 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,827 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,827 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,828 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,831 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,832 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,836 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,838 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,838 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,842 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,842 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,843 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,845 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,847 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,849 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,851 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,853 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,856 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,857 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,859 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,861 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,863 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,865 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,867 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,868 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,870 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,872 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,874 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,876 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,878 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,879 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,880 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,882 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,883 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,884 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,885 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,887 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,888 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,889 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,891 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,893 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,894 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,895 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,898 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,899 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,900 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,901 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,903 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,904 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,905 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,907 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,908 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,911 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,912 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,913 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,914 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,916 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,917 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,918 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,920 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,924 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,924 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,926 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,927 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,929 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,932 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,933 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,935 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,937 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,937 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,939 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,940 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,942 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,944 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,945 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,947 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,950 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,951 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,952 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,954 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,955 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,957 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,959 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,961 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,964 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,965 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,966 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,968 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,969 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,971 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,973 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,974 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,978 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,978 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,980 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,981 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,983 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,984 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,986 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,987 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,989 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,990 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,992 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,994 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,995 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,998 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:30,999 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:31,001 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:31,003 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:31,005 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:31,006 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:31,008 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:31,009 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:31,011 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:31,013 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:31,014 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:31,015 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:31,016 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:31,017 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:31,019 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:31,020 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:31,022 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:31,024 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:31,024 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:31,025 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:31,026 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:31,028 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:31,029 - WARNING - SuRL_FixedRL_133259340610112 - IL planning batch failed: 'current_states'
+2025-06-25 18:06:31,060 - INFO - SuRL_FixedRL_133259340610112 -     📊 Planning stability: 0.0000
+2025-06-25 18:06:31,060 - INFO - SuRL_FixedRL_133259340610112 -   AutoregressiveIL: mAP = 0.0000
+2025-06-25 18:06:31,060 - INFO - SuRL_FixedRL_133259340610112 - 📂 Main video results saved to results/2025-06-25_18-04-57/fold0/integrated_evaluation/main_video_results.json
+2025-06-25 18:06:31,061 - INFO - SuRL_FixedRL_133259340610112 - 📂 Video results saved to results/2025-06-25_18-04-57/fold0/integrated_evaluation/videos_results.json
+2025-06-25 18:06:31,061 - INFO - SuRL_FixedRL_133259340610112 - 📊 Computing aggregate results...
+2025-06-25 18:06:31,061 - INFO - SuRL_FixedRL_133259340610112 - 📈 Performing statistical tests...
+2025-06-25 18:06:31,061 - INFO - SuRL_FixedRL_133259340610112 - 
+2025-06-25 18:06:31,061 - INFO - SuRL_FixedRL_133259340610112 - 🎉 COMPREHENSIVE EVALUATION COMPLETED!
+2025-06-25 18:06:31,061 - INFO - SuRL_FixedRL_133259340610112 - ============================================================
+2025-06-25 18:06:31,061 - INFO - SuRL_FixedRL_133259340610112 - 🎯 PRIMARY RESULTS: Single-step Action Prediction (Fair Comparison)
+2025-06-25 18:06:31,061 - INFO - SuRL_FixedRL_133259340610112 -    Supervised IL: 0.0000 ± 0.0000 mAP
+2025-06-25 18:06:31,061 - INFO - SuRL_FixedRL_133259340610112 - 
+2025-06-25 18:06:31,061 - INFO - SuRL_FixedRL_133259340610112 - 🚀 SECONDARY RESULTS: Planning Capability Analysis
+2025-06-25 18:06:31,061 - INFO - SuRL_FixedRL_133259340610112 - 
+2025-06-25 18:06:31,061 - INFO - SuRL_FixedRL_133259340610112 - 🔍 KEY INSIGHTS:
+2025-06-25 18:06:31,061 - INFO - SuRL_FixedRL_133259340610112 -    ✅ Fair single-step comparison shows paradigm performance
+2025-06-25 18:06:31,061 - INFO - SuRL_FixedRL_133259340610112 -    ✅ Planning analysis reveals paradigm-specific strengths
+2025-06-25 18:06:31,061 - INFO - SuRL_FixedRL_133259340610112 -    ✅ No ground truth leakage or environment mismatches
+2025-06-25 18:06:31,061 - INFO - SuRL_FixedRL_133259340610112 -    ✅ Each method evaluated according to its training paradigm
+2025-06-25 18:06:31,061 - INFO - SuRL_FixedRL_133259340610112 - 
+2025-06-25 18:06:31,061 - INFO - SuRL_FixedRL_133259340610112 - ⚖️ EVALUATION FAIRNESS:
+2025-06-25 18:06:31,061 - INFO - SuRL_FixedRL_133259340610112 -    Primary task: single_step_action_prediction_with_proper_context
+2025-06-25 18:06:31,061 - INFO - SuRL_FixedRL_133259340610112 -    Secondary task: multi_step_planning_analysis
+2025-06-25 18:06:31,061 - INFO - SuRL_FixedRL_133259340610112 -    Fairness approach: respects_training_paradigms_and_data_structure
+2025-06-25 18:06:31,061 - INFO - SuRL_FixedRL_133259340610112 - 💾 Saving evaluation results...
+2025-06-25 18:06:31,061 - INFO - SuRL_FixedRL_133259340610112 - 📊 evaluation results saved
+2025-06-25 18:06:31,061 - INFO - SuRL_FixedRL_133259340610112 - 📁 Location: results/2025-06-25_18-04-57/fold0/integrated_evaluation
+2025-06-25 18:06:31,062 - INFO - SuRL_FixedRL_133259340610112 - 📊 Generating publication-quality plots...
+2025-06-25 18:06:31,062 - INFO - SuRL_FixedRL_133259340610112 - 📊 Publication plotter initialized: results/2025-06-25_18-04-57/fold0/publication_plots
+2025-06-25 18:06:31,062 - INFO - SuRL_FixedRL_133259340610112 - 📊 Creating per-video performance plots...
+2025-06-25 18:06:31,870 - INFO - SuRL_FixedRL_133259340610112 - ✅ Per-video plots saved: results/2025-06-25_18-04-57/fold0/publication_plots/per_video_performance_analysis
+2025-06-25 18:06:31,870 - INFO - SuRL_FixedRL_133259340610112 - 📈 Creating performance dashboard...
+2025-06-25 18:06:33,337 - INFO - SuRL_FixedRL_133259340610112 - ✅ Dashboard saved: results/2025-06-25_18-04-57/fold0/publication_plots/performance_dashboard
+2025-06-25 18:06:33,337 - INFO - SuRL_FixedRL_133259340610112 - 🏆 Analyzing Results and Architectural Insights
+2025-06-25 18:06:33,337 - INFO - SuRL_FixedRL_133259340610112 - 🏆 THREE-METHOD COMPARISON RESULTS (FIXED RL)
+2025-06-25 18:06:33,338 - INFO - SuRL_FixedRL_133259340610112 - ============================================================
+2025-06-25 18:06:33,338 - INFO - SuRL_FixedRL_133259340610112 - 🎓 Method 1 (Autoregressive IL):
+2025-06-25 18:06:33,338 - INFO - SuRL_FixedRL_133259340610112 -    Status: ✅ Success
+2025-06-25 18:06:33,338 - INFO - SuRL_FixedRL_133259340610112 -    Action mAP: 0.3194
+2025-06-25 18:06:33,338 - INFO - SuRL_FixedRL_133259340610112 -    Exact Match: 0.3587
+2025-06-25 18:06:33,338 - INFO - SuRL_FixedRL_133259340610112 -    Approach: Pure causal generation → actions
+2025-06-25 18:06:33,338 - INFO - SuRL_FixedRL_133259340610112 - 
+2025-06-25 18:06:33,338 - INFO - SuRL_FixedRL_133259340610112 - 📊 PUBLICATION PLOTS GENERATED:
+2025-06-25 18:06:33,338 - INFO - SuRL_FixedRL_133259340610112 -    📈 per_video_performance: results/2025-06-25_18-04-57/fold0/publication_plots/per_video_performance_analysis.png
+2025-06-25 18:06:33,338 - INFO - SuRL_FixedRL_133259340610112 -    📈 performance_dashboard: results/2025-06-25_18-04-57/fold0/publication_plots/performance_dashboard.png
+2025-06-25 18:06:33,338 - INFO - SuRL_FixedRL_133259340610112 - 🌍 Method 2: ❌ Failed - Unknown
+2025-06-25 18:06:33,338 - INFO - SuRL_FixedRL_133259340610112 - 📹 Method 3: ❌ Failed - Unknown
+2025-06-25 18:06:33,338 - INFO - SuRL_FixedRL_133259340610112 - 
+2025-06-25 18:06:33,338 - INFO - SuRL_FixedRL_133259340610112 - 🎯 Successful Methods: ['Method 1 (IL)']
+2025-06-25 18:06:33,338 - INFO - SuRL_FixedRL_133259340610112 - 📊 Total Methods Tested: 3
+2025-06-25 18:06:33,338 - INFO - SuRL_FixedRL_133259340610112 - ✅ Success Rate: 1/3
+2025-06-25 18:06:33,338 - INFO - SuRL_FixedRL_133259340610112 - 
+2025-06-25 18:06:33,340 - INFO - SuRL_FixedRL_133259340610112 - 📄 Generating publication-ready conference paper...
+2025-06-25 18:06:33,342 - INFO - SuRL_FixedRL_133259340610112 - 📄 Enhanced Research Paper Generator initialized
+2025-06-25 18:06:33,342 - INFO - SuRL_FixedRL_133259340610112 - 📁 Publication files will be saved to: results/2025-06-25_18-04-57/fold0/publication_paper
+2025-06-25 18:06:33,342 - INFO - SuRL_FixedRL_133259340610112 - 📄 Generating publication-ready conference paper...
+2025-06-25 18:06:33,342 - INFO - SuRL_FixedRL_133259340610112 - 📊 Creating publication-quality figures...
+2025-06-25 18:06:35,838 - INFO - SuRL_FixedRL_133259340610112 - 📋 Generating tables with experimental results...
+2025-06-25 18:06:35,838 - INFO - SuRL_FixedRL_133259340610112 - 📄 Writing enhanced paper content...
+2025-06-25 18:06:35,838 - INFO - SuRL_FixedRL_133259340610112 - 📚 Creating supplementary materials...
+2025-06-25 18:06:35,839 - INFO - SuRL_FixedRL_133259340610112 - 📄 Publication-ready paper generated in: results/2025-06-25_18-04-57/fold0/publication_paper
+2025-06-25 18:06:35,839 - INFO - SuRL_FixedRL_133259340610112 - 🔧 Run compile_paper.sh to build the PDF
+2025-06-25 18:06:35,839 - INFO - SuRL_FixedRL_133259340610112 - ✨ Paper reflects your actual experimental results!
+2025-06-25 18:06:35,839 - INFO - SuRL_FixedRL_133259340610112 - 📄 Research paper generated: results/2025-06-25_18-04-57/fold0/publication_paper
+2025-06-25 18:06:35,839 - INFO - SuRL_FixedRL_133259340610112 - 💾 All RL results saved to: results/2025-06-25_18-04-57/fold0
+2025-06-25 18:06:35,839 - INFO - SuRL_FixedRL_133259340610112 - 📄 Complete results: results/2025-06-25_18-04-57/fold0/complete_results.json
+2025-06-25 18:06:35,839 - INFO - SuRL_FixedRL_133259340610112 - 📄 Summary: results/2025-06-25_18-04-57/fold0/experiment_summary.json
+2025-06-25 18:06:35,839 - INFO - SuRL_FixedRL_133259340610112 - 📊 Publication plots: results/2025-06-25_18-04-57/fold0/publication_plots

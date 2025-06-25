@@ -1,0 +1,55 @@
+2025-06-25 15:06:36,253 - INFO - SuRL_FixedRL_123890083195136 - Shared experiment log directory: results/2025-06-25_15-06-36/fold0/logs
+2025-06-25 15:06:36,253 - INFO - SuRL_FixedRL_123890083195136 - 🎯 RL Experiment: 2025-06-25_15-06-36
+2025-06-25 15:06:36,253 - INFO - SuRL_FixedRL_123890083195136 - 📁 Results dir: results/2025-06-25_15-06-36/fold0
+2025-06-25 15:06:36,253 - INFO - SuRL_FixedRL_123890083195136 - 📂 Plots dir: results/2025-06-25_15-06-36/fold0/publication_plots
+2025-06-25 15:06:36,253 - INFO - SuRL_FixedRL_123890083195136 - 🚀 Starting Complete RL Comparison
+2025-06-25 15:06:36,253 - INFO - SuRL_FixedRL_123890083195136 - ============================================================
+2025-06-25 15:06:36,253 - INFO - SuRL_FixedRL_123890083195136 - 📂 Loading CholecT50 data...
+2025-06-25 15:06:36,254 - INFO - SuRL_FixedRL_123890083195136 -    Training videos: 2
+2025-06-25 15:06:36,254 - INFO - SuRL_FixedRL_123890083195136 -    Test videos: 10
+2025-06-25 15:06:36,254 - INFO - SuRL_FixedRL_123890083195136 - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-25 15:06:36,650 - INFO - SuRL_FixedRL_123890083195136 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (78968, 156)
+2025-06-25 15:06:36,650 - INFO - SuRL_FixedRL_123890083195136 - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-25 15:06:36,651 - INFO - SuRL_FixedRL_123890083195136 - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-25 15:06:36,653 - INFO - SuRL_FixedRL_123890083195136 - [Train] Found 2 videos in metadata file
+2025-06-25 15:06:36,653 - INFO - SuRL_FixedRL_123890083195136 - [Train] Loading data for 2 videos
+2025-06-25 15:06:36,734 - INFO - SuRL_FixedRL_123890083195136 - ✅ Loaded video VID01: 1734 frames, 1024-dims embeddings
+2025-06-25 15:06:36,799 - INFO - SuRL_FixedRL_123890083195136 - ✅ Loaded video VID04: 1523 frames, 1024-dims embeddings
+2025-06-25 15:06:36,799 - INFO - SuRL_FixedRL_123890083195136 - 📂 Loaded 2 videos from train split
+2025-06-25 15:06:36,799 - INFO - SuRL_FixedRL_123890083195136 - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-25 15:06:36,876 - INFO - SuRL_FixedRL_123890083195136 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (21895, 156)
+2025-06-25 15:06:36,876 - INFO - SuRL_FixedRL_123890083195136 - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-25 15:06:36,876 - INFO - SuRL_FixedRL_123890083195136 - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-25 15:06:36,877 - INFO - SuRL_FixedRL_123890083195136 - [Test] Found 10 videos in metadata file
+2025-06-25 15:06:36,877 - INFO - SuRL_FixedRL_123890083195136 - [Test] Loading data for 10 videos
+2025-06-25 15:06:36,987 - INFO - SuRL_FixedRL_123890083195136 - ✅ Loaded video VID02: 2840 frames, 1024-dims embeddings
+2025-06-25 15:06:37,069 - INFO - SuRL_FixedRL_123890083195136 - ✅ Loaded video VID06: 2154 frames, 1024-dims embeddings
+2025-06-25 15:06:37,151 - INFO - SuRL_FixedRL_123890083195136 - ✅ Loaded video VID111: 2146 frames, 1024-dims embeddings
+2025-06-25 15:06:37,219 - INFO - SuRL_FixedRL_123890083195136 - ✅ Loaded video VID14: 1709 frames, 1024-dims embeddings
+2025-06-25 15:06:37,283 - INFO - SuRL_FixedRL_123890083195136 - ✅ Loaded video VID23: 1636 frames, 1024-dims embeddings
+2025-06-25 15:06:37,365 - INFO - SuRL_FixedRL_123890083195136 - ✅ Loaded video VID25: 2130 frames, 1024-dims embeddings
+2025-06-25 15:06:37,409 - INFO - SuRL_FixedRL_123890083195136 - ✅ Loaded video VID50: 1095 frames, 1024-dims embeddings
+2025-06-25 15:06:37,524 - INFO - SuRL_FixedRL_123890083195136 - ✅ Loaded video VID51: 2945 frames, 1024-dims embeddings
+2025-06-25 15:06:37,596 - INFO - SuRL_FixedRL_123890083195136 - ✅ Loaded video VID66: 1825 frames, 1024-dims embeddings
+2025-06-25 15:06:37,732 - INFO - SuRL_FixedRL_123890083195136 - ✅ Loaded video VID79: 3415 frames, 1024-dims embeddings
+2025-06-25 15:06:37,732 - INFO - SuRL_FixedRL_123890083195136 - 📂 Loaded 10 videos from test split
+2025-06-25 15:06:37,732 - INFO - SuRL_FixedRL_123890083195136 - ✅ Data loaded successfully
+2025-06-25 15:06:37,732 - INFO - SuRL_FixedRL_123890083195136 -    Training videos: 2
+2025-06-25 15:06:37,732 - INFO - SuRL_FixedRL_123890083195136 -    Test videos: 10
+2025-06-25 15:06:37,732 - INFO - SuRL_FixedRL_123890083195136 - 🎓 Running Method 1: Autoregressive IL
+2025-06-25 15:06:37,732 - INFO - SuRL_FixedRL_123890083195136 - 🎓 Method 1: Autoregressive IL
+2025-06-25 15:06:37,732 - INFO - SuRL_FixedRL_123890083195136 - ----------------------------------------
+2025-06-25 15:06:37,732 - INFO - SuRL_FixedRL_123890083195136 - 📂 Loading pretrained IL model from: results/2025-06-24_11-09-35/fold0/logs/checkpoints/autoregressive_il_best_epoch_1.pt
+2025-06-25 15:06:38,259 - ERROR - SuRL_FixedRL_123890083195136 - ❌ Method 1 failed: Error(s) in loading state_dict for AutoregressiveILModel:
+	Missing key(s) in state_dict: "action_recognition_head.weight", "action_recognition_head.bias". 
+2025-06-25 15:06:38,261 - ERROR - SuRL_FixedRL_123890083195136 - Full traceback: Traceback (most recent call last):
+  File "/home/maxboels/projects/surl/run_experiment_v7.py", line 216, in _run_method1_autoregressive_il
+    model = AutoregressiveILModel.load_model(il_model_path, device=DEVICE)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/projects/surl/models/autoregressive_il_model.py", line 379, in load_model
+    model.load_state_dict(checkpoint['model_state_dict'])
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 2584, in load_state_dict
+    raise RuntimeError(
+RuntimeError: Error(s) in loading state_dict for AutoregressiveILModel:
+	Missing key(s) in state_dict: "action_recognition_head.weight", "action_recognition_head.bias". 
+

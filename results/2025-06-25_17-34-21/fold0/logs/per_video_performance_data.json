@@ -1,0 +1,541 @@
+{
+  "video_performance_history": {
+    "VID02": [
+      {
+        "epoch": 0,
+        "mAP": 0.29000267614961217,
+        "exact_match": 0.36562169778090875
+      },
+      {
+        "epoch": 1,
+        "mAP": 0.3019702945822689,
+        "exact_match": 0.3864036632617119
+      }
+    ],
+    "VID06": [
+      {
+        "epoch": 0,
+        "mAP": 0.27955136174492357,
+        "exact_match": 0.2238736646539712
+      },
+      {
+        "epoch": 1,
+        "mAP": 0.2809298257365358,
+        "exact_match": 0.3200185787273572
+      }
+    ],
+    "VID111": [
+      {
+        "epoch": 0,
+        "mAP": 0.3925522485667267,
+        "exact_match": 0.4951048951048951
+      },
+      {
+        "epoch": 1,
+        "mAP": 0.4100657889191336,
+        "exact_match": 0.49976689976689975
+      }
+    ],
+    "VID14": [
+      {
+        "epoch": 0,
+        "mAP": 0.23782708339859734,
+        "exact_match": 0.35655737704918034
+      },
+      {
+        "epoch": 1,
+        "mAP": 0.2524435465667117,
+        "exact_match": 0.3793911007025761
+      }
+    ],
+    "VID23": [
+      {
+        "epoch": 0,
+        "mAP": 0.3243038298833362,
+        "exact_match": 0.3253822629969419
+      },
+      {
+        "epoch": 1,
+        "mAP": 0.3481070626591736,
+        "exact_match": 0.3529051987767584
+      }
+    ],
+    "VID25": [
+      {
+        "epoch": 0,
+        "mAP": 0.4097308661126055,
+        "exact_match": 0.22029121653358386
+      },
+      {
+        "epoch": 1,
+        "mAP": 0.42651060151636,
+        "exact_match": 0.2869891968060122
+      }
+    ],
+    "VID50": [
+      {
+        "epoch": 0,
+        "mAP": 0.340802089575054,
+        "exact_match": 0.44515539305301643
+      },
+      {
+        "epoch": 1,
+        "mAP": 0.34631583596079624,
+        "exact_match": 0.46526508226691043
+      }
+    ],
+    "VID51": [
+      {
+        "epoch": 0,
+        "mAP": 0.28529771423829026,
+        "exact_match": 0.3580163043478261
+      },
+      {
+        "epoch": 1,
+        "mAP": 0.3014364376278242,
+        "exact_match": 0.39164402173913043
+      }
+    ],
+    "VID66": [
+      {
+        "epoch": 0,
+        "mAP": 0.38417464869690815,
+        "exact_match": 0.37280701754385964
+      },
+      {
+        "epoch": 1,
+        "mAP": 0.39414118126053366,
+        "exact_match": 0.4205043859649123
+      }
+    ],
+    "VID79": [
+      {
+        "epoch": 0,
+        "mAP": 0.22017433356083352,
+        "exact_match": 0.359402460456942
+      },
+      {
+        "epoch": 1,
+        "mAP": 0.2230479815167976,
+        "exact_match": 0.37082601054481545
+      }
+    ]
+  },
+  "final_video_metrics": {
+    "VID02": {
+      "mAP": 0.3019702945822689,
+      "mAP_info": {
+        "calculated_from": "subset_excluding_last_classes_present_actions_only",
+        "excluded_classes": 6,
+        "subset_size": 94,
+        "present_actions_in_subset": "28",
+        "subset_action_sparsity": 0.7021276595744681
+      },
+      "mAP_standard_with_null_verb": 0.7088413513533816,
+      "mAP_present_only_with_null_verb": 0.26129809221582745,
+      "mAP_freq_weighted_with_null_verb": 0.6101087348831958,
+      "mAP_sample_wise_with_null_verb": 0.6364452577578945,
+      "mAP_standard_all_actions": 0.7088413513533816,
+      "mAP_present_only_all_actions": 0.26129809221582745,
+      "mAP_freq_weighted_all_actions": 0.6101087348831958,
+      "mAP_sample_wise_all_actions": 0.6364452577578945,
+      "exact_match_with_null_verb": 0.3522367030644593,
+      "hamming_accuracy_with_null_verb": 0.9886438886932019,
+      "precision_with_null_verb": 0.8129383600378735,
+      "recall_with_null_verb": 0.7456401561481415,
+      "f1_with_null_verb": 0.7750856341695694,
+      "num_predictions": 2839,
+      "num_actions_total_with_null_verb": 100,
+      "num_actions_present_with_null_verb": "34",
+      "action_sparsity_with_null_verb": 0.6599999999999999,
+      "task": "single_step_action_prediction",
+      "method_name": "AutoregressiveIL_video_VID02_epoch_1",
+      "exclude_last_n": 6,
+      "mAP_standard": 0.7495230664713144,
+      "mAP_present_only": 0.3019702945822689,
+      "mAP_freq_weighted": 0.6411250665770037,
+      "exact_match": 0.3864036632617119,
+      "hamming_accuracy": 0.9888783134606881,
+      "precision": 0.815059949529525,
+      "recall": 0.7603392187392088,
+      "f1": 0.7850007898956566,
+      "num_actions_total": 94,
+      "num_actions_present": "28",
+      "action_sparsity": 0.7021276595744681
+    },
+    "VID06": {
+      "mAP": 0.2809298257365358,
+      "mAP_info": {
+        "calculated_from": "subset_excluding_last_classes_present_actions_only",
+        "excluded_classes": 6,
+        "subset_size": 94,
+        "present_actions_in_subset": "26",
+        "subset_action_sparsity": 0.7234042553191489
+      },
+      "mAP_standard_with_null_verb": 0.7582884028484442,
+      "mAP_present_only_with_null_verb": 0.2609613428281476,
+      "mAP_freq_weighted_with_null_verb": 0.652347103018684,
+      "mAP_sample_wise_with_null_verb": 0.7203040953843977,
+      "mAP_standard_all_actions": 0.7582884028484442,
+      "mAP_present_only_all_actions": 0.2609613428281476,
+      "mAP_freq_weighted_all_actions": 0.652347103018684,
+      "mAP_sample_wise_all_actions": 0.7203040953843977,
+      "exact_match_with_null_verb": 0.2749651648862053,
+      "hamming_accuracy_with_null_verb": 0.9874640037157455,
+      "precision_with_null_verb": 0.8289387721694839,
+      "recall_with_null_verb": 0.7785242644395115,
+      "f1_with_null_verb": 0.801546468050748,
+      "num_predictions": 2153,
+      "num_actions_total_with_null_verb": 100,
+      "num_actions_present_with_null_verb": "30",
+      "action_sparsity_with_null_verb": 0.7,
+      "task": "single_step_action_prediction",
+      "method_name": "AutoregressiveIL_video_VID06_epoch_1",
+      "exclude_last_n": 6,
+      "mAP_standard": 0.7904699517994673,
+      "mAP_present_only": 0.2809298257365358,
+      "mAP_freq_weighted": 0.6848424464974425,
+      "exact_match": 0.3200185787273572,
+      "hamming_accuracy": 0.9881511201589074,
+      "precision": 0.8327129838007413,
+      "recall": 0.7991328213996696,
+      "f1": 0.814991197443829,
+      "num_actions_total": 94,
+      "num_actions_present": "26",
+      "action_sparsity": 0.7234042553191489
+    },
+    "VID111": {
+      "mAP": 0.4100657889191336,
+      "mAP_info": {
+        "calculated_from": "subset_excluding_last_classes_present_actions_only",
+        "excluded_classes": 6,
+        "subset_size": 94,
+        "present_actions_in_subset": "25",
+        "subset_action_sparsity": 0.7340425531914894
+      },
+      "mAP_standard_with_null_verb": 0.8097074272891418,
+      "mAP_present_only_with_null_verb": 0.37830147341083353,
+      "mAP_freq_weighted_with_null_verb": 0.6199338160917818,
+      "mAP_sample_wise_with_null_verb": 0.6981559706888006,
+      "mAP_standard_all_actions": 0.8097074272891418,
+      "mAP_present_only_all_actions": 0.37830147341083353,
+      "mAP_freq_weighted_all_actions": 0.6199338160917818,
+      "mAP_sample_wise_all_actions": 0.6981559706888006,
+      "exact_match_with_null_verb": 0.44522144522144524,
+      "hamming_accuracy_with_null_verb": 0.9899347319347319,
+      "precision_with_null_verb": 0.7993661058559373,
+      "recall_with_null_verb": 0.7555218249288448,
+      "f1_with_null_verb": 0.7756549310871557,
+      "num_predictions": 2145,
+      "num_actions_total_with_null_verb": 100,
+      "num_actions_present_with_null_verb": "29",
+      "action_sparsity_with_null_verb": 0.71,
+      "task": "single_step_action_prediction",
+      "method_name": "AutoregressiveIL_video_VID111_epoch_1",
+      "exclude_last_n": 6,
+      "mAP_standard": 0.8324643055635994,
+      "mAP_present_only": 0.4100657889191336,
+      "mAP_freq_weighted": 0.6598942648246937,
+      "exact_match": 0.49976689976689975,
+      "hamming_accuracy": 0.9916183107672469,
+      "precision": 0.8095998590029733,
+      "recall": 0.7977184620080504,
+      "f1": 0.8035395120173052,
+      "num_actions_total": 94,
+      "num_actions_present": "25",
+      "action_sparsity": 0.7340425531914894
+    },
+    "VID14": {
+      "mAP": 0.2524435465667117,
+      "mAP_info": {
+        "calculated_from": "subset_excluding_last_classes_present_actions_only",
+        "excluded_classes": 6,
+        "subset_size": 94,
+        "present_actions_in_subset": "36",
+        "subset_action_sparsity": 0.6170212765957447
+      },
+      "mAP_standard_with_null_verb": 0.6843930271433544,
+      "mAP_present_only_with_null_verb": 0.2302268954715961,
+      "mAP_freq_weighted_with_null_verb": 0.6086952442155261,
+      "mAP_sample_wise_with_null_verb": 0.6353461252939371,
+      "mAP_standard_all_actions": 0.6843930271433544,
+      "mAP_present_only_all_actions": 0.2302268954715961,
+      "mAP_freq_weighted_all_actions": 0.6086952442155261,
+      "mAP_sample_wise_all_actions": 0.6353461252939371,
+      "exact_match_with_null_verb": 0.34543325526932084,
+      "hamming_accuracy_with_null_verb": 0.9883196721311476,
+      "precision_with_null_verb": 0.8388040529948395,
+      "recall_with_null_verb": 0.7245460000599544,
+      "f1_with_null_verb": 0.7696655898045501,
+      "num_predictions": 1708,
+      "num_actions_total_with_null_verb": 100,
+      "num_actions_present_with_null_verb": "41",
+      "action_sparsity_with_null_verb": 0.5900000000000001,
+      "task": "single_step_action_prediction",
+      "method_name": "AutoregressiveIL_video_VID14_epoch_1",
+      "exclude_last_n": 6,
+      "mAP_standard": 0.7137017837915066,
+      "mAP_present_only": 0.2524435465667117,
+      "mAP_freq_weighted": 0.6430589083026544,
+      "exact_match": 0.3793911007025761,
+      "hamming_accuracy": 0.9886267377547461,
+      "precision": 0.8404375426526745,
+      "recall": 0.7389238486551859,
+      "f1": 0.7804601175313777,
+      "num_actions_total": 94,
+      "num_actions_present": "36",
+      "action_sparsity": 0.6170212765957447
+    },
+    "VID23": {
+      "mAP": 0.3481070626591736,
+      "mAP_info": {
+        "calculated_from": "subset_excluding_last_classes_present_actions_only",
+        "excluded_classes": 6,
+        "subset_size": 94,
+        "present_actions_in_subset": "26",
+        "subset_action_sparsity": 0.7234042553191489
+      },
+      "mAP_standard_with_null_verb": 0.7547135673902187,
+      "mAP_present_only_with_null_verb": 0.30552763674264105,
+      "mAP_freq_weighted_with_null_verb": 0.5498840745182153,
+      "mAP_sample_wise_with_null_verb": 0.5960346590239413,
+      "mAP_standard_all_actions": 0.7547135673902187,
+      "mAP_present_only_all_actions": 0.30552763674264105,
+      "mAP_freq_weighted_all_actions": 0.5498840745182153,
+      "mAP_sample_wise_all_actions": 0.5960346590239413,
+      "exact_match_with_null_verb": 0.2837920489296636,
+      "hamming_accuracy_with_null_verb": 0.9867584097859328,
+      "precision_with_null_verb": 0.8117812364894077,
+      "recall_with_null_verb": 0.692665071476396,
+      "f1_with_null_verb": 0.7376134869618626,
+      "num_predictions": 1635,
+      "num_actions_total_with_null_verb": 100,
+      "num_actions_present_with_null_verb": "31",
+      "action_sparsity_with_null_verb": 0.69,
+      "task": "single_step_action_prediction",
+      "method_name": "AutoregressiveIL_video_VID23_epoch_1",
+      "exclude_last_n": 6,
+      "mAP_standard": 0.7877742939270056,
+      "mAP_present_only": 0.3481070626591736,
+      "mAP_freq_weighted": 0.5806222689761822,
+      "exact_match": 0.3529051987767584,
+      "hamming_accuracy": 0.9875984123885744,
+      "precision": 0.8207724405512782,
+      "recall": 0.708625160557897,
+      "f1": 0.7523754298615188,
+      "num_actions_total": 94,
+      "num_actions_present": "26",
+      "action_sparsity": 0.7234042553191489
+    },
+    "VID25": {
+      "mAP": 0.42651060151636,
+      "mAP_info": {
+        "calculated_from": "subset_excluding_last_classes_present_actions_only",
+        "excluded_classes": 6,
+        "subset_size": 94,
+        "present_actions_in_subset": "21",
+        "subset_action_sparsity": 0.7765957446808511
+      },
+      "mAP_standard_with_null_verb": 0.8255757871972996,
+      "mAP_present_only_with_null_verb": 0.36759918152807575,
+      "mAP_freq_weighted_with_null_verb": 0.6662859610832987,
+      "mAP_sample_wise_with_null_verb": 0.6832692912494418,
+      "mAP_standard_all_actions": 0.8255757871972996,
+      "mAP_present_only_all_actions": 0.36759918152807575,
+      "mAP_freq_weighted_all_actions": 0.6662859610832987,
+      "mAP_sample_wise_all_actions": 0.6832692912494418,
+      "exact_match_with_null_verb": 0.24565523720056365,
+      "hamming_accuracy_with_null_verb": 0.9881634570220761,
+      "precision_with_null_verb": 0.856148512634458,
+      "recall_with_null_verb": 0.7313350342843644,
+      "f1_with_null_verb": 0.779983078051649,
+      "num_predictions": 2129,
+      "num_actions_total_with_null_verb": 100,
+      "num_actions_present_with_null_verb": "26",
+      "action_sparsity_with_null_verb": 0.74,
+      "task": "single_step_action_prediction",
+      "method_name": "AutoregressiveIL_video_VID25_epoch_1",
+      "exclude_last_n": 6,
+      "mAP_standard": 0.8612417301259954,
+      "mAP_present_only": 0.42651060151636,
+      "mAP_freq_weighted": 0.7046918855175099,
+      "exact_match": 0.2869891968060122,
+      "hamming_accuracy": 0.9886221680341385,
+      "precision": 0.8585232282956512,
+      "recall": 0.746983466686707,
+      "f1": 0.7920912122917062,
+      "num_actions_total": 94,
+      "num_actions_present": "21",
+      "action_sparsity": 0.7765957446808511
+    },
+    "VID50": {
+      "mAP": 0.34631583596079624,
+      "mAP_info": {
+        "calculated_from": "subset_excluding_last_classes_present_actions_only",
+        "excluded_classes": 6,
+        "subset_size": 94,
+        "present_actions_in_subset": "16",
+        "subset_action_sparsity": 0.8297872340425532
+      },
+      "mAP_standard_with_null_verb": 0.8777611664636228,
+      "mAP_present_only_with_null_verb": 0.32089536924234885,
+      "mAP_freq_weighted_with_null_verb": 0.6767963043883302,
+      "mAP_sample_wise_with_null_verb": 0.7077593638629458,
+      "mAP_standard_all_actions": 0.8777611664636228,
+      "mAP_present_only_all_actions": 0.32089536924234885,
+      "mAP_freq_weighted_all_actions": 0.6767963043883302,
+      "mAP_sample_wise_all_actions": 0.7077593638629458,
+      "exact_match_with_null_verb": 0.44424131627056673,
+      "hamming_accuracy_with_null_verb": 0.9896069469835466,
+      "precision_with_null_verb": 0.861405154054079,
+      "recall_with_null_verb": 0.7906877323420074,
+      "f1_with_null_verb": 0.8220619989904003,
+      "num_predictions": 1094,
+      "num_actions_total_with_null_verb": 100,
+      "num_actions_present_with_null_verb": "18",
+      "action_sparsity_with_null_verb": 0.8200000000000001,
+      "task": "single_step_action_prediction",
+      "method_name": "AutoregressiveIL_video_VID50_epoch_1",
+      "exclude_last_n": 6,
+      "mAP_standard": 0.8887346103763057,
+      "mAP_present_only": 0.34631583596079624,
+      "mAP_freq_weighted": 0.7060584645563988,
+      "exact_match": 0.46526508226691043,
+      "hamming_accuracy": 0.9898965342876036,
+      "precision": 0.8618190024316921,
+      "recall": 0.8071249875994937,
+      "f1": 0.8321469937866351,
+      "num_actions_total": 94,
+      "num_actions_present": "16",
+      "action_sparsity": 0.8297872340425532
+    },
+    "VID51": {
+      "mAP": 0.3014364376278242,
+      "mAP_info": {
+        "calculated_from": "subset_excluding_last_classes_present_actions_only",
+        "excluded_classes": 6,
+        "subset_size": 94,
+        "present_actions_in_subset": "24",
+        "subset_action_sparsity": 0.7446808510638299
+      },
+      "mAP_standard_with_null_verb": 0.7750567583389797,
+      "mAP_present_only_with_null_verb": 0.29329916668613665,
+      "mAP_freq_weighted_with_null_verb": 0.6028108978356412,
+      "mAP_sample_wise_with_null_verb": 0.640498390904383,
+      "mAP_standard_all_actions": 0.7750567583389797,
+      "mAP_present_only_all_actions": 0.29329916668613665,
+      "mAP_freq_weighted_all_actions": 0.6028108978356412,
+      "mAP_sample_wise_all_actions": 0.640498390904383,
+      "exact_match_with_null_verb": 0.33627717391304346,
+      "hamming_accuracy_with_null_verb": 0.9877072010869565,
+      "precision_with_null_verb": 0.8115553699081328,
+      "recall_with_null_verb": 0.7241420641077461,
+      "f1_with_null_verb": 0.7604431050855753,
+      "num_predictions": 2944,
+      "num_actions_total_with_null_verb": 100,
+      "num_actions_present_with_null_verb": "29",
+      "action_sparsity_with_null_verb": 0.71,
+      "task": "single_step_action_prediction",
+      "method_name": "AutoregressiveIL_video_VID51_epoch_1",
+      "exclude_last_n": 6,
+      "mAP_standard": 0.800366750032636,
+      "mAP_present_only": 0.3014364376278242,
+      "mAP_freq_weighted": 0.6293744079321149,
+      "exact_match": 0.39164402173913043,
+      "hamming_accuracy": 0.9886353781221091,
+      "precision": 0.8182701573601525,
+      "recall": 0.7430344486813116,
+      "f1": 0.7754245129411909,
+      "num_actions_total": 94,
+      "num_actions_present": "24",
+      "action_sparsity": 0.7446808510638299
+    },
+    "VID66": {
+      "mAP": 0.39414118126053366,
+      "mAP_info": {
+        "calculated_from": "subset_excluding_last_classes_present_actions_only",
+        "excluded_classes": 6,
+        "subset_size": 94,
+        "present_actions_in_subset": "20",
+        "subset_action_sparsity": 0.7872340425531915
+      },
+      "mAP_standard_with_null_verb": 0.8333679345768067,
+      "mAP_present_only_with_null_verb": 0.3624692807687247,
+      "mAP_freq_weighted_with_null_verb": 0.6978989362222167,
+      "mAP_sample_wise_with_null_verb": 0.6780358775879359,
+      "mAP_standard_all_actions": 0.8333679345768067,
+      "mAP_present_only_all_actions": 0.3624692807687247,
+      "mAP_freq_weighted_all_actions": 0.6978989362222167,
+      "mAP_sample_wise_all_actions": 0.6780358775879359,
+      "exact_match_with_null_verb": 0.4128289473684211,
+      "hamming_accuracy_with_null_verb": 0.989703947368421,
+      "precision_with_null_verb": 0.874743669719298,
+      "recall_with_null_verb": 0.7561999472051375,
+      "f1_with_null_verb": 0.8039425732566106,
+      "num_predictions": 1824,
+      "num_actions_total_with_null_verb": 100,
+      "num_actions_present_with_null_verb": "23",
+      "action_sparsity_with_null_verb": 0.77,
+      "task": "single_step_action_prediction",
+      "method_name": "AutoregressiveIL_video_VID66_epoch_1",
+      "exclude_last_n": 6,
+      "mAP_standard": 0.849817272608624,
+      "mAP_present_only": 0.39414118126053366,
+      "mAP_freq_weighted": 0.7160674214748558,
+      "exact_match": 0.4205043859649123,
+      "hamming_accuracy": 0.9896241601343785,
+      "precision": 0.876963471429732,
+      "recall": 0.7636351571919069,
+      "f1": 0.809909158088859,
+      "num_actions_total": 94,
+      "num_actions_present": "20",
+      "action_sparsity": 0.7872340425531915
+    },
+    "VID79": {
+      "mAP": 0.2230479815167976,
+      "mAP_info": {
+        "calculated_from": "subset_excluding_last_classes_present_actions_only",
+        "excluded_classes": 6,
+        "subset_size": 94,
+        "present_actions_in_subset": "31",
+        "subset_action_sparsity": 0.6702127659574468
+      },
+      "mAP_standard_with_null_verb": 0.7030596889134508,
+      "mAP_present_only_with_null_verb": 0.20294358031514098,
+      "mAP_freq_weighted_with_null_verb": 0.6394094123572807,
+      "mAP_sample_wise_with_null_verb": 0.6903912355132404,
+      "mAP_standard_all_actions": 0.7030596889134508,
+      "mAP_present_only_all_actions": 0.20294358031514098,
+      "mAP_freq_weighted_all_actions": 0.6394094123572807,
+      "mAP_sample_wise_all_actions": 0.6903912355132404,
+      "exact_match_with_null_verb": 0.3506151142355009,
+      "hamming_accuracy_with_null_verb": 0.9892062097246631,
+      "precision_with_null_verb": 0.8560334542988084,
+      "recall_with_null_verb": 0.7863739025373617,
+      "f1_with_null_verb": 0.8172761092663829,
+      "num_predictions": 3414,
+      "num_actions_total_with_null_verb": 100,
+      "num_actions_present_with_null_verb": "36",
+      "action_sparsity_with_null_verb": 0.64,
+      "task": "single_step_action_prediction",
+      "method_name": "AutoregressiveIL_video_VID79_epoch_1",
+      "exclude_last_n": 6,
+      "mAP_standard": 0.7331328449683057,
+      "mAP_present_only": 0.2230479815167976,
+      "mAP_freq_weighted": 0.666867481990851,
+      "exact_match": 0.37082601054481545,
+      "hamming_accuracy": 0.9896078724650688,
+      "precision": 0.8624109990622333,
+      "recall": 0.7989326437070885,
+      "f1": 0.8275032043702993,
+      "num_actions_total": 94,
+      "num_actions_present": "31",
+      "action_sparsity": 0.6702127659574468
+    }
+  },
+  "training_summary": {
+    "epochs": 2,
+    "final_mAP": 0.32849685563461356,
+    "best_mAP": 0.32849685563461356
+  }
+}

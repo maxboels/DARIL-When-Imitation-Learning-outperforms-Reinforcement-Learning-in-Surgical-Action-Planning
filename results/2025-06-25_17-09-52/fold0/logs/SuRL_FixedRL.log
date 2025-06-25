@@ -1,0 +1,64 @@
+2025-06-25 17:09:52,601 - INFO - SuRL_FixedRL_126731446414624 - Shared experiment log directory: results/2025-06-25_17-09-52/fold0/logs
+2025-06-25 17:09:52,602 - INFO - SuRL_FixedRL_126731446414624 - 🎯 RL Experiment: 2025-06-25_17-09-52
+2025-06-25 17:09:52,602 - INFO - SuRL_FixedRL_126731446414624 - 📁 Results dir: results/2025-06-25_17-09-52/fold0
+2025-06-25 17:09:52,602 - INFO - SuRL_FixedRL_126731446414624 - 📂 Plots dir: results/2025-06-25_17-09-52/fold0/publication_plots
+2025-06-25 17:09:52,602 - INFO - SuRL_FixedRL_126731446414624 - 🚀 Starting Complete RL Comparison
+2025-06-25 17:09:52,602 - INFO - SuRL_FixedRL_126731446414624 - ============================================================
+2025-06-25 17:09:52,602 - INFO - SuRL_FixedRL_126731446414624 - 📂 Loading CholecT50 data...
+2025-06-25 17:09:52,602 - INFO - SuRL_FixedRL_126731446414624 -    Training videos: 2
+2025-06-25 17:09:52,602 - INFO - SuRL_FixedRL_126731446414624 -    Test videos: 10
+2025-06-25 17:09:52,602 - INFO - SuRL_FixedRL_126731446414624 - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-25 17:09:53,006 - INFO - SuRL_FixedRL_126731446414624 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (78968, 156)
+2025-06-25 17:09:53,006 - INFO - SuRL_FixedRL_126731446414624 - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-25 17:09:53,007 - INFO - SuRL_FixedRL_126731446414624 - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-25 17:09:53,009 - INFO - SuRL_FixedRL_126731446414624 - [Train] Found 2 videos in metadata file
+2025-06-25 17:09:53,009 - INFO - SuRL_FixedRL_126731446414624 - [Train] Loading data for 2 videos
+2025-06-25 17:09:53,088 - INFO - SuRL_FixedRL_126731446414624 - ✅ Loaded video VID01: 1734 frames, 1024-dims embeddings
+2025-06-25 17:09:53,153 - INFO - SuRL_FixedRL_126731446414624 - ✅ Loaded video VID04: 1523 frames, 1024-dims embeddings
+2025-06-25 17:09:53,153 - INFO - SuRL_FixedRL_126731446414624 - 📂 Loaded 2 videos from train split
+2025-06-25 17:09:53,153 - INFO - SuRL_FixedRL_126731446414624 - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-25 17:09:53,230 - INFO - SuRL_FixedRL_126731446414624 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (21895, 156)
+2025-06-25 17:09:53,230 - INFO - SuRL_FixedRL_126731446414624 - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-25 17:09:53,231 - INFO - SuRL_FixedRL_126731446414624 - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-25 17:09:53,231 - INFO - SuRL_FixedRL_126731446414624 - [Test] Found 10 videos in metadata file
+2025-06-25 17:09:53,231 - INFO - SuRL_FixedRL_126731446414624 - [Test] Loading data for 10 videos
+2025-06-25 17:09:53,343 - INFO - SuRL_FixedRL_126731446414624 - ✅ Loaded video VID02: 2840 frames, 1024-dims embeddings
+2025-06-25 17:09:53,427 - INFO - SuRL_FixedRL_126731446414624 - ✅ Loaded video VID06: 2154 frames, 1024-dims embeddings
+2025-06-25 17:09:53,510 - INFO - SuRL_FixedRL_126731446414624 - ✅ Loaded video VID111: 2146 frames, 1024-dims embeddings
+2025-06-25 17:09:53,581 - INFO - SuRL_FixedRL_126731446414624 - ✅ Loaded video VID14: 1709 frames, 1024-dims embeddings
+2025-06-25 17:09:53,645 - INFO - SuRL_FixedRL_126731446414624 - ✅ Loaded video VID23: 1636 frames, 1024-dims embeddings
+2025-06-25 17:09:53,728 - INFO - SuRL_FixedRL_126731446414624 - ✅ Loaded video VID25: 2130 frames, 1024-dims embeddings
+2025-06-25 17:09:53,772 - INFO - SuRL_FixedRL_126731446414624 - ✅ Loaded video VID50: 1095 frames, 1024-dims embeddings
+2025-06-25 17:09:53,888 - INFO - SuRL_FixedRL_126731446414624 - ✅ Loaded video VID51: 2945 frames, 1024-dims embeddings
+2025-06-25 17:09:53,961 - INFO - SuRL_FixedRL_126731446414624 - ✅ Loaded video VID66: 1825 frames, 1024-dims embeddings
+2025-06-25 17:09:54,097 - INFO - SuRL_FixedRL_126731446414624 - ✅ Loaded video VID79: 3415 frames, 1024-dims embeddings
+2025-06-25 17:09:54,097 - INFO - SuRL_FixedRL_126731446414624 - 📂 Loaded 10 videos from test split
+2025-06-25 17:09:54,097 - INFO - SuRL_FixedRL_126731446414624 - ✅ Data loaded successfully
+2025-06-25 17:09:54,097 - INFO - SuRL_FixedRL_126731446414624 -    Training videos: 2
+2025-06-25 17:09:54,097 - INFO - SuRL_FixedRL_126731446414624 -    Test videos: 10
+2025-06-25 17:09:54,097 - INFO - SuRL_FixedRL_126731446414624 - 🎓 Running Method 1: Autoregressive IL
+2025-06-25 17:09:54,097 - INFO - SuRL_FixedRL_126731446414624 - 🎓 Method 1: Autoregressive IL
+2025-06-25 17:09:54,097 - INFO - SuRL_FixedRL_126731446414624 - ----------------------------------------
+2025-06-25 17:09:54,097 - INFO - SuRL_FixedRL_126731446414624 - 🏋️ Training IL model from scratch...
+2025-06-25 17:09:55,564 - INFO - SuRL_FixedRL_126731446414624 - 🎓 Autoregressive IL Trainer initialized (FIXED)
+2025-06-25 17:09:55,565 - INFO - SuRL_FixedRL_126731446414624 -    Device: cuda
+2025-06-25 17:09:55,565 - INFO - SuRL_FixedRL_126731446414624 -    Epochs: 2
+2025-06-25 17:09:55,565 - INFO - SuRL_FixedRL_126731446414624 -    Learning rate: 3e-05
+2025-06-25 17:09:55,565 - INFO - SuRL_FixedRL_126731446414624 -    ✅ Per-video aggregation + shared metrics + efficient validation
+2025-06-25 17:09:55,565 - INFO - SuRL_FixedRL_126731446414624 - 🌟 Training Autoregressive IL model...
+2025-06-25 17:09:55,565 - INFO - SuRL_FixedRL_126731446414624 - 🎓 Starting Autoregressive IL Training...
+2025-06-25 17:09:55,565 - INFO - SuRL_FixedRL_126731446414624 - 🎯 Goal: Learn causal frame generation → action prediction
+2025-06-25 17:09:55,565 - INFO - SuRL_FixedRL_126731446414624 - 📊 Evaluation: Per-video aggregation for robust metrics
+2025-06-25 17:10:03,595 - ERROR - SuRL_FixedRL_126731446414624 - ❌ Method 1 failed: 'target_actions'
+2025-06-25 17:10:03,599 - ERROR - SuRL_FixedRL_126731446414624 - Full traceback: Traceback (most recent call last):
+  File "/home/maxboels/projects/surl/run_experiment_v7.py", line 266, in _run_method1_autoregressive_il
+    best_model_path = trainer.train(train_loader, test_loaders)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/projects/surl/training/autoregressive_il_trainer.py", line 188, in train
+    train_metrics = self._train_epoch(train_loader, epoch)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/projects/surl/training/autoregressive_il_trainer.py", line 254, in _train_epoch
+    current_actions = batch['target_actions'][:-1].to(self.device)  # Exclude last action for current state
+                      ~~~~~^^^^^^^^^^^^^^^^^^
+KeyError: 'target_actions'
+

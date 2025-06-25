@@ -101,6 +101,14 @@ class AutoregressiveILModel(nn.Module):
             nn.Dropout(dropout),
             nn.Linear(hidden_dim // 2, num_phase_classes)
         )
+
+        # Action recognition layer
+        self.action_recognition_head = nn.Sequential(
+            nn.Linear(embedding_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(hidden_dim, num_action_classes)
+        )
         
         # Initialize weights
         self._init_weights()
@@ -130,6 +138,7 @@ class AutoregressiveILModel(nn.Module):
     def forward(self, 
                 frame_embeddings: torch.Tensor,
                 target_next_frames: Optional[torch.Tensor] = None,
+                target_current_actions: Optional[torch.Tensor] = None,
                 target_actions: Optional[torch.Tensor] = None,
                 target_phases: Optional[torch.Tensor] = None,
                 return_hidden_states: bool = False) -> Dict[str, torch.Tensor]:
@@ -149,6 +158,9 @@ class AutoregressiveILModel(nn.Module):
         
         batch_size, seq_len, _ = frame_embeddings.shape
         device = frame_embeddings.device
+
+        # Action recognition task
+        action_rec_logits = self.action_recognition_head(frame_embeddings) # TODO: pass the hidden inputs instead of frame_embeddings
         
         # Project frame embeddings to hidden space
         hidden_inputs = self.frame_projection(frame_embeddings)
@@ -178,6 +190,7 @@ class AutoregressiveILModel(nn.Module):
         
         # Prepare outputs
         outputs = {
+            'action_rec_probs': torch.sigmoid(action_rec_logits),  # For compatibility
             'next_frame_pred': next_frame_pred,
             'action_logits': action_logits,
             'action_pred': torch.sigmoid(action_logits),  # For compatibility
@@ -190,12 +203,20 @@ class AutoregressiveILModel(nn.Module):
         
         # Calculate losses if targets are provided
         total_loss = 0.0
+
+        # Action recognition loss
+        if target_current_actions is not None:
+            action_rec_loss = F.binary_cross_entropy_with_logits(
+                action_rec_logits, target_current_actions
+            )
+            outputs['action_rec_loss'] = action_rec_loss
+            total_loss += 1.5 * action_rec_loss
         
         # Next frame prediction loss (autoregressive)
         if target_next_frames is not None:
             frame_loss = F.mse_loss(next_frame_pred, target_next_frames)
             outputs['frame_loss'] = frame_loss
-            total_loss += frame_loss
+            total_loss += frame_loss # might overfit on this loss
         
         # Action prediction loss
         if target_actions is not None:

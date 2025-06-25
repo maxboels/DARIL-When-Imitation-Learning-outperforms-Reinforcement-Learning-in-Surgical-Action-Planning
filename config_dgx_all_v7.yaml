@@ -5,16 +5,16 @@ experiment:
   train:
     max_videos: 2  # default is 40
   test:
-    max_videos: 10  # default is 10
+    max_videos: 2  # default is 10
     test_on_train: false
     
   # Imitation Learning
   autoregressive_il:
     enabled: true
-    train: false
+    train: true
     evaluate: true
-    # il_model_path: null
-    il_model_path: "results/2025-06-24_11-09-35/fold0/logs/checkpoints/autoregressive_il_best_epoch_1.pt"
+    il_model_path: null
+    # il_model_path: "results/2025-06-24_11-09-35/fold0/logs/checkpoints/autoregressive_il_best_epoch_1.pt"
     # il_model_path: "results/2025-06-10_19-45-51/logs/checkpoints/autoregressive_il_best_epoch_1.pt"  # Path to the best IL model
   
   # Conditional World Model

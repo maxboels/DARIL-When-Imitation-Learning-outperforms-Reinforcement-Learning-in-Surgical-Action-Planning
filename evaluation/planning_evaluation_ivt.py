@@ -83,6 +83,14 @@ class AutoregressivePlanningEvaluator:
             
         Returns:
             Dictionary with planning evaluation results
+
+        Expected batch format:
+            'target_next_frames': torch.tensor(np.array(sample['target_next_frames']), dtype=torch.float32),
+            'target_next_actions': torch.tensor(np.array(sample['target_next_actions']), dtype=torch.float32),
+            'target_next_phases': torch.tensor(np.array(sample['target_next_phases']), dtype=torch.long),
+            'target_future_actions': torch.tensor(np.array(sample['target_future_actions']), dtype=torch.float32),
+            'video_id': sample['video_id'],
+            'frame_idx': sample['frame_idx']
         """
         
         self.model.eval()
@@ -98,6 +106,9 @@ class AutoregressivePlanningEvaluator:
         with torch.no_grad():
             for batch_idx, batch in enumerate(tqdm(video_dataloader, desc=f"Planning eval {video_id}")):
                 try:
+                    # For recognition (current state) - slice sequence dimension 
+                    input_frames = batch['target_next_frames'][:, :-1].to(self.device)  # [batch_size, context_length, embedding_dim]
+                    
                     # Get batch data
                     input_frames = batch['input_frames'].to(self.device)  # [batch, seq, dim]
                     target_actions = batch['target_future_actions'].to(self.device)  # [batch, seq, actions]

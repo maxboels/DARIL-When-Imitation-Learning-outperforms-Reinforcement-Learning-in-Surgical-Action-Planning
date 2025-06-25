@@ -15,6 +15,14 @@ class AutoregressiveDataset(Dataset):
     """
     Dataset for Autoregressive IL (Method 1).
     Returns frame sequences for causal generation without action conditioning.
+    
+    Usage during forward pass:
+    - input_frames = target_next_frames[:-1]  # For recognition
+    - next_frames = target_next_frames[1:]   # For next frame prediction
+    - current_actions = target_actions[:-1]  # For recognition  
+    - next_actions = target_actions[1:]      # For next frame prediction
+    - current_phases = target_phases[:-1]    # For recognition
+    - next_phases = target_phases[1:]        # For next frame prediction
     """
     
     def __init__(self, config: Dict, data: List[Dict]):
@@ -42,60 +50,76 @@ class AutoregressiveDataset(Dataset):
             num_actions = actions.shape[1]  # FIXED: Use actions instead of actions_binaries.shape
             
             for i in range(num_frames - 1):
-                # Input: sequence of frames
-                input_frames = []
+                # Target sequences that will be split during forward pass
                 target_next_frames = []
                 target_actions = []
                 target_phases = []
                 target_future_actions = []
                 
-                # Build sequences
-                for j in range(max(0, i - context_length + 1), i + 1):
+                # Get the sequence indices
+                sequence_indices = list(range(max(0, i - context_length + 1), i + 1))
+                
+                # Build sequences frame by frame
+                for idx, j in enumerate(sequence_indices):
                     # Pad if index is negative
                     if j < 0:
-                        input_frames.append([padding_value] * embedding_dim)
                         target_next_frames.append([padding_value] * embedding_dim)
                         target_actions.append([0] * num_actions)
                         target_phases.append(0)
                     else:
-                        input_frames.append(embeddings[j])
-                        # Target next frame and next action 
-                        if j + 1 < num_frames:
-                            target_next_frames.append(embeddings[j + 1]) # Next frame at t+1
-                            target_actions.append(actions[j + 1])  # Actions at t+1
-                            if len(phases) > j + 1:
-                                target_phases.append(np.argmax(phases[j + 1]))
-                            else:
-                                target_phases.append(0)
+                        # Target next frames: current frame at time j
+                        target_next_frames.append(embeddings[j])
+                        
+                        # Target actions: current action at time j
+                        target_actions.append(actions[j])
+                        
+                        # Target phases: current phase at time j
+                        if len(phases) > j:
+                            target_phases.append(np.argmax(phases[j]))
                         else:
-                            target_next_frames.append(embeddings[j])
-                            target_actions.append(actions[j])
-                            if len(phases) > j:
-                                target_phases.append(np.argmax(phases[j]))
-                            else:
-                                target_phases.append(0)
+                            target_phases.append(0)
 
-                # Future actions (t+2, t+3, etc.)
-                for k in range(1, future_length + 1):
-                    if j + k < num_frames:
-                        target_future_actions.append(actions[j + k])
+                # Add the next frame (t+1) to target_next_frames for next frame prediction
+                last_frame_idx = sequence_indices[-1] if sequence_indices else i
+                if last_frame_idx + 1 < num_frames:
+                    target_next_frames.append(embeddings[last_frame_idx + 1])
+                else:
+                    target_next_frames.append(embeddings[last_frame_idx])
+
+                # Add the next action (t+1) to target_actions for next frame prediction
+                if last_frame_idx + 1 < num_frames:
+                    target_actions.append(actions[last_frame_idx + 1])
+                else:
+                    target_actions.append([0] * num_actions)
+
+                # Add the next phase (t+1) to target_phases for next frame prediction
+                if last_frame_idx + 1 < num_frames and len(phases) > last_frame_idx + 1:
+                    target_phases.append(np.argmax(phases[last_frame_idx + 1]))
+                elif len(phases) > last_frame_idx:
+                    target_phases.append(np.argmax(phases[last_frame_idx]))
+                else:
+                    target_phases.append(0)
+
+                # Future actions (t+1, t+2, t+3, etc.)
+                for k in range(1, future_length + 1):  # Start from t+1
+                    if last_frame_idx + k < num_frames:
+                        target_future_actions.append(actions[last_frame_idx + k])
                     else:
                         target_future_actions.append([0] * num_actions)
                 
                 # Ensure all sequences have the same length
-                while len(input_frames) < context_length:
-                    input_frames.insert(0, [padding_value] * embedding_dim)
-                    target_next_frames.insert(0, [padding_value] * embedding_dim)
-                    target_actions.insert(0, [0] * num_actions)
-                    target_phases.insert(0, 0)
+                # target_next_frames, target_actions and target_phases now have context_length + 1 elements (current + next)
+                while len(target_next_frames) < context_length + 1:
+                    target_next_frames.insert(-1, [padding_value] * embedding_dim)  # Insert before the last (next) frame
+                    target_actions.insert(-1, [0] * num_actions)  # Insert before the last (next) action
+                    target_phases.insert(-1, 0)  # Insert before the last (next) phase
                 
                 self.samples.append({
                     'video_id': video_id,
                     'frame_idx': i,
-                    'input_frames': input_frames,
                     'target_next_frames': target_next_frames,
-                    'target_actions': target_actions,
-                    'target_phases': target_phases,
+                    'target_next_actions': target_actions,
+                    'target_next_phases': target_phases,
                     'target_future_actions': target_future_actions
                 })
     
@@ -106,10 +130,9 @@ class AutoregressiveDataset(Dataset):
         sample = self.samples[idx]
         
         return {
-            'input_frames': torch.tensor(np.array(sample['input_frames']), dtype=torch.float32),
             'target_next_frames': torch.tensor(np.array(sample['target_next_frames']), dtype=torch.float32),
-            'target_actions': torch.tensor(np.array(sample['target_actions']), dtype=torch.float32),
-            'target_phases': torch.tensor(np.array(sample['target_phases']), dtype=torch.long),
+            'target_next_actions': torch.tensor(np.array(sample['target_next_actions']), dtype=torch.float32),
+            'target_next_phases': torch.tensor(np.array(sample['target_next_phases']), dtype=torch.long),
             'target_future_actions': torch.tensor(np.array(sample['target_future_actions']), dtype=torch.float32),
             'video_id': sample['video_id'],
             'frame_idx': sample['frame_idx']

@@ -189,7 +189,7 @@ class IntegratedEvaluationFramework:
         # 🚀 SECONDARY EVALUATION: Planning capability analysis
         self.logger.info("🚀 SECONDARY: Planning capability analysis")
         
-        planning_horizon = 10
+        planning_horizon = 5
         
         for method_name, model in models.items():
             self.logger.info(f"  🧠 {method_name}: Planning capability analysis")
@@ -199,7 +199,7 @@ class IntegratedEvaluationFramework:
                     model, video_loader, method_name, planning_horizon
                 )
                 
-                video_result['planning_evaluation'][method_name] = {}#planning_results
+                video_result['planning_evaluation'][method_name] = {} # planning_results
                 
                 stability = planning_results.get('planning_stability', 0.0)
                 self.logger.info(f"    📊 Planning stability: {stability:.4f}")
@@ -271,16 +271,10 @@ class IntegratedEvaluationFramework:
              'phase_logits', 'hidden_states', 'total_loss']
 
         """
-        
-        # Use the same data format as training
-        if 'input_frames' in batch:
-            # Direct training format
-            input_frames = batch['input_frames'].to(self.device)
-            target_actions = batch['target_actions'].to(self.device)
-        else:
-            # Evaluation format - use current_states as sequences
-            input_frames = batch['current_states'].to(self.device)  # [batch, seq_len, emb_dim]
-            target_actions = batch['next_actions'].to(self.device)  # [batch, seq_len, num_actions]
+
+        # Extract input frames and next actions from batch
+        input_frames = batch['target_next_frames'][:, :-1].to(self.device)  # [batch_size, context_length, embedding_dim]
+        next_actions = batch['target_next_actions'][:, 1:].to(self.device)  # [batch_size, context_length, num_actions]
         
         # Forward pass (exactly like training)
         outputs = il_model(frame_embeddings=input_frames) 
@@ -291,11 +285,11 @@ class IntegratedEvaluationFramework:
         if action_probs.dim() == 3:
             # Take last timestep: [batch, num_actions]
             predictions = action_probs[:, -1, :].cpu().numpy()
-            targets = target_actions[:, -1, :].cpu().numpy()
+            targets = next_actions[:, -1, :].cpu().numpy()
         else:
             # Already single time step format
             predictions = action_probs.cpu().numpy()
-            targets = target_actions.cpu().numpy()
+            targets = next_actions.cpu().numpy()
         
         return predictions, targets
 
@@ -436,13 +430,9 @@ class IntegratedEvaluationFramework:
         for batch in tqdm(video_loader, desc="Evaluating IL planning"):
             try:
                 # Use proper input format (like training)
-                if 'input_frames' in batch:
-                    input_frames = batch['input_frames'].to(self.device)
-                else:
-                    input_frames = batch['current_states'].to(self.device)
+                input_frames = batch['target_next_frames'][:, :-1].to(self.device)
                 
                 # Take first sample from batch for planning
-                # TODO: run full evaluation on all batches.
                 initial_context = input_frames[:1]  # [1, seq_len, emb_dim]
                 
                 # Generate planning sequence using model's generation capability
