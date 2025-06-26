@@ -1,0 +1,45 @@
+2025-06-26 16:41:12,362 - INFO - SuRL_FixedRL_137881642179360 - Shared experiment log directory: results/2025-06-26_16-41-12/fold0/logs
+2025-06-26 16:41:12,363 - INFO - SuRL_FixedRL_137881642179360 - 🎯 RL Experiment: 2025-06-26_16-41-12
+2025-06-26 16:41:12,363 - INFO - SuRL_FixedRL_137881642179360 - 📁 Results dir: results/2025-06-26_16-41-12/fold0
+2025-06-26 16:41:12,363 - INFO - SuRL_FixedRL_137881642179360 - 📂 Plots dir: results/2025-06-26_16-41-12/fold0/publication_plots
+2025-06-26 16:41:12,363 - INFO - SuRL_FixedRL_137881642179360 - 🚀 Starting Complete RL Comparison
+2025-06-26 16:41:12,363 - INFO - SuRL_FixedRL_137881642179360 - ============================================================
+2025-06-26 16:41:12,363 - INFO - SuRL_FixedRL_137881642179360 - 📂 Loading CholecT50 data...
+2025-06-26 16:41:12,363 - INFO - SuRL_FixedRL_137881642179360 -    Training videos: 40
+2025-06-26 16:41:12,363 - INFO - SuRL_FixedRL_137881642179360 -    Test videos: 10
+2025-06-26 16:41:12,364 - INFO - SuRL_FixedRL_137881642179360 - Loading train data from /nfs/home/mboels/datasets/CholecT50 with fold 0
+2025-06-26 16:41:12,364 - ERROR - SuRL_FixedRL_137881642179360 - ❌ Metadata file not found: /nfs/home/mboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-26 16:41:12,364 - ERROR - SuRL_FixedRL_137881642179360 - ❌ Expected directory structure:
+2025-06-26 16:41:12,364 - ERROR - SuRL_FixedRL_137881642179360 -    /nfs/home/mboels/datasets/CholecT50/
+2025-06-26 16:41:12,364 - ERROR - SuRL_FixedRL_137881642179360 -    ├── embeddings_train_set/
+2025-06-26 16:41:12,364 - ERROR - SuRL_FixedRL_137881642179360 -    │   └── fold0/
+2025-06-26 16:41:12,364 - ERROR - SuRL_FixedRL_137881642179360 -    │       ├── embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-26 16:41:12,364 - ERROR - SuRL_FixedRL_137881642179360 -    │       └── embeddings_f1_swin_bas_129_with_enhanced_global_metrics.csv
+2025-06-26 16:41:12,364 - ERROR - SuRL_FixedRL_137881642179360 - ❌ Cannot proceed without real data files
+2025-06-26 16:41:12,364 - ERROR - SuRL_FixedRL_137881642179360 - 💡 Please ensure your CholecT50 dataset is properly organized
+2025-06-26 16:41:12,364 - INFO - SuRL_FixedRL_137881642179360 - Loading test data from /nfs/home/mboels/datasets/CholecT50 with fold 0
+2025-06-26 16:41:12,364 - ERROR - SuRL_FixedRL_137881642179360 - ❌ Metadata file not found: /nfs/home/mboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-26 16:41:12,364 - ERROR - SuRL_FixedRL_137881642179360 - ❌ Expected directory structure:
+2025-06-26 16:41:12,364 - ERROR - SuRL_FixedRL_137881642179360 -    /nfs/home/mboels/datasets/CholecT50/
+2025-06-26 16:41:12,364 - ERROR - SuRL_FixedRL_137881642179360 -    ├── embeddings_test_set/
+2025-06-26 16:41:12,364 - ERROR - SuRL_FixedRL_137881642179360 -    │   └── fold0/
+2025-06-26 16:41:12,364 - ERROR - SuRL_FixedRL_137881642179360 -    │       ├── embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-26 16:41:12,364 - ERROR - SuRL_FixedRL_137881642179360 -    │       └── embeddings_f1_swin_bas_129_with_enhanced_global_metrics.csv
+2025-06-26 16:41:12,364 - ERROR - SuRL_FixedRL_137881642179360 - ❌ Cannot proceed without real data files
+2025-06-26 16:41:12,364 - ERROR - SuRL_FixedRL_137881642179360 - 💡 Please ensure your CholecT50 dataset is properly organized
+2025-06-26 16:41:12,364 - INFO - SuRL_FixedRL_137881642179360 - ✅ Data loaded successfully
+2025-06-26 16:41:12,364 - INFO - SuRL_FixedRL_137881642179360 -    Training videos: 2
+2025-06-26 16:41:12,364 - INFO - SuRL_FixedRL_137881642179360 -    Test videos: 2
+2025-06-26 16:41:12,364 - INFO - SuRL_FixedRL_137881642179360 - 🎓 Running Method 1: Autoregressive IL
+2025-06-26 16:41:12,364 - INFO - SuRL_FixedRL_137881642179360 - 🎓 Method 1: Autoregressive IL
+2025-06-26 16:41:12,364 - INFO - SuRL_FixedRL_137881642179360 - ----------------------------------------
+2025-06-26 16:41:12,364 - INFO - SuRL_FixedRL_137881642179360 - 🏋️ Training IL model from scratch...
+2025-06-26 16:41:12,539 - ERROR - SuRL_FixedRL_137881642179360 - ❌ Method 1 failed: train_data must be a list or None
+2025-06-26 16:41:12,540 - ERROR - SuRL_FixedRL_137881642179360 - Full traceback: Traceback (most recent call last):
+  File "/home/maxboels/projects/surl/run_experiment_v7.py", line 245, in _run_method1_autoregressive_il
+    train_loader, test_loaders = create_autoregressive_dataloaders(
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/projects/surl/datasets/autoregressive_dataset.py", line 166, in create_autoregressive_dataloaders
+    raise ValueError("train_data must be a list or None")
+ValueError: train_data must be a list or None
+

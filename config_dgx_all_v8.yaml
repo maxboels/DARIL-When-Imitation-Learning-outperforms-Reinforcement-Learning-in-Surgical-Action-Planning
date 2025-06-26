@@ -190,8 +190,8 @@ data:
   embedding_noise: 0.01         # Small noise for regularization
   
   paths:
-    # data_dir: "/home/maxboels/datasets/CholecT50"
-    data_dir: "/nfs/home/mboels/datasets/CholecT50"
+    data_dir: "/home/maxboels/datasets/CholecT50"
+    # data_dir: "/nfs/home/mboels/datasets/CholecT50"
     class_labels_file_path: "./data/labels.json"
     # Folds: 0, 1, 2, 3, 4
     fold: 0

@@ -238,7 +238,35 @@ class AutoregressiveILTrainer:
         self._enhanced_training_complete()
         
         return self.best_model_path if self.best_model_path else "final_model.pt"   
-     
+
+    def _prepare_training_data(self, batch: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
+        """
+        Prepare training data with proper temporal alignment for dual-path architecture.
+        
+        Your approach: sequences include both current and next tokens
+        - Recognition: input_frames[t] → current_actions[t] (BiLSTM path)
+        - Generation: input_frames[t] → next_frames[t+1], next_actions[t+1] (GPT2 path)
+        """
+        
+        # Recognition path: current state prediction
+        input_frames = batch['target_next_frames'][:, :-1].to(self.device)      # [B, T, D]
+        current_actions = batch['target_next_actions'][:, :-1].to(self.device)  # [B, T, A]
+        current_phases = batch['target_next_phases'][:, :-1].to(self.device) if 'target_next_phases' in batch else None
+        
+        # Generation path: next state prediction  
+        next_frames = batch['target_next_frames'][:, 1:].to(self.device)        # [B, T, D]
+        next_actions = batch['target_next_actions'][:, 1:].to(self.device)      # [B, T, A]
+        next_phases = batch['target_next_phases'][:, 1:].to(self.device) if 'target_next_phases' in batch else None
+        
+        return {
+            'input_frames': input_frames,
+            'current_actions': current_actions,
+            'current_phases': current_phases,
+            'target_next_frames': next_frames,
+            'target_next_actions': next_actions,
+            'target_next_phases': next_phases
+        }
+
     def _train_epoch(self, train_loader: DataLoader, epoch: int) -> Dict[str, float]:
         """Enhanced training epoch with comprehensive monitoring."""
         

@@ -8,7 +8,7 @@ from typing import Dict, List, Optional, Any
 import json
 import os
 
-class EnhancedOptimizerScheduler:
+class OptimizerScheduler:
     """
     Enhanced optimizer and scheduler setup for small dataset training (40 videos)
     Features:
@@ -47,8 +47,8 @@ class EnhancedOptimizerScheduler:
     def _setup_enhanced_optimizer(self) -> optim.Optimizer:
         """Setup optimizer with intelligent parameter grouping for dual-path architecture."""
         
-        base_lr = self.config.get('learning_rate', 1e-4)
-        weight_decay = self.config.get('weight_decay', 0.01)
+        base_lr = float(self.config.get('learning_rate', 1e-4))
+        weight_decay = float(self.config.get('weight_decay', 0.01))
         
         # Analyze model architecture for intelligent grouping
         param_groups = []

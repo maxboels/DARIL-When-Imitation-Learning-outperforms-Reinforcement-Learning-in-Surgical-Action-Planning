@@ -80,6 +80,22 @@ def load_cholect50_data(cfg, logger, split='train', max_videos=None, test_on_tra
         split = 'train'
         logger.info("🔄 Test on training data enabled, using training split for loading data")
     
+    # Try multiple data directory paths
+    data_paths = [
+        data_dir,
+        data_dir.replace('/home/maxboels/datasets/CholecT50', '/nfs/home/mboels/datasets/CholecT50'),
+        data_dir.replace('/nfs/home/mboels/datasets/CholecT50', '/home/maxboels/datasets/CholecT50')
+    ]
+    
+    for path in data_paths:
+        if os.path.exists(path):
+            data_dir = path
+            logger.info(f"✅ Using data directory: {data_dir}")
+            break
+    else:
+        logger.error(f"❌ No data directory found in: {data_paths}")
+        return [], []
+    
     # Set split paths
     logger.info(f"Loading {split} data from {data_dir} with fold {fold}")
     split_folder = f"embeddings_{split}_set"    
