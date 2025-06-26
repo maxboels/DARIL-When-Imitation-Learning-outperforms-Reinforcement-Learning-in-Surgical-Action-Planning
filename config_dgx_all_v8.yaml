@@ -1,0 +1,348 @@
+debug: false
+
+# Experiment configuration
+experiment:
+  train:
+    max_videos: 40  # default: 40
+  test:
+    max_videos: 10  # default: 10
+    test_on_train: false
+    
+  # OPTIMIZED Imitation Learning for pre-trained Swin embeddings
+  autoregressive_il:
+    enabled: true
+    train: true
+    evaluate: true
+    il_model_path: null
+    # il_model_path: "results/2025-06-24_11-09-35/fold0/logs/checkpoints/autoregressive_il_best_epoch_1.pt"
+    # il_model_path: "results/2025-06-10_19-45-51/logs/checkpoints/autoregressive_il_best_epoch_1.pt"  # Path to the best IL model
+    recognition: # We use the results from the Distil-Swin codebase
+      enabled: false
+      ivt_map: 36.1 # this is the IVT map we get when running the Distil-Swin model, which is 36.1% for 5 folds cross-validation
+
+  # Conditional World Model (unchanged for other experiments)
+  world_model:
+    enabled: false
+    # wm_model_path: null
+    wm_model_path: "results/fixed_rl_2025-06-13_19-22-25/logs/checkpoints/world_model_best_epoch_1.pt"
+
+  # RL Experiments (unchanged for other experiments)
+  rl_experiments:
+    enabled: false
+    eval_episodes: 10
+
+# OPTIMIZED Training parameters for pre-trained Swin embeddings
+training:
+  epochs: 15                    # OPTIMIZED: Sufficient for temporal learning with good features
+  batch_size: 8                 # OPTIMIZED: Larger batches possible with good embeddings
+  learning_rate: 5e-5           # OPTIMIZED: Lower LR for fine-tuning scenario
+  log_every_n_steps: 20         # OPTIMIZED: More frequent logging for shorter training
+  
+  # Enhanced optimizer configuration
+  optimizer_type: "adamw"
+  weight_decay: 0.02            # INCREASED: More regularization for pre-trained features
+  gradient_clip_val: 0.5        # REDUCED: Gradients should be smaller with good features
+  
+  # Enhanced scheduler configuration  
+  scheduler:
+    type: "cosine_with_warmup"  # OPTIMIZED: Better for fine-tuning
+    warmup_epochs: 2            # REDUCED: Short warmup since features are good
+    eta_min: 1e-6              # Minimum LR
+    
+  # Enhanced parameter group settings for pre-trained scenario
+  parameter_groups:
+    bilstm_recognition:
+      lr_multiplier: 1.0        # Focus on temporal learning
+      weight_decay_multiplier: 0.3
+    gpt2_backbone:
+      lr_multiplier: 0.3        # Increased for temporal modeling
+      weight_decay_multiplier: 0.8
+    frame_processing:
+      lr_multiplier: 0.5        # Conservative - don't disturb good embeddings
+      weight_decay_multiplier: 1.5
+    action_prediction:
+      lr_multiplier: 1.5        # Moderate - features help a lot
+      weight_decay_multiplier: 0.2
+    auxiliary_heads:
+      lr_multiplier: 0.8        # Standard
+      weight_decay_multiplier: 1.0
+  
+  # Enhanced learning rate monitoring
+  lr_monitoring:
+    track_gradients: true
+    track_parameters: true
+    log_frequency: 50
+    save_plots: true
+    generate_recommendations: true
+  
+  # Data augmentation optimized for pre-trained features
+  augmentation:
+    temporal_crop_ratio: 0.85   # More temporal variation
+    temporal_jitter_std: 0.02   # Gentle - features are robust
+    sequence_shuffle_prob: 0.1  # Learn temporal invariance
+    frame_dropout_prob: 0.05    # Regularization technique
+    
+  # Early stopping optimized for fast convergence
+  early_stopping:
+    patience: 8                 # Quick stopping with good features
+    min_delta: 0.001           # Sensitive to plateaus
+    monitor: "val_action_mAP"
+    
+  # Logging and checkpointing
+  num_workers: 2               # REDUCED: Less overhead
+  pin_memory: true
+  log_dir: "logs"
+  checkpoint_dir: "checkpoints"
+  eval_epoch_interval: 1
+  save_model: true
+  
+  # Enhanced checkpointing
+  checkpointing:
+    save_best_only: false       # Save intermediate models
+    save_top_k: 5              # Keep more checkpoints
+    monitor: "val_action_mAP"   # Monitor action performance
+    mode: "max"
+    save_every_n_epochs: 5     # Regular checkpoints
+
+# Evaluation configuration (optimized for IL + preserved for other experiments)
+evaluation:
+  prediction_horizon: 8         # OPTIMIZED: Shorter horizon with good features
+  
+  # Enhanced evaluation for IL
+  comprehensive_evaluation:
+    per_video_analysis: true
+    statistical_significance: true
+    confidence_intervals: true
+    baseline_comparison: 36.1   # Compare against Swin baseline
+  
+  # Supervised evaluation (preserved)
+  supervised:
+    action_prediction: true
+    
+  # RL evaluation (preserved for other experiments)
+  rl:
+    rollout_horizon: 15
+    use_best_actions: true
+  
+  # Comparison metrics (preserved)
+  comparison:
+    statistical_tests: true
+    effect_size_threshold: 0.15  # More sensitive
+    
+  # General evaluation (preserved)
+  world_model:
+    use_memory: false
+    overall_horizon: 1
+
+# RL training configuration (PRESERVED for other experiments)
+rl_training:
+  action_space_type: 'continuous'  # continuous (defaut), discrete, or hierarchical
+  outcome_based_rewards: true
+  rl_horizon: 30  # INCREASED episode length
+  reward_mode: 'dense'
+  normalize_rewards: true
+  early_termination: true
+  timesteps: 50000 #   # SIGNIFICANTLY INCREASED for better convergence
+  
+  # IMPROVED Reward weights for environment
+  reward_weights:
+    expert_matching: 10.0      # NEW: Most important - match expert actions
+    action_sparsity: 1.0       # NEW: Appropriate action density  
+    world_model_rewards: 0.5   # REDUCED: Lower weight for WM predictions
+    completion_bonus: 5.0      # NEW: Episode completion reward
+    consistency_bonus: 1.0     # NEW: Action consistency
+    
+    # Legacy weights (for compatibility)
+    phase_completion: 1.0
+    risk_penalty: -0.5
+  
+  # OPTIMIZED Algorithm-specific settings
+  ppo:
+    learning_rate: 5e-5        # REDUCED for stability
+    n_steps: 512               # INCREASED for better estimates
+    batch_size: 64             # INCREASED
+    n_epochs: 10               # INCREASED
+    gamma: 0.95                # ADJUSTED for immediate rewards
+    gae_lambda: 0.9
+    clip_range: 0.1            # REDUCED for stability
+    ent_coef: 0.05             # INCREASED for exploration
+    vf_coef: 0.5
+    max_grad_norm: 0.5         # ADDED gradient clipping
+    
+  a2c:
+    learning_rate: 1e-4        # REDUCED for stability
+    n_steps: 32
+    gamma: 0.95                # ADJUSTED
+    gae_lambda: 0.9
+    ent_coef: 0.05             # INCREASED for exploration
+    vf_coef: 0.25
+    max_grad_norm: 0.5         # ADDED gradient clipping
+
+# Data configuration (optimized for IL, preserved for others)
+data:
+  context_length: 12            # OPTIMIZED: Shorter context with good features
+  train_shift: 1
+  padding_value: 0.0
+  max_horizon: 8                # OPTIMIZED: More realistic with strong features
+  
+  # Feature processing for pre-trained embeddings
+  normalize_embeddings: true    # Normalize Swin features
+  embedding_noise: 0.01         # Small noise for regularization
+  
+  paths:
+    # data_dir: "/home/maxboels/datasets/CholecT50"
+    data_dir: "/nfs/home/mboels/datasets/CholecT50"
+    class_labels_file_path: "./data/labels.json"
+    # Folds: 0, 1, 2, 3, 4
+    fold: 0
+    metadata_file: "embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv"
+    # metadata_file: "embeddings_f1_swin_bas_129.csv"
+    # metadata_file: "embeddings_f3_swin_bas_129.csv"
+    # metadata_file: "embeddings_f4_swin_bas_129.csv"
+
+    video_global_outcome_file: "embeddings_f1_swin_bas_129_with_enhanced_global_metrics.csv"
+  
+  frame_risk_agg: 'max'
+
+# Training mode (preserved for other experiments)
+training_mode: 'rl'
+
+# Preprocessing (preserved for other experiments)
+preprocess:
+  extract_rewards: false # already in the passed .csv file bellow
+  analyze_rewards: false  # Enable reward analysis during data loading
+  rewards:
+    grounded:
+      phase_completion: true
+      phase_transition: true  
+      phase_progression: true
+      global_progression: true
+    imitation:
+      action_distribution: true
+    expert_knowledge:
+      risk_score: true
+      frame_risk_agg: 'max'
+
+# Model configurations
+models:
+  # OPTIMIZED Method 1: Autoregressive IL Model for pre-trained embeddings
+  autoregressive_il:
+    hidden_dim: 384             # REDUCED: Smaller since features do heavy lifting
+    embedding_dim: 1024         # Keep same (Swin output dimension)
+    n_layer: 3                  # REDUCED: Less transformation needed
+    num_action_classes: 100
+    num_phase_classes: 7
+    dropout: 0.3                # INCREASED: Stronger regularization
+    max_length: 256             # REDUCED: Focus on shorter sequences
+    
+    # Enhanced regularization for pre-trained scenario
+    layer_dropout: 0.15         # Layer-wise dropout
+    attention_dropout: 0.2      # Attention-specific dropout
+    frame_projection_dropout: 0.2  # Regularize projection layer
+    
+    # BiLSTM settings optimized for temporal learning
+    bilstm_layers: 1            # Simpler temporal modeling
+    bilstm_dropout: 0.25        # Moderate regularization
+    bilstm_bidirectional: true  # Keep bidirectional for recognition
+  
+  # Method 2: Conditional World Model (PRESERVED for other experiments)
+  conditional_world_model:
+    hidden_dim: 512           # try a smaller hidden dimension to avoid overfitting
+    embedding_dim: 1024
+    action_embedding_dim: 128
+    n_layer: 4                # REDUCED number of layers to avoid overfitting
+    num_action_classes: 100
+    num_phase_classes: 7
+    dropout: 0.1
+    max_sequence_length: 512
+
+# Loss weighting optimized for pre-trained features
+loss_weights:
+  recognition: 1.0              # Easier with good features
+  generation: 2.0               # Main learning task - temporal modeling
+  frame_reconstruction: 0.2     # Less important with good features
+  phase_prediction: 0.5         # Moderate weight
+
+# Fair evaluation (preserved)
+fair_evaluation:
+  enabled: true
+  include_traditional_metrics: true
+  include_clinical_metrics: true
+  
+  # Enhanced for IL evaluation
+  per_video_analysis:
+    enabled: true
+    save_individual_results: true
+    statistical_aggregation: true
+    baseline_comparison: 36.1   # Swin baseline
+  
+  clinical_outcome_weights:
+    phase_progression: 2.0
+    innovation: 0.5
+
+# Supervised Learning Configuration (preserved)
+supervised_learning:
+  data_augmentation: true       # ENABLED: Use augmentation for small dataset
+
+# Research comparison settings (preserved)
+research_comparison:
+  methods: ['autoregressive_il', 'conditional_world_model', 'direct_video_rl']
+
+# Advanced configurations (preserved)
+advanced:
+  mixed_precision: false
+
+# Hardware optimization (optimized for IL scenario)
+hardware:
+  persistent_workers: false     # Less overhead for small dataset
+  mixed_precision: false        # Keep full precision for analysis
+
+# RL Debugging Configuration (PRESERVED for other experiments)
+rl_debugging:
+  enabled: true
+  save_training_curves: true
+  monitor_expert_matching: true
+  log_action_distributions: true
+  convergence_analysis: true
+  
+  # Logging frequency
+  episode_log_frequency: 10    # Log every 10 episodes
+  eval_frequency: 1000         # Evaluate every 1000 steps
+  
+  # Debugging thresholds
+  reward_improvement_threshold: 0.1
+  expert_matching_threshold: 0.5
+  
+  # Save paths
+  debug_dir: "rl_debug"
+  plot_dir: "rl_plots"
+
+# NEW: Enhanced debugging for IL with pre-trained features
+il_debugging:
+  enabled: true
+  
+  # Monitor fast convergence scenario
+  convergence_tracking:
+    early_plateau_detection: true
+    overfitting_detection: true
+    feature_utilization_analysis: true
+    
+  # Compare with Swin baseline
+  baseline_comparison:
+    swin_recognition_mAP: 36.1  # Your reported Swin performance
+    improvement_threshold: 1.0   # Expect modest improvement
+    
+  # Temporal learning assessment
+  temporal_evaluation:
+    short_term_prediction: true  # 1-2 steps ahead
+    medium_term_prediction: true # 3-5 steps ahead
+    temporal_consistency: true
+    sequence_modeling_analysis: true
+
+# Performance targets for IL
+il_performance_targets:
+  recognition_mAP_target: 38.0     # Modest improvement over 36.1%
+  generation_mAP_target: 35.0      # Slightly lower for next-token prediction
+  convergence_epoch: 5             # Should converge by epoch 5
+  minimum_improvement: 1.0         # Must beat Swin baseline by 1%
+  maximum_overfitting: 5.0         # Train-val gap should be <5%

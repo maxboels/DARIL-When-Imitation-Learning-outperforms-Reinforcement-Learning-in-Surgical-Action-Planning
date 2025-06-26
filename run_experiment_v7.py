@@ -761,7 +761,7 @@ def main():
     print()
     
     # Choose config file here
-    config_path = 'config_dgx_all_v7.yaml'
+    config_path = 'config_dgx_all_v8.yaml'
     if not os.path.exists(config_path):
         print(f"❌ Config file not found: {config_path}")
         print("Please ensure config file exists or update the path")

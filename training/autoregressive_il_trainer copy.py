@@ -26,7 +26,6 @@ import json
 from evaluation.evaluation_metrics import calculate_comprehensive_action_metrics, surgical_metrics
 from evaluation.planning_evaluation_ivt import AutoregressivePlanningEvaluator, add_planning_evaluation_to_trainer
 
-from utils.optimizer_scheduler import OptimizerScheduler
 
 try:
     import ivtmetrics
@@ -48,17 +47,17 @@ class AutoregressiveILTrainer:
     - FIXED: All variable naming issues resolved
     """
     
-    def __init__(self, model, config: Dict[str, Any], logger, device: str = 'cuda'):
-        """Initialize with enhanced optimizer support."""
+    def __init__(self, 
+                 model,
+                 config: Dict[str, Any],
+                 logger,
+                 device: str = 'cuda'):
+        """Initialize the autoregressive IL trainer."""
         
-        # Your existing initialization code...
         self.model = model
         self.config = config
         self.logger = logger
         self.device = device
-        
-        # Enhanced optimizer will be set up in _setup_optimizer
-        self.optimizer_scheduler = None
         
         # Training configuration
         self.train_config = config['training']
@@ -98,117 +97,129 @@ class AutoregressiveILTrainer:
         self.logger.info(f"   Epochs: {self.epochs}")
         self.logger.info(f"   Learning rate: {self.lr}")
         self.logger.info(f"   ✅ Per-video aggregation + shared metrics + efficient validation")
-
-    def _setup_optimizer(self):
-        """Enhanced optimizer setup with intelligent parameter grouping."""
-        
-        # Create enhanced optimizer-scheduler
-        self.optimizer_scheduler = OptimizerScheduler(
-            model=self.model,
-            config=self.train_config,
-            total_epochs=self.epochs,
-            steps_per_epoch=len(self.train_loader) if hasattr(self, 'train_loader') else 100,
-            logger=self.logger
-        )
-        
-        # Replace optimizer and scheduler
-        self.optimizer = self.optimizer_scheduler.optimizer
-        self.scheduler = self.optimizer_scheduler.scheduler
-        
-        self.logger.info("✅ Enhanced optimizer and scheduler integrated")
-
-    # def _setup_optimizer(self):
-    #     """Setup optimizer and learning rate scheduler."""
-        
-    #     # Different learning rates for different components
-    #     param_groups = []
-        
-    #     # GPT-2 backbone (lower learning rate for pre-trained-like component)
-    #     gpt2_params = []
-    #     for name, param in self.model.named_parameters():
-    #         if 'gpt2' in name:
-    #             gpt2_params.append(param)
-        
-    #     if gpt2_params:
-    #         param_groups.append({
-    #             'params': gpt2_params,
-    #             'lr': self.lr * 0.1,  # Lower LR for backbone
-    #             'weight_decay': self.weight_decay
-    #         })
-        
-    #     # Frame generation head (important for IL)
-    #     frame_params = []
-    #     for name, param in self.model.named_parameters():
-    #         if 'next_frame_head' in name:
-    #             frame_params.append(param)
-        
-    #     if frame_params:
-    #         param_groups.append({
-    #             'params': frame_params,
-    #             'lr': self.lr * 1.5,  # Higher LR for frame generation
-    #             'weight_decay': self.weight_decay * 0.5
-    #         })
-        
-    #     # Action prediction head (most important for evaluation)
-    #     action_params = []
-    #     for name, param in self.model.named_parameters():
-    #         if 'action_prediction_head' in name:
-    #             action_params.append(param)
-        
-    #     if action_params:
-    #         param_groups.append({
-    #             'params': action_params,
-    #             'lr': self.lr * 2.0,  # Highest LR for action prediction
-    #             'weight_decay': self.weight_decay * 0.1
-    #         })
-        
-    #     # Other parameters (projection layers, etc.)
-    #     other_params = []
-    #     for name, param in self.model.named_parameters():
-    #         if not any(component in name for component in ['gpt2', 'next_frame_head', 'action_prediction_head']):
-    #             other_params.append(param)
-        
-    #     if other_params:
-    #         param_groups.append({
-    #             'params': other_params,
-    #             'lr': self.lr,
-    #             'weight_decay': self.weight_decay
-    #         })
-        
-    #     self.optimizer = optim.AdamW(param_groups)
-        
-    #     # Learning rate scheduler
-    #     scheduler_config = self.train_config.get('scheduler', {})
-    #     if scheduler_config.get('type') == 'cosine':
-    #         self.scheduler = optim.lr_scheduler.CosineAnnealingLR(
-    #             self.optimizer, 
-    #             T_max=self.epochs,
-    #             eta_min=self.lr * 0.01
-    #         )
-    #     else:
-    #         # Step scheduler
-    #         self.scheduler = optim.lr_scheduler.StepLR(
-    #             self.optimizer,
-    #             step_size=max(1, self.epochs // 3),
-    #             gamma=0.5
-    #         )
     
-    def train(self, train_loader: DataLoader, test_loaders: Dict[str, DataLoader]) -> str:
-        """Main training function with enhanced optimization tracking."""
+    def _setup_optimizer(self):
+        """Setup optimizer and learning rate scheduler."""
         
-        self.train_loader = train_loader  # Store for optimizer setup
+        # Different learning rates for different components
+        param_groups = []
         
-        self.logger.info("🎓 Starting Enhanced Autoregressive IL Training...")
+        # GPT-2 backbone (lower learning rate for pre-trained-like component)
+        gpt2_params = []
+        for name, param in self.model.named_parameters():
+            if 'gpt2' in name:
+                gpt2_params.append(param)
+        
+        if gpt2_params:
+            param_groups.append({
+                'params': gpt2_params,
+                'lr': self.lr * 0.1,  # Lower LR for backbone
+                'weight_decay': self.weight_decay
+            })
+        
+        # Frame generation head (important for IL)
+        frame_params = []
+        for name, param in self.model.named_parameters():
+            if 'next_frame_head' in name:
+                frame_params.append(param)
+        
+        if frame_params:
+            param_groups.append({
+                'params': frame_params,
+                'lr': self.lr * 1.5,  # Higher LR for frame generation
+                'weight_decay': self.weight_decay * 0.5
+            })
+        
+        # Action prediction head (most important for evaluation)
+        action_params = []
+        for name, param in self.model.named_parameters():
+            if 'action_prediction_head' in name:
+                action_params.append(param)
+        
+        if action_params:
+            param_groups.append({
+                'params': action_params,
+                'lr': self.lr * 2.0,  # Highest LR for action prediction
+                'weight_decay': self.weight_decay * 0.1
+            })
+        
+        # Other parameters (projection layers, etc.)
+        other_params = []
+        for name, param in self.model.named_parameters():
+            if not any(component in name for component in ['gpt2', 'next_frame_head', 'action_prediction_head']):
+                other_params.append(param)
+        
+        if other_params:
+            param_groups.append({
+                'params': other_params,
+                'lr': self.lr,
+                'weight_decay': self.weight_decay
+            })
+        
+        self.optimizer = optim.AdamW(param_groups)
+        
+        # Learning rate scheduler
+        scheduler_config = self.train_config.get('scheduler', {})
+        if scheduler_config.get('type') == 'cosine':
+            self.scheduler = optim.lr_scheduler.CosineAnnealingLR(
+                self.optimizer, 
+                T_max=self.epochs,
+                eta_min=self.lr * 0.01
+            )
+        else:
+            # Step scheduler
+            self.scheduler = optim.lr_scheduler.StepLR(
+                self.optimizer,
+                step_size=max(1, self.epochs // 3),
+                gamma=0.5
+            )
+    
+    def _prepare_training_data(self, batch: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
+        """
+        Prepare training data with proper temporal alignment for dual-path architecture.
+        
+        Your approach: sequences include both current and next tokens
+        - Recognition: input_frames[t] → current_actions[t] (BiLSTM path)
+        - Generation: input_frames[t] → next_frames[t+1], next_actions[t+1] (GPT2 path)
+        """
+        
+        # Recognition path: current state prediction
+        input_frames = batch['target_next_frames'][:, :-1].to(self.device)      # [B, T, D]
+        current_actions = batch['target_next_actions'][:, :-1].to(self.device)  # [B, T, A]
+        current_phases = batch['target_next_phases'][:, :-1].to(self.device) if 'target_next_phases' in batch else None
+        
+        # Generation path: next state prediction  
+        next_frames = batch['target_next_frames'][:, 1:].to(self.device)        # [B, T, D]
+        next_actions = batch['target_next_actions'][:, 1:].to(self.device)      # [B, T, A]
+        next_phases = batch['target_next_phases'][:, 1:].to(self.device) if 'target_next_phases' in batch else None
+        
+        return {
+            'input_frames': input_frames,
+            'current_actions': current_actions,
+            'current_phases': current_phases,
+            'target_next_frames': next_frames,
+            'target_next_actions': next_actions,
+            'target_next_phases': next_phases
+        }
+
+    def train(self, 
+              train_loader: DataLoader, 
+              test_loaders: Dict[str, DataLoader]) -> str:
+        """Main training function for autoregressive IL."""
+        
+        self.logger.info("🎓 Starting Autoregressive IL Training...")
+        self.logger.info("🎯 Goal: Learn causal frame generation → action prediction")
+        self.logger.info("📊 Evaluation: Per-video aggregation for robust metrics")
         
         for epoch in range(self.epochs):
             # Training phase
             train_metrics = self._train_epoch(train_loader, epoch)
             
-            # Validation phase
+            # 🔧 FIXED: Per-video validation phase
             val_metrics = self._validate_epoch_per_video_with_planning(test_loaders, epoch)
-            
-            # ENHANCED: Validation step with scheduler
-            self._enhanced_validation_step(val_metrics, epoch)
+
+            # Learning rate scheduling
+            self.scheduler.step()
             
             # Log metrics
             self._log_epoch_metrics(train_metrics, val_metrics, epoch)
@@ -222,25 +233,42 @@ class AutoregressiveILTrainer:
                 self.model.save_model(self.best_model_path)
                 self.logger.info(f"✅ New best model saved: {self.best_model_path}")
             
-            # Enhanced epoch summary with learning rate info
-            current_lrs = self.optimizer_scheduler.get_current_lrs()
-            main_lr = current_lrs.get('action_prediction', 0)
+            # Save checkpoint
+            if (epoch + 1) % 5 == 0:
+                checkpoint_path = os.path.join(
+                    self.checkpoint_dir, f"autoregressive_il_checkpoint_epoch_{epoch+1}.pt"
+                )
+                self.model.save_model(checkpoint_path)
+            
+            # Enhanced epoch summary with per-video insights
+            val_details = getattr(self, 'last_validation_details', {})
+            num_videos = val_details.get('num_videos', 0)
+            mAP_std = val_metrics.get('action_mAP_std', 0)
             
             self.logger.info(
                 f"Epoch {epoch+1}/{self.epochs} | "
                 f"Train Loss: {train_metrics['total_loss']:.4f} | "
                 f"Val Loss: {val_metrics['total_loss']:.4f} | "
-                f"Action mAP: {val_metrics.get('action_mAP', 0):.4f} | "
-                f"Action LR: {main_lr:.2e}"
+                f"Action mAP: {val_metrics.get('action_mAP', 0):.4f}±{mAP_std:.4f} ({num_videos} videos) | "
+                f"Frame MSE: {val_metrics.get('frame_loss', 0):.4f}"
             )
         
-        # ENHANCED: Training completion with comprehensive analysis
-        self._enhanced_training_complete()
+        # Save final model
+        final_model_path = os.path.join(self.checkpoint_dir, "autoregressive_il_final.pt")
+        self.model.save_model(final_model_path)
         
-        return self.best_model_path if self.best_model_path else "final_model.pt"   
-     
+        # Generate per-video performance analysis
+        self._generate_video_performance_analysis()
+        
+        self.logger.info("✅ Autoregressive IL Training completed!")
+        self.logger.info(f"📄 Best model: {self.best_model_path}")
+        self.logger.info(f"📄 Final model: {final_model_path}")
+        self.logger.info(f"📊 Per-video analysis saved")
+        
+        return self.best_model_path if self.best_model_path else final_model_path
+    
     def _train_epoch(self, train_loader: DataLoader, epoch: int) -> Dict[str, float]:
-        """Enhanced training epoch with comprehensive monitoring."""
+        """Train for one epoch."""
         
         self.model.train()
         epoch_metrics = defaultdict(float)
@@ -249,27 +277,23 @@ class AutoregressiveILTrainer:
         with tqdm(train_loader, desc=f"Training Epoch {epoch+1}") as pbar:
             for batch_idx, batch in enumerate(pbar):
                 
-                # Your existing data preparation
-                data = self._prepare_training_data(batch)
-                
-                # Forward pass
+                # Prepare training data
+                data = self._prepare_training_data(batch)                 
+
+                # Forward pass (no action conditioning!)
                 outputs = self.model(
                     frame_embeddings=data['input_frames'],
                     target_next_frames=data['target_next_frames'],
-                    target_current_actions=data['current_actions'],
-                    target_actions=data['target_next_actions'],
-                    target_phases=data['target_next_phases'],
-                    epoch=epoch
+                    target_current_actions=data['current_actions'],  # Use current actions for recognition
+                    target_actions=data['target_next_actions'],  # Use next actions for prediction
+                    target_phases= data['target_next_phases']  # Use next phases for prediction
                 )
                 
                 loss = outputs['total_loss']
                 
-                # Backward pass with enhanced monitoring
+                # Backward pass
                 self.optimizer.zero_grad()
                 loss.backward()
-                
-                # ENHANCED: Track gradients before clipping
-                self.optimizer_scheduler.track_gradients()
                 
                 # Gradient clipping
                 if self.clip_grad > 0:
@@ -277,84 +301,33 @@ class AutoregressiveILTrainer:
                 
                 self.optimizer.step()
                 
-                # ENHANCED: Step scheduler for step-based schedulers
-                if not isinstance(self.scheduler, optim.lr_scheduler.ReduceLROnPlateau):
-                    self.optimizer_scheduler.step()
-                
                 # Accumulate metrics
                 for key, value in outputs.items():
                     if key.endswith('loss') and isinstance(value, torch.Tensor):
                         epoch_metrics[key] += value.item()
                 
-                # ENHANCED: Log learning rates to tensorboard
+                # Update progress bar
+                pbar.set_postfix({
+                    'loss': f"{loss.item():.4f}",
+                    'frame': f"{outputs.get('frame_loss', 0):.4f}",
+                    'action': f"{outputs.get('action_loss', 0):.4f}"
+                    # 'action_rec_loss': f"{outputs.get('action_rec_loss', 0):.4f}",
+                })
+                
+                # Log to tensorboard
                 global_step = epoch * num_batches + batch_idx
                 if batch_idx % self.log_every_n_steps == 0:
-                    self.optimizer_scheduler.log_to_tensorboard(self.tb_writer, global_step)
-                    
-                    # Log current learning rates in progress bar
-                    current_lrs = self.optimizer_scheduler.get_current_lrs()
-                    action_lr = current_lrs.get('action_prediction', 0)
-                    
-                    pbar.set_postfix({
-                        'loss': f"{loss.item():.4f}",
-                        'frame': f"{outputs.get('frame_loss', 0):.4f}",
-                        'action': f"{outputs.get('action_loss', 0):.4f}",
-                        'action_lr': f"{action_lr:.2e}"  # Show action head LR
-                    })
+                    for key, value in outputs.items():
+                        if key.endswith('loss') and isinstance(value, torch.Tensor):
+                            self.tb_writer.add_scalar(f"train/{key}_batch", value.item(), global_step)
         
         # Average metrics
         for key in epoch_metrics:
             epoch_metrics[key] /= num_batches
             self.metrics_history[f"train_{key}"].append(epoch_metrics[key])
         
-        return dict(epoch_metrics)    
-
-    def _enhanced_training_complete(self):
-        """Enhanced training completion with comprehensive analysis."""
-        
-        # Save learning rate plots and history
-        self.optimizer_scheduler.save_lr_plots(self.log_dir)
-        self.optimizer_scheduler.save_lr_history(self.log_dir)
-        
-        # Generate analysis
-        analysis = self.optimizer_scheduler.analyze_learning_progress()
-        self.logger.info("📊 Learning Progress Analysis:")
-        for key, value in analysis.items():
-            if isinstance(value, dict):
-                self.logger.info(f"   {key}:")
-                for subkey, subvalue in value.items():
-                    self.logger.info(f"     {subkey}: {subvalue}")
-            else:
-                self.logger.info(f"   {key}: {value}")
-        
-        # Final recommendations
-        recommendations = self.optimizer_scheduler.get_optimization_recommendations()
-        self.logger.info("💡 Final Optimization Recommendations:")
-        for rec in recommendations:
-            self.logger.info(f"   • {rec}")
-        
-        self.logger.info("✅ Enhanced training completed with comprehensive optimization analysis!")
-
-    def _enhanced_validation_step(self, val_metrics, epoch):
-        """Enhanced validation with scheduler stepping."""
-        
-        val_loss = val_metrics['total_loss']
-        
-        # Step scheduler for epoch-based schedulers
-        if isinstance(self.scheduler, optim.lr_scheduler.ReduceLROnPlateau):
-            self.optimizer_scheduler.step(validation_loss=val_loss, epoch=epoch)
-        
-        # Log current learning rates
-        current_lrs = self.optimizer_scheduler.get_current_lrs()
-        lr_summary = ", ".join([f"{name}: {lr:.2e}" for name, lr in current_lrs.items()])
-        self.logger.info(f"📊 Current LRs: {lr_summary}")
-        
-        # Get optimization recommendations periodically
-        if epoch % 10 == 0:
-            recommendations = self.optimizer_scheduler.get_optimization_recommendations()
-            for rec in recommendations:
-                self.logger.info(f"💡 Optimization tip: {rec}")
-
+        return dict(epoch_metrics)
+    
     def _validate_epoch_per_video(self, test_loaders: Dict[str, DataLoader], epoch: int) -> Dict[str, float]:
         """
         🔧 FIXED: Per-video validation with correct variable naming.
@@ -394,23 +367,16 @@ class AutoregressiveILTrainer:
                 
                 for batch in tqdm(test_loader, desc=f"Validating {video_id}", leave=True):
 
-                    # For recognition (current state) - slice sequence dimension 
-                    input_frames = batch['target_next_frames'][:, :-1].to(self.device)  # [batch_size, context_length, embedding_dim]
-                    current_actions = batch['target_next_actions'][:, :-1].to(self.device)  # [batch_size, context_length, num_actions]  
-                    current_phases = batch['target_next_phases'][:, :-1].to(self.device)    # [batch_size, context_length]
+                    # Prepare data for this video
+                    data = self._prepare_training_data(batch)
 
-                    # For next frame prediction - slice sequence dimension
-                    next_frames = batch['target_next_frames'][:, 1:].to(self.device)    # [batch_size, context_length, embedding_dim]
-                    next_actions = batch['target_next_actions'][:, 1:].to(self.device)  # [batch_size, context_length, num_actions]
-                    next_phases = batch['target_next_phases'][:, 1:].to(self.device)    # [batch_size, context_length]
-                    
                     # Forward pass (no action conditioning!)
                     outputs = self.model(
-                        frame_embeddings=input_frames,
-                        target_next_frames=next_frames,
-                        target_current_actions=current_actions,  # Use current actions for recognition
-                        target_actions=next_actions,  # Use next actions for prediction
-                        target_phases=next_phases  # Use next phases for prediction
+                        frame_embeddings=data['input_frames'],
+                        target_next_frames=data['target_next_frames'],
+                        target_current_actions=data['current_actions'],
+                        target_actions=data['target_next_actions'],
+                        target_phases= data['target_next_phases']
                     )
                     
                     # Accumulate loss metrics for this video
