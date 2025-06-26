@@ -1,0 +1,62 @@
+{
+    "VID02": {
+        "AutoregressiveIL": {
+            "mAP": 0.42638269057153944,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID06": {
+        "AutoregressiveIL": {
+            "mAP": 0.5764606228660135,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID111": {
+        "AutoregressiveIL": {
+            "mAP": 0.47852070629107035,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID14": {
+        "AutoregressiveIL": {
+            "mAP": 0.33023937593838104,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID23": {
+        "AutoregressiveIL": {
+            "mAP": 0.4329262522599716,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID25": {
+        "AutoregressiveIL": {
+            "mAP": 0.6565770472050828,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID50": {
+        "AutoregressiveIL": {
+            "mAP": 0.5615866201626938,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID51": {
+        "AutoregressiveIL": {
+            "mAP": 0.4727835822426248,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID66": {
+        "AutoregressiveIL": {
+            "mAP": 0.6416745076973853,
+            "evaluation_type": "next_action_prediction"
+        }
+    },
+    "VID79": {
+        "AutoregressiveIL": {
+            "mAP": 0.364592789655982,
+            "evaluation_type": "next_action_prediction"
+        }
+    }
+}

@@ -189,3 +189,217 @@
 2025-06-25 18:40:25,499 - INFO - SuRL_FixedRL_140236223512784 - 📹 Evaluating planning on video VID06...
 2025-06-25 18:42:31,175 - INFO - SuRL_FixedRL_140236223512784 - 📹 Evaluating planning on video VID111...
 2025-06-25 18:44:35,974 - INFO - SuRL_FixedRL_140236223512784 - 📹 Evaluating planning on video VID14...
+2025-06-25 18:46:16,320 - INFO - SuRL_FixedRL_140236223512784 - 📹 Evaluating planning on video VID23...
+2025-06-25 18:47:52,120 - INFO - SuRL_FixedRL_140236223512784 - 📹 Evaluating planning on video VID25...
+2025-06-25 18:49:56,802 - INFO - SuRL_FixedRL_140236223512784 - 📹 Evaluating planning on video VID50...
+2025-06-25 18:51:00,937 - INFO - SuRL_FixedRL_140236223512784 - 📹 Evaluating planning on video VID51...
+2025-06-25 18:53:54,876 - INFO - SuRL_FixedRL_140236223512784 - 📹 Evaluating planning on video VID66...
+2025-06-25 18:55:41,695 - INFO - SuRL_FixedRL_140236223512784 - 📹 Evaluating planning on video VID79...
+2025-06-25 18:59:01,648 - INFO - SuRL_FixedRL_140236223512784 - ✅ Planning evaluation completed
+2025-06-25 18:59:01,649 - INFO - SuRL_FixedRL_140236223512784 - 🎯 PLANNING EVALUATION SUMMARY
+2025-06-25 18:59:01,649 - INFO - SuRL_FixedRL_140236223512784 - ============================================================
+2025-06-25 18:59:01,649 - INFO - SuRL_FixedRL_140236223512784 - 📊 Overall Results:
+2025-06-25 18:59:01,649 - INFO - SuRL_FixedRL_140236223512784 -    Videos evaluated: 10
+2025-06-25 18:59:01,649 - INFO - SuRL_FixedRL_140236223512784 -    Success rate: 15.932
+2025-06-25 18:59:01,649 - INFO - SuRL_FixedRL_140236223512784 - 📈 Planning Horizon Results:
+2025-06-25 18:59:01,649 - INFO - SuRL_FixedRL_140236223512784 -    Planning at 1s mAP: 0.240
+2025-06-25 18:59:01,649 - INFO - SuRL_FixedRL_140236223512784 -    Planning at 2s mAP: 0.229
+2025-06-25 18:59:01,649 - INFO - SuRL_FixedRL_140236223512784 -    Planning at 3s mAP: 0.221
+2025-06-25 18:59:01,649 - INFO - SuRL_FixedRL_140236223512784 -    Planning at 5s mAP: 0.201
+2025-06-25 18:59:01,649 - INFO - SuRL_FixedRL_140236223512784 - 📊 Evaluating generation quality...
+2025-06-25 18:59:03,261 - INFO - SuRL_FixedRL_140236223512784 - 📊 Extracting planning results from validation phase...
+2025-06-25 18:59:03,265 - INFO - SuRL_FixedRL_140236223512784 - ✅ Comprehensive evaluation completed
+2025-06-25 18:59:03,265 - INFO - SuRL_FixedRL_140236223512784 - 📊 SINGLE-STEP PERFORMANCE:
+2025-06-25 18:59:03,265 - INFO - SuRL_FixedRL_140236223512784 -    Current System mAP:     0.4965 ± 0.1104
+2025-06-25 18:59:03,265 - INFO - SuRL_FixedRL_140236223512784 -    IVT Standard mAP:       0.3204
+2025-06-25 18:59:03,265 - INFO - SuRL_FixedRL_140236223512784 - 🎯 PLANNING PERFORMANCE:
+2025-06-25 18:59:03,265 - INFO - SuRL_FixedRL_140236223512784 -    1s (1s): mAP=0.2397, Consistency=0.996
+2025-06-25 18:59:03,265 - INFO - SuRL_FixedRL_140236223512784 -    2s (2s): mAP=0.2294, Consistency=0.997
+2025-06-25 18:59:03,265 - INFO - SuRL_FixedRL_140236223512784 -    3s (3s): mAP=0.2210, Consistency=0.997
+2025-06-25 18:59:03,265 - INFO - SuRL_FixedRL_140236223512784 -    5s (5s): mAP=0.2013, Consistency=0.997
+2025-06-25 18:59:03,265 - INFO - SuRL_FixedRL_140236223512784 -    Planning degradation (1s→5s): 0.160
+2025-06-25 18:59:03,265 - INFO - SuRL_FixedRL_140236223512784 - 📈 Model demonstrates both recognition and planning capabilities
+2025-06-25 18:59:03,975 - INFO - SuRL_FixedRL_140236223512784 - 🌍 Method 2: Conditional World Model + RL is disable
+2025-06-25 18:59:03,975 - INFO - SuRL_FixedRL_140236223512784 - 📹 Method 3: Direct Video RL is disabled in config
+2025-06-25 18:59:03,977 - INFO - SuRL_FixedRL_140236223512784 - 🔬 Evaluation Framework initialized
+2025-06-25 18:59:03,977 - INFO - SuRL_FixedRL_140236223512784 - 📁 Results will be saved to: results/2025-06-25_17-57-29/fold0/integrated_evaluation
+2025-06-25 18:59:03,978 - INFO - SuRL_FixedRL_140236223512784 - 🔬 Evaluation Framework initialized with METRICS MODULE
+2025-06-25 18:59:05,701 - INFO - SuRL_FixedRL_140236223512784 - ✅ Loaded AutoregressiveIL model
+2025-06-25 18:59:05,701 - INFO - SuRL_FixedRL_140236223512784 - 📊 Loaded 1 models for comprehensive evaluation
+2025-06-25 18:59:05,701 - INFO - SuRL_FixedRL_140236223512784 - 🎯 Evaluation approach:
+2025-06-25 18:59:05,701 - INFO - SuRL_FixedRL_140236223512784 -    Primary: Single-step action prediction (fair comparison)
+2025-06-25 18:59:05,701 - INFO - SuRL_FixedRL_140236223512784 -    Secondary: Multi-step planning analysis (paradigm-specific)
+2025-06-25 18:59:05,701 - INFO - SuRL_FixedRL_140236223512784 - 📊 Loaded models for evaluation:
+2025-06-25 18:59:05,701 - INFO - SuRL_FixedRL_140236223512784 -    AutoregressiveIL: supervised_imitation_learning
+2025-06-25 18:59:05,701 - INFO - SuRL_FixedRL_140236223512784 - 🚀 Running evaluation on 10 videos...
+2025-06-25 18:59:05,701 - INFO - SuRL_FixedRL_140236223512784 - 🚀 Starting FIXED comprehensive evaluation (using proper batches)
+2025-06-25 18:59:05,701 - INFO - SuRL_FixedRL_140236223512784 - 📊 Models: 1, Videos: 10
+2025-06-25 18:59:05,701 - INFO - SuRL_FixedRL_140236223512784 - 🎯 Evaluation approach:
+2025-06-25 18:59:05,701 - INFO - SuRL_FixedRL_140236223512784 -    ✅ Uses DataLoader batches directly (like training)
+2025-06-25 18:59:05,702 - INFO - SuRL_FixedRL_140236223512784 -    ✅ Maintains temporal structure for IL model
+2025-06-25 18:59:05,702 - INFO - SuRL_FixedRL_140236223512784 -    ✅ Consistent model interfaces
+2025-06-25 18:59:05,702 - INFO - SuRL_FixedRL_140236223512784 - 📹 Evaluating video: VID02
+2025-06-25 18:59:06,137 - INFO - SuRL_FixedRL_140236223512784 - 📹 Comprehensive evaluation: VID02
+2025-06-25 18:59:06,138 - INFO - SuRL_FixedRL_140236223512784 - 🎯 PRIMARY: Single-step action prediction
+2025-06-25 18:59:06,138 - INFO - SuRL_FixedRL_140236223512784 -   🤖 AutoregressiveIL: Single-step action prediction
+2025-06-25 18:59:09,142 - INFO - SuRL_FixedRL_140236223512784 -   AutoregressiveIL evaluation completed: 178 batches processed
+2025-06-25 18:59:12,500 - INFO - SuRL_FixedRL_140236223512784 -     📊 Single-step mAP: 0.4264
+2025-06-25 18:59:12,500 - INFO - SuRL_FixedRL_140236223512784 - 🚀 SECONDARY: Planning capability analysis
+2025-06-25 18:59:12,500 - INFO - SuRL_FixedRL_140236223512784 -   🧠 AutoregressiveIL: Planning capability analysis
+2025-06-25 18:59:21,182 - INFO - SuRL_FixedRL_140236223512784 -     📊 Planning stability: 0.9976
+2025-06-25 18:59:21,183 - INFO - SuRL_FixedRL_140236223512784 -   AutoregressiveIL: mAP = 0.4264
+2025-06-25 18:59:21,184 - INFO - SuRL_FixedRL_140236223512784 - 📹 Evaluating video: VID06
+2025-06-25 18:59:21,600 - INFO - SuRL_FixedRL_140236223512784 - 📹 Comprehensive evaluation: VID06
+2025-06-25 18:59:21,601 - INFO - SuRL_FixedRL_140236223512784 - 🎯 PRIMARY: Single-step action prediction
+2025-06-25 18:59:21,601 - INFO - SuRL_FixedRL_140236223512784 -   🤖 AutoregressiveIL: Single-step action prediction
+2025-06-25 18:59:23,655 - INFO - SuRL_FixedRL_140236223512784 -   AutoregressiveIL evaluation completed: 135 batches processed
+2025-06-25 18:59:26,297 - INFO - SuRL_FixedRL_140236223512784 -     📊 Single-step mAP: 0.5765
+2025-06-25 18:59:26,297 - INFO - SuRL_FixedRL_140236223512784 - 🚀 SECONDARY: Planning capability analysis
+2025-06-25 18:59:26,297 - INFO - SuRL_FixedRL_140236223512784 -   🧠 AutoregressiveIL: Planning capability analysis
+2025-06-25 18:59:33,085 - INFO - SuRL_FixedRL_140236223512784 -     📊 Planning stability: 0.9979
+2025-06-25 18:59:33,086 - INFO - SuRL_FixedRL_140236223512784 -   AutoregressiveIL: mAP = 0.5765
+2025-06-25 18:59:33,087 - INFO - SuRL_FixedRL_140236223512784 - 📹 Evaluating video: VID111
+2025-06-25 18:59:33,545 - INFO - SuRL_FixedRL_140236223512784 - 📹 Comprehensive evaluation: VID111
+2025-06-25 18:59:33,545 - INFO - SuRL_FixedRL_140236223512784 - 🎯 PRIMARY: Single-step action prediction
+2025-06-25 18:59:33,545 - INFO - SuRL_FixedRL_140236223512784 -   🤖 AutoregressiveIL: Single-step action prediction
+2025-06-25 18:59:35,720 - INFO - SuRL_FixedRL_140236223512784 -   AutoregressiveIL evaluation completed: 135 batches processed
+2025-06-25 18:59:38,133 - INFO - SuRL_FixedRL_140236223512784 -     📊 Single-step mAP: 0.4785
+2025-06-25 18:59:38,133 - INFO - SuRL_FixedRL_140236223512784 - 🚀 SECONDARY: Planning capability analysis
+2025-06-25 18:59:38,133 - INFO - SuRL_FixedRL_140236223512784 -   🧠 AutoregressiveIL: Planning capability analysis
+2025-06-25 18:59:44,777 - INFO - SuRL_FixedRL_140236223512784 -     📊 Planning stability: 0.9980
+2025-06-25 18:59:44,778 - INFO - SuRL_FixedRL_140236223512784 -   AutoregressiveIL: mAP = 0.4785
+2025-06-25 18:59:44,778 - INFO - SuRL_FixedRL_140236223512784 - 📹 Evaluating video: VID14
+2025-06-25 18:59:45,183 - INFO - SuRL_FixedRL_140236223512784 - 📹 Comprehensive evaluation: VID14
+2025-06-25 18:59:45,183 - INFO - SuRL_FixedRL_140236223512784 - 🎯 PRIMARY: Single-step action prediction
+2025-06-25 18:59:45,184 - INFO - SuRL_FixedRL_140236223512784 -   🤖 AutoregressiveIL: Single-step action prediction
+2025-06-25 18:59:46,961 - INFO - SuRL_FixedRL_140236223512784 -   AutoregressiveIL evaluation completed: 107 batches processed
+2025-06-25 18:59:49,279 - INFO - SuRL_FixedRL_140236223512784 -     📊 Single-step mAP: 0.3302
+2025-06-25 18:59:49,280 - INFO - SuRL_FixedRL_140236223512784 - 🚀 SECONDARY: Planning capability analysis
+2025-06-25 18:59:49,280 - INFO - SuRL_FixedRL_140236223512784 -   🧠 AutoregressiveIL: Planning capability analysis
+2025-06-25 18:59:55,439 - INFO - SuRL_FixedRL_140236223512784 -     📊 Planning stability: 0.9980
+2025-06-25 18:59:55,440 - INFO - SuRL_FixedRL_140236223512784 -   AutoregressiveIL: mAP = 0.3302
+2025-06-25 18:59:55,440 - INFO - SuRL_FixedRL_140236223512784 - 📹 Evaluating video: VID23
+2025-06-25 18:59:55,841 - INFO - SuRL_FixedRL_140236223512784 - 📹 Comprehensive evaluation: VID23
+2025-06-25 18:59:55,841 - INFO - SuRL_FixedRL_140236223512784 - 🎯 PRIMARY: Single-step action prediction
+2025-06-25 18:59:55,841 - INFO - SuRL_FixedRL_140236223512784 -   🤖 AutoregressiveIL: Single-step action prediction
+2025-06-25 18:59:57,639 - INFO - SuRL_FixedRL_140236223512784 -   AutoregressiveIL evaluation completed: 103 batches processed
+2025-06-25 18:59:59,628 - INFO - SuRL_FixedRL_140236223512784 -     📊 Single-step mAP: 0.4329
+2025-06-25 18:59:59,628 - INFO - SuRL_FixedRL_140236223512784 - 🚀 SECONDARY: Planning capability analysis
+2025-06-25 18:59:59,628 - INFO - SuRL_FixedRL_140236223512784 -   🧠 AutoregressiveIL: Planning capability analysis
+2025-06-25 19:00:04,671 - INFO - SuRL_FixedRL_140236223512784 -     📊 Planning stability: 0.9980
+2025-06-25 19:00:04,672 - INFO - SuRL_FixedRL_140236223512784 -   AutoregressiveIL: mAP = 0.4329
+2025-06-25 19:00:04,672 - INFO - SuRL_FixedRL_140236223512784 - 📹 Evaluating video: VID25
+2025-06-25 19:00:05,067 - INFO - SuRL_FixedRL_140236223512784 - 📹 Comprehensive evaluation: VID25
+2025-06-25 19:00:05,067 - INFO - SuRL_FixedRL_140236223512784 - 🎯 PRIMARY: Single-step action prediction
+2025-06-25 19:00:05,067 - INFO - SuRL_FixedRL_140236223512784 -   🤖 AutoregressiveIL: Single-step action prediction
+2025-06-25 19:00:07,495 - INFO - SuRL_FixedRL_140236223512784 -   AutoregressiveIL evaluation completed: 134 batches processed
+2025-06-25 19:00:10,052 - INFO - SuRL_FixedRL_140236223512784 -     📊 Single-step mAP: 0.6566
+2025-06-25 19:00:10,053 - INFO - SuRL_FixedRL_140236223512784 - 🚀 SECONDARY: Planning capability analysis
+2025-06-25 19:00:10,053 - INFO - SuRL_FixedRL_140236223512784 -   🧠 AutoregressiveIL: Planning capability analysis
+2025-06-25 19:00:16,461 - INFO - SuRL_FixedRL_140236223512784 -     📊 Planning stability: 0.9981
+2025-06-25 19:00:16,461 - INFO - SuRL_FixedRL_140236223512784 -   AutoregressiveIL: mAP = 0.6566
+2025-06-25 19:00:16,462 - INFO - SuRL_FixedRL_140236223512784 - 📹 Evaluating video: VID50
+2025-06-25 19:00:16,799 - INFO - SuRL_FixedRL_140236223512784 - 📹 Comprehensive evaluation: VID50
+2025-06-25 19:00:16,800 - INFO - SuRL_FixedRL_140236223512784 - 🎯 PRIMARY: Single-step action prediction
+2025-06-25 19:00:16,800 - INFO - SuRL_FixedRL_140236223512784 -   🤖 AutoregressiveIL: Single-step action prediction
+2025-06-25 19:00:18,177 - INFO - SuRL_FixedRL_140236223512784 -   AutoregressiveIL evaluation completed: 69 batches processed
+2025-06-25 19:00:19,549 - INFO - SuRL_FixedRL_140236223512784 -     📊 Single-step mAP: 0.5616
+2025-06-25 19:00:19,550 - INFO - SuRL_FixedRL_140236223512784 - 🚀 SECONDARY: Planning capability analysis
+2025-06-25 19:00:19,550 - INFO - SuRL_FixedRL_140236223512784 -   🧠 AutoregressiveIL: Planning capability analysis
+2025-06-25 19:00:23,118 - INFO - SuRL_FixedRL_140236223512784 -     📊 Planning stability: 0.9980
+2025-06-25 19:00:23,119 - INFO - SuRL_FixedRL_140236223512784 -   AutoregressiveIL: mAP = 0.5616
+2025-06-25 19:00:23,119 - INFO - SuRL_FixedRL_140236223512784 - 📹 Evaluating video: VID51
+2025-06-25 19:00:23,513 - INFO - SuRL_FixedRL_140236223512784 - 📹 Comprehensive evaluation: VID51
+2025-06-25 19:00:23,514 - INFO - SuRL_FixedRL_140236223512784 - 🎯 PRIMARY: Single-step action prediction
+2025-06-25 19:00:23,514 - INFO - SuRL_FixedRL_140236223512784 -   🤖 AutoregressiveIL: Single-step action prediction
+2025-06-25 19:00:26,725 - INFO - SuRL_FixedRL_140236223512784 -   AutoregressiveIL evaluation completed: 184 batches processed
+2025-06-25 19:00:30,117 - INFO - SuRL_FixedRL_140236223512784 -     📊 Single-step mAP: 0.4728
+2025-06-25 19:00:30,117 - INFO - SuRL_FixedRL_140236223512784 - 🚀 SECONDARY: Planning capability analysis
+2025-06-25 19:00:30,118 - INFO - SuRL_FixedRL_140236223512784 -   🧠 AutoregressiveIL: Planning capability analysis
+2025-06-25 19:00:39,324 - INFO - SuRL_FixedRL_140236223512784 -     📊 Planning stability: 0.9977
+2025-06-25 19:00:39,324 - INFO - SuRL_FixedRL_140236223512784 -   AutoregressiveIL: mAP = 0.4728
+2025-06-25 19:00:39,325 - INFO - SuRL_FixedRL_140236223512784 - 📹 Evaluating video: VID66
+2025-06-25 19:00:39,692 - INFO - SuRL_FixedRL_140236223512784 - 📹 Comprehensive evaluation: VID66
+2025-06-25 19:00:39,692 - INFO - SuRL_FixedRL_140236223512784 - 🎯 PRIMARY: Single-step action prediction
+2025-06-25 19:00:39,692 - INFO - SuRL_FixedRL_140236223512784 -   🤖 AutoregressiveIL: Single-step action prediction
+2025-06-25 19:00:41,436 - INFO - SuRL_FixedRL_140236223512784 -   AutoregressiveIL evaluation completed: 114 batches processed
+2025-06-25 19:00:43,811 - INFO - SuRL_FixedRL_140236223512784 -     📊 Single-step mAP: 0.6417
+2025-06-25 19:00:43,811 - INFO - SuRL_FixedRL_140236223512784 - 🚀 SECONDARY: Planning capability analysis
+2025-06-25 19:00:43,811 - INFO - SuRL_FixedRL_140236223512784 -   🧠 AutoregressiveIL: Planning capability analysis
+2025-06-25 19:00:49,842 - INFO - SuRL_FixedRL_140236223512784 -     📊 Planning stability: 0.9982
+2025-06-25 19:00:49,843 - INFO - SuRL_FixedRL_140236223512784 -   AutoregressiveIL: mAP = 0.6417
+2025-06-25 19:00:49,844 - INFO - SuRL_FixedRL_140236223512784 - 📹 Evaluating video: VID79
+2025-06-25 19:00:50,279 - INFO - SuRL_FixedRL_140236223512784 - 📹 Comprehensive evaluation: VID79
+2025-06-25 19:00:50,279 - INFO - SuRL_FixedRL_140236223512784 - 🎯 PRIMARY: Single-step action prediction
+2025-06-25 19:00:50,279 - INFO - SuRL_FixedRL_140236223512784 -   🤖 AutoregressiveIL: Single-step action prediction
+2025-06-25 19:00:53,283 - INFO - SuRL_FixedRL_140236223512784 -   AutoregressiveIL evaluation completed: 214 batches processed
+2025-06-25 19:00:57,340 - INFO - SuRL_FixedRL_140236223512784 -     📊 Single-step mAP: 0.3646
+2025-06-25 19:00:57,340 - INFO - SuRL_FixedRL_140236223512784 - 🚀 SECONDARY: Planning capability analysis
+2025-06-25 19:00:57,340 - INFO - SuRL_FixedRL_140236223512784 -   🧠 AutoregressiveIL: Planning capability analysis
+2025-06-25 19:01:07,873 - INFO - SuRL_FixedRL_140236223512784 -     📊 Planning stability: 0.9979
+2025-06-25 19:01:07,874 - INFO - SuRL_FixedRL_140236223512784 -   AutoregressiveIL: mAP = 0.3646
+2025-06-25 19:01:07,877 - INFO - SuRL_FixedRL_140236223512784 - 📂 Main video results saved to results/2025-06-25_17-57-29/fold0/integrated_evaluation/main_video_results.json
+2025-06-25 19:01:07,882 - INFO - SuRL_FixedRL_140236223512784 - 📂 Video results saved to results/2025-06-25_17-57-29/fold0/integrated_evaluation/videos_results.json
+2025-06-25 19:01:07,883 - INFO - SuRL_FixedRL_140236223512784 - 📊 Computing aggregate results...
+2025-06-25 19:01:07,883 - INFO - SuRL_FixedRL_140236223512784 - 📈 Performing statistical tests...
+2025-06-25 19:01:07,883 - INFO - SuRL_FixedRL_140236223512784 - 
+2025-06-25 19:01:07,884 - INFO - SuRL_FixedRL_140236223512784 - 🎉 COMPREHENSIVE EVALUATION COMPLETED!
+2025-06-25 19:01:07,884 - INFO - SuRL_FixedRL_140236223512784 - ============================================================
+2025-06-25 19:01:07,884 - INFO - SuRL_FixedRL_140236223512784 - 🎯 PRIMARY RESULTS: Single-step Action Prediction (Fair Comparison)
+2025-06-25 19:01:07,884 - INFO - SuRL_FixedRL_140236223512784 -    Supervised IL: 0.4942 ± 0.1059 mAP
+2025-06-25 19:01:07,884 - INFO - SuRL_FixedRL_140236223512784 - 
+2025-06-25 19:01:07,884 - INFO - SuRL_FixedRL_140236223512784 - 🚀 SECONDARY RESULTS: Planning Capability Analysis
+2025-06-25 19:01:07,884 - INFO - SuRL_FixedRL_140236223512784 - 
+2025-06-25 19:01:07,884 - INFO - SuRL_FixedRL_140236223512784 - 🔍 KEY INSIGHTS:
+2025-06-25 19:01:07,884 - INFO - SuRL_FixedRL_140236223512784 -    ✅ Fair single-step comparison shows paradigm performance
+2025-06-25 19:01:07,884 - INFO - SuRL_FixedRL_140236223512784 -    ✅ Planning analysis reveals paradigm-specific strengths
+2025-06-25 19:01:07,884 - INFO - SuRL_FixedRL_140236223512784 -    ✅ No ground truth leakage or environment mismatches
+2025-06-25 19:01:07,884 - INFO - SuRL_FixedRL_140236223512784 -    ✅ Each method evaluated according to its training paradigm
+2025-06-25 19:01:07,884 - INFO - SuRL_FixedRL_140236223512784 - 
+2025-06-25 19:01:07,884 - INFO - SuRL_FixedRL_140236223512784 - ⚖️ EVALUATION FAIRNESS:
+2025-06-25 19:01:07,884 - INFO - SuRL_FixedRL_140236223512784 -    Primary task: single_step_action_prediction_with_proper_context
+2025-06-25 19:01:07,884 - INFO - SuRL_FixedRL_140236223512784 -    Secondary task: multi_step_planning_analysis
+2025-06-25 19:01:07,885 - INFO - SuRL_FixedRL_140236223512784 -    Fairness approach: respects_training_paradigms_and_data_structure
+2025-06-25 19:01:07,885 - INFO - SuRL_FixedRL_140236223512784 - 💾 Saving evaluation results...
+2025-06-25 19:01:07,885 - INFO - SuRL_FixedRL_140236223512784 - 📊 evaluation results saved
+2025-06-25 19:01:07,885 - INFO - SuRL_FixedRL_140236223512784 - 📁 Location: results/2025-06-25_17-57-29/fold0/integrated_evaluation
+2025-06-25 19:01:07,886 - INFO - SuRL_FixedRL_140236223512784 - 📊 Generating publication-quality plots...
+2025-06-25 19:01:07,889 - INFO - SuRL_FixedRL_140236223512784 - 📊 Publication plotter initialized: results/2025-06-25_17-57-29/fold0/publication_plots
+2025-06-25 19:01:07,889 - INFO - SuRL_FixedRL_140236223512784 - 📊 Creating per-video performance plots...
+2025-06-25 19:01:10,022 - INFO - SuRL_FixedRL_140236223512784 - ✅ Per-video plots saved: results/2025-06-25_17-57-29/fold0/publication_plots/per_video_performance_analysis
+2025-06-25 19:01:10,023 - INFO - SuRL_FixedRL_140236223512784 - 📈 Creating performance dashboard...
+2025-06-25 19:01:13,819 - INFO - SuRL_FixedRL_140236223512784 - ✅ Dashboard saved: results/2025-06-25_17-57-29/fold0/publication_plots/performance_dashboard
+2025-06-25 19:01:13,819 - INFO - SuRL_FixedRL_140236223512784 - 🏆 Analyzing Results and Architectural Insights
+2025-06-25 19:01:13,819 - INFO - SuRL_FixedRL_140236223512784 - 🏆 THREE-METHOD COMPARISON RESULTS (FIXED RL)
+2025-06-25 19:01:13,819 - INFO - SuRL_FixedRL_140236223512784 - ============================================================
+2025-06-25 19:01:13,819 - INFO - SuRL_FixedRL_140236223512784 - 🎓 Method 1 (Autoregressive IL):
+2025-06-25 19:01:13,819 - INFO - SuRL_FixedRL_140236223512784 -    Status: ✅ Success
+2025-06-25 19:01:13,819 - INFO - SuRL_FixedRL_140236223512784 -    Action mAP: 0.4965
+2025-06-25 19:01:13,819 - INFO - SuRL_FixedRL_140236223512784 -    Approach: Pure causal generation → actions
+2025-06-25 19:01:13,819 - INFO - SuRL_FixedRL_140236223512784 - 
+2025-06-25 19:01:13,819 - INFO - SuRL_FixedRL_140236223512784 - 📊 PUBLICATION PLOTS GENERATED:
+2025-06-25 19:01:13,820 - INFO - SuRL_FixedRL_140236223512784 -    📈 per_video_performance: results/2025-06-25_17-57-29/fold0/publication_plots/per_video_performance_analysis.png
+2025-06-25 19:01:13,820 - INFO - SuRL_FixedRL_140236223512784 -    📈 performance_dashboard: results/2025-06-25_17-57-29/fold0/publication_plots/performance_dashboard.png
+2025-06-25 19:01:13,820 - INFO - SuRL_FixedRL_140236223512784 - 🌍 Method 2: ❌ Failed - Unknown
+2025-06-25 19:01:13,820 - INFO - SuRL_FixedRL_140236223512784 - 📹 Method 3: ❌ Failed - Unknown
+2025-06-25 19:01:13,820 - INFO - SuRL_FixedRL_140236223512784 - 
+2025-06-25 19:01:13,820 - INFO - SuRL_FixedRL_140236223512784 - 🎯 Successful Methods: ['Method 1 (IL)']
+2025-06-25 19:01:13,820 - INFO - SuRL_FixedRL_140236223512784 - 📊 Total Methods Tested: 3
+2025-06-25 19:01:13,820 - INFO - SuRL_FixedRL_140236223512784 - ✅ Success Rate: 1/3
+2025-06-25 19:01:13,820 - INFO - SuRL_FixedRL_140236223512784 - 
+2025-06-25 19:01:13,834 - INFO - SuRL_FixedRL_140236223512784 - 📄 Generating publication-ready conference paper...
+2025-06-25 19:01:13,844 - INFO - SuRL_FixedRL_140236223512784 - 📄 Enhanced Research Paper Generator initialized
+2025-06-25 19:01:13,844 - INFO - SuRL_FixedRL_140236223512784 - 📁 Publication files will be saved to: results/2025-06-25_17-57-29/fold0/publication_paper
+2025-06-25 19:01:13,844 - INFO - SuRL_FixedRL_140236223512784 - 📄 Generating publication-ready conference paper...
+2025-06-25 19:01:13,844 - INFO - SuRL_FixedRL_140236223512784 - 📊 Creating publication-quality figures...
+2025-06-25 19:01:22,002 - INFO - SuRL_FixedRL_140236223512784 - 📋 Generating tables with experimental results...
+2025-06-25 19:01:22,004 - INFO - SuRL_FixedRL_140236223512784 - 📄 Writing enhanced paper content...
+2025-06-25 19:01:22,005 - INFO - SuRL_FixedRL_140236223512784 - 📚 Creating supplementary materials...
+2025-06-25 19:01:22,008 - INFO - SuRL_FixedRL_140236223512784 - 📄 Publication-ready paper generated in: results/2025-06-25_17-57-29/fold0/publication_paper
+2025-06-25 19:01:22,008 - INFO - SuRL_FixedRL_140236223512784 - 🔧 Run compile_paper.sh to build the PDF
+2025-06-25 19:01:22,008 - INFO - SuRL_FixedRL_140236223512784 - ✨ Paper reflects your actual experimental results!
+2025-06-25 19:01:22,009 - INFO - SuRL_FixedRL_140236223512784 - 📄 Research paper generated: results/2025-06-25_17-57-29/fold0/publication_paper
+2025-06-25 19:01:22,009 - INFO - SuRL_FixedRL_140236223512784 - 💾 All RL results saved to: results/2025-06-25_17-57-29/fold0
+2025-06-25 19:01:22,009 - INFO - SuRL_FixedRL_140236223512784 - 📄 Complete results: results/2025-06-25_17-57-29/fold0/complete_results.json
+2025-06-25 19:01:22,009 - INFO - SuRL_FixedRL_140236223512784 - 📄 Summary: results/2025-06-25_17-57-29/fold0/experiment_summary.json
+2025-06-25 19:01:22,009 - INFO - SuRL_FixedRL_140236223512784 - 📊 Publication plots: results/2025-06-25_17-57-29/fold0/publication_plots

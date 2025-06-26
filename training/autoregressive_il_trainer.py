@@ -469,7 +469,7 @@ class AutoregressiveILTrainer:
                 try:
                     # Standard IVT video-wise mAP (main metric for publication)
                     ivt_result = ivt_rec_curr.compute_video_AP("ivt")
-                    ivt_metrics['ivt_rec_mAP'] = ivt_result["mAP"]
+                    ivt_metrics['ivt_current_mAP'] = ivt_result["mAP"]
 
                     # Optional: Get component-wise results
                     for component in ['i', 'v', 't', 'iv', 'it']:
@@ -480,13 +480,13 @@ class AutoregressiveILTrainer:
                             ivt_metrics[f'ivt_rec_{component}_mAP'] = 0.0
                 except Exception as e:
                     self.logger.error(f"Error computing IVT metrics for current actions: {e}")
-                    ivt_metrics['ivt_rec_mAP'] = 0.0
+                    ivt_metrics['ivt_current_mAP'] = 0.0
 
             if ivt_rec_next is not None:
                 try:
                     # Standard IVT video-wise mAP (main metric for publication)
                     ivt_result = ivt_rec_next.compute_video_AP("ivt")
-                    ivt_metrics['ivt_mAP'] = ivt_result["mAP"]
+                    ivt_metrics['ivt_next_mAP'] = ivt_result["mAP"]
                     
                     # Optional: Get component-wise results
                     for component in ['i', 'v', 't', 'iv', 'it']:
@@ -498,22 +498,22 @@ class AutoregressiveILTrainer:
                 
                 except Exception as e:
                     self.logger.error(f"Error computing IVT metrics for next actions: {e}")
-                    ivt_metrics['ivt_mAP'] = 0.0
+                    ivt_metrics['ivt_next_mAP'] = 0.0
             else:
-                ivt_metrics['ivt_mAP'] = 0.0
+                ivt_metrics['ivt_next_mAP'] = 0.0
             
             final_metrics.update(ivt_metrics)
 
             next_map = final_metrics.get('action_mAP', 0.0)
-            ivt_map = final_metrics.get('ivt_mAP', 0.0)
+            ivt_next_map = final_metrics.get('ivt_next_mAP', 0.0)
             final_metrics['ivt_vs_current_diff'] = abs(next_map - ivt_map)
             final_metrics['evaluation_consistent'] = final_metrics['ivt_vs_current_diff'] < 0.02
 
             self.logger.info(
                 f"✅ Video {video_id} validation: "
                 f"   Loss: {video_losses.get('total_loss', 0):.4f}, "
-                f"   IVT current mAP: {final_metrics.get('ivt_rec_mAP', 0):.4f}, "
-                f"   IVT next mAP: {final_metrics.get('ivt_mAP', 0):.4f}, "
+                f"   IVT current mAP: {final_metrics.get('ivt_current_mAP', 0):.4f}, "
+                f"   IVT next mAP: {final_metrics.get('ivt_next_mAP', 0):.4f}, "
             )
 
         # 🎯 AGGREGATE: Average metrics across all videos
@@ -587,13 +587,14 @@ class AutoregressiveILTrainer:
         num_videos = len(video_action_metrics)
         map_std = final_metrics.get('action_mAP_std', 0.0)
         next_map = final_metrics.get('action_mAP', 0.0)
-        ivt_map = final_metrics.get('ivt_mAP', 0.0)
+        ivt_current_map = final_metrics.get('ivt_current_mAP', 0.0)
+        ivt_next_map = final_metrics.get('ivt_next_mAP', 0.0)
         
         self.logger.info(f"📊 Validation Summary (averaged across {num_videos} videos):")
         # self.logger.info(f"   🎯 Current System mAP:     {next_map:.4f} ± {map_std:.4f}")
-        self.logger.info(f"   📊 IVT mAP:                {ivt_map:.4f}")
-        self.logger.info(f"   📋 Actions evaluated:      {final_metrics.get('num_actions_present', 0):.0f} surgical actions")
-        self.logger.info(f"   🔄 Total Loss:             {final_metrics.get('total_loss', 0):.4f}")
+
+        self.logger.info(f"   📊 IVT current mAP:                {ivt_current_map:.4f}")
+        self.logger.info(f"   📊 IVT next mAP:                   {ivt_next_map:.4f}")
 
         # Log IVT component-wise metrics
         for comp in ['i', 'v', 't', 'iv', 'it']:
@@ -602,7 +603,7 @@ class AutoregressiveILTrainer:
         
         # Add the current recognition task mAP
         if ivt_rec_curr is not None:
-            curr_ivt_map = final_metrics.get('ivt_rec_mAP', 0.0)
+            curr_ivt_map = final_metrics.get('ivt_current_mAP', 0.0)
             self.logger.info(f"   📊 IVT current mAP:         {curr_ivt_map:.4f}")
         
         for comp in ['i', 'v', 't', 'iv', 'it']:

@@ -1,0 +1,15 @@
+{
+  "methods": {
+    "Autoregressive IL": {
+      "current_system_mAP": 49.649907244079856,
+      "ivt_standard_mAP": 32.042742537079214,
+      "planning_1s_mAP": 23.967851126341387,
+      "planning_2s_mAP": 22.939990732403558,
+      "planning_5s_mAP": 20.134239359343322,
+      "status": "success"
+    }
+  },
+  "best_method": "Autoregressive IL",
+  "performance_gap": 10.057257462920788,
+  "key_insights": []
+}

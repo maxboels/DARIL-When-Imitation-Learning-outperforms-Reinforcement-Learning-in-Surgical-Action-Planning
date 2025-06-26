@@ -12,6 +12,34 @@ from transformers import GPT2Config, GPT2LMHeadModel
 from typing import Dict, Any, Optional, List, Tuple
 import os
 
+class BiLSTMActionRecognizer(nn.Module):
+    def __init__(self, input_dim: int, lstm_hidden_dim: int, num_classes: int, dropout: float = 0.1):
+        super().__init__()
+
+        self.bi_lstm = nn.LSTM(
+            input_size=input_dim,
+            hidden_size=lstm_hidden_dim,
+            num_layers=1,
+            batch_first=True,
+            bidirectional=True
+        )
+
+        self.classifier = nn.Sequential(
+            nn.Linear(2 * lstm_hidden_dim, lstm_hidden_dim),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(lstm_hidden_dim, num_classes)
+        )
+
+    def forward(self, x):
+        """
+        x: Tensor of shape (B, T, D) → pre-GPT2 visual features
+        """
+        lstm_out, _ = self.bi_lstm(x)       # (B, T, 2 * hidden_dim)
+        logits = self.classifier(lstm_out)  # (B, T, num_classes)
+        return logits
+
+
 
 class AutoregressiveILModel(nn.Module):
     """
@@ -43,6 +71,15 @@ class AutoregressiveILModel(nn.Module):
         self.num_phase_classes = num_phase_classes
         self.max_length = max_length
         self.dropout = dropout
+
+        # Auxiliary BiLSTM recogniser for Swin features (pre-GPT2)
+        self.bilstm_action_recogniser = BiLSTMActionRecognizer(
+            input_dim=embedding_dim,        # Input is pre-GPT2 visual features
+            lstm_hidden_dim=hidden_dim // 4,  # Small size since Swin features are strong
+            num_classes=num_action_classes,
+            dropout=dropout
+        )
+
         
         # GPT-2 configuration for causal modeling
         self.gpt2_config = GPT2Config(
@@ -104,8 +141,7 @@ class AutoregressiveILModel(nn.Module):
 
         # Action recognition layer
         self.action_recognition_head = nn.Sequential(
-            nn.Linear(embedding_dim, hidden_dim),
-            nn.ReLU(),
+            nn.LayerNorm(hidden_dim),
             nn.Dropout(dropout),
             nn.Linear(hidden_dim, num_action_classes)
         )
@@ -159,12 +195,13 @@ class AutoregressiveILModel(nn.Module):
         batch_size, seq_len, _ = frame_embeddings.shape
         device = frame_embeddings.device
 
-        # Action recognition task
-        action_rec_logits = self.action_recognition_head(frame_embeddings) # TODO: pass the hidden inputs instead of frame_embeddings
-        
+        # Action recognition logits from pre-GPT2 features        
+        action_rec_logits = self.bilstm_action_recogniser(frame_embeddings)  # [B, T, num_classes]
+        # action_rec_logits = self.action_recognition_head(bilstm_action_logits) # [B, T, num_classes]
+
         # Project frame embeddings to hidden space
         hidden_inputs = self.frame_projection(frame_embeddings)
-        
+
         # Create attention mask (all positions visible)
         attention_mask = torch.ones(batch_size, seq_len, device=device)
         
