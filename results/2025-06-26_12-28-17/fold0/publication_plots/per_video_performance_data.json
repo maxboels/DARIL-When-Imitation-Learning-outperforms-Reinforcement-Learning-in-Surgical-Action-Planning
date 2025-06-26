@@ -1,0 +1,30 @@
+{
+  "per_video_results": {
+    "Autoregressive IL": {
+      "VID02": 18.359522438341827,
+      "VID06": 17.3515010239912
+    },
+    "Autoregressive IL (IVT)": {
+      "VID02": 0.0,
+      "VID06": 0.0
+    }
+  },
+  "summary_statistics": {
+    "Autoregressive IL": {
+      "mean": 17.855511731166516,
+      "std": 0.504010707175313,
+      "median": 17.855511731166516,
+      "min": 17.3515010239912,
+      "max": 18.359522438341827,
+      "num_videos": 2
+    },
+    "Autoregressive IL (IVT)": {
+      "mean": 0.0,
+      "std": 0.0,
+      "median": 0.0,
+      "min": 0.0,
+      "max": 0.0,
+      "num_videos": 2
+    }
+  }
+}

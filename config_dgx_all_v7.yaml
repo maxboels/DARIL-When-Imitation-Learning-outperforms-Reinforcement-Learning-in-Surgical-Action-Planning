@@ -3,9 +3,9 @@ debug: false
 experiment:
   # max_videos: 50  # Deprecated, use train/test specific
   train:
-    max_videos: 40  # default: 40
+    max_videos: 2  # default: 40
   test:
-    max_videos: 10  # default: 10
+    max_videos: 2  # default: 10
     test_on_train: false
     
   # Imitation Learning
@@ -131,8 +131,8 @@ data:
   max_horizon: 15
   
   paths:
-    # data_dir: "/home/maxboels/datasets/CholecT50"
-    data_dir: "/nfs/home/mboels/datasets/CholecT50"
+    data_dir: "/home/maxboels/datasets/CholecT50"
+    # data_dir: "/nfs/home/mboels/datasets/CholecT50"
     class_labels_file_path: "./data/labels.json"
     # Folds: 0, 1, 2, 3, 4
     fold: 0
@@ -171,7 +171,7 @@ models:
     n_layer: 6
     num_action_classes: 100
     num_phase_classes: 7
-    dropout: 0.1
+    dropout: 0.15
     max_length: 1024
   
   # Method 2: Conditional World Model  

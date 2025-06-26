@@ -1,0 +1,190 @@
+{
+    "VID02": {
+        "video_id": "VID02",
+        "evaluation_type": "comprehensive_fair_evaluation_with_proper_batches",
+        "single_step_evaluation": {
+            "AutoregressiveIL": {
+                "metrics": {
+                    "mAP": 0.14351657372435603,
+                    "mAP_info": {
+                        "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                        "excluded_classes": 6,
+                        "subset_size": 94,
+                        "present_actions_in_subset": 28,
+                        "subset_action_sparsity": 0.7021276595744681
+                    },
+                    "mAP_standard_with_null_verb": 0.6715588382047966,
+                    "mAP_present_only_with_null_verb": 0.12223187707293111,
+                    "mAP_freq_weighted_with_null_verb": 0.4608951887846396,
+                    "mAP_sample_wise_with_null_verb": 0.45858124075629736,
+                    "mAP_standard_all_actions": 0.6715588382047966,
+                    "mAP_present_only_all_actions": 0.12223187707293111,
+                    "mAP_freq_weighted_all_actions": 0.4608951887846396,
+                    "mAP_sample_wise_all_actions": 0.45858124075629736,
+                    "exact_match_with_null_verb": 0.27227897146882707,
+                    "hamming_accuracy_with_null_verb": 0.9868932722789715,
+                    "precision_with_null_verb": 0.78524443948305,
+                    "recall_with_null_verb": 0.6542644393371205,
+                    "f1_with_null_verb": 0.6995297803254397,
+                    "num_predictions": 2839,
+                    "num_actions_total_with_null_verb": 100,
+                    "num_actions_present_with_null_verb": 34,
+                    "action_sparsity_with_null_verb": 0.6599999999999999,
+                    "task": "single_step_action_prediction",
+                    "method_name": "AutoregressiveIL",
+                    "exclude_last_n": 6,
+                    "mAP_standard": 0.7129623836625741,
+                    "mAP_present_only": 0.14351657372435603,
+                    "mAP_freq_weighted": 0.4873007098755859,
+                    "exact_match": 0.3057414582599507,
+                    "hamming_accuracy": 0.9870234499711465,
+                    "precision": 0.7879183676795107,
+                    "recall": 0.6639144523025678,
+                    "f1": 0.7082798461442719,
+                    "num_actions_total": 94,
+                    "num_actions_present": 28,
+                    "action_sparsity": 0.7021276595744681
+                },
+                "evaluation_type": "next_action_prediction",
+                "used_temporal_context": true
+            }
+        },
+        "planning_evaluation": {
+            "AutoregressiveIL": {}
+        },
+        "summary": {
+            "primary_comparison": {
+                "AutoregressiveIL": {
+                    "mAP": 0.14351657372435603,
+                    "exact_match": 0.3057414582599507,
+                    "task": "single_step_action_prediction"
+                }
+            },
+            "secondary_analysis": {},
+            "overall_ranking": {},
+            "paradigm_insights": {
+                "fair_comparison_task": "single_step_action_prediction",
+                "planning_analysis": "shows_method_specific_strengths",
+                "evaluation_approach": "respects_training_paradigms"
+            }
+        },
+        "fairness_report": {
+            "evaluation_design": {
+                "primary_evaluation": "single_step_fair_comparison",
+                "secondary_evaluation": "method_specific_planning_analysis",
+                "data_handling": "uses_dataloader_batches_like_training",
+                "temporal_structure": "maintained_for_il_model",
+                "ground_truth_leakage": "eliminated"
+            },
+            "method_fairness": {
+                "AutoregressiveIL": "evaluated_with_proper_temporal_sequences",
+                "WorldModelRL": "evaluated_with_consistent_batch_approach",
+                "DirectVideoRL": "evaluated_with_consistent_batch_approach"
+            },
+            "data_integrity": {
+                "temporal_context": "preserved_for_models_that_need_it",
+                "batch_structure": "mirrors_training_approach",
+                "evaluation_consistency": "matches_model_training_interface"
+            },
+            "comparison_validity": {
+                "single_step_comparison": "valid_and_fair_with_proper_data_handling",
+                "planning_comparison": "method_specific_respecting_capabilities",
+                "overall_approach": "methodologically_sound_and_consistent_with_training"
+            }
+        }
+    },
+    "VID06": {
+        "video_id": "VID06",
+        "evaluation_type": "comprehensive_fair_evaluation_with_proper_batches",
+        "single_step_evaluation": {
+            "AutoregressiveIL": {
+                "metrics": {
+                    "mAP": 0.173515010239912,
+                    "mAP_info": {
+                        "calculated_from": "subset_excluding_last_classes_present_actions_only",
+                        "excluded_classes": 6,
+                        "subset_size": 94,
+                        "present_actions_in_subset": 26,
+                        "subset_action_sparsity": 0.7234042553191489
+                    },
+                    "mAP_standard_with_null_verb": 0.7476902618733567,
+                    "mAP_present_only_with_null_verb": 0.1589675395778555,
+                    "mAP_freq_weighted_with_null_verb": 0.6073406341884972,
+                    "mAP_sample_wise_with_null_verb": 0.4086494701576933,
+                    "mAP_standard_all_actions": 0.7476902618733567,
+                    "mAP_present_only_all_actions": 0.1589675395778555,
+                    "mAP_freq_weighted_all_actions": 0.6073406341884972,
+                    "mAP_sample_wise_all_actions": 0.4086494701576933,
+                    "exact_match_with_null_verb": 0.06456107756618672,
+                    "hamming_accuracy_with_null_verb": 0.9796144914073386,
+                    "precision_with_null_verb": 0.6576702307258309,
+                    "recall_with_null_verb": 0.5801433786856542,
+                    "f1_with_null_verb": 0.6053950515325596,
+                    "num_predictions": 2153,
+                    "num_actions_total_with_null_verb": 100,
+                    "num_actions_present_with_null_verb": 30,
+                    "action_sparsity_with_null_verb": 0.7,
+                    "task": "single_step_action_prediction",
+                    "method_name": "AutoregressiveIL",
+                    "exclude_last_n": 6,
+                    "mAP_standard": 0.7713977687897628,
+                    "mAP_present_only": 0.173515010239912,
+                    "mAP_freq_weighted": 0.6457598546467332,
+                    "exact_match": 0.08453320947515096,
+                    "hamming_accuracy": 0.9796721052267494,
+                    "precision": 0.6578844560080668,
+                    "recall": 0.5865379118615811,
+                    "f1": 0.6110811695246814,
+                    "num_actions_total": 94,
+                    "num_actions_present": 26,
+                    "action_sparsity": 0.7234042553191489
+                },
+                "evaluation_type": "next_action_prediction",
+                "used_temporal_context": true
+            }
+        },
+        "planning_evaluation": {
+            "AutoregressiveIL": {}
+        },
+        "summary": {
+            "primary_comparison": {
+                "AutoregressiveIL": {
+                    "mAP": 0.173515010239912,
+                    "exact_match": 0.08453320947515096,
+                    "task": "single_step_action_prediction"
+                }
+            },
+            "secondary_analysis": {},
+            "overall_ranking": {},
+            "paradigm_insights": {
+                "fair_comparison_task": "single_step_action_prediction",
+                "planning_analysis": "shows_method_specific_strengths",
+                "evaluation_approach": "respects_training_paradigms"
+            }
+        },
+        "fairness_report": {
+            "evaluation_design": {
+                "primary_evaluation": "single_step_fair_comparison",
+                "secondary_evaluation": "method_specific_planning_analysis",
+                "data_handling": "uses_dataloader_batches_like_training",
+                "temporal_structure": "maintained_for_il_model",
+                "ground_truth_leakage": "eliminated"
+            },
+            "method_fairness": {
+                "AutoregressiveIL": "evaluated_with_proper_temporal_sequences",
+                "WorldModelRL": "evaluated_with_consistent_batch_approach",
+                "DirectVideoRL": "evaluated_with_consistent_batch_approach"
+            },
+            "data_integrity": {
+                "temporal_context": "preserved_for_models_that_need_it",
+                "batch_structure": "mirrors_training_approach",
+                "evaluation_consistency": "matches_model_training_interface"
+            },
+            "comparison_validity": {
+                "single_step_comparison": "valid_and_fair_with_proper_data_handling",
+                "planning_comparison": "method_specific_respecting_capabilities",
+                "overall_approach": "methodologically_sound_and_consistent_with_training"
+            }
+        }
+    }
+}

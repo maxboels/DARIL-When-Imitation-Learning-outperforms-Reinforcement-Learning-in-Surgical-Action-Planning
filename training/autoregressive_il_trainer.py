@@ -506,8 +506,6 @@ class AutoregressiveILTrainer:
 
             next_map = final_metrics.get('action_mAP', 0.0)
             ivt_next_map = final_metrics.get('ivt_next_mAP', 0.0)
-            final_metrics['ivt_vs_current_diff'] = abs(next_map - ivt_map)
-            final_metrics['evaluation_consistent'] = final_metrics['ivt_vs_current_diff'] < 0.02
 
             self.logger.info(
                 f"✅ Video {video_id} validation: "

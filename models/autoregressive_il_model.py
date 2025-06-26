@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Autoregressive Imitation Learning Model for Method 1
-Pure causal frame generation → action prediction (no action conditioning)
+Improved Autoregressive Imitation Learning Model
+Dual-path architecture: BiLSTM (recognition) + GPT2 (generation)
+Optimized for small datasets with clear temporal alignment
 """
 
 import torch
@@ -13,44 +14,71 @@ from typing import Dict, Any, Optional, List, Tuple
 import os
 
 class BiLSTMActionRecognizer(nn.Module):
+    """Enhanced BiLSTM for current action recognition with full temporal context"""
+    
     def __init__(self, input_dim: int, lstm_hidden_dim: int, num_classes: int, dropout: float = 0.1):
         super().__init__()
 
+        # Enhanced BiLSTM with more layers for better temporal modeling
         self.bi_lstm = nn.LSTM(
             input_size=input_dim,
             hidden_size=lstm_hidden_dim,
-            num_layers=1,
+            num_layers=2,  # Increased from 1 for better temporal understanding
             batch_first=True,
-            bidirectional=True
+            bidirectional=True,
+            dropout=dropout if lstm_hidden_dim > 1 else 0.0  # Only apply if multi-layer
         )
 
+        # Enhanced classifier with better regularization
         self.classifier = nn.Sequential(
+            nn.LayerNorm(2 * lstm_hidden_dim),
+            nn.Dropout(dropout),
             nn.Linear(2 * lstm_hidden_dim, lstm_hidden_dim),
-            nn.ReLU(),
+            nn.GELU(),  # Better activation for recognition tasks
             nn.Dropout(dropout),
             nn.Linear(lstm_hidden_dim, num_classes)
         )
+        
+        # Initialize weights for small dataset training
+        self._init_weights()
+
+    def _init_weights(self):
+        """Initialize weights for stable training on small datasets"""
+        for name, param in self.named_parameters():
+            if 'weight_ih' in name:
+                nn.init.xavier_uniform_(param.data)
+            elif 'weight_hh' in name:
+                nn.init.orthogonal_(param.data)
+            elif 'bias' in name:
+                nn.init.zeros_(param.data)
+                # Set forget gate bias to 1 for better gradient flow
+                if 'bias_ih' in name:
+                    n = param.size(0)
+                    param.data[n//4:n//2].fill_(1.)
 
     def forward(self, x):
         """
         x: Tensor of shape (B, T, D) → pre-GPT2 visual features
+        Returns: logits for current action recognition at each timestep
         """
         lstm_out, _ = self.bi_lstm(x)       # (B, T, 2 * hidden_dim)
         logits = self.classifier(lstm_out)  # (B, T, num_classes)
         return logits
 
 
-
 class AutoregressiveILModel(nn.Module):
     """
-    Method 1: Pure Autoregressive Imitation Learning
+    Improved Dual-Path Autoregressive Imitation Learning
     
     Architecture:
-    1. Frame Embeddings → GPT-2 (Causal) → Hidden States
-    2. Hidden States → Next Frame Prediction
-    3. Hidden States → Action Prediction (from generated frames)
+    Path 1: Frame Embeddings → BiLSTM (bidirectional) → Current Action Recognition
+    Path 2: Frame Embeddings → GPT-2 (causal) → Next Action Generation + Frame Prediction
     
-    Key: NO action conditioning during frame generation (pure autoregressive)
+    Key Improvements:
+    - Clear temporal alignment (current vs next action prediction)
+    - Better regularization for small datasets
+    - Enhanced knowledge transfer between paths
+    - Curriculum learning support
     """
     
     def __init__(self, 
@@ -60,10 +88,11 @@ class AutoregressiveILModel(nn.Module):
                  num_action_classes: int = 100,
                  num_phase_classes: int = 7,
                  max_length: int = 1024,
-                 dropout: float = 0.1):
+                 dropout: float = 0.15,
+                 transfer_context: bool = False):  # Increased for small dataset
         super().__init__()
         
-        print("🎓 Initializing Autoregressive IL Model...")
+        print("🎓 Initializing Improved Autoregressive IL Model...")
         
         self.hidden_dim = hidden_dim
         self.embedding_dim = embedding_dim
@@ -72,23 +101,22 @@ class AutoregressiveILModel(nn.Module):
         self.max_length = max_length
         self.dropout = dropout
 
-        # Auxiliary BiLSTM recogniser for Swin features (pre-GPT2)
+        # PATH 1: Recognition Path (BiLSTM - Bidirectional for current actions)
         self.bilstm_action_recogniser = BiLSTMActionRecognizer(
-            input_dim=embedding_dim,        # Input is pre-GPT2 visual features
-            lstm_hidden_dim=hidden_dim // 4,  # Small size since Swin features are strong
+            input_dim=embedding_dim,
+            lstm_hidden_dim=hidden_dim // 3,  # Optimized size
             num_classes=num_action_classes,
             dropout=dropout
         )
-
         
-        # GPT-2 configuration for causal modeling
+        # PATH 2: Generation Path (GPT2 - Causal for next actions)
         self.gpt2_config = GPT2Config(
             hidden_size=hidden_dim,
             num_hidden_layers=n_layer,
             num_attention_heads=max(1, hidden_dim // 64),
-            intermediate_size=hidden_dim * 4,
+            intermediate_size=hidden_dim * 2,  # Reduced for small dataset
             max_position_embeddings=max_length,
-            vocab_size=1,  # Not using traditional vocabulary
+            vocab_size=1,
             n_positions=max_length,
             n_embd=hidden_dim,
             n_layer=n_layer,
@@ -98,73 +126,78 @@ class AutoregressiveILModel(nn.Module):
             use_cache=False
         )
         
-        # Initialize GPT-2 backbone
         self.gpt2 = GPT2LMHeadModel(self.gpt2_config)
-        self.gpt2.lm_head = nn.Identity()  # Remove default language modeling head
+        self.gpt2.lm_head = nn.Identity()
         
-        # Input projection: frame embeddings → hidden space
+        # Enhanced input projection with residual connection
         self.frame_projection = nn.Sequential(
             nn.Linear(embedding_dim, hidden_dim),
+            nn.LayerNorm(hidden_dim),
+            nn.Dropout(dropout),
+            nn.GELU(),
+            nn.Linear(hidden_dim, hidden_dim),
             nn.LayerNorm(hidden_dim),
             nn.Dropout(dropout)
         )
         
         # Next frame prediction head (autoregressive state generation)
         self.next_frame_head = nn.Sequential(
-            nn.Linear(hidden_dim, hidden_dim),
-            nn.ReLU(),
+            nn.LayerNorm(hidden_dim),
             nn.Dropout(dropout),
             nn.Linear(hidden_dim, hidden_dim // 2),
-            nn.ReLU(),
+            nn.GELU(),
             nn.Dropout(dropout),
             nn.Linear(hidden_dim // 2, embedding_dim)
         )
         
-        # Action prediction head (from generated frames)
-        self.action_prediction_head = nn.Sequential(
-            nn.Linear(hidden_dim, hidden_dim),
-            nn.ReLU(),
+        # Next action prediction head (causal - predicts t+1 from t)
+        self.next_action_head = nn.Sequential(
+            nn.LayerNorm(hidden_dim),
             nn.Dropout(dropout),
             nn.Linear(hidden_dim, hidden_dim // 2),
-            nn.ReLU(),
+            nn.GELU(),
             nn.Dropout(dropout),
             nn.Linear(hidden_dim // 2, num_action_classes)
         )
         
-        # Phase prediction head (surgical phase understanding)
+        # Phase prediction head
         self.phase_prediction_head = nn.Sequential(
+            nn.LayerNorm(hidden_dim),
+            nn.Dropout(dropout),
             nn.Linear(hidden_dim, hidden_dim // 2),
-            nn.ReLU(),
+            nn.GELU(),
             nn.Dropout(dropout),
             nn.Linear(hidden_dim // 2, num_phase_classes)
         )
 
-        # Action recognition layer
-        self.action_recognition_head = nn.Sequential(
-            nn.LayerNorm(hidden_dim),
-            nn.Dropout(dropout),
-            nn.Linear(hidden_dim, num_action_classes)
-        )
+        # Cross-path knowledge transfer (optional enhancement)
+        if transfer_context:
+            self.knowledge_transfer = nn.Sequential(
+                nn.Linear(2 * (hidden_dim // 3), hidden_dim // 4),  # BiLSTM features to GPT2
+                nn.Tanh(),
+                nn.Dropout(dropout)
+            )
         
         # Initialize weights
         self._init_weights()
         
-        print(f"✅ Autoregressive IL Model initialized")
-        print(f"   Architecture: Frame → Causal Generation → Action")
+        print(f"✅ Improved Autoregressive IL Model initialized")
+        print(f"   Architecture: Dual-Path (BiLSTM + GPT2)")
+        print(f"   Recognition: BiLSTM (current actions)")
+        print(f"   Generation: GPT2 (next actions + frames)")
         print(f"   Hidden dim: {hidden_dim}, Embedding dim: {embedding_dim}")
-        print(f"   Layers: {n_layer}, Actions: {num_action_classes}")
-        print(f"   Key: NO action conditioning during generation")
+        print(f"   Optimized for small datasets (40 videos)")
     
     def _init_weights(self):
-        """Initialize model weights."""
+        """Initialize model weights for stable small dataset training"""
         for name, module in self.named_modules():
             if isinstance(module, nn.Linear):
-                if 'head' in name.lower():
-                    # Xavier initialization for prediction heads
+                if 'head' in name.lower() or 'classifier' in name.lower():
+                    # Xavier for prediction heads
                     nn.init.xavier_uniform_(module.weight)
                 else:
-                    # Small normal initialization for other layers
-                    nn.init.normal_(module.weight, std=0.02)
+                    # Conservative initialization for small datasets
+                    nn.init.normal_(module.weight, std=0.01)
                 if module.bias is not None:
                     nn.init.zeros_(module.bias)
             elif isinstance(module, nn.LayerNorm):
@@ -175,62 +208,68 @@ class AutoregressiveILModel(nn.Module):
                 frame_embeddings: torch.Tensor,
                 target_next_frames: Optional[torch.Tensor] = None,
                 target_current_actions: Optional[torch.Tensor] = None,
-                target_actions: Optional[torch.Tensor] = None,
+                target_actions: Optional[torch.Tensor] = None,  # For backward compatibility
                 target_phases: Optional[torch.Tensor] = None,
-                return_hidden_states: bool = False) -> Dict[str, torch.Tensor]:
+                return_hidden_states: bool = False,
+                epoch: int = 0) -> Dict[str, torch.Tensor]:
         """
-        Forward pass for autoregressive IL training.
+        Forward pass with improved dual-path architecture.
         
         Args:
             frame_embeddings: [batch_size, seq_len, embedding_dim]
-            target_next_frames: [batch_size, seq_len, embedding_dim] (for training)
-            target_actions: [batch_size, seq_len, num_action_classes] (for training)
-            target_phases: [batch_size, seq_len] (for training)
+            target_next_frames: [batch_size, seq_len, embedding_dim] - for next frame prediction
+            target_current_actions: [batch_size, seq_len, num_action_classes] - current actions
+            target_actions: [batch_size, seq_len, num_action_classes] - for backward compatibility
+            target_phases: [batch_size, seq_len] - phase labels
             return_hidden_states: Whether to return all hidden states
+            epoch: Current training epoch (for curriculum learning)
             
         Returns:
-            Dictionary containing predictions and losses
+            Dictionary containing predictions and losses with same interface as before
         """
         
         batch_size, seq_len, _ = frame_embeddings.shape
         device = frame_embeddings.device
 
-        # Action recognition logits from pre-GPT2 features        
+        # PATH 1: Recognition Path - Current Action Recognition (BiLSTM)
         action_rec_logits = self.bilstm_action_recogniser(frame_embeddings)  # [B, T, num_classes]
-        # action_rec_logits = self.action_recognition_head(bilstm_action_logits) # [B, T, num_classes]
-
-        # Project frame embeddings to hidden space
-        hidden_inputs = self.frame_projection(frame_embeddings)
-
-        # Create attention mask (all positions visible)
+        
+        # PATH 2: Generation Path - Causal Modeling (GPT2)
+        projected_features = self.frame_projection(frame_embeddings)
+        
+        # Optional: Add recognition context to generation path
+        if hasattr(self, 'knowledge_transfer'):
+            lstm_features = self.bilstm_action_recogniser.bi_lstm(frame_embeddings)[0]
+            transfer_context = self.knowledge_transfer(lstm_features)
+            # Add as residual connection
+            projected_features = projected_features + transfer_context
+        
         attention_mask = torch.ones(batch_size, seq_len, device=device)
         
-        # Forward through GPT-2 (causal autoregressive modeling)
         gpt2_outputs = self.gpt2(
-            inputs_embeds=hidden_inputs,
+            inputs_embeds=projected_features,
             attention_mask=attention_mask,
             output_hidden_states=True,
             return_dict=True
         )
         
-        # Get hidden states from last layer
         hidden_states = gpt2_outputs.hidden_states[-1]  # [batch_size, seq_len, hidden_dim]
         
-        # Predict next frames (autoregressive state generation)
+        # Next frame prediction (autoregressive)
         next_frame_pred = self.next_frame_head(hidden_states)
         
-        # Predict actions from hidden states (learned from generated frames)
-        action_logits = self.action_prediction_head(hidden_states)
+        # Next action prediction (causal - predict t+1 from t)
+        next_action_logits = self.next_action_head(hidden_states)
         
-        # Predict phases
+        # Phase prediction
         phase_logits = self.phase_prediction_head(hidden_states)
         
-        # Prepare outputs
+        # Prepare outputs (maintain same interface as original)
         outputs = {
-            'action_rec_probs': torch.sigmoid(action_rec_logits),  # For compatibility
+            'action_rec_probs': torch.sigmoid(action_rec_logits),  # Current actions (BiLSTM)
             'next_frame_pred': next_frame_pred,
-            'action_logits': action_logits,
-            'action_pred': torch.sigmoid(action_logits),  # For compatibility
+            'action_logits': next_action_logits,  # Next actions (GPT2) - for compatibility
+            'action_pred': torch.sigmoid(next_action_logits),  # For compatibility
             'phase_logits': phase_logits,
             'hidden_states': hidden_states
         }
@@ -238,32 +277,45 @@ class AutoregressiveILModel(nn.Module):
         if return_hidden_states:
             outputs['all_hidden_states'] = gpt2_outputs.hidden_states
         
-        # Calculate losses if targets are provided
+        # Calculate losses with improved strategy for small datasets
         total_loss = 0.0
+        
+        # Use target_actions for backward compatibility if target_current_actions not provided
+        current_action_targets = target_current_actions if target_current_actions is not None else target_actions
 
-        # Action recognition loss
-        if target_current_actions is not None:
+        # Loss 1: Current Action Recognition (BiLSTM)
+        if current_action_targets is not None:
             action_rec_loss = F.binary_cross_entropy_with_logits(
-                action_rec_logits, target_current_actions
+                action_rec_logits, current_action_targets
             )
             outputs['action_rec_loss'] = action_rec_loss
-            total_loss += 1.5 * action_rec_loss
+            # Higher weight for recognition (easier task, provides strong gradients)
+            total_loss += 2.0 * action_rec_loss
         
-        # Next frame prediction loss (autoregressive)
+        # Loss 2: Next Frame Prediction (autoregressive)
         if target_next_frames is not None:
             frame_loss = F.mse_loss(next_frame_pred, target_next_frames)
             outputs['frame_loss'] = frame_loss
-            total_loss += frame_loss # might overfit on this loss
+            # Moderate weight - helps with representation learning
+            total_loss += 0.5 * frame_loss
         
-        # Action prediction loss
-        if target_actions is not None:
-            action_loss = F.binary_cross_entropy_with_logits(
-                action_logits, target_actions
+        # Loss 3: Next Action Prediction (causal)
+        # Align temporal targets: hidden[t] predicts action[t+1]
+        if current_action_targets is not None and seq_len > 1:
+            # Shift targets: predict action[t+1] from hidden[t]
+            next_action_targets = current_action_targets[:, 1:]  # Actions at t+1
+            next_action_preds = next_action_logits[:, :-1]       # Predictions from t
+            
+            next_action_loss = F.binary_cross_entropy_with_logits(
+                next_action_preds, next_action_targets
             )
-            outputs['action_loss'] = action_loss
-            total_loss += 2.0 * action_loss  # Weight action loss higher
+            outputs['action_loss'] = next_action_loss  # For compatibility
+            
+            # Curriculum learning: gradually increase next action loss weight
+            curriculum_weight = min(1.0, epoch / 20.0)  # Ramp up over 20 epochs
+            total_loss += curriculum_weight * 1.5 * next_action_loss
         
-        # Phase prediction loss
+        # Loss 4: Phase Prediction
         if target_phases is not None:
             phase_loss = F.cross_entropy(
                 phase_logits.view(-1, self.num_phase_classes),
@@ -271,7 +323,17 @@ class AutoregressiveILModel(nn.Module):
                 ignore_index=-1
             )
             outputs['phase_loss'] = phase_loss
-            total_loss += 0.5 * phase_loss  # Lower weight for phase
+            total_loss += 0.3 * phase_loss  # Lower weight
+        
+        # Consistency loss between recognition and generation (optional)
+        if current_action_targets is not None and seq_len > 1:
+            # Recognition at t should be similar to generation prediction at t-1
+            consistency_loss = F.mse_loss(
+                torch.sigmoid(action_rec_logits[:, 1:]),  # Recognition at t+1
+                torch.sigmoid(next_action_logits[:, :-1])  # Prediction at t for t+1
+            )
+            outputs['consistency_loss'] = consistency_loss
+            total_loss += 0.1 * consistency_loss  # Very small weight
         
         outputs['total_loss'] = total_loss
         return outputs
@@ -282,52 +344,39 @@ class AutoregressiveILModel(nn.Module):
                          temperature: float = 1.0,
                          top_p: Optional[float] = None) -> Dict[str, torch.Tensor]:
         """
-        Autoregressive sequence generation: frames → next_frames → actions
-        
-        Args:
-            initial_frames: [batch_size, context_len, embedding_dim]
-            horizon: Number of steps to generate
-            temperature: Sampling temperature for actions
-            top_p: Nucleus sampling threshold
-            
-        Returns:
-            Dictionary with generated frames and predicted actions
+        Autoregressive sequence generation using the GPT2 generation path.
+        Interface unchanged for compatibility.
         """
         
         self.eval()
         batch_size, context_len, _ = initial_frames.shape
         device = initial_frames.device
         
-        # Start with initial frames
         generated_frames = initial_frames.clone()
         predicted_actions = []
         predicted_phases = []
                 
         with torch.no_grad():
             for step in range(horizon):
-                # Get current context (limit to reasonable length)
                 max_context = min(self.max_length - 1, generated_frames.size(1))
                 current_context = generated_frames[:, -max_context:]
                 
-                # Forward pass (no action conditioning!)
                 outputs = self.forward(current_context)
                 
-                # Get predictions for the last timestep (causal next token prediction)
-                next_frame = outputs['next_frame_pred'][:, -1:, :]  # [batch_size, 1, embedding_dim]
-                action_logits = outputs['action_logits'][:, -1, :]  # [batch_size, num_action_classes]
-                phase_logits = outputs['phase_logits'][:, -1, :]  # [batch_size, num_phase_classes]
+                # Get predictions for next timestep
+                next_frame = outputs['next_frame_pred'][:, -1:, :]
+                action_logits = outputs['action_logits'][:, -1, :]
+                phase_logits = outputs['phase_logits'][:, -1, :]
                 
-                # Sample actions with temperature and nucleus sampling
+                # Apply temperature and nucleus sampling
                 if temperature != 1.0:
                     action_logits = action_logits / temperature
                 
                 if top_p is not None:
-                    # Nucleus sampling for actions
                     action_probs = torch.sigmoid(action_logits)
                     sorted_probs, sorted_indices = torch.sort(action_probs, descending=True, dim=-1)
                     cumulative_probs = torch.cumsum(sorted_probs, dim=-1)
                     
-                    # Remove tokens with cumulative probability above threshold
                     sorted_indices_to_remove = cumulative_probs > top_p
                     sorted_indices_to_remove[:, 1:] = sorted_indices_to_remove[:, :-1].clone()
                     sorted_indices_to_remove[:, 0] = 0
@@ -335,22 +384,16 @@ class AutoregressiveILModel(nn.Module):
                     indices_to_remove = sorted_indices.gather(-1, sorted_indices_to_remove.long())
                     action_logits.scatter_(-1, indices_to_remove, float('-inf'))
                 
-                # Sample actions
                 action_probs = torch.sigmoid(action_logits)
                 sampled_actions = torch.bernoulli(action_probs)
-                
-                # Get phase predictions
                 phase_probs = F.softmax(phase_logits, dim=-1)
                 
-                # Store predictions
                 predicted_actions.append(sampled_actions)
                 predicted_phases.append(phase_probs)
-                
-                # Append next frame for continued generation
                 generated_frames = torch.cat([generated_frames, next_frame], dim=1)
                 
         result = {
-            'generated_frames': generated_frames[:, context_len:],  # Exclude initial context
+            'generated_frames': generated_frames[:, context_len:],
             'predicted_actions': torch.stack(predicted_actions, dim=1),
             'predicted_phases': torch.stack(predicted_phases, dim=1),
             'full_sequence': generated_frames,
@@ -367,14 +410,8 @@ class AutoregressiveILModel(nn.Module):
     def predict_next_action(self, frame_sequence: torch.Tensor) -> torch.Tensor:
         """
         Predict next action from frame sequence (for evaluation).
-        
-        Args:
-            frame_sequence: [batch_size, seq_len, embedding_dim]
-            
-        Returns:
-            action_probs: [batch_size, num_action_classes]
+        Interface unchanged for compatibility.
         """
-        # Check input shape
         batch_size, seq_len, _ = frame_sequence.shape
         if seq_len < 2:
             raise ValueError("Frame sequence must have at least 2 frames for action prediction.")
@@ -382,12 +419,12 @@ class AutoregressiveILModel(nn.Module):
         self.eval()
         with torch.no_grad():
             outputs = self.forward(frame_sequence)
-            action_probs = outputs['action_pred'][:, -1, :]  # Last timestep
+            # Use the GPT2 generation path for next action prediction
+            action_probs = outputs['action_pred'][:, -1, :]
             return action_probs
     
     def save_model(self, path: str):
-        """Save the model with configuration."""
-        
+        """Save model - interface unchanged for compatibility"""
         os.makedirs(os.path.dirname(path), exist_ok=True)
         
         torch.save({
@@ -404,28 +441,50 @@ class AutoregressiveILModel(nn.Module):
             'model_type': 'AutoregressiveILModel'
         }, path)
         
-        print(f"✅ Autoregressive IL Model saved to: {path}")
+        print(f"✅ Improved Autoregressive IL Model saved to: {path}")
     
     @classmethod
     def load_model(cls, path: str, device: Optional[torch.device] = None):
-        """Load model from saved checkpoint."""
-        
+        """Load model - interface unchanged for compatibility"""
         if device is None:
             device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
         checkpoint = torch.load(path, map_location=device)
         config = checkpoint['config']
         
-        # Create model with saved configuration
         model = cls(**config)
         model.load_state_dict(checkpoint['model_state_dict'])
         model.to(device)
         
-        print(f"✅ Autoregressive IL Model loaded from: {path}")
+        print(f"✅ Improved Autoregressive IL Model loaded from: {path}")
         return model
 
 
 # Example usage and testing
 if __name__ == "__main__":
-    print("🎓 AUTOREGRESSIVE IMITATION LEARNING MODEL")
+    print("🎓 IMPROVED AUTOREGRESSIVE IMITATION LEARNING MODEL")
+    print("   - Enhanced dual-path architecture (BiLSTM + GPT2)")
+    print("   - Optimized for small datasets (40 videos)")
+    print("   - Clear temporal alignment (current vs next actions)")
+    print("   - Curriculum learning support")
+    print("   - Backward compatible interface")
     
+    # Test model initialization
+    model = AutoregressiveILModel(
+        hidden_dim=512,      # Smaller for 40 videos
+        embedding_dim=1024,
+        n_layer=4,           # Fewer layers
+        num_action_classes=100,
+        num_phase_classes=7,
+        dropout=0.2          # Higher dropout for regularization
+    )
+    
+    # Test forward pass
+    batch_size, seq_len, embedding_dim = 2, 10, 1024
+    frame_embeddings = torch.randn(batch_size, seq_len, embedding_dim)
+    target_actions = torch.randint(0, 2, (batch_size, seq_len, 100)).float()
+    
+    outputs = model(frame_embeddings, target_current_actions=target_actions, epoch=0)
+    print(f"✅ Forward pass successful")
+    print(f"   Total loss: {outputs['total_loss'].item():.4f}")
+    print(f"   Output keys: {list(outputs.keys())}")

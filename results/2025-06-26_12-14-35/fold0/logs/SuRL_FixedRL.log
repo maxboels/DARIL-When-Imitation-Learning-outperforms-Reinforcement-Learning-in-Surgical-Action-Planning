@@ -1,0 +1,58 @@
+2025-06-26 12:14:35,216 - INFO - SuRL_FixedRL_128548949372000 - Shared experiment log directory: results/2025-06-26_12-14-35/fold0/logs
+2025-06-26 12:14:35,217 - INFO - SuRL_FixedRL_128548949372000 - 🎯 RL Experiment: 2025-06-26_12-14-35
+2025-06-26 12:14:35,217 - INFO - SuRL_FixedRL_128548949372000 - 📁 Results dir: results/2025-06-26_12-14-35/fold0
+2025-06-26 12:14:35,217 - INFO - SuRL_FixedRL_128548949372000 - 📂 Plots dir: results/2025-06-26_12-14-35/fold0/publication_plots
+2025-06-26 12:14:35,217 - INFO - SuRL_FixedRL_128548949372000 - 🚀 Starting Complete RL Comparison
+2025-06-26 12:14:35,217 - INFO - SuRL_FixedRL_128548949372000 - ============================================================
+2025-06-26 12:14:35,217 - INFO - SuRL_FixedRL_128548949372000 - 📂 Loading CholecT50 data...
+2025-06-26 12:14:35,217 - INFO - SuRL_FixedRL_128548949372000 -    Training videos: 2
+2025-06-26 12:14:35,217 - INFO - SuRL_FixedRL_128548949372000 -    Test videos: 2
+2025-06-26 12:14:35,217 - INFO - SuRL_FixedRL_128548949372000 - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-26 12:14:35,654 - INFO - SuRL_FixedRL_128548949372000 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (78968, 156)
+2025-06-26 12:14:35,654 - INFO - SuRL_FixedRL_128548949372000 - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-26 12:14:35,655 - INFO - SuRL_FixedRL_128548949372000 - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-26 12:14:35,657 - INFO - SuRL_FixedRL_128548949372000 - [Train] Found 2 videos in metadata file
+2025-06-26 12:14:35,657 - INFO - SuRL_FixedRL_128548949372000 - [Train] Loading data for 2 videos
+2025-06-26 12:14:35,743 - INFO - SuRL_FixedRL_128548949372000 - ✅ Loaded video VID01: 1734 frames, 1024-dims embeddings
+2025-06-26 12:14:35,811 - INFO - SuRL_FixedRL_128548949372000 - ✅ Loaded video VID04: 1523 frames, 1024-dims embeddings
+2025-06-26 12:14:35,811 - INFO - SuRL_FixedRL_128548949372000 - 📂 Loaded 2 videos from train split
+2025-06-26 12:14:35,811 - INFO - SuRL_FixedRL_128548949372000 - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-26 12:14:35,894 - INFO - SuRL_FixedRL_128548949372000 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (21895, 156)
+2025-06-26 12:14:35,894 - INFO - SuRL_FixedRL_128548949372000 - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-26 12:14:35,894 - INFO - SuRL_FixedRL_128548949372000 - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-26 12:14:35,894 - INFO - SuRL_FixedRL_128548949372000 - [Test] Found 2 videos in metadata file
+2025-06-26 12:14:35,894 - INFO - SuRL_FixedRL_128548949372000 - [Test] Loading data for 2 videos
+2025-06-26 12:14:36,013 - INFO - SuRL_FixedRL_128548949372000 - ✅ Loaded video VID02: 2840 frames, 1024-dims embeddings
+2025-06-26 12:14:36,103 - INFO - SuRL_FixedRL_128548949372000 - ✅ Loaded video VID06: 2154 frames, 1024-dims embeddings
+2025-06-26 12:14:36,103 - INFO - SuRL_FixedRL_128548949372000 - 📂 Loaded 2 videos from test split
+2025-06-26 12:14:36,104 - INFO - SuRL_FixedRL_128548949372000 - ✅ Data loaded successfully
+2025-06-26 12:14:36,104 - INFO - SuRL_FixedRL_128548949372000 -    Training videos: 2
+2025-06-26 12:14:36,104 - INFO - SuRL_FixedRL_128548949372000 -    Test videos: 2
+2025-06-26 12:14:36,104 - INFO - SuRL_FixedRL_128548949372000 - 🎓 Running Method 1: Autoregressive IL
+2025-06-26 12:14:36,104 - INFO - SuRL_FixedRL_128548949372000 - 🎓 Method 1: Autoregressive IL
+2025-06-26 12:14:36,104 - INFO - SuRL_FixedRL_128548949372000 - ----------------------------------------
+2025-06-26 12:14:36,104 - INFO - SuRL_FixedRL_128548949372000 - 🏋️ Training IL model from scratch...
+2025-06-26 12:14:36,900 - INFO - SuRL_FixedRL_128548949372000 - 🎓 Autoregressive IL Trainer initialized (FIXED)
+2025-06-26 12:14:36,900 - INFO - SuRL_FixedRL_128548949372000 -    Device: cuda
+2025-06-26 12:14:36,900 - INFO - SuRL_FixedRL_128548949372000 -    Epochs: 4
+2025-06-26 12:14:36,900 - INFO - SuRL_FixedRL_128548949372000 -    Learning rate: 3e-05
+2025-06-26 12:14:36,900 - INFO - SuRL_FixedRL_128548949372000 -    ✅ Per-video aggregation + shared metrics + efficient validation
+2025-06-26 12:14:36,900 - INFO - SuRL_FixedRL_128548949372000 - 🌟 Training Autoregressive IL model...
+2025-06-26 12:14:36,900 - INFO - SuRL_FixedRL_128548949372000 - 🎓 Starting Autoregressive IL Training...
+2025-06-26 12:14:36,900 - INFO - SuRL_FixedRL_128548949372000 - 🎯 Goal: Learn causal frame generation → action prediction
+2025-06-26 12:14:36,900 - INFO - SuRL_FixedRL_128548949372000 - 📊 Evaluation: Per-video aggregation for robust metrics
+2025-06-26 12:15:50,692 - INFO - SuRL_FixedRL_128548949372000 - ✅ Video VID06 validation:    Loss: 0.7690,    IVT current mAP: 0.1600,    IVT next mAP: 0.0959, 
+2025-06-26 12:20:21,642 - INFO - SuRL_FixedRL_128548949372000 - 📊 Validation Summary (averaged across 2 videos):
+2025-06-26 12:20:21,642 - INFO - SuRL_FixedRL_128548949372000 -    📊 IVT current mAP:                0.1600
+2025-06-26 12:20:21,642 - INFO - SuRL_FixedRL_128548949372000 -    📊 IVT next mAP:                   0.0959
+2025-06-26 12:20:21,642 - INFO - SuRL_FixedRL_128548949372000 -    📊 IVT next I mAP:     0.4347
+2025-06-26 12:20:21,642 - INFO - SuRL_FixedRL_128548949372000 -    📊 IVT next V mAP:     0.2467
+2025-06-26 12:20:21,642 - INFO - SuRL_FixedRL_128548949372000 -    📊 IVT next T mAP:     0.2388
+2025-06-26 12:20:21,642 - INFO - SuRL_FixedRL_128548949372000 -    📊 IVT next IV mAP:     0.1441
+2025-06-26 12:20:21,642 - INFO - SuRL_FixedRL_128548949372000 -    📊 IVT next IT mAP:     0.1393
+2025-06-26 12:20:21,642 - INFO - SuRL_FixedRL_128548949372000 -    📊 IVT current mAP:         0.1600
+2025-06-26 12:20:21,642 - INFO - SuRL_FixedRL_128548949372000 -    📊 IVT current I mAP: 0.5082
+2025-06-26 12:20:21,642 - INFO - SuRL_FixedRL_128548949372000 -    📊 IVT current V mAP: 0.3538
+2025-06-26 12:20:21,642 - INFO - SuRL_FixedRL_128548949372000 -    📊 IVT current T mAP: 0.3157
+2025-06-26 12:20:21,642 - INFO - SuRL_FixedRL_128548949372000 -    📊 IVT current IV mAP: 0.2040
+2025-06-26 12:20:21,642 - INFO - SuRL_FixedRL_128548949372000 -    📊 IVT current IT mAP: 0.1922
