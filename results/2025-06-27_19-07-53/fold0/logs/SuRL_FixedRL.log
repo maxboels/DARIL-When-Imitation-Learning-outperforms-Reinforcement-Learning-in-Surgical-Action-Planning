@@ -1,0 +1,60 @@
+2025-06-27 19:07:53,844 - INFO - SuRL_FixedRL_128001722163344 - Shared experiment log directory: results/2025-06-27_19-07-53/fold0/logs
+2025-06-27 19:07:53,844 - INFO - SuRL_FixedRL_128001722163344 - 🎯 RL Experiment: 2025-06-27_19-07-53
+2025-06-27 19:07:53,844 - INFO - SuRL_FixedRL_128001722163344 - 📁 Results dir: results/2025-06-27_19-07-53/fold0
+2025-06-27 19:07:53,844 - INFO - SuRL_FixedRL_128001722163344 - 📂 Plots dir: results/2025-06-27_19-07-53/fold0/publication_plots
+2025-06-27 19:07:53,844 - INFO - SuRL_FixedRL_128001722163344 - 🚀 Starting Complete RL Comparison + IRL Enhancement
+2025-06-27 19:07:53,844 - INFO - SuRL_FixedRL_128001722163344 - ============================================================
+2025-06-27 19:07:53,844 - INFO - SuRL_FixedRL_128001722163344 - 📂 Loading CholecT50 data...
+2025-06-27 19:07:53,844 - INFO - SuRL_FixedRL_128001722163344 -    Training videos: 2
+2025-06-27 19:07:53,844 - INFO - SuRL_FixedRL_128001722163344 -    Test videos: 2
+2025-06-27 19:07:53,845 - INFO - SuRL_FixedRL_128001722163344 - ✅ Using data directory: /home/maxboels/datasets/CholecT50
+2025-06-27 19:07:53,845 - INFO - SuRL_FixedRL_128001722163344 - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-27 19:07:54,246 - INFO - SuRL_FixedRL_128001722163344 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (78968, 156)
+2025-06-27 19:07:54,246 - INFO - SuRL_FixedRL_128001722163344 - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-27 19:07:54,247 - INFO - SuRL_FixedRL_128001722163344 - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-27 19:07:54,249 - INFO - SuRL_FixedRL_128001722163344 - [Train] Found 2 videos in metadata file
+2025-06-27 19:07:54,249 - INFO - SuRL_FixedRL_128001722163344 - [Train] Loading data for 2 videos
+2025-06-27 19:07:54,327 - INFO - SuRL_FixedRL_128001722163344 - ✅ Loaded video VID01: 1734 frames, 1024-dims embeddings
+2025-06-27 19:07:54,390 - INFO - SuRL_FixedRL_128001722163344 - ✅ Loaded video VID04: 1523 frames, 1024-dims embeddings
+2025-06-27 19:07:54,390 - INFO - SuRL_FixedRL_128001722163344 - 📂 Loaded 2 videos from train split
+2025-06-27 19:07:54,390 - INFO - SuRL_FixedRL_128001722163344 - ✅ Using data directory: /home/maxboels/datasets/CholecT50
+2025-06-27 19:07:54,390 - INFO - SuRL_FixedRL_128001722163344 - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-27 19:07:54,477 - INFO - SuRL_FixedRL_128001722163344 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (21895, 156)
+2025-06-27 19:07:54,477 - INFO - SuRL_FixedRL_128001722163344 - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-27 19:07:54,477 - INFO - SuRL_FixedRL_128001722163344 - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-27 19:07:54,477 - INFO - SuRL_FixedRL_128001722163344 - [Test] Found 2 videos in metadata file
+2025-06-27 19:07:54,477 - INFO - SuRL_FixedRL_128001722163344 - [Test] Loading data for 2 videos
+2025-06-27 19:07:54,588 - INFO - SuRL_FixedRL_128001722163344 - ✅ Loaded video VID02: 2840 frames, 1024-dims embeddings
+2025-06-27 19:07:54,676 - INFO - SuRL_FixedRL_128001722163344 - ✅ Loaded video VID06: 2154 frames, 1024-dims embeddings
+2025-06-27 19:07:54,676 - INFO - SuRL_FixedRL_128001722163344 - 📂 Loaded 2 videos from test split
+2025-06-27 19:07:54,676 - INFO - SuRL_FixedRL_128001722163344 - ✅ Data loaded successfully
+2025-06-27 19:07:54,676 - INFO - SuRL_FixedRL_128001722163344 -    Training videos: 2
+2025-06-27 19:07:54,676 - INFO - SuRL_FixedRL_128001722163344 -    Test videos: 2
+2025-06-27 19:07:54,676 - INFO - SuRL_FixedRL_128001722163344 - 🎓 Method 1: Autoregressive IL is disabled in config, skipping...
+2025-06-27 19:07:54,676 - INFO - SuRL_FixedRL_128001722163344 - 🎯 Running Method 4: IRL Enhancement
+2025-06-27 19:07:54,676 - INFO - SuRL_FixedRL_128001722163344 - 🎯 Method 4: IRL Enhancement (Custom MaxEnt + GAIL)
+2025-06-27 19:07:54,676 - INFO - SuRL_FixedRL_128001722163344 - ----------------------------------------
+2025-06-27 19:07:54,917 - INFO - SuRL_FixedRL_128001722163344 - 📂 Loaded IL model from: best_checkpoints/autoregressive_il_best_combined_epoch_8.pt
+2025-06-27 19:07:54,920 - INFO - SuRL_FixedRL_128001722163344 - 🎯 Training Surgical IRL (FIXED Device Handling)
+2025-06-27 19:07:54,920 - INFO - SuRL_FixedRL_128001722163344 - 🔧 Using device: cuda
+2025-06-27 19:07:54,923 - INFO - SuRL_FixedRL_128001722163344 - 🎯 Training Scenario-Specific IRL for: ['high_complexity', 'rare_actions', 'critical_moments', 'phase_transitions']
+2025-06-27 19:08:04,422 - INFO - SuRL_FixedRL_128001722163344 - 🔧 Training IRL for scenario: high_complexity
+2025-06-27 19:08:04,759 - ERROR - SuRL_FixedRL_128001722163344 - ❌ Method 4 IRL failed: Frame sequence must have at least 2 frames for action prediction.
+2025-06-27 19:08:04,760 - ERROR - SuRL_FixedRL_128001722163344 - Full traceback: Traceback (most recent call last):
+  File "/home/maxboels/projects/surl/run_experiment_v8.py", line 586, in _run_method4_irl_enhancement
+    irl_results = train_surgical_irl(
+                  ^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/projects/surl/training/irl_trainer.py", line 577, in train_surgical_irl
+    irl_system.train_scenario_specific_irl(
+  File "/home/maxboels/projects/surl/training/irl_trainer.py", line 405, in train_scenario_specific_irl
+    gail_model.train_gail(combined_trajectories, num_epochs=50)
+  File "/home/maxboels/projects/surl/training/irl_trainer.py", line 207, in train_gail
+    il_predictions = self.il_model.predict_next_action(il_input).squeeze(1)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/projects/surl/models/autoregressive_il_model.py", line 434, in predict_next_action
+    raise ValueError("Frame sequence must have at least 2 frames for action prediction.")
+ValueError: Frame sequence must have at least 2 frames for action prediction.
+
+2025-06-27 19:08:04,760 - INFO - SuRL_FixedRL_128001722163344 - 🌍 Method 2: Conditional World Model + RL is disabled
+2025-06-27 19:08:04,760 - INFO - SuRL_FixedRL_128001722163344 - 📹 Method 3: Direct Video RL is disabled in config
+2025-06-27 19:08:04,760 - ERROR - SuRL_FixedRL_128001722163344 - ❌ No test loaders available for evaluation

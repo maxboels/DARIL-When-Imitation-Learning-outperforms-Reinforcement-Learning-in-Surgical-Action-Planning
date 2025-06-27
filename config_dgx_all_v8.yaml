@@ -3,19 +3,20 @@ debug: false
 # Experiment configuration
 experiment:
   train:
-    max_videos: 40  # default: 40
+    max_videos: 2  # default: 40
   test:
-    max_videos: 10  # default: 10
+    max_videos: 2  # default: 10
     test_on_train: false
     
   # ENHANCED: Autoregressive IL with IVT-based model saving
   autoregressive_il:
-    enabled: true
+    enabled: false
     train: true
     evaluate: true
     model_type_preference: 'combined'  # 'current', 'next', 'combined'
     save_all_best_models: true         # Save separate models for each task
-    il_model_path: null
+    # il_model_path: null
+    il_model_path: "best_checkpoints/autoregressive_il_best_combined_epoch_8.pt"
     # il_model_path: "results/2025-06-24_11-09-35/fold0/logs/checkpoints/autoregressive_il_best_epoch_1.pt"
     # il_model_path: "results/2025-06-10_19-45-51/logs/checkpoints/autoregressive_il_best_epoch_1.pt"  # Path to the best IL model
     
