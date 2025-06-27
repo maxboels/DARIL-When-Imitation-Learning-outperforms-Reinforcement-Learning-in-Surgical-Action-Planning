@@ -3,9 +3,9 @@ debug: false
 # Experiment configuration
 experiment:
   train:
-    max_videos: 2  # default: 40
+    max_videos: 40  # default: 40
   test:
-    max_videos: 2  # default: 10
+    max_videos: 10  # default: 10
     test_on_train: false
     
   # ENHANCED: Autoregressive IL with IVT-based model saving
@@ -127,11 +127,11 @@ training:
     
     # ENHANCED: IVT-specific checkpointing
     save_ivt_milestones: true        # Save when IVT metrics reach milestones
-    ivt_milestones: [0.30, 0.34, 0.35, 0.36, 0.37]  # Save at these mAP levels
+    ivt_milestones: [0.34, 0.35, 0.36, 0.37]  # Save at these mAP levels
 
-  min_current_map_threshold: 0.30
-  min_next_map_threshold: 0.30 
-  min_combined_threshold: 0.30
+  min_current_map_threshold: 0.34
+  min_next_map_threshold: 0.34
+  min_combined_threshold: 0.34
 
 # ENHANCED: Evaluation configuration with IVT focus
 evaluation:
