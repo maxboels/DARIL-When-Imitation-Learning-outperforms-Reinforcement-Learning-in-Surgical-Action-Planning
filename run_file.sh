@@ -11,7 +11,6 @@ export PYTHONPATH="${PROJECT_DIR}:${PYTHONPATH}"
 # Change to the project directory
 cd $PROJECT_DIR
 
-
 # Fix OpenCV issue on DGX server
 echo "🔧 Fixing OpenCV compatibility issue on DGX server..."
 

@@ -337,7 +337,24 @@ class AutoregressiveILModel(nn.Module):
         
         outputs['total_loss'] = total_loss
         return outputs
-    
+
+    # Add target-specific loss weighting in your code:
+    def compute_targeted_loss(self, outputs, targets):
+        # Standard losses
+        base_loss = outputs['total_loss']
+        
+        # Extra focus on target (T) actions
+        target_action_indices = [/* your target action indices */]
+        if len(target_action_indices) > 0:
+            target_predictions = outputs['action_pred'][:, :, target_action_indices]
+            target_labels = targets[:, :, target_action_indices]
+            target_loss = F.binary_cross_entropy_with_logits(
+                target_predictions, target_labels
+            )
+            base_loss += 0.3 * target_loss  # Boost target learning
+        
+        return base_loss
+
     def generate_sequence(self, 
                          initial_frames: torch.Tensor,
                          horizon: int = 15,

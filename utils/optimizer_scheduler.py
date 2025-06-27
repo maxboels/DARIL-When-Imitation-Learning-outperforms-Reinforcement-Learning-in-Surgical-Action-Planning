@@ -451,7 +451,7 @@ class OptimizerScheduler:
             
             for i, param_group in enumerate(self.optimizer.param_groups):
                 group_name = param_group.get('name', f'group_{i}')
-                initial_lr = param_group['lr']
+                initial_lr = float(param_group['lr'])
                 weight_decay = param_group['weight_decay']
                 num_params = sum(p.numel() for p in param_group['params'])
                 

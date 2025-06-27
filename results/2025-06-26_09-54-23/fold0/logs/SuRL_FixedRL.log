@@ -79,7 +79,7 @@
 2025-06-26 09:55:37,902 - INFO - SuRL_FixedRL_140632497225840 - ----------------------------------------
 2025-06-26 09:55:37,902 - INFO - SuRL_FixedRL_140632497225840 - 🏋️ Training IL model from scratch...
 2025-06-26 09:55:49,331 - INFO - SuRL_FixedRL_140632497225840 - 🎓 Autoregressive IL Trainer initialized (FIXED)
-2025-06-26 09:55:49,332 - INFO - SuRL_FixedRL_140632497225840 -    Device: cuda
+2025-06-26 09:55:49,332 - INFO - SuRL_FixedRL_140632497225840 - git    Device: cuda
 2025-06-26 09:55:49,332 - INFO - SuRL_FixedRL_140632497225840 -    Epochs: 4
 2025-06-26 09:55:49,332 - INFO - SuRL_FixedRL_140632497225840 -    Learning rate: 3e-05
 2025-06-26 09:55:49,332 - INFO - SuRL_FixedRL_140632497225840 -    ✅ Per-video aggregation + shared metrics + efficient validation

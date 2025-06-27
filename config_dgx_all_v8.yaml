@@ -35,19 +35,19 @@ experiment:
 training:
   epochs: 15                    # OPTIMIZED: Sufficient for temporal learning with good features
   batch_size: 8                 # OPTIMIZED: Larger batches possible with good embeddings
-  learning_rate: 5e-5           # OPTIMIZED: Lower LR for fine-tuning scenario
+  learning_rate: 8e-5           # OPTIMIZED: Lower LR for fine-tuning scenario
   log_every_n_steps: 20         # OPTIMIZED: More frequent logging for shorter training
   
   # Enhanced optimizer configuration
   optimizer_type: "adamw"
-  weight_decay: 0.02            # INCREASED: More regularization for pre-trained features
-  gradient_clip_val: 0.5        # REDUCED: Gradients should be smaller with good features
+  weight_decay: 0.025            # INCREASED: More regularization for pre-trained features
+  gradient_clip_val: 0.8        # REDUCED: Gradients should be smaller with good features
   
   # Enhanced scheduler configuration  
   scheduler:
     type: "cosine_with_warmup"  # OPTIMIZED: Better for fine-tuning
-    warmup_epochs: 2            # REDUCED: Short warmup since features are good
-    eta_min: 1e-6              # Minimum LR
+    warmup_epochs: 3            # REDUCED: Short warmup since features are good
+    eta_min: 8e-6               # Minimum LR
     
   # Enhanced parameter group settings for pre-trained scenario
   parameter_groups:

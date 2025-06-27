@@ -492,7 +492,7 @@ class AutoregressiveILTrainer:
                         # Update IVT recognizer (standard protocol)
                         ivt_rec_next.update(next_actions_int, action_probs_flat)
             
-                # ADD THIS: Signal end of video to IVT (CRITICAL for standard protocol)
+                # End of current video processing
                 if ivt_rec_curr is not None:
                     ivt_rec_curr.video_end()
 
@@ -536,59 +536,60 @@ class AutoregressiveILTrainer:
                 
                 # Store this video's loss metrics
                 video_loss_metrics[video_id] = dict(video_losses)
+        
+        # END OF ALL VIDEOS PROCESSING
 
-            # IVT metrics computation
-            final_metrics = {}
-            ivt_metrics = {}
+        # IVT metrics computation
+        final_metrics = {}
+        ivt_metrics = {}
 
-            if ivt_rec_curr is not None:
-                try:
-                    # Standard IVT video-wise mAP (main metric for publication)
-                    ivt_result = ivt_rec_curr.compute_video_AP("ivt")
-                    ivt_metrics['ivt_current_mAP'] = ivt_result["mAP"]
+        if ivt_rec_curr is not None:
+            try:
+                # Standard IVT video-wise mAP (main metric for publication)
+                ivt_result = ivt_rec_curr.compute_video_AP("ivt")
+                ivt_metrics['ivt_current_mAP'] = ivt_result["mAP"]
 
-                    # Optional: Get component-wise results
-                    for component in ['i', 'v', 't', 'iv', 'it']:
-                        try:
-                            comp_result = ivt_rec_curr.compute_video_AP(component)
-                            ivt_metrics[f'ivt_rec_{component}_mAP'] = comp_result["mAP"]
-                        except:
-                            ivt_metrics[f'ivt_rec_{component}_mAP'] = 0.0
-                except Exception as e:
-                    self.logger.error(f"Error computing IVT metrics for current actions: {e}")
-                    ivt_metrics['ivt_current_mAP'] = 0.0
+                # Optional: Get component-wise results
+                for component in ['i', 'v', 't', 'iv', 'it']:
+                    try:
+                        comp_result = ivt_rec_curr.compute_video_AP(component)
+                        ivt_metrics[f'ivt_rec_{component}_mAP'] = comp_result["mAP"]
+                    except:
+                        ivt_metrics[f'ivt_rec_{component}_mAP'] = 0.0
+            except Exception as e:
+                self.logger.error(f"Error computing IVT metrics for current actions: {e}")
+                ivt_metrics['ivt_current_mAP'] = 0.0
 
-            if ivt_rec_next is not None:
-                try:
-                    # Standard IVT video-wise mAP (main metric for publication)
-                    ivt_result = ivt_rec_next.compute_video_AP("ivt")
-                    ivt_metrics['ivt_next_mAP'] = ivt_result["mAP"]
-                    
-                    # Optional: Get component-wise results
-                    for component in ['i', 'v', 't', 'iv', 'it']:
-                        try:
-                            comp_result = ivt_rec_next.compute_video_AP(component)
-                            ivt_metrics[f'ivt_{component}_mAP'] = comp_result["mAP"]
-                        except:
-                            ivt_metrics[f'ivt_{component}_mAP'] = 0.0
+        if ivt_rec_next is not None:
+            try:
+                # Standard IVT video-wise mAP (main metric for publication)
+                ivt_result = ivt_rec_next.compute_video_AP("ivt")
+                ivt_metrics['ivt_next_mAP'] = ivt_result["mAP"]
                 
-                except Exception as e:
-                    self.logger.error(f"Error computing IVT metrics for next actions: {e}")
-                    ivt_metrics['ivt_next_mAP'] = 0.0
-            else:
-                ivt_metrics['ivt_next_mAP'] = 0.0
+                # Optional: Get component-wise results
+                for component in ['i', 'v', 't', 'iv', 'it']:
+                    try:
+                        comp_result = ivt_rec_next.compute_video_AP(component)
+                        ivt_metrics[f'ivt_{component}_mAP'] = comp_result["mAP"]
+                    except:
+                        ivt_metrics[f'ivt_{component}_mAP'] = 0.0
             
-            final_metrics.update(ivt_metrics)
+            except Exception as e:
+                self.logger.error(f"Error computing IVT metrics for next actions: {e}")
+                ivt_metrics['ivt_next_mAP'] = 0.0
+        else:
+            ivt_metrics['ivt_next_mAP'] = 0.0
+        
+        final_metrics.update(ivt_metrics)
 
-            next_map = final_metrics.get('action_mAP', 0.0)
-            ivt_next_map = final_metrics.get('ivt_next_mAP', 0.0)
+        next_map = final_metrics.get('action_mAP', 0.0)
+        ivt_next_map = final_metrics.get('ivt_next_mAP', 0.0)
 
-            self.logger.info(
-                f"✅ Video {video_id} validation: "
-                f"   Loss: {video_losses.get('total_loss', 0):.4f}, "
-                f"   IVT current mAP: {final_metrics.get('ivt_current_mAP', 0):.4f}, "
-                f"   IVT next mAP: {final_metrics.get('ivt_next_mAP', 0):.4f}, "
-            )
+        self.logger.info(
+            f"✅ All videos processed: "
+            f"   IVT current mAP: {final_metrics.get('ivt_current_mAP', 0):.4f}, "
+            f"   IVT next mAP: {final_metrics.get('ivt_next_mAP', 0):.4f}, "
+        )
 
         # 🎯 AGGREGATE: Average metrics across all videos
         aggregated_loss_metrics = {}
