@@ -724,3 +724,195 @@
 2025-06-27 15:01:17,301 - INFO - SuRL_FixedRL_140556003017008 -       Combined Score: 0.3433
 2025-06-27 15:01:17,301 - INFO - SuRL_FixedRL_140556003017008 - ✅ Enhanced training completed with IVT-based model saving!
 2025-06-27 15:01:17,301 - INFO - SuRL_FixedRL_140556003017008 - Epoch 12/15 | Train Loss: 0.1503 | Val Loss: 0.5169 | Current IVT: 0.3431 | Next IVT: 0.3322 | Action LR: 1.02e-04
+2025-06-27 15:11:47,882 - INFO - SuRL_FixedRL_140556003017008 - ✅ All videos processed:    IVT current mAP: 0.3428,    IVT next mAP: 0.3329, 
+2025-06-27 15:11:47,886 - INFO - SuRL_FixedRL_140556003017008 - 📊 Validation Summary (averaged across 10 videos):
+2025-06-27 15:11:47,886 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT current mAP:                0.3428
+2025-06-27 15:11:47,886 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT next mAP:                   0.3329
+2025-06-27 15:11:47,886 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT next I mAP:     0.8883
+2025-06-27 15:11:47,886 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT next V mAP:     0.6883
+2025-06-27 15:11:47,886 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT next T mAP:     0.5197
+2025-06-27 15:11:47,886 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT next IV mAP:     0.3943
+2025-06-27 15:11:47,886 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT next IT mAP:     0.4332
+2025-06-27 15:11:47,886 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT current mAP:         0.3428
+2025-06-27 15:11:47,886 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT current I mAP: 0.9161
+2025-06-27 15:11:47,886 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT current V mAP: 0.6920
+2025-06-27 15:11:47,886 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT current T mAP: 0.5325
+2025-06-27 15:11:47,887 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT current IV mAP: 0.4311
+2025-06-27 15:11:47,887 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT current IT mAP: 0.4254
+2025-06-27 15:11:47,896 - INFO - SuRL_FixedRL_140556003017008 - 📊 Current LRs: bilstm_recognition: 1.20e-05, gpt2_backbone: 2.39e-06, frame_processing: 3.59e-05, action_prediction: 4.78e-05, auxiliary_heads: 1.91e-05
+2025-06-27 15:11:47,925 - INFO - SuRL_FixedRL_140556003017008 - 📊 Current best IVT scores:
+2025-06-27 15:11:47,926 - INFO - SuRL_FixedRL_140556003017008 -    🎯 Current Recognition: 0.3513 (threshold: 0.30)
+2025-06-27 15:11:47,926 - INFO - SuRL_FixedRL_140556003017008 -    🎯 Next Prediction: 0.3419 (threshold: 0.30)
+2025-06-27 15:11:47,926 - INFO - SuRL_FixedRL_140556003017008 -    🎯 Combined Score: 0.3433 (threshold: 0.30)
+2025-06-27 15:11:48,172 - INFO - SuRL_FixedRL_140556003017008 - 📊 Learning Progress Analysis:
+2025-06-27 15:11:48,172 - INFO - SuRL_FixedRL_140556003017008 -    parameter_groups: 5
+2025-06-27 15:11:48,172 - INFO - SuRL_FixedRL_140556003017008 -    total_steps_tracked: 128258
+2025-06-27 15:11:48,172 - INFO - SuRL_FixedRL_140556003017008 -    lr_analysis:
+2025-06-27 15:11:48,172 - INFO - SuRL_FixedRL_140556003017008 -      bilstm_recognition: {'initial_lr': 1.3333333333333336e-07, 'final_lr': 1.1961044466881443e-05, 'min_lr': 0.0, 'max_lr': 4e-05, 'lr_reduction_factor': 0.011137986639529024}
+2025-06-27 15:11:48,172 - INFO - SuRL_FixedRL_140556003017008 -      gpt2_backbone: {'initial_lr': 2.6666666666666674e-08, 'final_lr': 2.392208893376289e-06, 'min_lr': 0.0, 'max_lr': 8.000000000000001e-06, 'lr_reduction_factor': 0.011100894156289152}
+2025-06-27 15:11:48,173 - INFO - SuRL_FixedRL_140556003017008 -      frame_processing: {'initial_lr': 4.000000000000001e-07, 'final_lr': 3.588313340064433e-05, 'min_lr': 0.0, 'max_lr': 0.00012000000000000002, 'lr_reduction_factor': 0.011144192833073177}
+2025-06-27 15:11:48,173 - INFO - SuRL_FixedRL_140556003017008 -      action_prediction: {'initial_lr': 5.333333333333335e-07, 'final_lr': 4.784417786752577e-05, 'min_lr': 0.0, 'max_lr': 0.00016, 'lr_reduction_factor': 0.01114496909360254}
+2025-06-27 15:11:48,173 - INFO - SuRL_FixedRL_140556003017008 -      auxiliary_heads: {'initial_lr': 2.133333333333334e-07, 'final_lr': 1.9137671147010312e-05, 'min_lr': 0.0, 'max_lr': 6.400000000000001e-05, 'lr_reduction_factor': 0.011141476772575704}
+2025-06-27 15:11:48,173 - INFO - SuRL_FixedRL_140556003017008 -    gradient_analysis:
+2025-06-27 15:11:48,173 - INFO - SuRL_FixedRL_140556003017008 -      bilstm_recognition: {'mean_grad_norm': 0.14574414114160264, 'std_grad_norm': 0.08967897656699303, 'max_grad_norm': 2.526536844882593, 'final_grad_norm': 0.16853079754471514}
+2025-06-27 15:11:48,173 - INFO - SuRL_FixedRL_140556003017008 -      gpt2_backbone: {'mean_grad_norm': 0.304756197936523, 'std_grad_norm': 0.23714473334454286, 'max_grad_norm': 2.816127275247205, 'final_grad_norm': 0.3276541521073359}
+2025-06-27 15:11:48,173 - INFO - SuRL_FixedRL_140556003017008 -      frame_processing: {'mean_grad_norm': 1.1470929941131187, 'std_grad_norm': 1.122902495287182, 'max_grad_norm': 99.86019422809537, 'final_grad_norm': 1.253779674110036}
+2025-06-27 15:11:48,173 - INFO - SuRL_FixedRL_140556003017008 -      action_prediction: {'mean_grad_norm': 0.013973097983334218, 'std_grad_norm': 0.009418419529630974, 'max_grad_norm': 0.07167919154764621, 'final_grad_norm': 0.027647837600681985}
+2025-06-27 15:11:48,173 - INFO - SuRL_FixedRL_140556003017008 -      auxiliary_heads: {'mean_grad_norm': 0.2684288842080297, 'std_grad_norm': 0.23082080342152703, 'max_grad_norm': 2.186246692525499, 'final_grad_norm': 0.2201554301558061}
+2025-06-27 15:11:48,173 - INFO - SuRL_FixedRL_140556003017008 - 💡 Final Optimization Recommendations:
+2025-06-27 15:11:48,173 - INFO - SuRL_FixedRL_140556003017008 -    • Training appears stable
+2025-06-27 15:11:48,173 - INFO - SuRL_FixedRL_140556003017008 - 📁 SAVED MODELS SUMMARY:
+2025-06-27 15:11:48,173 - INFO - SuRL_FixedRL_140556003017008 -    🎯 Best Current Recognition: results/2025-06-27_13-01-49/fold0/logs/checkpoints/autoregressive_il_best_current_epoch_7.pt
+2025-06-27 15:11:48,173 - INFO - SuRL_FixedRL_140556003017008 -       IVT Current mAP: 0.3513
+2025-06-27 15:11:48,173 - INFO - SuRL_FixedRL_140556003017008 -    🎯 Best Next Prediction: results/2025-06-27_13-01-49/fold0/logs/checkpoints/autoregressive_il_best_next_epoch_4.pt
+2025-06-27 15:11:48,174 - INFO - SuRL_FixedRL_140556003017008 -       IVT Next mAP: 0.3419
+2025-06-27 15:11:48,174 - INFO - SuRL_FixedRL_140556003017008 -    🎯 Best Combined Performance: results/2025-06-27_13-01-49/fold0/logs/checkpoints/autoregressive_il_best_combined_epoch_8.pt
+2025-06-27 15:11:48,174 - INFO - SuRL_FixedRL_140556003017008 -       Combined Score: 0.3433
+2025-06-27 15:11:48,174 - INFO - SuRL_FixedRL_140556003017008 - ✅ Enhanced training completed with IVT-based model saving!
+2025-06-27 15:11:48,174 - INFO - SuRL_FixedRL_140556003017008 - Epoch 13/15 | Train Loss: 0.1486 | Val Loss: 0.5118 | Current IVT: 0.3428 | Next IVT: 0.3329 | Action LR: 4.78e-05
+2025-06-27 15:22:26,064 - INFO - SuRL_FixedRL_140556003017008 - ✅ All videos processed:    IVT current mAP: 0.3455,    IVT next mAP: 0.3332, 
+2025-06-27 15:22:26,067 - INFO - SuRL_FixedRL_140556003017008 - 📊 Validation Summary (averaged across 10 videos):
+2025-06-27 15:22:26,067 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT current mAP:                0.3455
+2025-06-27 15:22:26,067 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT next mAP:                   0.3332
+2025-06-27 15:22:26,067 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT next I mAP:     0.8882
+2025-06-27 15:22:26,067 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT next V mAP:     0.6845
+2025-06-27 15:22:26,068 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT next T mAP:     0.5182
+2025-06-27 15:22:26,068 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT next IV mAP:     0.3929
+2025-06-27 15:22:26,068 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT next IT mAP:     0.4324
+2025-06-27 15:22:26,068 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT current mAP:         0.3455
+2025-06-27 15:22:26,068 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT current I mAP: 0.9148
+2025-06-27 15:22:26,068 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT current V mAP: 0.6831
+2025-06-27 15:22:26,068 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT current T mAP: 0.5306
+2025-06-27 15:22:26,068 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT current IV mAP: 0.4325
+2025-06-27 15:22:26,068 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT current IT mAP: 0.4257
+2025-06-27 15:22:26,076 - INFO - SuRL_FixedRL_140556003017008 - 📊 Current LRs: bilstm_recognition: 2.09e-06, gpt2_backbone: 4.17e-07, frame_processing: 6.26e-06, action_prediction: 8.34e-06, auxiliary_heads: 3.34e-06
+2025-06-27 15:22:26,111 - INFO - SuRL_FixedRL_140556003017008 - 📊 Current best IVT scores:
+2025-06-27 15:22:26,111 - INFO - SuRL_FixedRL_140556003017008 -    🎯 Current Recognition: 0.3513 (threshold: 0.30)
+2025-06-27 15:22:26,111 - INFO - SuRL_FixedRL_140556003017008 -    🎯 Next Prediction: 0.3419 (threshold: 0.30)
+2025-06-27 15:22:26,111 - INFO - SuRL_FixedRL_140556003017008 -    🎯 Combined Score: 0.3433 (threshold: 0.30)
+2025-06-27 15:22:26,482 - INFO - SuRL_FixedRL_140556003017008 - 📊 Learning Progress Analysis:
+2025-06-27 15:22:26,482 - INFO - SuRL_FixedRL_140556003017008 -    parameter_groups: 5
+2025-06-27 15:22:26,482 - INFO - SuRL_FixedRL_140556003017008 -    total_steps_tracked: 138124
+2025-06-27 15:22:26,482 - INFO - SuRL_FixedRL_140556003017008 -    lr_analysis:
+2025-06-27 15:22:26,482 - INFO - SuRL_FixedRL_140556003017008 -      bilstm_recognition: {'initial_lr': 1.3333333333333336e-07, 'final_lr': 2.085764795211518e-06, 'min_lr': 0.0, 'max_lr': 4e-05, 'lr_reduction_factor': 0.06362037077728301}
+2025-06-27 15:22:26,482 - INFO - SuRL_FixedRL_140556003017008 -      gpt2_backbone: {'initial_lr': 2.6666666666666674e-08, 'final_lr': 4.171529590423036e-07, 'min_lr': 0.0, 'max_lr': 8.000000000000001e-06, 'lr_reduction_factor': 0.06242884686191699}
+2025-06-27 15:22:26,482 - INFO - SuRL_FixedRL_140556003017008 -      frame_processing: {'initial_lr': 4.000000000000001e-07, 'final_lr': 6.257294385634554e-06, 'min_lr': 0.0, 'max_lr': 0.00012000000000000002, 'lr_reduction_factor': 0.06382339417737447}
+2025-06-27 15:22:26,482 - INFO - SuRL_FixedRL_140556003017008 -      action_prediction: {'initial_lr': 5.333333333333335e-07, 'final_lr': 8.343059180846072e-06, 'min_lr': 0.0, 'max_lr': 0.00016, 'lr_reduction_factor': 0.06384886324716697}
+2025-06-27 15:22:26,482 - INFO - SuRL_FixedRL_140556003017008 -      auxiliary_heads: {'initial_lr': 2.133333333333334e-07, 'final_lr': 3.337223672338429e-06, 'min_lr': 0.0, 'max_lr': 6.400000000000001e-05, 'lr_reduction_factor': 0.0637344122223822}
+2025-06-27 15:22:26,482 - INFO - SuRL_FixedRL_140556003017008 -    gradient_analysis:
+2025-06-27 15:22:26,482 - INFO - SuRL_FixedRL_140556003017008 -      bilstm_recognition: {'mean_grad_norm': 0.14510444314589518, 'std_grad_norm': 0.08825453773089403, 'max_grad_norm': 2.526536844882593, 'final_grad_norm': 0.05005863385217969}
+2025-06-27 15:22:26,482 - INFO - SuRL_FixedRL_140556003017008 -      gpt2_backbone: {'mean_grad_norm': 0.3005677563275901, 'std_grad_norm': 0.2368116593456204, 'max_grad_norm': 2.816127275247205, 'final_grad_norm': 0.14053208055218844}
+2025-06-27 15:22:26,482 - INFO - SuRL_FixedRL_140556003017008 -      frame_processing: {'mean_grad_norm': 1.1223056857362521, 'std_grad_norm': 1.110906546454388, 'max_grad_norm': 99.86019422809537, 'final_grad_norm': 0.33307045825573944}
+2025-06-27 15:22:26,483 - INFO - SuRL_FixedRL_140556003017008 -      action_prediction: {'mean_grad_norm': 0.015050228771125083, 'std_grad_norm': 0.010138351881162765, 'max_grad_norm': 0.07797506782100933, 'final_grad_norm': 0.03275092703993985}
+2025-06-27 15:22:26,483 - INFO - SuRL_FixedRL_140556003017008 -      auxiliary_heads: {'mean_grad_norm': 0.26137415317977186, 'std_grad_norm': 0.2281788601684925, 'max_grad_norm': 2.186246692525499, 'final_grad_norm': 0.08688897977711599}
+2025-06-27 15:22:26,483 - INFO - SuRL_FixedRL_140556003017008 - 💡 Final Optimization Recommendations:
+2025-06-27 15:22:26,483 - INFO - SuRL_FixedRL_140556003017008 -    • Training appears stable
+2025-06-27 15:22:26,483 - INFO - SuRL_FixedRL_140556003017008 - 📁 SAVED MODELS SUMMARY:
+2025-06-27 15:22:26,483 - INFO - SuRL_FixedRL_140556003017008 -    🎯 Best Current Recognition: results/2025-06-27_13-01-49/fold0/logs/checkpoints/autoregressive_il_best_current_epoch_7.pt
+2025-06-27 15:22:26,483 - INFO - SuRL_FixedRL_140556003017008 -       IVT Current mAP: 0.3513
+2025-06-27 15:22:26,483 - INFO - SuRL_FixedRL_140556003017008 -    🎯 Best Next Prediction: results/2025-06-27_13-01-49/fold0/logs/checkpoints/autoregressive_il_best_next_epoch_4.pt
+2025-06-27 15:22:26,483 - INFO - SuRL_FixedRL_140556003017008 -       IVT Next mAP: 0.3419
+2025-06-27 15:22:26,483 - INFO - SuRL_FixedRL_140556003017008 -    🎯 Best Combined Performance: results/2025-06-27_13-01-49/fold0/logs/checkpoints/autoregressive_il_best_combined_epoch_8.pt
+2025-06-27 15:22:26,483 - INFO - SuRL_FixedRL_140556003017008 -       Combined Score: 0.3433
+2025-06-27 15:22:26,483 - INFO - SuRL_FixedRL_140556003017008 - ✅ Enhanced training completed with IVT-based model saving!
+2025-06-27 15:22:26,483 - INFO - SuRL_FixedRL_140556003017008 - Epoch 14/15 | Train Loss: 0.1472 | Val Loss: 0.5064 | Current IVT: 0.3455 | Next IVT: 0.3332 | Action LR: 8.34e-06
+2025-06-27 15:33:04,831 - INFO - SuRL_FixedRL_140556003017008 - ✅ All videos processed:    IVT current mAP: 0.3419,    IVT next mAP: 0.3304, 
+2025-06-27 15:33:04,833 - INFO - SuRL_FixedRL_140556003017008 - 📊 Validation Summary (averaged across 10 videos):
+2025-06-27 15:33:04,834 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT current mAP:                0.3419
+2025-06-27 15:33:04,834 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT next mAP:                   0.3304
+2025-06-27 15:33:04,834 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT next I mAP:     0.8857
+2025-06-27 15:33:04,834 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT next V mAP:     0.6888
+2025-06-27 15:33:04,834 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT next T mAP:     0.5286
+2025-06-27 15:33:04,834 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT next IV mAP:     0.3976
+2025-06-27 15:33:04,834 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT next IT mAP:     0.4262
+2025-06-27 15:33:04,834 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT current mAP:         0.3419
+2025-06-27 15:33:04,834 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT current I mAP: 0.9141
+2025-06-27 15:33:04,834 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT current V mAP: 0.6884
+2025-06-27 15:33:04,834 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT current T mAP: 0.5319
+2025-06-27 15:33:04,834 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT current IV mAP: 0.4230
+2025-06-27 15:33:04,834 - INFO - SuRL_FixedRL_140556003017008 -    📊 IVT current IT mAP: 0.4290
+2025-06-27 15:33:04,842 - INFO - SuRL_FixedRL_140556003017008 - 📊 Current LRs: bilstm_recognition: 5.53e-07, gpt2_backbone: 1.11e-07, frame_processing: 1.66e-06, action_prediction: 2.21e-06, auxiliary_heads: 8.84e-07
+2025-06-27 15:33:04,870 - INFO - SuRL_FixedRL_140556003017008 - 📊 Current best IVT scores:
+2025-06-27 15:33:04,871 - INFO - SuRL_FixedRL_140556003017008 -    🎯 Current Recognition: 0.3513 (threshold: 0.30)
+2025-06-27 15:33:04,871 - INFO - SuRL_FixedRL_140556003017008 -    🎯 Next Prediction: 0.3419 (threshold: 0.30)
+2025-06-27 15:33:04,871 - INFO - SuRL_FixedRL_140556003017008 -    🎯 Combined Score: 0.3433 (threshold: 0.30)
+2025-06-27 15:33:05,149 - INFO - SuRL_FixedRL_140556003017008 - 📊 Learning Progress Analysis:
+2025-06-27 15:33:05,149 - INFO - SuRL_FixedRL_140556003017008 -    parameter_groups: 5
+2025-06-27 15:33:05,149 - INFO - SuRL_FixedRL_140556003017008 -    total_steps_tracked: 147990
+2025-06-27 15:33:05,149 - INFO - SuRL_FixedRL_140556003017008 -    lr_analysis:
+2025-06-27 15:33:05,149 - INFO - SuRL_FixedRL_140556003017008 -      bilstm_recognition: {'initial_lr': 1.3333333333333336e-07, 'final_lr': 5.526015920463379e-07, 'min_lr': 0.0, 'max_lr': 4e-05, 'lr_reduction_factor': 0.2369942339629063}
+2025-06-27 15:33:05,149 - INFO - SuRL_FixedRL_140556003017008 -      gpt2_backbone: {'initial_lr': 2.6666666666666674e-08, 'final_lr': 1.105203184092676e-07, 'min_lr': 0.0, 'max_lr': 8.000000000000001e-06, 'lr_reduction_factor': 0.2212628295264784}
+2025-06-27 15:33:05,149 - INFO - SuRL_FixedRL_140556003017008 -      frame_processing: {'initial_lr': 4.000000000000001e-07, 'final_lr': 1.6578047761390138e-06, 'min_lr': 0.0, 'max_lr': 0.00012000000000000002, 'lr_reduction_factor': 0.23983622407294244}
+2025-06-27 15:33:05,149 - INFO - SuRL_FixedRL_140556003017008 -      action_prediction: {'initial_lr': 5.333333333333335e-07, 'final_lr': 2.2104063681853514e-06, 'min_lr': 0.0, 'max_lr': 0.00016, 'lr_reduction_factor': 0.24019627261707294}
+2025-06-27 15:33:05,149 - INFO - SuRL_FixedRL_140556003017008 -      auxiliary_heads: {'initial_lr': 2.133333333333334e-07, 'final_lr': 8.841625472741408e-07, 'min_lr': 0.0, 'max_lr': 6.400000000000001e-05, 'lr_reduction_factor': 0.2385845101471552}
+2025-06-27 15:33:05,149 - INFO - SuRL_FixedRL_140556003017008 -    gradient_analysis:
+2025-06-27 15:33:05,149 - INFO - SuRL_FixedRL_140556003017008 -      bilstm_recognition: {'mean_grad_norm': 0.14455852907661051, 'std_grad_norm': 0.08702800943656071, 'max_grad_norm': 2.526536844882593, 'final_grad_norm': 0.2531747551352746}
+2025-06-27 15:33:05,150 - INFO - SuRL_FixedRL_140556003017008 -      gpt2_backbone: {'mean_grad_norm': 0.29647466488019547, 'std_grad_norm': 0.23607834923814283, 'max_grad_norm': 2.816127275247205, 'final_grad_norm': 0.07520344923118677}
+2025-06-27 15:33:05,150 - INFO - SuRL_FixedRL_140556003017008 -      frame_processing: {'mean_grad_norm': 1.0984820517156195, 'std_grad_norm': 1.0981628619777017, 'max_grad_norm': 99.86019422809537, 'final_grad_norm': 0.1626698242621458}
+2025-06-27 15:33:05,150 - INFO - SuRL_FixedRL_140556003017008 -      action_prediction: {'mean_grad_norm': 0.016124356998603522, 'std_grad_norm': 0.010854468837631153, 'max_grad_norm': 0.07797506782100933, 'final_grad_norm': 0.023303849146814524}
+2025-06-27 15:33:05,150 - INFO - SuRL_FixedRL_140556003017008 -      auxiliary_heads: {'mean_grad_norm': 0.25468151729013444, 'std_grad_norm': 0.22558583174137345, 'max_grad_norm': 2.186246692525499, 'final_grad_norm': 0.004730595634858041}
+2025-06-27 15:33:05,150 - INFO - SuRL_FixedRL_140556003017008 - 💡 Final Optimization Recommendations:
+2025-06-27 15:33:05,150 - INFO - SuRL_FixedRL_140556003017008 -    • Training appears stable
+2025-06-27 15:33:05,150 - INFO - SuRL_FixedRL_140556003017008 - 📁 SAVED MODELS SUMMARY:
+2025-06-27 15:33:05,150 - INFO - SuRL_FixedRL_140556003017008 -    🎯 Best Current Recognition: results/2025-06-27_13-01-49/fold0/logs/checkpoints/autoregressive_il_best_current_epoch_7.pt
+2025-06-27 15:33:05,150 - INFO - SuRL_FixedRL_140556003017008 -       IVT Current mAP: 0.3513
+2025-06-27 15:33:05,150 - INFO - SuRL_FixedRL_140556003017008 -    🎯 Best Next Prediction: results/2025-06-27_13-01-49/fold0/logs/checkpoints/autoregressive_il_best_next_epoch_4.pt
+2025-06-27 15:33:05,150 - INFO - SuRL_FixedRL_140556003017008 -       IVT Next mAP: 0.3419
+2025-06-27 15:33:05,150 - INFO - SuRL_FixedRL_140556003017008 -    🎯 Best Combined Performance: results/2025-06-27_13-01-49/fold0/logs/checkpoints/autoregressive_il_best_combined_epoch_8.pt
+2025-06-27 15:33:05,150 - INFO - SuRL_FixedRL_140556003017008 -       Combined Score: 0.3433
+2025-06-27 15:33:05,150 - INFO - SuRL_FixedRL_140556003017008 - ✅ Enhanced training completed with IVT-based model saving!
+2025-06-27 15:33:05,150 - INFO - SuRL_FixedRL_140556003017008 - Epoch 15/15 | Train Loss: 0.1458 | Val Loss: 0.5203 | Current IVT: 0.3419 | Next IVT: 0.3304 | Action LR: 2.21e-06
+2025-06-27 15:33:05,151 - ERROR - SuRL_FixedRL_140556003017008 - ❌ Enhanced Method 1 failed: 'AutoregressiveILTrainer' object has no attribute '_enhanced_training_complete'
+2025-06-27 15:33:05,153 - ERROR - SuRL_FixedRL_140556003017008 - Full traceback: Traceback (most recent call last):
+  File "/nfs/home/mboels/projects/surl/run_experiment_v7.py", line 270, in _run_method1_autoregressive_il
+    best_combined_path = trainer.train(train_loader, test_loaders)
+  File "/nfs/home/mboels/projects/surl/training/autoregressive_il_trainer.py", line 202, in train
+    self._enhanced_training_complete()
+AttributeError: 'AutoregressiveILTrainer' object has no attribute '_enhanced_training_complete'
+
+2025-06-27 15:33:05,715 - INFO - SuRL_FixedRL_140556003017008 - 🌍 Method 2: Conditional World Model + RL is disable
+2025-06-27 15:33:05,715 - INFO - SuRL_FixedRL_140556003017008 - 📹 Method 3: Direct Video RL is disabled in config
+2025-06-27 15:33:05,717 - INFO - SuRL_FixedRL_140556003017008 - 🔬 Evaluation Framework initialized
+2025-06-27 15:33:05,717 - INFO - SuRL_FixedRL_140556003017008 - 📁 Results will be saved to: results/2025-06-27_13-01-49/fold0/integrated_evaluation
+2025-06-27 15:33:05,717 - INFO - SuRL_FixedRL_140556003017008 - 🔬 Evaluation Framework initialized with METRICS MODULE
+2025-06-27 15:33:05,717 - INFO - SuRL_FixedRL_140556003017008 - 📊 Loaded 0 models for comprehensive evaluation
+2025-06-27 15:33:05,717 - INFO - SuRL_FixedRL_140556003017008 - 🎯 Evaluation approach:
+2025-06-27 15:33:05,717 - INFO - SuRL_FixedRL_140556003017008 -    Primary: Single-step action prediction (fair comparison)
+2025-06-27 15:33:05,717 - INFO - SuRL_FixedRL_140556003017008 -    Secondary: Multi-step planning analysis (paradigm-specific)
+2025-06-27 15:33:05,717 - ERROR - SuRL_FixedRL_140556003017008 - ❌ No models available for evaluation
+2025-06-27 15:33:05,717 - INFO - SuRL_FixedRL_140556003017008 - 📊 Generating publication-quality plots...
+2025-06-27 15:33:05,719 - INFO - SuRL_FixedRL_140556003017008 - 📊 Publication plotter initialized: results/2025-06-27_13-01-49/fold0/publication_plots
+2025-06-27 15:33:05,719 - INFO - SuRL_FixedRL_140556003017008 - 📊 Creating per-video performance plots...
+2025-06-27 15:33:05,719 - WARNING - SuRL_FixedRL_140556003017008 - ⚠️ No per-video results found for plotting
+2025-06-27 15:33:05,719 - INFO - SuRL_FixedRL_140556003017008 - 📈 Creating performance dashboard...
+2025-06-27 15:33:08,964 - INFO - SuRL_FixedRL_140556003017008 - ✅ Dashboard saved: results/2025-06-27_13-01-49/fold0/publication_plots/performance_dashboard
+2025-06-27 15:33:08,965 - INFO - SuRL_FixedRL_140556003017008 - 🏆 Analyzing Results and Architectural Insights
+2025-06-27 15:33:08,965 - INFO - SuRL_FixedRL_140556003017008 - 🏆 THREE-METHOD COMPARISON RESULTS (FIXED RL)
+2025-06-27 15:33:08,965 - INFO - SuRL_FixedRL_140556003017008 - ============================================================
+2025-06-27 15:33:08,965 - INFO - SuRL_FixedRL_140556003017008 - 🎓 Method 1: ❌ Failed - 'AutoregressiveILTrainer' object has no attribute '_enhanced_training_complete'
+2025-06-27 15:33:08,965 - INFO - SuRL_FixedRL_140556003017008 - 
+2025-06-27 15:33:08,965 - INFO - SuRL_FixedRL_140556003017008 - 📊 PUBLICATION PLOTS GENERATED:
+2025-06-27 15:33:08,965 - INFO - SuRL_FixedRL_140556003017008 -    📈 performance_dashboard: results/2025-06-27_13-01-49/fold0/publication_plots/performance_dashboard.png
+2025-06-27 15:33:08,965 - INFO - SuRL_FixedRL_140556003017008 - 🌍 Method 2: ❌ Failed - Unknown
+2025-06-27 15:33:08,965 - INFO - SuRL_FixedRL_140556003017008 - 📹 Method 3: ❌ Failed - Unknown
+2025-06-27 15:33:08,965 - INFO - SuRL_FixedRL_140556003017008 - 
+2025-06-27 15:33:08,965 - INFO - SuRL_FixedRL_140556003017008 - 🎯 Successful Methods: []
+2025-06-27 15:33:08,965 - INFO - SuRL_FixedRL_140556003017008 - 📊 Total Methods Tested: 3
+2025-06-27 15:33:08,965 - INFO - SuRL_FixedRL_140556003017008 - ✅ Success Rate: 0/3
+2025-06-27 15:33:08,965 - INFO - SuRL_FixedRL_140556003017008 - 
+2025-06-27 15:33:08,971 - INFO - SuRL_FixedRL_140556003017008 - 📄 Generating publication-ready conference paper...
+2025-06-27 15:33:08,977 - INFO - SuRL_FixedRL_140556003017008 - 📄 Enhanced Research Paper Generator initialized
+2025-06-27 15:33:08,977 - INFO - SuRL_FixedRL_140556003017008 - 📁 Publication files will be saved to: results/2025-06-27_13-01-49/fold0/publication_paper
+2025-06-27 15:33:08,977 - INFO - SuRL_FixedRL_140556003017008 - 📄 Generating publication-ready conference paper...
+2025-06-27 15:33:08,977 - INFO - SuRL_FixedRL_140556003017008 - 📊 Creating publication-quality figures...
+2025-06-27 15:33:15,653 - INFO - SuRL_FixedRL_140556003017008 - 📋 Generating tables with experimental results...
+2025-06-27 15:33:15,656 - INFO - SuRL_FixedRL_140556003017008 - 📄 Writing enhanced paper content...
+2025-06-27 15:33:15,657 - INFO - SuRL_FixedRL_140556003017008 - 📚 Creating supplementary materials...
+2025-06-27 15:33:15,661 - INFO - SuRL_FixedRL_140556003017008 - 📄 Publication-ready paper generated in: results/2025-06-27_13-01-49/fold0/publication_paper
+2025-06-27 15:33:15,661 - INFO - SuRL_FixedRL_140556003017008 - 🔧 Run compile_paper.sh to build the PDF
+2025-06-27 15:33:15,661 - INFO - SuRL_FixedRL_140556003017008 - ✨ Paper reflects your actual experimental results!
+2025-06-27 15:33:15,661 - INFO - SuRL_FixedRL_140556003017008 - 📄 Research paper generated: results/2025-06-27_13-01-49/fold0/publication_paper
+2025-06-27 15:33:15,661 - INFO - SuRL_FixedRL_140556003017008 - 💾 All RL results saved to: results/2025-06-27_13-01-49/fold0
+2025-06-27 15:33:15,661 - INFO - SuRL_FixedRL_140556003017008 - 📄 Complete results: results/2025-06-27_13-01-49/fold0/complete_results.json
+2025-06-27 15:33:15,661 - INFO - SuRL_FixedRL_140556003017008 - 📄 Summary: results/2025-06-27_13-01-49/fold0/experiment_summary.json
+2025-06-27 15:33:15,661 - INFO - SuRL_FixedRL_140556003017008 - 📊 Publication plots: results/2025-06-27_13-01-49/fold0/publication_plots

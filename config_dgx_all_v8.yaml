@@ -45,6 +45,20 @@ experiment:
     enabled: false
     eval_episodes: 10
 
+  # NEW: IRL Enhancement configuration
+  irl_enhancement:
+    enabled: true
+    scenarios_to_train: ['high_complexity', 'rare_actions', 'critical_moments', 'phase_transitions']
+    maxent_irl:
+      num_iterations: 100
+      learning_rate: 1e-4
+    lightweight_gail:
+      num_epochs: 50
+      learning_rate: 1e-4
+      adjustment_strength: 0.1  # How much to adjust IL predictions
+    evaluation:
+      min_improvement_threshold: 0.02  # 2% minimum improvement to be significant
+
 # ENHANCED: Training parameters optimized for IVT metric tracking
 training:
   epochs: 15                    # OPTIMIZED: Sufficient for temporal learning with good features

@@ -1,0 +1,18 @@
+{
+  "experiment_type": "three_method_architectural_comparison",
+  "methods_tested": [
+    "autoregressive_il",
+    "conditional_world_model",
+    "direct_video_rl"
+  ],
+  "rl_improvements_applied": true,
+  "key_findings": [],
+  "performance_ranking": [],
+  "rl_fixes": [
+    "Expert demonstration matching rewards",
+    "Proper continuous action space",
+    "Enhanced monitoring and debugging",
+    "Optimized hyperparameters",
+    "Better episode termination"
+  ]
+}
