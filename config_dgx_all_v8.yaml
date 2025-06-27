@@ -3,19 +3,33 @@ debug: false
 # Experiment configuration
 experiment:
   train:
-    max_videos: 40  # default: 40
+    max_videos: 2  # default: 40
   test:
-    max_videos: 10  # default: 10
+    max_videos: 2  # default: 10
     test_on_train: false
     
-  # OPTIMIZED Imitation Learning for pre-trained Swin embeddings
+  # ENHANCED: Autoregressive IL with IVT-based model saving
   autoregressive_il:
     enabled: true
     train: true
     evaluate: true
+    model_type_preference: 'combined'  # 'current', 'next', 'combined'
+    save_all_best_models: true         # Save separate models for each task
     il_model_path: null
     # il_model_path: "results/2025-06-24_11-09-35/fold0/logs/checkpoints/autoregressive_il_best_epoch_1.pt"
     # il_model_path: "results/2025-06-10_19-45-51/logs/checkpoints/autoregressive_il_best_epoch_1.pt"  # Path to the best IL model
+    
+    # ENHANCED: IVT-based saving configuration
+    ivt_saving:
+      enabled: true
+      current_weight: 0.4              # Weight for current recognition in combined score
+      next_weight: 0.6                 # Weight for next prediction in combined score (prioritize this)
+      save_frequency: 1                # Save every N epochs (1 = every epoch)
+      keep_top_k: 3                   # Keep top K models for each task
+      
+    # ENHANCED: Evaluation preferences
+    evaluation_model: 'combined'       # Which model to use for final evaluation
+    
     recognition: # We use the results from the Distil-Swin codebase
       enabled: false
       ivt_map: 36.1 # this is the IVT map we get when running the Distil-Swin model, which is 36.1% for 5 folds cross-validation
@@ -31,7 +45,7 @@ experiment:
     enabled: false
     eval_episodes: 10
 
-# OPTIMIZED Training parameters for pre-trained Swin embeddings
+# ENHANCED: Training parameters optimized for IVT metric tracking
 training:
   epochs: 15                    # OPTIMIZED: Sufficient for temporal learning with good features
   batch_size: 8                 # OPTIMIZED: Larger batches possible with good embeddings
@@ -82,12 +96,19 @@ training:
     sequence_shuffle_prob: 0.1  # Learn temporal invariance
     frame_dropout_prob: 0.05    # Regularization technique
     
-  # Early stopping optimized for fast convergence
+  # ENHANCED: Early stopping based on IVT metrics
   early_stopping:
     patience: 8                 # Quick stopping with good features
     min_delta: 0.001           # Sensitive to plateaus
-    monitor: "val_action_mAP"
-    
+    # monitor: "val_action_mAP"
+    monitor: 'ivt_next_mAP'  # Use IVT metrics for early stopping
+    mode: 'max'
+
+  # ENHANCED: IVT metrics monitoring
+  monitor_ivt_metrics: true
+  log_ivt_components: true            # Log I, V, T, IV, IT components separately
+  tensorboard_ivt_tracking: true      # Track IVT metrics in tensorboard
+
   # Logging and checkpointing
   num_workers: 2               # REDUCED: Less overhead
   pin_memory: true
@@ -96,15 +117,23 @@ training:
   eval_epoch_interval: 1
   save_model: true
   
-  # Enhanced checkpointing
+  # ENHANCED: Checkpointing with IVT focus
   checkpointing:
     save_best_only: false       # Save intermediate models
     save_top_k: 5              # Keep more checkpoints
-    monitor: "val_action_mAP"   # Monitor action performance
+    monitor: "ivt_next_mAP"     # Monitor next action prediction mAP
     mode: "max"
     save_every_n_epochs: 5     # Regular checkpoints
+    
+    # ENHANCED: IVT-specific checkpointing
+    save_ivt_milestones: true        # Save when IVT metrics reach milestones
+    ivt_milestones: [0.30, 0.34, 0.35, 0.36, 0.37]  # Save at these mAP levels
 
-# Evaluation configuration (optimized for IL + preserved for other experiments)
+  min_current_map_threshold: 0.30
+  min_next_map_threshold: 0.30 
+  min_combined_threshold: 0.30
+
+# ENHANCED: Evaluation configuration with IVT focus
 evaluation:
   prediction_horizon: 8         # OPTIMIZED: Shorter horizon with good features
   
@@ -114,6 +143,11 @@ evaluation:
     statistical_significance: true
     confidence_intervals: true
     baseline_comparison: 36.1   # Compare against Swin baseline
+    
+    # ENHANCED: IVT-specific evaluation
+    evaluate_ivt_components: true     # Evaluate I, V, T, IV, IT separately
+    ivt_video_wise: true             # Use video-wise IVT computation
+    report_both_tasks: true          # Report both current and next prediction
   
   # Supervised evaluation (preserved)
   supervised:
@@ -124,11 +158,18 @@ evaluation:
     rollout_horizon: 15
     use_best_actions: true
   
-  # Comparison metrics (preserved)
+  # ENHANCED: Model comparison
   comparison:
     statistical_tests: true
     effect_size_threshold: 0.15  # More sensitive
+    compare_all_saved_models: true   # Compare current vs next vs combined models
     
+  # ENHANCED: Planning evaluation (for next prediction models)
+  planning_evaluation:
+    enabled: true
+    horizons: [1, 2, 3, 5]          # Planning horizons in seconds
+    use_best_next_model: true        # Use best next prediction model for planning
+  
   # General evaluation (preserved)
   world_model:
     use_memory: false
@@ -178,7 +219,7 @@ rl_training:
     vf_coef: 0.25
     max_grad_norm: 0.5         # ADDED gradient clipping
 
-# Data configuration (optimized for IL, preserved for others)
+# ENHANCED: Data configuration for IVT metrics
 data:
   context_length: 12            # OPTIMIZED: Shorter context with good features
   train_shift: 1
@@ -188,6 +229,10 @@ data:
   # Feature processing for pre-trained embeddings
   normalize_embeddings: true    # Normalize Swin features
   embedding_noise: 0.01         # Small noise for regularization
+  
+  # ENHANCED: IVT-specific data handling
+  ivt_evaluation_mode: true         # Enable IVT-compatible data processing
+  preserve_video_structure: true    # Keep video boundaries for proper IVT evaluation
   
   paths:
     data_dir: "/home/maxboels/datasets/CholecT50"
@@ -244,6 +289,11 @@ models:
     bilstm_layers: 1            # Simpler temporal modeling
     bilstm_dropout: 0.25        # Moderate regularization
     bilstm_bidirectional: true  # Keep bidirectional for recognition
+    
+    # ENHANCED: Task-specific tuning
+    current_task_weight: 2.0         # Weight for current action recognition loss
+    next_task_weight: 1.5            # Weight for next action prediction loss
+    consistency_weight: 0.1          # Weight for consistency between tasks
   
   # Method 2: Conditional World Model (PRESERVED for other experiments)
   conditional_world_model:
@@ -256,12 +306,13 @@ models:
     dropout: 0.1
     max_sequence_length: 512
 
-# Loss weighting optimized for pre-trained features
+# ENHANCED: Loss weighting optimized for IVT metrics
 loss_weights:
-  recognition: 1.0              # Easier with good features
-  generation: 2.0               # Main learning task - temporal modeling
-  frame_reconstruction: 0.2     # Less important with good features
+  recognition: 2.0              # Current action recognition (higher for stability)
+  generation: 1.5               # Next action prediction (main evaluation task)
+  frame_reconstruction: 0.2     # Lower for IVT focus
   phase_prediction: 0.5         # Moderate weight
+  consistency: 0.1              # Task consistency
 
 # Fair evaluation (preserved)
 fair_evaluation:
@@ -339,10 +390,36 @@ il_debugging:
     temporal_consistency: true
     sequence_modeling_analysis: true
 
-# Performance targets for IL
+# ENHANCED: Logging configuration for IVT tracking
+logging:
+  level: "INFO"
+  log_ivt_details: true              # Log detailed IVT metrics
+  save_ivt_plots: true               # Save IVT performance plots
+  ivt_component_analysis: true       # Analyze I, V, T components separately
+  
+  # Progress tracking
+  log_best_scores: true              # Log when new best scores achieved
+  log_model_saves: true              # Log when models are saved
+
+# ENHANCED: Performance targets with IVT focus
 il_performance_targets:
-  recognition_mAP_target: 38.0     # Modest improvement over 36.1%
-  generation_mAP_target: 35.0      # Slightly lower for next-token prediction
-  convergence_epoch: 5             # Should converge by epoch 5
-  minimum_improvement: 1.0         # Must beat Swin baseline by 1%
-  maximum_overfitting: 5.0         # Train-val gap should be <5%
+  # Current action recognition targets
+  current_recognition_mAP_target: 35.0     # Target for current action mAP
+  current_recognition_minimum: 30.0        # Minimum acceptable performance
+  
+  # Next action prediction targets (main evaluation)
+  next_prediction_mAP_target: 32.0         # Target for next action mAP  
+  next_prediction_minimum: 25.0            # Minimum acceptable performance
+  
+  # Combined performance targets
+  combined_score_target: 33.0              # Target for combined score
+  improvement_over_baseline: 2.0           # Must beat baseline by this much
+  
+  # Training targets
+  convergence_epoch: 8                     # Should converge by this epoch
+  maximum_overfitting: 5.0                 # Train-val gap should be <5%
+  
+  # IVT component targets
+  ivt_instrument_target: 85.0              # Target for I component
+  ivt_verb_target: 65.0                    # Target for V component  
+  ivt_target_target: 45.0                  # Target for T component

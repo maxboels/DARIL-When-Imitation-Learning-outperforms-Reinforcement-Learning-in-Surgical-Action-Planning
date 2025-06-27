@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """
-FIXED: Autoregressive IL Trainer with Per-Video Aggregation
-- Single-pass validation (no duplication)
-- Per-video metric computation
-- Proper statistical aggregation
-- Shared metrics module
-- FIXED: All variable naming issues resolved
+ENHANCED: Autoregressive IL Trainer with Threshold-Based IVT Model Saving
+- Saves best models based on IVT current mAP (recognition task) only if mAP ≥ 0.30
+- Saves best models based on IVT next mAP (next action prediction task) only if mAP ≥ 0.30
+- Saves best combined IVT performance only if combined score ≥ 0.30
+- Prevents disk bloat by not saving poor-performing models
+- Provides fallback to final model if no thresholds are met
+- Comprehensive tracking and logging with threshold progress
 """
 
 import torch
@@ -38,18 +39,17 @@ except ImportError:
 
 class AutoregressiveILTrainer:
     """
-    FIXED: Trainer for Autoregressive Imitation Learning (Method 1).
+    ENHANCED: Trainer for Autoregressive Imitation Learning with IVT-based model saving.
     
     Features:
-    - Single-pass efficient validation
-    - Per-video metric aggregation
-    - Shared metrics module for consistency
-    - Comprehensive performance analysis
-    - FIXED: All variable naming issues resolved
+    - Saves best models based on IVT current mAP (recognition task)
+    - Saves best models based on IVT next mAP (next action prediction task)
+    - Saves best combined IVT performance model
+    - Comprehensive IVT metrics tracking and logging
     """
     
     def __init__(self, model, config: Dict[str, Any], logger, device: str = 'cuda'):
-        """Initialize with enhanced optimizer support."""
+        """Initialize with enhanced IVT-based model saving."""
         
         # Your existing initialization code...
         self.model = model
@@ -83,6 +83,23 @@ class AutoregressiveILTrainer:
         
         # Track metrics
         self.metrics_history = defaultdict(list)
+        
+        # ENHANCED: Track best IVT metrics separately
+        self.best_ivt_current_map = 0.0  # Best current action recognition mAP
+        self.best_ivt_next_map = 0.0     # Best next action prediction mAP
+        self.best_combined_ivt_score = 0.0  # Best combined score
+        
+        # ENHANCED: Minimum thresholds for saving models (avoid saving too many heavy files)
+        self.min_current_map_threshold = config.get('training', {}).get('min_current_map_threshold', 0.30)
+        self.min_next_map_threshold = config.get('training', {}).get('min_next_map_threshold', 0.30)
+        self.min_combined_threshold = config.get('training', {}).get('min_combined_threshold', 0.30)
+        
+        # ENHANCED: Track best model paths for different metrics
+        self.best_current_model_path = None
+        self.best_next_model_path = None
+        self.best_combined_model_path = None
+        
+        # Keep legacy for backward compatibility
         self.best_val_loss = float('inf')
         self.best_model_path = None
         
@@ -93,11 +110,13 @@ class AutoregressiveILTrainer:
         # Set logger for shared metrics
         surgical_metrics.logger = logger
         
-        self.logger.info("🎓 Autoregressive IL Trainer initialized (FIXED)")
+        self.logger.info("🎓 ENHANCED Autoregressive IL Trainer initialized with IVT-based saving")
         self.logger.info(f"   Device: {device}")
         self.logger.info(f"   Epochs: {self.epochs}")
         self.logger.info(f"   Learning rate: {self.lr}")
-        self.logger.info(f"   ✅ Per-video aggregation + shared metrics + efficient validation")
+        self.logger.info(f"   ✅ IVT-based model saving enabled with minimum thresholds")
+        self.logger.info(f"   📊 Will track: Current mAP, Next mAP, Combined score")
+        self.logger.info(f"   🎯 Minimum thresholds: Current={self.min_current_map_threshold:.2f}, Next={self.min_next_map_threshold:.2f}, Combined={self.min_combined_threshold:.2f}")
 
     def _setup_optimizer(self):
         """Enhanced optimizer setup with intelligent parameter grouping."""
@@ -117,88 +136,34 @@ class AutoregressiveILTrainer:
         
         self.logger.info("✅ Enhanced optimizer and scheduler integrated")
 
-    # def _setup_optimizer(self):
-    #     """Setup optimizer and learning rate scheduler."""
+    def _enhanced_validation_step(self, val_metrics, epoch):
+        """Enhanced validation with scheduler stepping."""
         
-    #     # Different learning rates for different components
-    #     param_groups = []
+        val_loss = val_metrics['total_loss']
         
-    #     # GPT-2 backbone (lower learning rate for pre-trained-like component)
-    #     gpt2_params = []
-    #     for name, param in self.model.named_parameters():
-    #         if 'gpt2' in name:
-    #             gpt2_params.append(param)
+        # Step scheduler for epoch-based schedulers
+        if isinstance(self.scheduler, optim.lr_scheduler.ReduceLROnPlateau):
+            self.optimizer_scheduler.step(validation_loss=val_loss, epoch=epoch)
         
-    #     if gpt2_params:
-    #         param_groups.append({
-    #             'params': gpt2_params,
-    #             'lr': self.lr * 0.1,  # Lower LR for backbone
-    #             'weight_decay': self.weight_decay
-    #         })
+        # Log current learning rates
+        current_lrs = self.optimizer_scheduler.get_current_lrs()
+        lr_summary = ", ".join([f"{name}: {lr:.2e}" for name, lr in current_lrs.items()])
+        self.logger.info(f"📊 Current LRs: {lr_summary}")
         
-    #     # Frame generation head (important for IL)
-    #     frame_params = []
-    #     for name, param in self.model.named_parameters():
-    #         if 'next_frame_head' in name:
-    #             frame_params.append(param)
-        
-    #     if frame_params:
-    #         param_groups.append({
-    #             'params': frame_params,
-    #             'lr': self.lr * 1.5,  # Higher LR for frame generation
-    #             'weight_decay': self.weight_decay * 0.5
-    #         })
-        
-    #     # Action prediction head (most important for evaluation)
-    #     action_params = []
-    #     for name, param in self.model.named_parameters():
-    #         if 'action_prediction_head' in name:
-    #             action_params.append(param)
-        
-    #     if action_params:
-    #         param_groups.append({
-    #             'params': action_params,
-    #             'lr': self.lr * 2.0,  # Highest LR for action prediction
-    #             'weight_decay': self.weight_decay * 0.1
-    #         })
-        
-    #     # Other parameters (projection layers, etc.)
-    #     other_params = []
-    #     for name, param in self.model.named_parameters():
-    #         if not any(component in name for component in ['gpt2', 'next_frame_head', 'action_prediction_head']):
-    #             other_params.append(param)
-        
-    #     if other_params:
-    #         param_groups.append({
-    #             'params': other_params,
-    #             'lr': self.lr,
-    #             'weight_decay': self.weight_decay
-    #         })
-        
-    #     self.optimizer = optim.AdamW(param_groups)
-        
-    #     # Learning rate scheduler
-    #     scheduler_config = self.train_config.get('scheduler', {})
-    #     if scheduler_config.get('type') == 'cosine':
-    #         self.scheduler = optim.lr_scheduler.CosineAnnealingLR(
-    #             self.optimizer, 
-    #             T_max=self.epochs,
-    #             eta_min=self.lr * 0.01
-    #         )
-    #     else:
-    #         # Step scheduler
-    #         self.scheduler = optim.lr_scheduler.StepLR(
-    #             self.optimizer,
-    #             step_size=max(1, self.epochs // 3),
-    #             gamma=0.5
-    #         )
+        # Get optimization recommendations periodically
+        if epoch % 5 == 0:
+            recommendations = self.optimizer_scheduler.get_optimization_recommendations()
+            for rec in recommendations:
+                self.logger.info(f"💡 Optimization tip: {rec}")
+
     
     def train(self, train_loader: DataLoader, test_loaders: Dict[str, DataLoader]) -> str:
-        """Main training function with enhanced optimization tracking."""
+        """Main training function with enhanced IVT-based model saving."""
         
         self.train_loader = train_loader  # Store for optimizer setup
         
-        self.logger.info("🎓 Starting Enhanced Autoregressive IL Training...")
+        self.logger.info("🎓 Starting ENHANCED Autoregressive IL Training with threshold-based IVT saving...")
+        self.logger.info(f"   Minimum thresholds: Current={self.min_current_map_threshold:.2f}, Next={self.min_next_map_threshold:.2f}, Combined={self.min_combined_threshold:.2f}")
         
         for epoch in range(self.epochs):
             # Training phase
@@ -213,31 +178,56 @@ class AutoregressiveILTrainer:
             # Log metrics
             self._log_epoch_metrics(train_metrics, val_metrics, epoch)
             
-            # Save best model
-            if val_metrics['total_loss'] < self.best_val_loss:
-                self.best_val_loss = val_metrics['total_loss']
-                self.best_model_path = os.path.join(
-                    self.checkpoint_dir, f"autoregressive_il_best_epoch_{epoch+1}.pt"
-                )
-                self.model.save_model(self.best_model_path)
-                self.logger.info(f"✅ New best model saved: {self.best_model_path}")
+            # ENHANCED: Save best models based on IVT metrics
+            self._save_best_models_based_on_ivt(val_metrics, epoch)
             
-            # Enhanced epoch summary with learning rate info
+            # Enhanced epoch summary with IVT metrics
             current_lrs = self.optimizer_scheduler.get_current_lrs()
             main_lr = current_lrs.get('action_prediction', 0)
+            
+            # Get IVT metrics for logging
+            current_ivt = val_metrics.get('ivt_current_mAP', 0)
+            next_ivt = val_metrics.get('ivt_next_mAP', 0)
             
             self.logger.info(
                 f"Epoch {epoch+1}/{self.epochs} | "
                 f"Train Loss: {train_metrics['total_loss']:.4f} | "
                 f"Val Loss: {val_metrics['total_loss']:.4f} | "
-                f"Action mAP: {val_metrics.get('action_mAP', 0):.4f} | "
+                f"Current IVT: {current_ivt:.4f} | "
+                f"Next IVT: {next_ivt:.4f} | "
                 f"Action LR: {main_lr:.2e}"
             )
         
         # ENHANCED: Training completion with comprehensive analysis
         self._enhanced_training_complete()
         
-        return self.best_model_path if self.best_model_path else "final_model.pt"   
+        # ENHANCED: Handle case where no models exceed thresholds
+        best_return_path = None
+        
+        # Priority order: combined > next > current > fallback
+        if self.best_combined_model_path:
+            best_return_path = self.best_combined_model_path
+            self.logger.info(f"✅ Returning best combined model: {best_return_path}")
+        elif self.best_next_model_path:
+            best_return_path = self.best_next_model_path
+            self.logger.info(f"✅ Returning best next prediction model: {best_return_path}")
+        elif self.best_current_model_path:
+            best_return_path = self.best_current_model_path
+            self.logger.info(f"✅ Returning best current recognition model: {best_return_path}")
+        else:
+            # FALLBACK: Save final model if no thresholds were met
+            fallback_path = os.path.join(
+                self.checkpoint_dir, f"autoregressive_il_final_epoch_{self.epochs}.pt"
+            )
+            self.model.save_model(fallback_path)
+            best_return_path = fallback_path
+            self.logger.warning(f"⚠️  No models exceeded thresholds, saving final model: {fallback_path}")
+            self.logger.info(f"   Final performance: Current={self.best_ivt_current_map:.4f}, Next={self.best_ivt_next_map:.4f}")
+            
+            # Update legacy path for compatibility
+            self.best_model_path = fallback_path
+        
+        return best_return_path
 
     def _prepare_training_data(self, batch: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         """
@@ -337,12 +327,96 @@ class AutoregressiveILTrainer:
         
         return dict(epoch_metrics)    
 
-    def _enhanced_training_complete(self):
-        """Enhanced training completion with comprehensive analysis."""
+    def _save_best_models_based_on_ivt(self, val_metrics: Dict[str, float], epoch: int):
+        """
+        ENHANCED: Save best models based on different IVT metrics with minimum thresholds.
         
-        # Save learning rate plots and history
-        self.optimizer_scheduler.save_lr_plots(self.log_dir)
-        self.optimizer_scheduler.save_lr_history(self.log_dir)
+        Args:
+            val_metrics: Validation metrics dictionary
+            epoch: Current epoch number
+        """
+        
+        # Extract IVT metrics
+        current_ivt_map = val_metrics.get('ivt_current_mAP', 0.0)
+        next_ivt_map = val_metrics.get('ivt_next_mAP', 0.0)
+        
+        # Get weights from config or use defaults
+        il_config = self.config.get('experiment', {}).get('autoregressive_il', {})
+        ivt_config = il_config.get('ivt_saving', {})
+        current_weight = ivt_config.get('current_weight', 0.4)
+        next_weight = ivt_config.get('next_weight', 0.6)
+        
+        # Calculate combined score
+        combined_score = current_weight * current_ivt_map + next_weight * next_ivt_map
+        
+        models_saved = []
+        models_skipped = []
+        
+        # 1. Save best current action recognition model
+        if current_ivt_map > self.best_ivt_current_map:
+            if current_ivt_map >= self.min_current_map_threshold:
+                self.best_ivt_current_map = current_ivt_map
+                self.best_current_model_path = os.path.join(
+                    self.checkpoint_dir, f"autoregressive_il_best_current_epoch_{epoch+1}.pt"
+                )
+                self.model.save_model(self.best_current_model_path)
+                models_saved.append(f"Current Recognition (mAP: {current_ivt_map:.4f})")
+            else:
+                models_skipped.append(f"Current Recognition (mAP: {current_ivt_map:.4f} < {self.min_current_map_threshold:.2f})")
+            
+        # 2. Save best next action prediction model  
+        if next_ivt_map > self.best_ivt_next_map:
+            if next_ivt_map >= self.min_next_map_threshold:
+                self.best_ivt_next_map = next_ivt_map
+                self.best_next_model_path = os.path.join(
+                    self.checkpoint_dir, f"autoregressive_il_best_next_epoch_{epoch+1}.pt"
+                )
+                self.model.save_model(self.best_next_model_path)
+                models_saved.append(f"Next Prediction (mAP: {next_ivt_map:.4f})")
+            else:
+                models_skipped.append(f"Next Prediction (mAP: {next_ivt_map:.4f} < {self.min_next_map_threshold:.2f})")
+            
+        # 3. Save best combined performance model
+        if combined_score > self.best_combined_ivt_score:
+            if combined_score >= self.min_combined_threshold:
+                self.best_combined_ivt_score = combined_score
+                self.best_combined_model_path = os.path.join(
+                    self.checkpoint_dir, f"autoregressive_il_best_combined_epoch_{epoch+1}.pt"
+                )
+                self.model.save_model(self.best_combined_model_path)
+                models_saved.append(f"Combined (score: {combined_score:.4f})")
+                
+                # Update legacy best model path for backward compatibility
+                self.best_model_path = self.best_combined_model_path
+            else:
+                models_skipped.append(f"Combined (score: {combined_score:.4f} < {self.min_combined_threshold:.2f})")
+        
+        # Legacy: Save based on loss (for backward compatibility) - no threshold for loss
+        if val_metrics.get('total_loss', float('inf')) < self.best_val_loss:
+            self.best_val_loss = val_metrics['total_loss']
+            legacy_path = os.path.join(
+                self.checkpoint_dir, f"autoregressive_il_best_loss_epoch_{epoch+1}.pt"
+            )
+            self.model.save_model(legacy_path)
+            models_saved.append(f"Best Loss ({self.best_val_loss:.4f})")
+        
+        # Log what was saved
+        if models_saved:
+            self.logger.info(f"✅ New best models saved:")
+            for model_desc in models_saved:
+                self.logger.info(f"   📁 {model_desc}")
+        
+        # Log what was skipped due to threshold
+        if models_skipped:
+            self.logger.info(f"⏭️  Models skipped (below threshold):")
+            for model_desc in models_skipped:
+                self.logger.info(f"   📊 {model_desc}")
+        
+        # Always log current best scores
+        self.logger.info(f"📊 Current best IVT scores:")
+        self.logger.info(f"   🎯 Current Recognition: {self.best_ivt_current_map:.4f} (threshold: {self.min_current_map_threshold:.2f})")
+        self.logger.info(f"   🎯 Next Prediction: {self.best_ivt_next_map:.4f} (threshold: {self.min_next_map_threshold:.2f})")
+        self.logger.info(f"   🎯 Combined Score: {self.best_combined_ivt_score:.4f} (threshold: {self.min_combined_threshold:.2f})")
         
         # Generate analysis
         analysis = self.optimizer_scheduler.analyze_learning_progress()
@@ -360,28 +434,22 @@ class AutoregressiveILTrainer:
         self.logger.info("💡 Final Optimization Recommendations:")
         for rec in recommendations:
             self.logger.info(f"   • {rec}")
+            
+        # ENHANCED: Summary of saved models
+        self.logger.info("📁 SAVED MODELS SUMMARY:")
+        if self.best_current_model_path:
+            self.logger.info(f"   🎯 Best Current Recognition: {self.best_current_model_path}")
+            self.logger.info(f"      IVT Current mAP: {self.best_ivt_current_map:.4f}")
         
-        self.logger.info("✅ Enhanced training completed with comprehensive optimization analysis!")
-
-    def _enhanced_validation_step(self, val_metrics, epoch):
-        """Enhanced validation with scheduler stepping."""
+        if self.best_next_model_path:
+            self.logger.info(f"   🎯 Best Next Prediction: {self.best_next_model_path}")
+            self.logger.info(f"      IVT Next mAP: {self.best_ivt_next_map:.4f}")
         
-        val_loss = val_metrics['total_loss']
+        if self.best_combined_model_path:
+            self.logger.info(f"   🎯 Best Combined Performance: {self.best_combined_model_path}")
+            self.logger.info(f"      Combined Score: {self.best_combined_ivt_score:.4f}")
         
-        # Step scheduler for epoch-based schedulers
-        if isinstance(self.scheduler, optim.lr_scheduler.ReduceLROnPlateau):
-            self.optimizer_scheduler.step(validation_loss=val_loss, epoch=epoch)
-        
-        # Log current learning rates
-        current_lrs = self.optimizer_scheduler.get_current_lrs()
-        lr_summary = ", ".join([f"{name}: {lr:.2e}" for name, lr in current_lrs.items()])
-        self.logger.info(f"📊 Current LRs: {lr_summary}")
-        
-        # Get optimization recommendations periodically
-        if epoch % 10 == 0:
-            recommendations = self.optimizer_scheduler.get_optimization_recommendations()
-            for rec in recommendations:
-                self.logger.info(f"💡 Optimization tip: {rec}")
+        self.logger.info("✅ Enhanced training completed with IVT-based model saving!")
 
     def _validate_epoch_per_video(self, test_loaders: Dict[str, DataLoader], epoch: int) -> Dict[str, float]:
         """
@@ -421,24 +489,17 @@ class AutoregressiveILTrainer:
                 num_batches = len(test_loader)
                 
                 for batch in tqdm(test_loader, desc=f"Validating {video_id}", leave=True):
-
-                    # For recognition (current state) - slice sequence dimension 
-                    input_frames = batch['target_next_frames'][:, :-1].to(self.device)  # [batch_size, context_length, embedding_dim]
-                    current_actions = batch['target_next_actions'][:, :-1].to(self.device)  # [batch_size, context_length, num_actions]  
-                    current_phases = batch['target_next_phases'][:, :-1].to(self.device)    # [batch_size, context_length]
-
-                    # For next frame prediction - slice sequence dimension
-                    next_frames = batch['target_next_frames'][:, 1:].to(self.device)    # [batch_size, context_length, embedding_dim]
-                    next_actions = batch['target_next_actions'][:, 1:].to(self.device)  # [batch_size, context_length, num_actions]
-                    next_phases = batch['target_next_phases'][:, 1:].to(self.device)    # [batch_size, context_length]
                     
+                    # Prepare data for this video
+                    data = self._prepare_training_data(batch)
+
                     # Forward pass (no action conditioning!)
                     outputs = self.model(
-                        frame_embeddings=input_frames,
-                        target_next_frames=next_frames,
-                        target_current_actions=current_actions,  # Use current actions for recognition
-                        target_actions=next_actions,  # Use next actions for prediction
-                        target_phases=next_phases  # Use next phases for prediction
+                        frame_embeddings=data['input_frames'],
+                        target_next_frames=data['target_next_frames'],
+                        target_current_actions=data['current_actions'],
+                        target_actions=data['target_next_actions'],
+                        target_phases=data['target_next_phases'],
                     )
                     
                     # Accumulate loss metrics for this video
@@ -450,6 +511,7 @@ class AutoregressiveILTrainer:
                     # FIXED: Get action recognition predictions properly
                     if 'action_rec_probs' in outputs:
                         action_rec_probs = outputs['action_rec_probs']
+                        current_actions = data['current_actions']  # [batch, seq_len, num_actions]
                         
                         # Collect action recognition predictions
                         video_actions_recognition.append(action_rec_probs.cpu().numpy())
@@ -474,6 +536,8 @@ class AutoregressiveILTrainer:
                     # FIXED: Use correct variable name 'next_actions'
                     # Collect next action predictions for this video
                     action_probs = outputs['action_pred']  # [batch, seq_len, num_actions]
+                    next_actions = data['target_next_actions']  # [batch, seq_len, num_actions]
+
                     video_predictions.append(action_probs.cpu().numpy())
                     video_targets.append(next_actions.cpu().numpy())  # FIXED: next_actions instead of target_actions
 
@@ -702,7 +766,7 @@ class AutoregressiveILTrainer:
         return final_metrics
     
     def _log_epoch_metrics(self, train_metrics: Dict, val_metrics: Dict, epoch: int):
-        """Log metrics to tensorboard and history."""
+        """Log metrics to tensorboard and history with enhanced IVT tracking."""
         
         # Log to tensorboard
         for key, value in train_metrics.items():
@@ -714,6 +778,17 @@ class AutoregressiveILTrainer:
         # Log learning rate
         current_lr = self.optimizer.param_groups[0]['lr']
         self.tb_writer.add_scalar("train/learning_rate", current_lr, epoch)
+        
+        # ENHANCED: Log IVT metrics specifically
+        if 'ivt_current_mAP' in val_metrics:
+            self.tb_writer.add_scalar("val/ivt_current_mAP", val_metrics['ivt_current_mAP'], epoch)
+        if 'ivt_next_mAP' in val_metrics:
+            self.tb_writer.add_scalar("val/ivt_next_mAP", val_metrics['ivt_next_mAP'], epoch)
+        
+        # Log best scores
+        self.tb_writer.add_scalar("best/ivt_current_mAP", self.best_ivt_current_map, epoch)
+        self.tb_writer.add_scalar("best/ivt_next_mAP", self.best_ivt_next_map, epoch)
+        self.tb_writer.add_scalar("best/combined_score", self.best_combined_ivt_score, epoch)
         
         # 🔧 NEW: Log per-video variance to tensorboard
         if hasattr(self, 'last_validation_details'):
@@ -952,7 +1027,6 @@ class AutoregressiveILTrainer:
                 planning_metrics = {}
                 for name, seconds in planning_evaluator.planning_horizons.items():
                     planning_metrics[f'planning_{name}_mAP'] = self._extract_planning_metric(planning_results, name, 'mean_ivt_mAP')
-                
                 standard_metrics.update(planning_metrics)
                 standard_metrics.update({
                     'planning_available': True
@@ -1266,19 +1340,18 @@ class AutoregressiveILTrainer:
 
 # Example usage and testing
 if __name__ == "__main__":
-    print("🎓 AUTOREGRESSIVE IL TRAINER - FIXED PER-VIDEO VERSION")
+    print("🎓 ENHANCED AUTOREGRESSIVE IL TRAINER - IVT-BASED MODEL SAVING")
     print("=" * 70)
     
-    print("✅ Trainer ready for Method 1 (Autoregressive IL)")
-    print("🎯 Focus: Causal frame generation → action prediction")
-    print("📊 FIXED: Per-video aggregation + single-pass + shared metrics")
+    print("✅ Enhanced trainer ready for Method 1 (Autoregressive IL)")
+    print("🎯 Focus: IVT-based model saving for both tasks")
+    print("📊 ENHANCED: Separate best models for:")
+    print("   • Current action recognition (IVT current mAP)")
+    print("   • Next action prediction (IVT next mAP)")  
+    print("   • Combined performance (weighted score)")
     print("📋 Key features:")
-    print("   • No action conditioning during training")
-    print("   • Per-video metric computation and aggregation")
-    print("   • Shared comprehensive action prediction metrics")
-    print("   • Single-pass efficient validation (no duplication)")
-    print("   • Comprehensive video performance analysis")
-    print("   • Statistical variance tracking across videos")
-    print("   • Enhanced logging and visualization")
-    print("   🚀 PERFORMANCE: Efficient + statistically robust!")
-    print("   🔧 FIXED: All variable naming issues resolved!")
+    print("   • Tracks best performance for each task separately")
+    print("   • Saves multiple model checkpoints")
+    print("   • Comprehensive IVT metrics logging")
+    print("   • Backward compatible with existing code")
+    print("   🚀 PERFORMANCE: Optimized model saving for both tasks!")

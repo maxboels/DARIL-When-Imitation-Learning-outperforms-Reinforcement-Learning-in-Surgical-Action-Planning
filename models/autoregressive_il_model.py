@@ -344,7 +344,7 @@ class AutoregressiveILModel(nn.Module):
         base_loss = outputs['total_loss']
         
         # Extra focus on target (T) actions
-        target_action_indices = [/* your target action indices */]
+        target_action_indices = [i for i in range(self.num_action_classes) if i in targets.unique()]
         if len(target_action_indices) > 0:
             target_predictions = outputs['action_pred'][:, :, target_action_indices]
             target_labels = targets[:, :, target_action_indices]
