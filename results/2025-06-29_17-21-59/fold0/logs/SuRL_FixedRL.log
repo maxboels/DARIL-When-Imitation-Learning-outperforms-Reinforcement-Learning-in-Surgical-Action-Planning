@@ -1,0 +1,96 @@
+2025-06-29 17:21:59,171 - INFO - SuRL_FixedRL_136123688281120 - Shared experiment log directory: results/2025-06-29_17-21-59/fold0/logs
+2025-06-29 17:21:59,171 - INFO - SuRL_FixedRL_136123688281120 - 🎯 RL Experiment: 2025-06-29_17-21-59
+2025-06-29 17:21:59,171 - INFO - SuRL_FixedRL_136123688281120 - 📁 Results dir: results/2025-06-29_17-21-59/fold0
+2025-06-29 17:21:59,171 - INFO - SuRL_FixedRL_136123688281120 - 📂 Plots dir: results/2025-06-29_17-21-59/fold0/publication_plots
+2025-06-29 17:21:59,171 - INFO - SuRL_FixedRL_136123688281120 - 🚀 Starting Complete RL Comparison
+2025-06-29 17:21:59,171 - INFO - SuRL_FixedRL_136123688281120 - ============================================================
+2025-06-29 17:21:59,171 - INFO - SuRL_FixedRL_136123688281120 - 📂 Loading CholecT50 data...
+2025-06-29 17:21:59,171 - INFO - SuRL_FixedRL_136123688281120 -    Training videos: 2
+2025-06-29 17:21:59,171 - INFO - SuRL_FixedRL_136123688281120 -    Test videos: 2
+2025-06-29 17:21:59,172 - INFO - SuRL_FixedRL_136123688281120 - ✅ Using data directory: /home/maxboels/datasets/CholecT50
+2025-06-29 17:21:59,172 - INFO - SuRL_FixedRL_136123688281120 - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-29 17:21:59,558 - INFO - SuRL_FixedRL_136123688281120 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (78968, 156)
+2025-06-29 17:21:59,558 - INFO - SuRL_FixedRL_136123688281120 - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-29 17:21:59,559 - INFO - SuRL_FixedRL_136123688281120 - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-29 17:21:59,560 - INFO - SuRL_FixedRL_136123688281120 - [Train] Found 2 videos in metadata file
+2025-06-29 17:21:59,560 - INFO - SuRL_FixedRL_136123688281120 - [Train] Loading data for 2 videos
+2025-06-29 17:21:59,639 - INFO - SuRL_FixedRL_136123688281120 - ✅ Loaded video VID01: 1734 frames, 1024-dims embeddings
+2025-06-29 17:21:59,701 - INFO - SuRL_FixedRL_136123688281120 - ✅ Loaded video VID04: 1523 frames, 1024-dims embeddings
+2025-06-29 17:21:59,701 - INFO - SuRL_FixedRL_136123688281120 - 📂 Loaded 2 videos from train split
+2025-06-29 17:21:59,701 - INFO - SuRL_FixedRL_136123688281120 - ✅ Using data directory: /home/maxboels/datasets/CholecT50
+2025-06-29 17:21:59,701 - INFO - SuRL_FixedRL_136123688281120 - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-29 17:21:59,782 - INFO - SuRL_FixedRL_136123688281120 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (21895, 156)
+2025-06-29 17:21:59,782 - INFO - SuRL_FixedRL_136123688281120 - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-29 17:21:59,782 - INFO - SuRL_FixedRL_136123688281120 - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-29 17:21:59,783 - INFO - SuRL_FixedRL_136123688281120 - [Test] Found 2 videos in metadata file
+2025-06-29 17:21:59,784 - INFO - SuRL_FixedRL_136123688281120 - [Test] Loading data for 2 videos
+2025-06-29 17:21:59,911 - INFO - SuRL_FixedRL_136123688281120 - ✅ Loaded video VID02: 2840 frames, 1024-dims embeddings
+2025-06-29 17:21:59,994 - INFO - SuRL_FixedRL_136123688281120 - ✅ Loaded video VID06: 2154 frames, 1024-dims embeddings
+2025-06-29 17:21:59,994 - INFO - SuRL_FixedRL_136123688281120 - 📂 Loaded 2 videos from test split
+2025-06-29 17:21:59,994 - INFO - SuRL_FixedRL_136123688281120 - ✅ Data loaded successfully
+2025-06-29 17:21:59,994 - INFO - SuRL_FixedRL_136123688281120 -    Training videos: 2
+2025-06-29 17:21:59,994 - INFO - SuRL_FixedRL_136123688281120 -    Test videos: 2
+2025-06-29 17:21:59,994 - INFO - SuRL_FixedRL_136123688281120 - 🎓 Method 1: Autoregressive IL is disabled, skipping...
+2025-06-29 17:21:59,994 - INFO - SuRL_FixedRL_136123688281120 - 🌍 Method 2: Conditional World Model + RL is disabled, skipping...
+2025-06-29 17:21:59,994 - INFO - SuRL_FixedRL_136123688281120 - 📹 Method 3: Direct Video RL is disabled, skipping...
+2025-06-29 17:21:59,994 - INFO - SuRL_FixedRL_136123688281120 - 🎯 Running Method 4: IRL Enhancement
+2025-06-29 17:21:59,994 - INFO - SuRL_FixedRL_136123688281120 - 🎯 Method 4: IRL Enhancement (Custom MaxEnt + GAIL)
+2025-06-29 17:21:59,994 - INFO - SuRL_FixedRL_136123688281120 - ----------------------------------------
+2025-06-29 17:22:00,191 - INFO - SuRL_FixedRL_136123688281120 - 📂 Loaded IL model from: best_checkpoints/autoregressive_il_best_combined_epoch_8.pt
+2025-06-29 17:22:08,506 - INFO - SuRL_FixedRL_136123688281120 - 🎯 Training Direct Surgical IRL (Simplified Approach)
+2025-06-29 17:22:08,507 - INFO - SuRL_FixedRL_136123688281120 - 🔧 Using device: cuda
+2025-06-29 17:22:12,032 - INFO - SuRL_FixedRL_136123688281120 - 🎯 Training Direct IRL on existing IVT labels (100 iterations)
+2025-06-29 17:22:17,054 - INFO - SuRL_FixedRL_136123688281120 - 📊 Training on 2772 expert state-action pairs
+2025-06-29 17:22:17,317 - INFO - SuRL_FixedRL_136123688281120 -   Iteration 0: Reward Loss = 2.2968, Expert Reward = 0.091, Negative Reward = 0.089
+2025-06-29 17:22:19,243 - INFO - SuRL_FixedRL_136123688281120 -   Iteration 20: Reward Loss = 2.1227, Expert Reward = -0.001, Negative Reward = -0.013
+2025-06-29 17:22:21,231 - INFO - SuRL_FixedRL_136123688281120 -   Iteration 40: Reward Loss = 1.9731, Expert Reward = 0.024, Negative Reward = 0.004
+2025-06-29 17:22:23,225 - INFO - SuRL_FixedRL_136123688281120 -   Iteration 60: Reward Loss = 1.8313, Expert Reward = 0.032, Negative Reward = -0.007
+2025-06-29 17:22:25,195 - INFO - SuRL_FixedRL_136123688281120 -   Iteration 80: Reward Loss = 1.6955, Expert Reward = 0.073, Negative Reward = 0.001
+2025-06-29 17:22:27,051 - INFO - SuRL_FixedRL_136123688281120 - 🎮 Training policy adjustment...
+2025-06-29 17:22:57,879 - INFO - SuRL_FixedRL_136123688281120 -   Policy Epoch 0: Loss = 0.6109
+2025-06-29 17:23:50,341 - INFO - SuRL_FixedRL_136123688281120 -   Policy Epoch 10: Loss = 0.6004
+2025-06-29 17:24:35,658 - INFO - SuRL_FixedRL_136123688281120 -   Policy Epoch 20: Loss = 0.5868
+2025-06-29 17:25:16,753 - INFO - SuRL_FixedRL_136123688281120 - ✅ Direct IRL training completed
+2025-06-29 17:25:16,753 - INFO - SuRL_FixedRL_136123688281120 - 📊 Evaluating Direct IRL vs IL
+2025-06-29 17:25:16,759 - WARNING - SuRL_FixedRL_136123688281120 - IL prediction failed: Input and parameter tensors are not at the same device, found input tensor at cpu and parameter tensor at cuda:0, using random prediction
+2025-06-29 17:25:16,760 - ERROR - SuRL_FixedRL_136123688281120 - ❌ Method 4 IRL failed: Input and parameter tensors are not at the same device, found input tensor at cpu and parameter tensor at cuda:0
+2025-06-29 17:25:16,762 - ERROR - SuRL_FixedRL_136123688281120 - Full traceback: Traceback (most recent call last):
+  File "/home/maxboels/projects/surl/run_experiment_v8.py", line 586, in _run_method4_irl_enhancement
+    irl_results = train_direct_irl(
+                  ^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/projects/surl/training/irl_direct_trainer.py", line 462, in train_direct_irl
+    evaluation_results = irl_trainer.evaluate_direct_irl(test_data)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/projects/surl/training/irl_direct_trainer.py", line 318, in evaluate_direct_irl
+    irl_pred = self.irl_system.predict_with_irl(self.il_model, state)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/projects/surl/training/irl_direct_trainer.py", line 71, in predict_with_irl
+    il_pred = il_model.predict_next_action(il_input).squeeze()
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/projects/surl/models/autoregressive_il_model.py", line 438, in predict_next_action
+    outputs = self.forward(frame_sequence)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/projects/surl/models/autoregressive_il_model.py", line 235, in forward
+    action_rec_logits = self.bilstm_action_recogniser(frame_embeddings)  # [B, T, num_classes]
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/projects/surl/models/autoregressive_il_model.py", line 64, in forward
+    lstm_out, _ = self.bi_lstm(x)       # (B, T, 2 * hidden_dim)
+                  ^^^^^^^^^^^^^^^
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/nn/modules/rnn.py", line 1123, in forward
+    result = _VF.lstm(
+             ^^^^^^^^^
+RuntimeError: Input and parameter tensors are not at the same device, found input tensor at cpu and parameter tensor at cuda:0
+
+2025-06-29 17:25:16,762 - ERROR - SuRL_FixedRL_136123688281120 - ❌ No test loaders available for evaluation

@@ -257,6 +257,44 @@ class AutoregressiveILTrainer:
             'target_next_phases': next_phases
         }
 
+    def _enhanced_training_complete(self):
+        """Mark enhanced training as complete and return best model info"""
+        self.logger.info("🎓 Enhanced Autoregressive IL Training Complete!")
+        
+        # Log final best model summary
+        if hasattr(self, 'best_model_paths') and self.best_model_paths:
+            self.logger.info("📁 FINAL BEST MODELS SUMMARY:")
+            for model_type, path in self.best_model_paths.items():
+                if path and os.path.exists(path):
+                    self.logger.info(f"   🎯 {model_type}: {path}")
+            
+            # Return the best combined model path, or fallback to any available model
+            return (self.best_model_paths.get('best_combined') or 
+                    self.best_model_paths.get('best_next_prediction') or 
+                    self.best_model_paths.get('best_current_recognition') or
+                    list(self.best_model_paths.values())[0])
+        else:
+            self.logger.warning("⚠️ No best model paths found!")
+            return None
+
+    def get_best_model_paths(self):
+        """Return dictionary of best model paths"""
+        if hasattr(self, 'best_model_paths'):
+            return self.best_model_paths
+        else:
+            return {}
+
+    def get_best_metrics(self):
+        """Return dictionary of best metrics achieved during training"""
+        if hasattr(self, 'best_metrics'):
+            return self.best_metrics
+        else:
+            return {
+                'best_ivt_current_mAP': 0.0,
+                'best_ivt_next_mAP': 0.0,
+                'best_combined_score': 0.0
+            }
+
     def _train_epoch(self, train_loader: DataLoader, epoch: int) -> Dict[str, float]:
         """Enhanced training epoch with comprehensive monitoring."""
         

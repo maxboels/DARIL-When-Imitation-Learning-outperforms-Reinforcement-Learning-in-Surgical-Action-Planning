@@ -430,8 +430,8 @@ class AutoregressiveILModel(nn.Module):
         Interface unchanged for compatibility.
         """
         batch_size, seq_len, _ = frame_sequence.shape
-        if seq_len < 2:
-            raise ValueError("Frame sequence must have at least 2 frames for action prediction.")
+        # if seq_len < 2:
+        #     raise ValueError("Frame sequence must have at least 2 frames for action prediction.")
 
         self.eval()
         with torch.no_grad():

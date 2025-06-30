@@ -108,31 +108,31 @@ class ExperimentRunner:
         train_data, test_data = self._load_data()
 
         # Method 1: Autoregressive IL (unchanged, was working well)
-        if self.config.get('experiment', {}).get('autoregressive_il', {}).get('enabled', True):        
+        if self.config.get('experiment', {}).get('autoregressive_il', {}).get('enabled', False):        
             self.logger.info("🎓 Running Method 1: Autoregressive IL")
             method1_results = self._run_method1_autoregressive_il(train_data, test_data)
             self.results['method_1_autoregressive_il'] = method1_results
         else:
-            self.logger.info("🎓 Method 1: Autoregressive IL is disabled in config, skipping...")
+            self.logger.info("🎓 Method 1: Autoregressive IL is disabled, skipping...")
             method1_results = {'status': 'skipped', 'reason': 'Autoregressive IL disabled in config'}
             self.results['method_1_autoregressive_il'] = method1_results
 
         # Method 2: Conditional World Model + RL (IMPROVED)                
-        if self.config.get('experiment', {}).get('world_model', {}).get('enabled', True):
+        if self.config.get('experiment', {}).get('world_model', {}).get('enabled', False):
             method2_results = self._run_method2_wm_rl(train_data, test_data)
             self.results['method_2_conditional_world_model'] = method2_results
         else:
-            self.logger.info("🌍 Method 2: Conditional World Model + RL is disabled")
+            self.logger.info("🌍 Method 2: Conditional World Model + RL is disabled, skipping...")
 
         # Method 3: Direct Video RL (IMPROVED)
-        if self.config.get('experiment', {}).get('rl_experiments', {}).get('enabled', True):
+        if self.config.get('experiment', {}).get('rl_experiments', {}).get('enabled', False):
             method3_results = self._run_method3_direct_rl(train_data, test_data)
             self.results['method_3_direct_video_rl'] = method3_results
         else:
-            self.logger.info("📹 Method 3: Direct Video RL is disabled in config")
+            self.logger.info("📹 Method 3: Direct Video RL is disabled, skipping...")
 
         # Method 4: IRL Enhancement (NEW)
-        if self.config.get('experiment', {}).get('irl_enhancement', {}).get('enabled', True):
+        if self.config.get('experiment', {}).get('irl_enhancement', {}).get('enabled', False):
             self.logger.info("🎯 Running Method 4: IRL Enhancement")
             method4_results = self._run_method4_irl_enhancement(train_data, test_data)
             self.results['method_4_irl_enhancement'] = method4_results
@@ -579,18 +579,18 @@ class ExperimentRunner:
                     self.logger.info("📂 Using IL model from Method 1")
                 else:
                     raise ValueError("No IL model available for IRL enhancement")
+
+            # Step 2: Train Direct IRL enhancement
+            from training.irl_direct_trainer import train_direct_irl
             
-            # Step 2: Train IRL enhancement
-            from training.irl_trainer import train_surgical_irl
-            
-            irl_results = train_surgical_irl(
+            irl_results = train_direct_irl(
                 config=self.config,
                 train_data=train_data,
                 test_data=test_data,
                 logger=self.logger,
                 il_model=il_model
             )
-            
+
             # Step 3: Create evaluation results compatible with your framework
             evaluation_results = self._format_irl_results_for_comparison(irl_results)
             
@@ -665,93 +665,93 @@ class ExperimentRunner:
         
         return formatted_results
 
-    def run_complete_comparison(self) -> Dict[str, Any]:
-        """Updated comparison including IRL method"""
+    # def run_complete_comparison(self) -> Dict[str, Any]:
+    #     """Updated comparison including IRL method"""
         
-        self.logger.info("🚀 Starting Complete RL Comparison + IRL Enhancement")
-        self.logger.info("=" * 60)
+    #     self.logger.info("🚀 Starting Complete RL Comparison + IRL Enhancement")
+    #     self.logger.info("=" * 60)
         
-        # Load data
-        train_data, test_data = self._load_data()
+    #     # Load data
+    #     train_data, test_data = self._load_data()
 
-        # Method 1: Autoregressive IL (your existing baseline)
-        if self.config.get('experiment', {}).get('autoregressive_il', {}).get('enabled', True):        
-            self.logger.info("🎓 Running Method 1: Autoregressive IL")
-            method1_results = self._run_method1_autoregressive_il(train_data, test_data)
-            self.results['method_1_autoregressive_il'] = method1_results
+    #     # Method 1: Autoregressive IL (your existing baseline)
+    #     if self.config.get('experiment', {}).get('autoregressive_il', {}).get('enabled', True):        
+    #         self.logger.info("🎓 Running Method 1: Autoregressive IL")
+    #         method1_results = self._run_method1_autoregressive_il(train_data, test_data)
+    #         self.results['method_1_autoregressive_il'] = method1_results
             
-            # Store IL model for IRL enhancement
-            if method1_results.get('status') == 'success':
-                # Get the best model path from method 1
-                il_model_paths = method1_results.get('model_paths', {})
-                best_il_path = (il_model_paths.get('best_next_prediction') or 
-                               il_model_paths.get('best_combined') or 
-                               il_model_paths.get('best_current_recognition'))
+    #         # Store IL model for IRL enhancement
+    #         if method1_results.get('status') == 'success':
+    #             # Get the best model path from method 1
+    #             il_model_paths = method1_results.get('model_paths', {})
+    #             best_il_path = (il_model_paths.get('best_next_prediction') or 
+    #                            il_model_paths.get('best_combined') or 
+    #                            il_model_paths.get('best_current_recognition'))
                 
-                if best_il_path:
-                    # Load IL model for IRL enhancement
-                    from models.autoregressive_il_model import AutoregressiveILModel
-                    self.method1_il_model = AutoregressiveILModel.load_model(best_il_path, device=DEVICE)
-                    self.logger.info(f"✅ IL model loaded for IRL enhancement: {best_il_path}")
-        else:
-            self.logger.info("🎓 Method 1: Autoregressive IL is disabled in config, skipping...")
-            method1_results = {'status': 'skipped', 'reason': 'Autoregressive IL disabled in config'}
-            self.results['method_1_autoregressive_il'] = method1_results
+    #             if best_il_path:
+    #                 # Load IL model for IRL enhancement
+    #                 from models.autoregressive_il_model import AutoregressiveILModel
+    #                 self.method1_il_model = AutoregressiveILModel.load_model(best_il_path, device=DEVICE)
+    #                 self.logger.info(f"✅ IL model loaded for IRL enhancement: {best_il_path}")
+    #     else:
+    #         self.logger.info("🎓 Method 1: Autoregressive IL is disabled in config, skipping...")
+    #         method1_results = {'status': 'skipped', 'reason': 'Autoregressive IL disabled in config'}
+    #         self.results['method_1_autoregressive_il'] = method1_results
 
-        # Method 4: IRL Enhancement (NEW)
-        if self.config.get('experiment', {}).get('irl_enhancement', {}).get('enabled', True):
-            self.logger.info("🎯 Running Method 4: IRL Enhancement")
-            method4_results = self._run_method4_irl_enhancement(train_data, test_data)
-            self.results['method_4_irl_enhancement'] = method4_results
-        else:
-            self.logger.info("🎯 Method 4: IRL Enhancement is disabled in config, skipping...")
-            method4_results = {'status': 'skipped', 'reason': 'IRL Enhancement disabled in config'}
-            self.results['method_4_irl_enhancement'] = method4_results
+    #     # Method 4: IRL Enhancement (NEW)
+    #     if self.config.get('experiment', {}).get('irl_enhancement', {}).get('enabled', True):
+    #         self.logger.info("🎯 Running Method 4: IRL Enhancement")
+    #         method4_results = self._run_method4_irl_enhancement(train_data, test_data)
+    #         self.results['method_4_irl_enhancement'] = method4_results
+    #     else:
+    #         self.logger.info("🎯 Method 4: IRL Enhancement is disabled in config, skipping...")
+    #         method4_results = {'status': 'skipped', 'reason': 'IRL Enhancement disabled in config'}
+    #         self.results['method_4_irl_enhancement'] = method4_results
         
-        if self.config.get('experiment', {}).get('world_model', {}).get('enabled', True):
-            # Method 2: Conditional World Model + RL
-            method2_results = self._run_method2_wm_rl(train_data, test_data)
-            self.results['method_2_conditional_world_model'] = method2_results
-        else:
-            self.logger.info("🌍 Method 2: Conditional World Model + RL is disabled")
+    #     if self.config.get('experiment', {}).get('world_model', {}).get('enabled', True):
+    #         # Method 2: Conditional World Model + RL
+    #         method2_results = self._run_method2_wm_rl(train_data, test_data)
+    #         self.results['method_2_conditional_world_model'] = method2_results
+    #     else:
+    #         self.logger.info("🌍 Method 2: Conditional World Model + RL is disabled")
 
-        if self.config.get('experiment', {}).get('rl_experiments', {}).get('enabled', True):
-            # Method 3: Direct Video RL
-            method3_results = self._run_method3_direct_rl(train_data, test_data)
-            self.results['method_3_direct_video_rl'] = method3_results
-        else:
-            self.logger.info("📹 Method 3: Direct Video RL is disabled in config")
+    #     if self.config.get('experiment', {}).get('rl_experiments', {}).get('enabled', True):
+    #         # Method 3: Direct Video RL
+    #         method3_results = self._run_method3_direct_rl(train_data, test_data)
+    #         self.results['method_3_direct_video_rl'] = method3_results
+    #     else:
+    #         self.logger.info("📹 Method 3: Direct Video RL is disabled in config")
         
-        # Comprehensive evaluation - with proper handling
-        if not hasattr(self, 'test_loaders') or not self.test_loaders:
-            self.logger.error("❌ No test loaders available for evaluation")
-            return {'status': 'failed', 'error': 'No test loaders available'}
+    #     # Comprehensive evaluation - with proper handling
+    #     if not hasattr(self, 'test_loaders') or not self.test_loaders:
+    #         self.logger.error("❌ No test loaders available for evaluation")
+    #         return {'status': 'failed', 'error': 'No test loaders available'}
                 
-        evaluation_results = run_integrated_evaluation(
-            experiment_results=self.results,
-            test_data=self.test_loaders,
-            results_dir=str(self.results_dir),
-            logger=self.logger,
-            horizon=self.config['evaluation']['prediction_horizon']
-        )
-        self.results['comprehensive_evaluation'] = evaluation_results
+    #     evaluation_results = run_integrated_evaluation(
+    #         experiment_results=self.results,
+    #         test_data=self.test_loaders,
+    #         results_dir=str(self.results_dir),
+    #         logger=self.logger,
+    #         horizon=self.config['evaluation']['prediction_horizon']
+    #     )
+    #     self.results['comprehensive_evaluation'] = evaluation_results
 
-        self.logger.info("📊 Generating publication-quality plots...")
-        plot_paths = create_publication_plots(
-            experiment_results=self.results,
-            output_dir=str(self.plots_dir),
-            logger=self.logger
-        )
-        self.results['generated_plots'] = plot_paths
+    #     self.logger.info("📊 Generating publication-quality plots...")
+    #     plot_paths = create_publication_plots(
+    #         experiment_results=self.results,
+    #         output_dir=str(self.plots_dir),
+    #         logger=self.logger
+    #     )
+    #     self.results['generated_plots'] = plot_paths
 
-        # Analysis and comparison
-        self.logger.info("🏆 Analyzing Results and Architectural Insights including IRL")
-        self._print_method_comparison(self.results)
+    #     # Analysis and comparison
+    #     self.logger.info("🏆 Analyzing Results and Architectural Insights including IRL")
+    #     self._print_method_comparison(self.results)
         
-        # Save results
-        self._save_complete_results()
+    #     # Save results
+    #     self._save_complete_results()
         
-        return self.results
+    #     return self.results
 
     def _print_method_comparison(self, aggregate_results: Dict):
         """Print comparison of all methods including IRL results."""
@@ -771,7 +771,7 @@ class ExperimentRunner:
             self.logger.info(f"🎓 Method 1: ❌ Failed/Skipped - {method1.get('error', method1.get('reason', 'Unknown'))}")
 
         # Method 4: IRL Enhancement (NEW)
-        method4 = aggregate_results.get('method_4_irl_enhancement', {})
+        method4 = aggregate_results.get('method_4_irl', {})
         if method4.get('status') == 'success':
             eval_results = method4.get('evaluation', {}).get('overall_metrics', {})
             self.logger.info(f"🎯 Method 4 (IRL Enhancement):")
