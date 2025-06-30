@@ -30,6 +30,7 @@ class DirectIRLSystem(nn.Module):
         self.action_dim = action_dim
         self.device = device
         
+        
         # Single reward network for all surgical contexts
         self.reward_net = nn.Sequential(
             nn.Linear(state_dim + action_dim, 256),
@@ -42,12 +43,18 @@ class DirectIRLSystem(nn.Module):
         ).to(device)
         
         # Small policy adjustment network
-        self.policy_adjustment = nn.Sequential(
-            nn.Linear(action_dim, 32),
-            nn.ReLU(),
-            nn.Linear(32, action_dim),
-            nn.Tanh()  # Bounded adjustments [-1, 1]
-        ).to(device)
+        # self.policy_adjustment = nn.Sequential(
+        #     nn.Linear(action_dim, 32),
+        #     nn.ReLU(),
+        #     nn.Linear(32, action_dim),
+        #     nn.Tanh()  # Bounded adjustments [-1, 1]
+        # ).to(device)
+        
+        self.policy_adjustment = StateAwarePolicyAdjustment(
+            state_dim=1024,    # Video embeddings
+            action_dim=100,    # Action classes  
+            phase_dim=7        # Surgical phases
+        )
         
         self.reward_optimizer = torch.optim.Adam(self.reward_net.parameters(), lr=lr)
         self.policy_optimizer = torch.optim.Adam(self.policy_adjustment.parameters(), lr=lr)
@@ -61,8 +68,19 @@ class DirectIRLSystem(nn.Module):
         sa_pairs = torch.cat([states, actions], dim=-1)
         rewards = self.reward_net(sa_pairs)
         return rewards.squeeze(-1)
-    
-    def predict_with_irl(self, il_model, state: torch.Tensor) -> torch.Tensor:
+
+    def predict_with_irl(self, il_model, state, phase=None):
+
+        # Base prediction from IL model
+        il_pred = il_model.forward(state) # NOTE: Make sure it has enough context length in its sequence dimension
+        
+        # Now the adjustment can SEE the surgical scene!
+        adjustment = self.policy_adjustment(state, il_pred, phase)
+        
+        final_pred = torch.sigmoid(il_pred + 0.1 * adjustment)  # Can increase to 10%
+        return final_pred
+
+    def predict_with_irl_policy(self, il_model, state: torch.Tensor) -> torch.Tensor:
         """Get IL prediction with small IRL adjustment"""
         with torch.no_grad():
             # Ensure state is on the correct device
@@ -133,11 +151,24 @@ class DirectIRLTrainer:
     Uses existing IVT labels directly - no scenario classification
     """
     
-    def __init__(self, il_model, config, logger, device='cuda'):
+    def __init__(self, il_model, config, logger, device='cuda', tb_writer=None):
         self.il_model = il_model
         self.config = config
         self.logger = logger
         self.device = device
+    
+        # Setup logging directories
+        self.log_dir = logger.log_dir
+        self.checkpoint_dir = os.path.join(self.log_dir, 'checkpoints')
+        os.makedirs(self.checkpoint_dir, exist_ok=True)
+        
+        # Tensorboard
+        tensorboard_dir = os.path.join(self.log_dir, 'tensorboard', 'direct_irl')
+        os.makedirs(tensorboard_dir, exist_ok=True)
+        self.tb_writer = SummaryWriter(log_dir=tensorboard_dir)
+
+        # Create the IRL system
+        self.irl_system = self._create_enhanced_irl_system()
         
         # Ensure IL model is on correct device
         if hasattr(il_model, 'to'):
@@ -150,87 +181,154 @@ class DirectIRLTrainer:
             lr=1e-4,
             device=device
         )
-        
-    def train_direct_irl(self, train_data: List[Dict], num_iterations: int = 100):
-        """Train IRL directly on all expert demonstrations"""
-        
-        self.logger.info(f"🎯 Training Direct IRL on existing IVT labels ({num_iterations} iterations)")
-        
-        # Extract all expert state-action pairs from your data
-        expert_states = []
-        expert_actions = []
-        expert_phases = []
-        
-        for video in tqdm(train_data, desc="Extracting expert demonstrations"):
-            frame_embeddings = video['frame_embeddings']
-            actions_binaries = video['actions_binaries']
-            phases_binaries = video['phase_binaries']
-            
-            # Convert to tensors if needed
-            if isinstance(frame_embeddings, np.ndarray):
-                states = torch.tensor(frame_embeddings, dtype=torch.float32)
-            else:
-                states = frame_embeddings
-            
-            if isinstance(actions_binaries, np.ndarray):
-                actions = torch.tensor(actions_binaries, dtype=torch.float32)
-            else:
-                actions = actions_binaries
 
-            if isinstance(phases_binaries, np.ndarray):
-                phases = torch.tensor(phases_binaries, dtype=torch.float32)
-            
-            # Only include frames with actions (skip empty frames)
-            for i in range(len(states)):
-                if torch.sum(actions[i]) > 0:  # Frame has at least one action
-                    expert_states.append(states[i])
-                    expert_actions.append(actions[i])
-                    expert_phases.append(phases[i])
+    def train_direct_irl(self, train_data: List[Dict], num_iterations: int = 100):
+        """🎯 ENHANCE your existing method with TensorBoard monitoring"""
         
-        if not expert_states:
-            self.logger.error("❌ No expert demonstrations found!")
-            return False
+        self.logger.info(f"🎯 Training Enhanced Direct IRL ({num_iterations} iterations)")
         
-        expert_states = torch.stack(expert_states).to(self.device)
-        expert_actions = torch.stack(expert_actions).to(self.device)
-        expert_phases = torch.stack(expert_phases).to(self.device)
-                
+        # Keep your existing data extraction code
+        expert_states, expert_actions, expert_phases = self._extract_expert_data_with_phases(train_data)
+        
         self.logger.info(f"📊 Training on {len(expert_states)} expert state-action pairs")
         
-        # Train reward function using MaxEnt IRL
+        # 🎯 Enhanced training loop
         for iteration in tqdm(range(num_iterations), desc="Training reward function"):
-
-            # Generate negative examples (realistic but suboptimal)
+            iteration_start = time.time()
+            
+            # Keep your existing negative generation (it's already good!)
             negative_actions = self._generate_realistic_negatives(expert_actions, expert_phases)
             
-            # Compute rewards
-            expert_rewards = self.irl_system.compute_reward(expert_states, expert_actions)
-            negative_rewards = self.irl_system.compute_reward(expert_states, negative_actions)
+            # 🎯 Enhanced reward computation with phases
+            expert_rewards = self.irl_system.compute_reward(expert_states, expert_actions, expert_phases)
+            negative_rewards = self.irl_system.compute_reward(expert_states, negative_actions, expert_phases)
             
-            # MaxEnt IRL loss: expert actions should have higher reward
-            reward_loss = -torch.mean(expert_rewards) + torch.mean(torch.exp(negative_rewards))
+            # 🎯 Enhanced loss function
+            reward_loss = self._compute_enhanced_loss(expert_rewards, negative_rewards)
             
-            # Regularization
+            # Keep your existing regularization
             l2_reg = 0.01 * sum(p.pow(2.0).sum() for p in self.irl_system.reward_net.parameters())
-            total_reward_loss = reward_loss + l2_reg
+            total_loss = reward_loss + l2_reg
             
-            # Update reward network
+            # 🎯 Enhanced training step
             self.irl_system.reward_optimizer.zero_grad()
-            total_reward_loss.backward()
-            torch.nn.utils.clip_grad_norm_(self.irl_system.reward_net.parameters(), 1.0)
+            total_loss.backward()
+            
+            # 🎯 ADD gradient monitoring
+            grad_norm = self._monitor_gradients(iteration)
+            
+            torch.nn.utils.clip_grad_norm_(
+                list(self.irl_system.reward_net.parameters()) + 
+                list(self.irl_system.phase_reward_net.parameters()), 1.0
+            )
             self.irl_system.reward_optimizer.step()
             
-            if iteration % 20 == 0:
-                self.logger.info(f"  Iteration {iteration}: Reward Loss = {total_reward_loss.item():.4f}, "
-                               f"Expert Reward = {expert_rewards.mean().item():.3f}, "
-                               f"Negative Reward = {negative_rewards.mean().item():.3f}")
+            iteration_time = time.time() - iteration_start
+            
+            # 🎯 ADD TensorBoard monitoring
+            self._log_to_tensorboard(iteration, expert_rewards, negative_rewards, 
+                                   total_loss, grad_norm, iteration_time)
+            
+            # Keep your existing console logging but enhance it
+            if iteration % 5 == 0:  # More frequent logging
+                expert_mean = expert_rewards.mean().item()
+                negative_mean = negative_rewards.mean().item()
+                gap = expert_mean - negative_mean
+                
+                self.logger.info(
+                    f"🔄 Iter {iteration:3d}: Loss={total_loss:.4f}, "
+                    f"Expert={expert_mean:+.4f}, Negative={negative_mean:+.4f}, "
+                    f"Gap={gap:+.4f}, Time={iteration_time:.1f}s"
+                )
         
-        # Train policy adjustment (lightweight GAIL-style)
+        # Keep your existing policy adjustment training
         self.logger.info("🎮 Training policy adjustment...")
         self._train_policy_adjustment(expert_states, expert_actions)
         
-        self.logger.info("✅ Direct IRL training completed")
+        self.logger.info("✅ Enhanced Direct IRL training completed")
         return True
+
+
+    # def train_direct_irl(self, train_data: List[Dict], num_iterations: int = 100):
+    #     """Train IRL directly on all expert demonstrations"""
+        
+    #     self.logger.info(f"🎯 Training Direct IRL on existing IVT labels ({num_iterations} iterations)")
+        
+    #     # Extract all expert state-action pairs from your data
+    #     expert_states = []
+    #     expert_actions = []
+    #     expert_phases = []
+        
+    #     for video in tqdm(train_data, desc="Extracting expert demonstrations"):
+    #         frame_embeddings = video['frame_embeddings']
+    #         actions_binaries = video['actions_binaries']
+    #         phases_binaries = video['phase_binaries']
+            
+    #         # Convert to tensors if needed
+    #         if isinstance(frame_embeddings, np.ndarray):
+    #             states = torch.tensor(frame_embeddings, dtype=torch.float32)
+    #         else:
+    #             states = frame_embeddings
+            
+    #         if isinstance(actions_binaries, np.ndarray):
+    #             actions = torch.tensor(actions_binaries, dtype=torch.float32)
+    #         else:
+    #             actions = actions_binaries
+
+    #         if isinstance(phases_binaries, np.ndarray):
+    #             phases = torch.tensor(phases_binaries, dtype=torch.float32)
+            
+    #         # Only include frames with actions (skip empty frames)
+    #         for i in range(len(states)):
+    #             if torch.sum(actions[i]) > 0:  # Frame has at least one action
+    #                 expert_states.append(states[i])
+    #                 expert_actions.append(actions[i])
+    #                 expert_phases.append(phases[i])
+        
+    #     if not expert_states:
+    #         self.logger.error("❌ No expert demonstrations found!")
+    #         return False
+        
+    #     expert_states = torch.stack(expert_states).to(self.device)
+    #     expert_actions = torch.stack(expert_actions).to(self.device)
+    #     expert_phases = torch.stack(expert_phases).to(self.device)
+                
+    #     self.logger.info(f"📊 Training on {len(expert_states)} expert state-action pairs")
+        
+    #     # Train reward function using MaxEnt IRL
+    #     for iteration in tqdm(range(num_iterations), desc="Training reward function"):
+
+    #         # Generate negative examples (realistic but suboptimal)
+    #         negative_actions = self._generate_realistic_negatives(expert_actions, expert_phases)
+            
+    #         # Compute rewards
+    #         expert_rewards = self.irl_system.compute_reward(expert_states, expert_actions)
+    #         negative_rewards = self.irl_system.compute_reward(expert_states, negative_actions)
+            
+    #         # MaxEnt IRL loss: expert actions should have higher reward
+    #         reward_loss = -torch.mean(expert_rewards) + torch.mean(torch.exp(negative_rewards))
+            
+    #         # Regularization
+    #         l2_reg = 0.01 * sum(p.pow(2.0).sum() for p in self.irl_system.reward_net.parameters())
+    #         total_reward_loss = reward_loss + l2_reg
+            
+    #         # Update reward network
+    #         self.irl_system.reward_optimizer.zero_grad()
+    #         total_reward_loss.backward()
+    #         torch.nn.utils.clip_grad_norm_(self.irl_system.reward_net.parameters(), 1.0)
+    #         self.irl_system.reward_optimizer.step()
+            
+    #         if iteration % 20 == 0:
+    #             self.logger.info(f"  Iteration {iteration}: Reward Loss = {total_reward_loss.item():.4f}, "
+    #                            f"Expert Reward = {expert_rewards.mean().item():.3f}, "
+    #                            f"Negative Reward = {negative_rewards.mean().item():.3f}")
+        
+    #     # Train policy adjustment (lightweight GAIL-style)
+    #     self.logger.info("🎮 Training policy adjustment...")
+    #     self._train_policy_adjustment(expert_states, expert_actions)
+        
+    #     self.logger.info("✅ Direct IRL training completed")
+    #     return True
 
     def _generate_realistic_negatives(self, expert_actions, current_phase) -> torch.Tensor:
         """Enhanced negative generation using domain knowledge"""
@@ -244,23 +342,6 @@ class DirectIRLTrainer:
         return self.negative_generator.generate_realistic_negatives(
             expert_actions, current_phase=current_phase
         )
-
-    # def _generate_random_negatives(self, expert_actions: torch.Tensor) -> torch.Tensor:
-    #     """Generate realistic but suboptimal action sequences"""
-    #     batch_size = expert_actions.shape[0]
-        
-    #     # Strategy 1: Random sparse actions (similar to your 0-3 actions per frame)
-    #     negative_actions = torch.zeros_like(expert_actions)
-        
-    #     for i in range(batch_size):
-    #         # Random number of actions (0-3, matching your data distribution)
-    #         num_actions = np.random.randint(0, 4)
-    #         if num_actions > 0:
-    #             # Random action indices
-    #             action_indices = np.random.choice(100, num_actions, replace=False)
-    #             negative_actions[i, action_indices] = 1.0
-        
-    #     return negative_actions.to(self.device)
     
     def _train_policy_adjustment(self, expert_states: torch.Tensor, expert_actions: torch.Tensor, num_epochs: int = 30):
         """Train small policy adjustments to IL predictions"""
@@ -509,6 +590,106 @@ class DirectIRLTrainer:
             pred_binary = (predictions > 0.5).float()
             accuracy = (pred_binary == targets).float().mean()
             return accuracy.item()
+    
+    def _extract_expert_data_with_phases(self, train_data):
+        """🎯 ADD this method - Enhanced data extraction with phases"""
+        expert_states, expert_actions, expert_phases = [], [], []
+        
+        for video in tqdm(train_data, desc="Extracting expert demonstrations"):
+            frame_embeddings = video['frame_embeddings']
+            actions_binaries = video['actions_binaries']
+            phases_binaries = video.get('phase_binaries', [])
+            
+            # Convert to tensors (keep your existing conversion logic)
+            if isinstance(frame_embeddings, np.ndarray):
+                states = torch.tensor(frame_embeddings, dtype=torch.float32)
+            else:
+                states = frame_embeddings
+                
+            if isinstance(actions_binaries, np.ndarray):
+                actions = torch.tensor(actions_binaries, dtype=torch.float32)
+            else:
+                actions = actions_binaries
+                
+            if isinstance(phases_binaries, np.ndarray):
+                phases = torch.tensor(phases_binaries, dtype=torch.float32)
+            elif isinstance(phases_binaries, list) and len(phases_binaries) > 0:
+                phases = torch.tensor(phases_binaries, dtype=torch.float32)
+            else:
+                # Default phases if not available
+                phases = torch.zeros(len(states), 7)
+                phases[:, 0] = 1
+            
+            # Keep your existing frame filtering logic
+            for i in range(len(states)):
+                if torch.sum(actions[i]) > 0:
+                    expert_states.append(states[i])
+                    expert_actions.append(actions[i])
+                    if i < len(phases):
+                        expert_phases.append(phases[i])
+                    else:
+                        default_phase = torch.zeros(7)
+                        default_phase[0] = 1
+                        expert_phases.append(default_phase)
+        
+        expert_states = torch.stack(expert_states).to(self.device)
+        expert_actions = torch.stack(expert_actions).to(self.device)
+        expert_phases = torch.stack(expert_phases).to(self.device)
+        
+        return expert_states, expert_actions, expert_phases
+    
+    def _compute_enhanced_loss(self, expert_rewards, negative_rewards):
+        """🎯 ADD this method - Enhanced loss function"""
+        # Your existing MaxEnt IRL loss
+        standard_loss = -torch.mean(expert_rewards) + torch.mean(torch.exp(negative_rewards))
+        
+        # Add reward separation encouragement
+        expert_mean = torch.mean(expert_rewards)
+        negative_mean = torch.mean(negative_rewards)
+        separation_bonus = torch.clamp(expert_mean - negative_mean, min=0.0)
+        
+        # Enhanced loss
+        enhanced_loss = standard_loss - 0.1 * separation_bonus
+        return enhanced_loss
+    
+    def _monitor_gradients(self, iteration):
+        """🎯 ADD this method - Gradient monitoring"""
+        total_norm = 0.0
+        param_count = 0
+        
+        for p in list(self.irl_system.reward_net.parameters()) + list(self.irl_system.phase_reward_net.parameters()):
+            if p.grad is not None:
+                param_norm = p.grad.data.norm(2)
+                total_norm += param_norm.item() ** 2
+                param_count += 1
+        
+        return (total_norm ** 0.5) / max(param_count, 1)
+    
+    def _log_to_tensorboard(self, iteration, expert_rewards, negative_rewards, 
+                           total_loss, grad_norm, iteration_time):
+        """🎯 ADD this method - TensorBoard logging"""
+        if self.tb_writer is None:
+            return
+        
+        # Core metrics
+        expert_mean = expert_rewards.mean().item()
+        negative_mean = negative_rewards.mean().item()
+        reward_gap = expert_mean - negative_mean
+        
+        # Log to TensorBoard
+        self.tb_writer.add_scalar('IRL/Loss/Total', total_loss.item(), iteration)
+        self.tb_writer.add_scalar('IRL/Rewards/Expert_Mean', expert_mean, iteration)
+        self.tb_writer.add_scalar('IRL/Rewards/Negative_Mean', negative_mean, iteration)
+        self.tb_writer.add_scalar('IRL/Rewards/Gap', reward_gap, iteration)
+        self.tb_writer.add_scalar('IRL/Training/Gradient_Norm', grad_norm, iteration)
+        self.tb_writer.add_scalar('IRL/Training/Iteration_Time', iteration_time, iteration)
+        
+        # Detailed analysis every 10 iterations
+        if iteration % 10 == 0:
+            self.tb_writer.add_histogram('IRL/Distributions/Expert_Rewards', 
+                                        expert_rewards.cpu(), iteration)
+            self.tb_writer.add_histogram('IRL/Distributions/Negative_Rewards', 
+                                        negative_rewards.cpu(), iteration)
 
 
 # Integration function for your existing codebase
@@ -537,7 +718,7 @@ def train_direct_irl(config, train_data, test_data, logger, il_model):
         il_model=il_model,
         config=config,
         logger=logger,
-        device=device
+        device=device,
     )
     
     # Train direct IRL

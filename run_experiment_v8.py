@@ -588,7 +588,7 @@ class ExperimentRunner:
                 train_data=train_data,
                 test_data=test_data,
                 logger=self.logger,
-                il_model=il_model
+                il_model=il_model,
             )
 
             # Step 3: Create evaluation results compatible with your framework

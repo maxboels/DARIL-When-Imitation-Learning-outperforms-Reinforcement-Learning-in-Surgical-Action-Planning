@@ -1,0 +1,100 @@
+2025-06-30 13:14:24,255 - INFO - SuRL_FixedRL_140152052614048 - Shared experiment log directory: results/2025-06-30_13-14-24/fold0/logs
+2025-06-30 13:14:24,255 - INFO - SuRL_FixedRL_140152052614048 - 🎯 RL Experiment: 2025-06-30_13-14-24
+2025-06-30 13:14:24,255 - INFO - SuRL_FixedRL_140152052614048 - 📁 Results dir: results/2025-06-30_13-14-24/fold0
+2025-06-30 13:14:24,255 - INFO - SuRL_FixedRL_140152052614048 - 📂 Plots dir: results/2025-06-30_13-14-24/fold0/publication_plots
+2025-06-30 13:14:24,255 - INFO - SuRL_FixedRL_140152052614048 - 🚀 Starting Complete RL Comparison
+2025-06-30 13:14:24,255 - INFO - SuRL_FixedRL_140152052614048 - ============================================================
+2025-06-30 13:14:24,255 - INFO - SuRL_FixedRL_140152052614048 - 📂 Loading CholecT50 data...
+2025-06-30 13:14:24,255 - INFO - SuRL_FixedRL_140152052614048 -    Training videos: 40
+2025-06-30 13:14:24,255 - INFO - SuRL_FixedRL_140152052614048 -    Test videos: 10
+2025-06-30 13:14:24,256 - INFO - SuRL_FixedRL_140152052614048 - ✅ Using data directory: /nfs/home/mboels/datasets/CholecT50
+2025-06-30 13:14:24,256 - INFO - SuRL_FixedRL_140152052614048 - Loading train data from /nfs/home/mboels/datasets/CholecT50 with fold 0
+2025-06-30 13:14:25,326 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded metadata: /nfs/home/mboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (78968, 156)
+2025-06-30 13:14:25,326 - INFO - SuRL_FixedRL_140152052614048 - [Train] Start processing metadata file /nfs/home/mboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-30 13:14:25,327 - INFO - SuRL_FixedRL_140152052614048 - [Train] Rewards extraction skipped, using metadata file /nfs/home/mboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-30 13:14:25,330 - INFO - SuRL_FixedRL_140152052614048 - [Train] Found 40 videos in metadata file
+2025-06-30 13:14:25,330 - INFO - SuRL_FixedRL_140152052614048 - [Train] Loading data for 40 videos
+2025-06-30 13:14:26,267 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID01: 1734 frames, 1024-dims embeddings
+2025-06-30 13:14:27,446 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID04: 1523 frames, 1024-dims embeddings
+2025-06-30 13:14:28,707 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID05: 2345 frames, 1024-dims embeddings
+2025-06-30 13:14:29,562 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID08: 1520 frames, 1024-dims embeddings
+2025-06-30 13:14:30,924 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID10: 1750 frames, 1024-dims embeddings
+2025-06-30 13:14:32,597 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID103: 2220 frames, 1024-dims embeddings
+2025-06-30 13:14:34,240 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID110: 2177 frames, 1024-dims embeddings
+2025-06-30 13:14:34,847 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID12: 1091 frames, 1024-dims embeddings
+2025-06-30 13:14:35,571 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID13: 982 frames, 1024-dims embeddings
+2025-06-30 13:14:36,701 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID15: 2059 frames, 1024-dims embeddings
+2025-06-30 13:14:38,112 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID18: 1943 frames, 1024-dims embeddings
+2025-06-30 13:14:39,275 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID22: 1533 frames, 1024-dims embeddings
+2025-06-30 13:14:40,670 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID26: 1774 frames, 1024-dims embeddings
+2025-06-30 13:14:41,831 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID27: 2085 frames, 1024-dims embeddings
+2025-06-30 13:14:43,108 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID29: 2351 frames, 1024-dims embeddings
+2025-06-30 13:14:45,246 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID31: 3946 frames, 1024-dims embeddings
+2025-06-30 13:14:46,848 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID32: 2117 frames, 1024-dims embeddings
+2025-06-30 13:14:48,025 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID35: 2107 frames, 1024-dims embeddings
+2025-06-30 13:14:49,351 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID36: 2388 frames, 1024-dims embeddings
+2025-06-30 13:14:50,559 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID40: 2223 frames, 1024-dims embeddings
+2025-06-30 13:14:53,474 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID42: 3713 frames, 1024-dims embeddings
+2025-06-30 13:14:55,210 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID43: 2363 frames, 1024-dims embeddings
+2025-06-30 13:14:56,867 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID47: 2260 frames, 1024-dims embeddings
+2025-06-30 13:14:57,851 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID48: 1835 frames, 1024-dims embeddings
+2025-06-30 13:14:59,113 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID49: 1672 frames, 1024-dims embeddings
+2025-06-30 13:15:00,239 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID52: 1967 frames, 1024-dims embeddings
+2025-06-30 13:15:01,637 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID56: 1837 frames, 1024-dims embeddings
+2025-06-30 13:15:03,577 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID57: 2633 frames, 1024-dims embeddings
+2025-06-30 13:15:05,544 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID60: 2533 frames, 1024-dims embeddings
+2025-06-30 13:15:06,716 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID62: 2033 frames, 1024-dims embeddings
+2025-06-30 13:15:07,784 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID65: 1874 frames, 1024-dims embeddings
+2025-06-30 13:15:08,913 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID68: 1973 frames, 1024-dims embeddings
+2025-06-30 13:15:09,865 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID70: 1195 frames, 1024-dims embeddings
+2025-06-30 13:15:10,645 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID73: 1357 frames, 1024-dims embeddings
+2025-06-30 13:15:11,558 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID74: 1635 frames, 1024-dims embeddings
+2025-06-30 13:15:12,636 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID75: 1924 frames, 1024-dims embeddings
+2025-06-30 13:15:13,178 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID78: 740 frames, 1024-dims embeddings
+2025-06-30 13:15:14,525 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID80: 1725 frames, 1024-dims embeddings
+2025-06-30 13:15:16,156 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID92: 2124 frames, 1024-dims embeddings
+2025-06-30 13:15:17,109 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID96: 1707 frames, 1024-dims embeddings
+2025-06-30 13:15:17,109 - INFO - SuRL_FixedRL_140152052614048 - 📂 Loaded 40 videos from train split
+2025-06-30 13:15:17,117 - INFO - SuRL_FixedRL_140152052614048 - ✅ Using data directory: /nfs/home/mboels/datasets/CholecT50
+2025-06-30 13:15:17,117 - INFO - SuRL_FixedRL_140152052614048 - Loading test data from /nfs/home/mboels/datasets/CholecT50 with fold 0
+2025-06-30 13:15:17,408 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded metadata: /nfs/home/mboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (21895, 156)
+2025-06-30 13:15:17,408 - INFO - SuRL_FixedRL_140152052614048 - [Test] Start processing metadata file /nfs/home/mboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-30 13:15:17,408 - INFO - SuRL_FixedRL_140152052614048 - [Test] Rewards extraction skipped, using metadata file /nfs/home/mboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-30 13:15:17,409 - INFO - SuRL_FixedRL_140152052614048 - [Test] Found 10 videos in metadata file
+2025-06-30 13:15:17,409 - INFO - SuRL_FixedRL_140152052614048 - [Test] Loading data for 10 videos
+2025-06-30 13:15:18,982 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID02: 2840 frames, 1024-dims embeddings
+2025-06-30 13:15:20,566 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID06: 2154 frames, 1024-dims embeddings
+2025-06-30 13:15:22,224 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID111: 2146 frames, 1024-dims embeddings
+2025-06-30 13:15:23,536 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID14: 1709 frames, 1024-dims embeddings
+2025-06-30 13:15:24,835 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID23: 1636 frames, 1024-dims embeddings
+2025-06-30 13:15:26,471 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID25: 2130 frames, 1024-dims embeddings
+2025-06-30 13:15:27,336 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID50: 1095 frames, 1024-dims embeddings
+2025-06-30 13:15:29,617 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID51: 2945 frames, 1024-dims embeddings
+2025-06-30 13:15:31,044 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID66: 1825 frames, 1024-dims embeddings
+2025-06-30 13:15:33,688 - INFO - SuRL_FixedRL_140152052614048 - ✅ Loaded video VID79: 3415 frames, 1024-dims embeddings
+2025-06-30 13:15:33,689 - INFO - SuRL_FixedRL_140152052614048 - 📂 Loaded 10 videos from test split
+2025-06-30 13:15:33,692 - INFO - SuRL_FixedRL_140152052614048 - ✅ Data loaded successfully
+2025-06-30 13:15:33,692 - INFO - SuRL_FixedRL_140152052614048 -    Training videos: 40
+2025-06-30 13:15:33,692 - INFO - SuRL_FixedRL_140152052614048 -    Test videos: 10
+2025-06-30 13:15:33,692 - INFO - SuRL_FixedRL_140152052614048 - 🎓 Method 1: Autoregressive IL is disabled, skipping...
+2025-06-30 13:15:33,692 - INFO - SuRL_FixedRL_140152052614048 - 🌍 Method 2: Conditional World Model + RL is disabled, skipping...
+2025-06-30 13:15:33,692 - INFO - SuRL_FixedRL_140152052614048 - 📹 Method 3: Direct Video RL is disabled, skipping...
+2025-06-30 13:15:33,692 - INFO - SuRL_FixedRL_140152052614048 - 🎯 Running Method 4: IRL Enhancement
+2025-06-30 13:15:33,692 - INFO - SuRL_FixedRL_140152052614048 - 🎯 Method 4: IRL Enhancement (Custom MaxEnt + GAIL)
+2025-06-30 13:15:33,692 - INFO - SuRL_FixedRL_140152052614048 - ----------------------------------------
+2025-06-30 13:15:34,329 - INFO - SuRL_FixedRL_140152052614048 - 📂 Loaded IL model from: best_checkpoints/autoregressive_il_best_combined_epoch_8.pt
+2025-06-30 13:15:34,351 - INFO - SuRL_FixedRL_140152052614048 - 🎯 Training Direct Surgical IRL (Simplified Approach)
+2025-06-30 13:15:34,351 - INFO - SuRL_FixedRL_140152052614048 - 🔧 Using device: cuda
+2025-06-30 13:15:34,355 - INFO - SuRL_FixedRL_140152052614048 - ✅ IL model moved to device: cuda
+2025-06-30 13:15:34,361 - INFO - SuRL_FixedRL_140152052614048 - 🎯 Starting IRL training with 100 iterations
+2025-06-30 13:15:34,361 - INFO - SuRL_FixedRL_140152052614048 - 🎯 Training Direct IRL on existing IVT labels (100 iterations)
+2025-06-30 13:15:38,712 - INFO - SuRL_FixedRL_140152052614048 - 📊 Training on 69740 expert state-action pairs
+2025-06-30 13:16:10,152 - INFO - SuRL_FixedRL_140152052614048 -   Iteration 0: Reward Loss = 2.3063, Expert Reward = 0.129, Negative Reward = 0.131
+2025-06-30 13:26:35,150 - INFO - SuRL_FixedRL_140152052614048 -   Iteration 20: Reward Loss = 2.1104, Expert Reward = 0.005, Negative Reward = -0.004
+2025-06-30 13:37:00,286 - INFO - SuRL_FixedRL_140152052614048 -   Iteration 40: Reward Loss = 1.9390, Expert Reward = 0.023, Negative Reward = 0.001
+2025-06-30 13:47:20,632 - INFO - SuRL_FixedRL_140152052614048 -   Iteration 60: Reward Loss = 1.7832, Expert Reward = 0.043, Negative Reward = 0.001
+2025-06-30 13:57:44,241 - INFO - SuRL_FixedRL_140152052614048 -   Iteration 80: Reward Loss = 1.6338, Expert Reward = 0.076, Negative Reward = -0.005
+2025-06-30 14:07:36,119 - INFO - SuRL_FixedRL_140152052614048 - 🎮 Training policy adjustment...
+2025-06-30 14:12:33,569 - INFO - SuRL_FixedRL_140152052614048 -   Policy Epoch 0: Loss = 0.7038
+2025-06-30 15:02:44,913 - INFO - SuRL_FixedRL_140152052614048 -   Policy Epoch 10: Loss = 0.6915
+2025-06-30 15:52:34,183 - INFO - SuRL_FixedRL_140152052614048 -   Policy Epoch 20: Loss = 0.6915
