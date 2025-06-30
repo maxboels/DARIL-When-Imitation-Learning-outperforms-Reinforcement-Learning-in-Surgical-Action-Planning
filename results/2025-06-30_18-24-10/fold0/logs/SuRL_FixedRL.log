@@ -1,0 +1,48 @@
+2025-06-30 18:24:10,603 - INFO - SuRL_FixedRL_138460796396000 - Shared experiment log directory: results/2025-06-30_18-24-10/fold0/logs
+2025-06-30 18:24:10,603 - INFO - SuRL_FixedRL_138460796396000 - 🎯 RL Experiment: 2025-06-30_18-24-10
+2025-06-30 18:24:10,603 - INFO - SuRL_FixedRL_138460796396000 - 📁 Results dir: results/2025-06-30_18-24-10/fold0
+2025-06-30 18:24:10,603 - INFO - SuRL_FixedRL_138460796396000 - 📂 Plots dir: results/2025-06-30_18-24-10/fold0/publication_plots
+2025-06-30 18:24:10,603 - INFO - SuRL_FixedRL_138460796396000 - 🚀 Starting Complete RL Comparison
+2025-06-30 18:24:10,603 - INFO - SuRL_FixedRL_138460796396000 - ============================================================
+2025-06-30 18:24:10,603 - INFO - SuRL_FixedRL_138460796396000 - 📂 Loading CholecT50 data...
+2025-06-30 18:24:10,603 - INFO - SuRL_FixedRL_138460796396000 -    Training videos: 2
+2025-06-30 18:24:10,603 - INFO - SuRL_FixedRL_138460796396000 -    Test videos: 2
+2025-06-30 18:24:10,603 - INFO - SuRL_FixedRL_138460796396000 - ✅ Using data directory: /home/maxboels/datasets/CholecT50
+2025-06-30 18:24:10,604 - INFO - SuRL_FixedRL_138460796396000 - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-30 18:24:11,013 - INFO - SuRL_FixedRL_138460796396000 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (78968, 156)
+2025-06-30 18:24:11,013 - INFO - SuRL_FixedRL_138460796396000 - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-30 18:24:11,014 - INFO - SuRL_FixedRL_138460796396000 - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-30 18:24:11,016 - INFO - SuRL_FixedRL_138460796396000 - [Train] Found 2 videos in metadata file
+2025-06-30 18:24:11,016 - INFO - SuRL_FixedRL_138460796396000 - [Train] Loading data for 2 videos
+2025-06-30 18:24:11,103 - INFO - SuRL_FixedRL_138460796396000 - ✅ Loaded video VID01: 1734 frames, 1024-dims embeddings
+2025-06-30 18:24:11,168 - INFO - SuRL_FixedRL_138460796396000 - ✅ Loaded video VID04: 1523 frames, 1024-dims embeddings
+2025-06-30 18:24:11,169 - INFO - SuRL_FixedRL_138460796396000 - 📂 Loaded 2 videos from train split
+2025-06-30 18:24:11,169 - INFO - SuRL_FixedRL_138460796396000 - ✅ Using data directory: /home/maxboels/datasets/CholecT50
+2025-06-30 18:24:11,169 - INFO - SuRL_FixedRL_138460796396000 - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-30 18:24:11,256 - INFO - SuRL_FixedRL_138460796396000 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (21895, 156)
+2025-06-30 18:24:11,256 - INFO - SuRL_FixedRL_138460796396000 - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-30 18:24:11,256 - INFO - SuRL_FixedRL_138460796396000 - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-30 18:24:11,257 - INFO - SuRL_FixedRL_138460796396000 - [Test] Found 2 videos in metadata file
+2025-06-30 18:24:11,257 - INFO - SuRL_FixedRL_138460796396000 - [Test] Loading data for 2 videos
+2025-06-30 18:24:11,374 - INFO - SuRL_FixedRL_138460796396000 - ✅ Loaded video VID02: 2840 frames, 1024-dims embeddings
+2025-06-30 18:24:11,464 - INFO - SuRL_FixedRL_138460796396000 - ✅ Loaded video VID06: 2154 frames, 1024-dims embeddings
+2025-06-30 18:24:11,464 - INFO - SuRL_FixedRL_138460796396000 - 📂 Loaded 2 videos from test split
+2025-06-30 18:24:11,464 - INFO - SuRL_FixedRL_138460796396000 - ✅ Data loaded successfully
+2025-06-30 18:24:11,464 - INFO - SuRL_FixedRL_138460796396000 -    Training videos: 2
+2025-06-30 18:24:11,464 - INFO - SuRL_FixedRL_138460796396000 -    Test videos: 2
+2025-06-30 18:24:11,464 - INFO - SuRL_FixedRL_138460796396000 - 🎓 Method 1: Autoregressive IL is disabled, skipping...
+2025-06-30 18:24:11,464 - INFO - SuRL_FixedRL_138460796396000 - 🌍 Method 2: Conditional World Model + RL is disabled, skipping...
+2025-06-30 18:24:11,464 - INFO - SuRL_FixedRL_138460796396000 - 📹 Method 3: Direct Video RL is disabled, skipping...
+2025-06-30 18:24:11,464 - INFO - SuRL_FixedRL_138460796396000 - 🎯 Running Method 4: IRL Enhancement
+2025-06-30 18:24:11,464 - INFO - SuRL_FixedRL_138460796396000 - 🎯 Method 4: IRL Enhancement (Custom MaxEnt + GAIL)
+2025-06-30 18:24:11,464 - INFO - SuRL_FixedRL_138460796396000 - ----------------------------------------
+2025-06-30 18:24:11,634 - INFO - SuRL_FixedRL_138460796396000 - 📂 Loaded IL model from: best_checkpoints/autoregressive_il_best_combined_epoch_8.pt
+2025-06-30 18:24:11,639 - INFO - SuRL_FixedRL_138460796396000 - 🎯 Training Direct Surgical IRL (Simplified Approach)
+2025-06-30 18:24:11,640 - INFO - SuRL_FixedRL_138460796396000 - 🔧 Using device: cuda
+2025-06-30 18:24:11,641 - INFO - SuRL_FixedRL_138460796396000 - ✅ IL model moved to device: cuda
+2025-06-30 18:24:11,649 - INFO - SuRL_FixedRL_138460796396000 - 🎯 Starting IRL training with 10 iterations
+2025-06-30 18:24:11,649 - INFO - SuRL_FixedRL_138460796396000 - 🎯 Training Enhanced Direct IRL (10 iterations)
+2025-06-30 18:24:11,702 - INFO - SuRL_FixedRL_138460796396000 - 📊 Training on 2772 expert state-action pairs
+2025-06-30 18:24:12,413 - INFO - SuRL_FixedRL_138460796396000 - 🔄 Iter   0: Loss=2.2966, Expert=+0.0913, Negative=+0.0887, Gap=+0.0026, Time=0.7s
+2025-06-30 18:24:15,172 - INFO - SuRL_FixedRL_138460796396000 - 🔄 Iter   5: Loss=2.2445, Expert=-0.0269, Negative=-0.0360, Gap=+0.0091, Time=0.5s
+2025-06-30 18:24:17,373 - INFO - SuRL_FixedRL_138460796396000 - 🎮 Training policy adjustment...

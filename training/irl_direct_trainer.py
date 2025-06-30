@@ -14,8 +14,13 @@ import random
 from tqdm import tqdm
 import os
 import json
+from torch.utils.tensorboard import SummaryWriter
+import time
+
 
 from datasets.irl_negative_generator import CholecT50NegativeGenerator
+
+from models.irl_policy_models import StateAwarePolicyAdjustment
 
 
 class DirectIRLSystem(nn.Module):
@@ -41,6 +46,15 @@ class DirectIRLSystem(nn.Module):
             nn.Dropout(0.2),
             nn.Linear(128, 1)
         ).to(device)
+
+        # Phase-aware reward network (optional, can be used for phase-specific rewards)
+        self.phase_reward_net = nn.Sequential(
+            nn.Linear(state_dim + action_dim + 7, 256),  # +7 for phase embeddings
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(256, 7)  # Output phase-specific rewards
+        ).to(device)
+
         
         # Small policy adjustment network
         # self.policy_adjustment = nn.Sequential(
@@ -59,7 +73,7 @@ class DirectIRLSystem(nn.Module):
         self.reward_optimizer = torch.optim.Adam(self.reward_net.parameters(), lr=lr)
         self.policy_optimizer = torch.optim.Adam(self.policy_adjustment.parameters(), lr=lr)
         
-    def compute_reward(self, states: torch.Tensor, actions: torch.Tensor) -> torch.Tensor:
+    def compute_reward(self, states: torch.Tensor, actions: torch.Tensor, phases: Optional[torch.Tensor] = None) -> torch.Tensor:
         """Compute learned reward for state-action pairs"""
         states = states.to(self.device)
         actions = actions.to(self.device)
@@ -168,7 +182,7 @@ class DirectIRLTrainer:
         self.tb_writer = SummaryWriter(log_dir=tensorboard_dir)
 
         # Create the IRL system
-        self.irl_system = self._create_enhanced_irl_system()
+        # self.irl_system = self._create_enhanced_irl_system()
         
         # Ensure IL model is on correct device
         if hasattr(il_model, 'to'):
@@ -391,54 +405,23 @@ class DirectIRLTrainer:
     
     def _get_il_prediction(self, state: torch.Tensor) -> torch.Tensor:
         """Get IL prediction for a single state"""
-        try:
-            # Ensure state is on correct device
-            state = state.to(self.device)
+        # Ensure state is on correct device
+        state = state.to(self.device)
+        
+        # Prepare input for IL model
+        il_input = state.unsqueeze(0)  # Add batch dimension
+        if len(il_input.shape) == 2:  # [batch, features] -> [batch, seq_len, features]
+            il_input = il_input.unsqueeze(1)
+        
+        il_input = il_input.to('cuda')
+        
+        pred = self.il_model.predict_next_action(il_input)
+
+        # remove batch dimension if needed
+        pred = pred.squeeze(0)
+        
+        return pred
             
-            # Prepare input for IL model
-            il_input = state.unsqueeze(0)  # Add batch dimension
-            if len(il_input.shape) == 2:  # [batch, features] -> [batch, seq_len, features]
-                il_input = il_input.unsqueeze(1)
-            
-            # Ensure minimum sequence length for autoregressive model
-            if il_input.shape[1] < 2:
-                # Duplicate the frame to create minimum sequence length
-                il_input = il_input.repeat(1, 2, 1)
-            
-            # Move input to same device as IL model
-            if hasattr(self.il_model, 'device'):
-                il_input = il_input.to(self.il_model.device)
-            elif next(self.il_model.parameters()).is_cuda:
-                il_input = il_input.to('cuda')
-            
-            if hasattr(self.il_model, 'predict_next_action'):
-                pred = self.il_model.predict_next_action(il_input).squeeze()
-            elif hasattr(self.il_model, 'forward'):
-                outputs = self.il_model.forward(il_input)
-                if isinstance(outputs, dict):
-                    pred = outputs.get('action_pred', outputs.get('action_logits', None))
-                    if pred is not None:
-                        if len(pred.shape) > 1:
-                            pred = pred[:, -1, :]  # Take last timestep
-                        pred = torch.sigmoid(pred).squeeze()
-                    else:
-                        return torch.rand(100, device=self.device) * 0.1
-                else:
-                    pred = torch.sigmoid(outputs).squeeze()
-            else:
-                return torch.rand(100, device=self.device) * 0.1
-            
-            # Ensure correct shape and device
-            if len(pred.shape) == 0:  # Scalar
-                pred = pred.unsqueeze(0)
-            if pred.shape[0] != 100:  # Should have 100 action classes
-                return torch.rand(100, device=self.device) * 0.1
-                
-            return pred.to(self.device)
-            
-        except Exception as e:
-            self.logger.warning(f"IL prediction failed: {e}, using random prediction")
-            return torch.rand(100, device=self.device) * 0.1
     
     def evaluate_direct_irl(self, test_data: List[Dict]) -> Dict[str, Any]:
         """Evaluate IL vs IRL and analyze by existing labels"""

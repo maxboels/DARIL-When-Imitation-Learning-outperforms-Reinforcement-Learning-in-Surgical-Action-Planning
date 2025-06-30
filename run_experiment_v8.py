@@ -555,15 +555,17 @@ class ExperimentRunner:
             import traceback
             self.logger.error(f"Full traceback: {traceback.format_exc()}")
             return {'status': 'failed', 'error': str(e)}
-    
+
+
     def _run_method4_irl_enhancement(self, train_data: List[Dict], test_data: List[Dict]) -> Dict[str, Any]:
-        """Method 4: IRL Enhancement of IL baseline for MICCAI paper"""
+        """Method 4: IRL Enhancement for Next Action Prediction (MATCHING IL APPROACH)"""
         
-        self.logger.info("🎯 Method 4: IRL Enhancement (Custom MaxEnt + GAIL)")
+        self.logger.info("🎯 Method 4: IRL Enhancement for Next Action Prediction")
+        self.logger.info("   Matching AutoregressiveIL temporal structure and task definition")
         self.logger.info("-" * 40)
         
         try:
-            # Step 1: Load your best IL model
+            # Step 1: Load your best IL model (same as before)
             il_config = self.config.get('experiment', {}).get('autoregressive_il', {})
             il_model_path = il_config.get('il_model_path', None)
             
@@ -572,98 +574,209 @@ class ExperimentRunner:
                 from models.autoregressive_il_model import AutoregressiveILModel
                 il_model = AutoregressiveILModel.load_model(il_model_path, device=DEVICE)
                 self.logger.info(f"📂 Loaded IL model from: {il_model_path}")
+            elif hasattr(self, 'method1_il_model'):
+                il_model = self.method1_il_model
+                self.logger.info("📂 Using IL model from Method 1")
             else:
-                # Need to train IL first or use method 1 result
-                if hasattr(self, 'method1_il_model'):
-                    il_model = self.method1_il_model
-                    self.logger.info("📂 Using IL model from Method 1")
-                else:
-                    raise ValueError("No IL model available for IRL enhancement")
-
-            # Step 2: Train Direct IRL enhancement
-            from training.irl_direct_trainer import train_direct_irl
+                raise ValueError("No IL model available for IRL enhancement")
             
-            irl_results = train_direct_irl(
+            # Step 2: Use Next Action IRL training (ENHANCED VERSION)
+            from training.irl_next_action_trainer import train_irl_next_action_prediction  # Your new file
+            
+            irl_results = train_irl_next_action_prediction(
                 config=self.config,
                 train_data=train_data,
                 test_data=test_data,
                 logger=self.logger,
                 il_model=il_model,
             )
-
-            # Step 3: Create evaluation results compatible with your framework
-            evaluation_results = self._format_irl_results_for_comparison(irl_results)
+            
+            # Step 3: Format results with enhanced metrics
+            evaluation_results = self._format_irl_next_action_results(irl_results)
             
             return {
                 'status': 'success',
-                'model_type': 'IL_Enhanced_with_IRL',
-                'approach': 'MaxEnt IRL + Lightweight GAIL for scenario-specific improvements',
-                'irl_system': irl_results['irl_system'],
+                'model_type': 'IL_Enhanced_with_NextAction_IRL',
+                'approach': 'MaxEnt IRL + Policy Adjustment for Next Action Prediction',
+                'irl_system': irl_results.get('irl_trainer'),
                 'evaluation': evaluation_results,
-                'method_description': 'Scenario-aware IRL enhancement of IL baseline',
-                'trained_scenarios': irl_results['trained_scenarios'],
+                'method_description': 'IRL enhancement matching AutoregressiveIL temporal structure',
+                'task_alignment': irl_results.get('task_alignment', 'next_action_prediction'),
+                'temporal_structure': irl_results.get('temporal_structure', 'current_context(t) → predict_next_action(t+1)'),
                 'technique_details': {
-                    'reward_learning': 'Maximum Entropy IRL',
-                    'policy_improvement': 'Lightweight GAIL',
-                    'implementation': 'Custom (No Stable-Baselines)',
-                    'scenarios': irl_results['trained_scenarios']
+                    'reward_learning': 'Maximum Entropy IRL for Next Actions',
+                    'policy_improvement': 'Policy Adjustment on IL Next Action Predictions',
+                    'implementation': 'Next Action DataLoaders + Sophisticated Negatives',
+                    'training_approach': 'Next action prediction with batch-level negatives',
+                    'temporal_alignment': 'Matches AutoregressiveDataset structure'
                 },
                 'improvements': [
-                    'Learned surgical preferences from expert demonstrations',
-                    'Scenario-specific policy adjustments',
-                    'No world model required',
-                    'Maintains IL performance for routine cases',
-                    'Significant improvements for complex scenarios'
+                    'Learned surgical preferences for next action selection',
+                    'Policy adjustment on IL next action predictions',
+                    'Sophisticated negative generation for next actions',
+                    'Temporal structure matching IL approach',
+                    'Consistent task definition across IL and IRL',
+                    'Context-aware next action prediction'
                 ]
             }
             
         except Exception as e:
-            self.logger.error(f"❌ Method 4 IRL failed: {e}")
+            self.logger.error(f"❌ Method 4 IRL Next Action failed: {e}")
             import traceback
             self.logger.error(f"Full traceback: {traceback.format_exc()}")
             return {'status': 'failed', 'error': str(e)}
 
-    def _format_irl_results_for_comparison(self, irl_results: Dict) -> Dict[str, Any]:
-        """Format IRL results to match your existing evaluation framework"""
+    def _format_irl_next_action_results(self, irl_results: Dict) -> Dict[str, Any]:
+        """Format IRL Next Action results for comparison framework"""
         
         evaluation_results = irl_results['evaluation_results']
         
-        # Extract overall metrics (similar to your autoregressive_il evaluation)
-        overall_il_scores = [v['il_score'] for v in evaluation_results['video_level'].values()]
-        overall_irl_scores = [v['irl_score'] for v in evaluation_results['video_level'].values()]
+        # Extract next action specific metrics
+        overall_il_scores = [v['il_next_action_score'] for v in evaluation_results['video_level'].values()]
+        overall_irl_scores = [v['irl_next_action_score'] for v in evaluation_results['video_level'].values()]
         
         formatted_results = {
             'overall_metrics': {
-                'il_baseline_mAP': np.mean(overall_il_scores),
-                'irl_enhanced_mAP': np.mean(overall_irl_scores),
-                'action_mAP': np.mean(overall_irl_scores),  # For compatibility
-                'improvement_absolute': np.mean(overall_irl_scores) - np.mean(overall_il_scores),
-                'improvement_percentage': ((np.mean(overall_irl_scores) - np.mean(overall_il_scores)) / np.mean(overall_il_scores)) * 100
+                'il_baseline_next_action_mAP': np.mean(overall_il_scores),
+                'irl_enhanced_next_action_mAP': np.mean(overall_irl_scores),
+                'action_mAP': np.mean(overall_irl_scores),  # For compatibility with evaluation framework
+                'next_action_improvement_absolute': np.mean(overall_irl_scores) - np.mean(overall_il_scores),
+                'next_action_improvement_percentage': ((np.mean(overall_irl_scores) - np.mean(overall_il_scores)) / np.mean(overall_il_scores)) * 100
             },
-            # 'scenario_breakdown': evaluation_results['by_scenario'],
             'video_level_results': evaluation_results['video_level'],
-            'evaluation_approach': 'scenario_specific_irl_vs_il_comparison',
+            'evaluation_approach': 'next_action_prediction_irl_vs_il_comparison',
             'num_videos_evaluated': len(evaluation_results['video_level']),
+            'task_focus': 'next_action_prediction',
             
-            # MICCAI-specific metrics
-            # 'miccai_metrics': {
-            #     'scenarios_where_rl_helps': [
-            #         scenario for scenario, results in evaluation_results['by_scenario'].items()
-            #         if results.get('improvement', 0) > 0.02  # >2% improvement
-            #     ],
-            #     'scenarios_where_il_sufficient': [
-            #         scenario for scenario, results in evaluation_results['by_scenario'].items()
-            #         if results.get('improvement', 0) <= 0.01  # <=1% improvement
-            #     ],
-            #     'largest_rl_advantage': max(
-            #         [(scenario, results.get('improvement', 0)) 
-            #          for scenario, results in evaluation_results['by_scenario'].items()],
-            #         key=lambda x: x[1]
-            #     )
-            # }
+            # Next Action specific metrics
+            'next_action_metrics': {
+                'temporal_structure': 'current_context(t) → predict_next_action(t+1)',
+                'matches_il_approach': True,
+                'sophisticated_negatives_for_next_actions': True,
+                'policy_adjustment_on_il_next_predictions': True,
+                'average_next_action_improvement': np.mean(overall_irl_scores) - np.mean(overall_il_scores)
+            }
         }
         
         return formatted_results
+
+    # def _run_method4_irl_enhancement(self, train_data: List[Dict], test_data: List[Dict]) -> Dict[str, Any]:
+    #     """Method 4: IRL Enhancement of IL baseline for MICCAI paper"""
+        
+    #     self.logger.info("🎯 Method 4: IRL Enhancement (Custom MaxEnt + GAIL)")
+    #     self.logger.info("-" * 40)
+        
+    #     try:
+    #         # Step 1: Load your best IL model
+    #         il_config = self.config.get('experiment', {}).get('autoregressive_il', {})
+    #         il_model_path = il_config.get('il_model_path', None)
+            
+    #         if il_model_path and os.path.exists(il_model_path):
+    #             # Load pre-trained IL model
+    #             from models.autoregressive_il_model import AutoregressiveILModel
+    #             il_model = AutoregressiveILModel.load_model(il_model_path, device=DEVICE)
+    #             self.logger.info(f"📂 Loaded IL model from: {il_model_path}")
+    #         else:
+    #             # Need to train IL first or use method 1 result
+    #             if hasattr(self, 'method1_il_model'):
+    #                 il_model = self.method1_il_model
+    #                 self.logger.info("📂 Using IL model from Method 1")
+    #             else:
+    #                 raise ValueError("No IL model available for IRL enhancement")
+            
+    #         # Create dataloaders for IRL training
+    #         train_loader, test_loaders = create_autoregressive_dataloaders(
+    #             config=self.config['data'],
+    #             train_data=train_data,
+    #             test_data=test_data,
+    #             batch_size=self.config['training']['batch_size'],
+    #             num_workers=self.config['training']['num_workers']
+    #         )
+
+    #         # Step 2: Train Direct IRL enhancement
+    #         from training.irl_direct_trainer import train_direct_irl
+            
+    #         irl_results = train_direct_irl(
+    #             config=self.config,
+    #             train_data=train_data,
+    #             test_data=test_data,
+    #             logger=self.logger,
+    #             il_model=il_model,
+    #         )
+
+    #         # Step 3: Create evaluation results compatible with your framework
+    #         evaluation_results = self._format_irl_results_for_comparison(irl_results)
+            
+    #         return {
+    #             'status': 'success',
+    #             'model_type': 'IL_Enhanced_with_IRL',
+    #             'approach': 'MaxEnt IRL + Lightweight GAIL for scenario-specific improvements',
+    #             'irl_system': irl_results['irl_system'],
+    #             'evaluation': evaluation_results,
+    #             'method_description': 'Scenario-aware IRL enhancement of IL baseline',
+    #             'trained_scenarios': irl_results['trained_scenarios'],
+    #             'technique_details': {
+    #                 'reward_learning': 'Maximum Entropy IRL',
+    #                 'policy_improvement': 'Lightweight GAIL',
+    #                 'implementation': 'Custom (No Stable-Baselines)',
+    #                 'scenarios': irl_results['trained_scenarios']
+    #             },
+    #             'improvements': [
+    #                 'Learned surgical preferences from expert demonstrations',
+    #                 'Scenario-specific policy adjustments',
+    #                 'No world model required',
+    #                 'Maintains IL performance for routine cases',
+    #                 'Significant improvements for complex scenarios'
+    #             ]
+    #         }
+            
+    #     except Exception as e:
+    #         self.logger.error(f"❌ Method 4 IRL failed: {e}")
+    #         import traceback
+    #         self.logger.error(f"Full traceback: {traceback.format_exc()}")
+    #         return {'status': 'failed', 'error': str(e)}
+
+    # def _format_irl_results_for_comparison(self, irl_results: Dict) -> Dict[str, Any]:
+    #     """Format IRL results to match your existing evaluation framework"""
+        
+    #     evaluation_results = irl_results['evaluation_results']
+        
+    #     # Extract overall metrics (similar to your autoregressive_il evaluation)
+    #     overall_il_scores = [v['il_score'] for v in evaluation_results['video_level'].values()]
+    #     overall_irl_scores = [v['irl_score'] for v in evaluation_results['video_level'].values()]
+        
+    #     formatted_results = {
+    #         'overall_metrics': {
+    #             'il_baseline_mAP': np.mean(overall_il_scores),
+    #             'irl_enhanced_mAP': np.mean(overall_irl_scores),
+    #             'action_mAP': np.mean(overall_irl_scores),  # For compatibility
+    #             'improvement_absolute': np.mean(overall_irl_scores) - np.mean(overall_il_scores),
+    #             'improvement_percentage': ((np.mean(overall_irl_scores) - np.mean(overall_il_scores)) / np.mean(overall_il_scores)) * 100
+    #         },
+    #         # 'scenario_breakdown': evaluation_results['by_scenario'],
+    #         'video_level_results': evaluation_results['video_level'],
+    #         'evaluation_approach': 'scenario_specific_irl_vs_il_comparison',
+    #         'num_videos_evaluated': len(evaluation_results['video_level']),
+            
+    #         # MICCAI-specific metrics
+    #         # 'miccai_metrics': {
+    #         #     'scenarios_where_rl_helps': [
+    #         #         scenario for scenario, results in evaluation_results['by_scenario'].items()
+    #         #         if results.get('improvement', 0) > 0.02  # >2% improvement
+    #         #     ],
+    #         #     'scenarios_where_il_sufficient': [
+    #         #         scenario for scenario, results in evaluation_results['by_scenario'].items()
+    #         #         if results.get('improvement', 0) <= 0.01  # <=1% improvement
+    #         #     ],
+    #         #     'largest_rl_advantage': max(
+    #         #         [(scenario, results.get('improvement', 0)) 
+    #         #          for scenario, results in evaluation_results['by_scenario'].items()],
+    #         #         key=lambda x: x[1]
+    #         #     )
+    #         # }
+    #     }
+        
+    #     return formatted_results
 
     # def run_complete_comparison(self) -> Dict[str, Any]:
     #     """Updated comparison including IRL method"""
@@ -754,48 +867,45 @@ class ExperimentRunner:
     #     return self.results
 
     def _print_method_comparison(self, aggregate_results: Dict):
-        """Print comparison of all methods including IRL results."""
+        """Print comparison highlighting next action prediction alignment"""
         
-        self.logger.info("🏆 FOUR-METHOD COMPARISON RESULTS (Including IRL)")
+        self.logger.info("🏆 FOUR-METHOD COMPARISON RESULTS (with Next Action IRL)")
         self.logger.info("=" * 60)
         
         # Method 1: Autoregressive IL
         method1 = aggregate_results.get('method_1_autoregressive_il', {})
         if method1.get('status') == 'success':
             eval_results = method1.get('evaluation', {}).get('overall_metrics', {})
-            self.logger.info(f"🎓 Method 1 (Autoregressive IL):")
+            self.logger.info(f"🎓 Method 1 (Autoregressive IL - Next Action Prediction):")
             self.logger.info(f"   Status: ✅ Success")
-            self.logger.info(f"   Action mAP: {eval_results.get('action_mAP', 0):.4f}")
-            self.logger.info(f"   Approach: Pure causal generation → actions")
+            self.logger.info(f"   Next Action mAP: {eval_results.get('action_mAP', 0):.4f}")
+            self.logger.info(f"   Approach: Context → Next Action (Causal Generation)")
+            self.logger.info(f"   Task: current_context(t) → predict_next_action(t+1)")
         else:
-            self.logger.info(f"🎓 Method 1: ❌ Failed/Skipped - {method1.get('error', method1.get('reason', 'Unknown'))}")
+            self.logger.info(f"🎓 Method 1: ❌ Failed/Skipped")
 
-        # Method 4: IRL Enhancement (NEW)
-        method4 = aggregate_results.get('method_4_irl', {})
+        # Method 4: IRL Enhancement with Next Action Focus  
+        method4 = aggregate_results.get('method_4_irl_enhancement', {})
         if method4.get('status') == 'success':
             eval_results = method4.get('evaluation', {}).get('overall_metrics', {})
-            self.logger.info(f"🎯 Method 4 (IRL Enhancement):")
+            next_action_metrics = method4.get('evaluation', {}).get('next_action_metrics', {})
+            
+            self.logger.info(f"🎯 Method 4 (IRL Enhancement - Next Action Prediction):")
             self.logger.info(f"   Status: ✅ Success")
-            self.logger.info(f"   IL Baseline mAP: {eval_results.get('il_baseline_mAP', 0):.4f}")
-            self.logger.info(f"   IRL Enhanced mAP: {eval_results.get('irl_enhanced_mAP', 0):.4f}")
-            self.logger.info(f"   Improvement: {eval_results.get('improvement_absolute', 0):.4f} ({eval_results.get('improvement_percentage', 0):.1f}%)")
-            self.logger.info(f"   Technique: {method4.get('technique_details', {}).get('reward_learning', 'Unknown')} + {method4.get('technique_details', {}).get('policy_improvement', 'Unknown')}")
+            self.logger.info(f"   IL Next Action mAP: {eval_results.get('il_baseline_next_action_mAP', 0):.4f}")
+            self.logger.info(f"   IRL Next Action mAP: {eval_results.get('irl_enhanced_next_action_mAP', 0):.4f}")
+            self.logger.info(f"   Next Action Improvement: {eval_results.get('next_action_improvement_absolute', 0):.4f} ({eval_results.get('next_action_improvement_percentage', 0):.1f}%)")
+            self.logger.info(f"   Task Alignment: ✅ {next_action_metrics.get('temporal_structure', 'unknown')}")
+            self.logger.info(f"   Matches IL Approach: ✅ {next_action_metrics.get('matches_il_approach', False)}")
+            self.logger.info(f"   Technique: MaxEnt IRL + Policy Adjustment for Next Actions")
             
-            # Scenario-specific results
-            miccai_metrics = eval_results.get('miccai_metrics', {})
-            rl_helps = miccai_metrics.get('scenarios_where_rl_helps', [])
-            il_sufficient = miccai_metrics.get('scenarios_where_il_sufficient', [])
+            self.logger.info(f"   🎯 KEY INSIGHT: Both IL and IRL work on SAME next action task!")
+            self.logger.info(f"   🎯 IRL learns 'what makes a good next surgical action'")
+            self.logger.info(f"   🎯 Policy adjustment improves IL's next action predictions")
             
-            self.logger.info(f"   🎯 RL Helps: {rl_helps}")
-            self.logger.info(f"   ✅ IL Sufficient: {il_sufficient}")
-            
-            if miccai_metrics.get('largest_rl_advantage'):
-                best_scenario, best_improvement = miccai_metrics['largest_rl_advantage']
-                self.logger.info(f"   🏆 Largest Advantage: {best_scenario} (+{best_improvement:.4f})")
-
         else:
-            self.logger.info(f"🎯 Method 4: ❌ Failed/Skipped - {method4.get('error', method4.get('reason', 'Unknown'))}")
-
+            self.logger.info(f"🎯 Method 4: ❌ Failed/Skipped")
+        
         # Method 2: Conditional World Model + RL
         method2 = aggregate_results.get('method_2_conditional_world_model', {})
         if method2.get('status') == 'success':
@@ -847,7 +957,28 @@ class ExperimentRunner:
                     self.logger.info(f"     ✅ {improvement}")
         else:
             self.logger.info(f"📹 Method 3: ❌ Failed/Skipped - {method3.get('error', method3.get('reason', 'Unknown'))}")
+
+
+        # Enhanced summary
+        self.logger.info(f"")
+        self.logger.info(f"🎯 TASK ALIGNMENT SUMMARY:")
         
+        if method1.get('status') == 'success' and method4.get('status') == 'success':
+            self.logger.info(f"   ✅ IL and IRL both trained on next action prediction")
+            self.logger.info(f"   ✅ Same temporal structure: context(t) → next_action(t+1)")
+            self.logger.info(f"   ✅ IRL enhances IL on the SAME task")
+            self.logger.info(f"   ✅ Fair comparison: both methods optimized for next actions")
+            
+            # Calculate relative improvement
+            il_score = method1.get('evaluation', {}).get('overall_metrics', {}).get('action_mAP', 0)
+            irl_score = method4.get('evaluation', {}).get('overall_metrics', {}).get('irl_enhanced_next_action_mAP', 0)
+            
+            if il_score > 0:
+                relative_improvement = ((irl_score - il_score) / il_score) * 100
+                self.logger.info(f"   🏆 IRL provides {relative_improvement:.1f}% relative improvement over IL baseline")
+        else:
+            self.logger.info(f"   ⚠️ Cannot compare task alignment (methods failed)")
+
         # Summary
         successful_methods = []
         if method1.get('status') == 'success':

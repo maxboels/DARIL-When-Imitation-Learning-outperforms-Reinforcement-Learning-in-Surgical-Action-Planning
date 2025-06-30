@@ -3,9 +3,9 @@ debug: false
 # Experiment configuration
 experiment:
   train:
-    max_videos: 40  # default: 40
+    max_videos: 2  # default: 40
   test:
-    max_videos: 10  # default: 10
+    max_videos: 2  # default: 10
     test_on_train: false
     
   # Experiment 1: Autoregressive IL with pre-trained embeddings
@@ -49,12 +49,15 @@ experiment:
   # Experiment 4: Inverse Reinforcement Learning (PRESERVED for other experiments)
   irl_enhancement:
     enabled: true
+    num_epochs: 25           # DataLoader epochs instead of iterations
+    task_focus: "next_action_prediction"  # Explicit task definition
+    match_il_temporal_structure: true     # Ensure alignment
     scenarios_to_train: ['high_complexity', 'rare_actions', 'critical_moments', 'phase_transitions']
     maxent_irl:
-      num_iterations: 100
+      num_iterations: 10       # default 100
       learning_rate: 1e-4
     lightweight_gail:
-      num_epochs: 50            # default 50
+      num_epochs: 5            # default 50
       learning_rate: 1e-4
       adjustment_strength: 0.1  # How much to adjust IL predictions
     evaluation:
