@@ -1,0 +1,58 @@
+2025-06-30 12:03:18,296 - INFO - SuRL_FixedRL_140145411875920 - Shared experiment log directory: results/2025-06-30_12-03-18/fold0/logs
+2025-06-30 12:03:18,296 - INFO - SuRL_FixedRL_140145411875920 - 🎯 RL Experiment: 2025-06-30_12-03-18
+2025-06-30 12:03:18,296 - INFO - SuRL_FixedRL_140145411875920 - 📁 Results dir: results/2025-06-30_12-03-18/fold0
+2025-06-30 12:03:18,296 - INFO - SuRL_FixedRL_140145411875920 - 📂 Plots dir: results/2025-06-30_12-03-18/fold0/publication_plots
+2025-06-30 12:03:18,296 - INFO - SuRL_FixedRL_140145411875920 - 🚀 Starting Complete RL Comparison
+2025-06-30 12:03:18,297 - INFO - SuRL_FixedRL_140145411875920 - ============================================================
+2025-06-30 12:03:18,297 - INFO - SuRL_FixedRL_140145411875920 - 📂 Loading CholecT50 data...
+2025-06-30 12:03:18,297 - INFO - SuRL_FixedRL_140145411875920 -    Training videos: 2
+2025-06-30 12:03:18,297 - INFO - SuRL_FixedRL_140145411875920 -    Test videos: 2
+2025-06-30 12:03:18,297 - INFO - SuRL_FixedRL_140145411875920 - ✅ Using data directory: /home/maxboels/datasets/CholecT50
+2025-06-30 12:03:18,297 - INFO - SuRL_FixedRL_140145411875920 - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-30 12:03:18,682 - INFO - SuRL_FixedRL_140145411875920 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (78968, 156)
+2025-06-30 12:03:18,682 - INFO - SuRL_FixedRL_140145411875920 - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-30 12:03:18,683 - INFO - SuRL_FixedRL_140145411875920 - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-30 12:03:18,684 - INFO - SuRL_FixedRL_140145411875920 - [Train] Found 2 videos in metadata file
+2025-06-30 12:03:18,684 - INFO - SuRL_FixedRL_140145411875920 - [Train] Loading data for 2 videos
+2025-06-30 12:03:18,764 - INFO - SuRL_FixedRL_140145411875920 - ✅ Loaded video VID01: 1734 frames, 1024-dims embeddings
+2025-06-30 12:03:18,830 - INFO - SuRL_FixedRL_140145411875920 - ✅ Loaded video VID04: 1523 frames, 1024-dims embeddings
+2025-06-30 12:03:18,830 - INFO - SuRL_FixedRL_140145411875920 - 📂 Loaded 2 videos from train split
+2025-06-30 12:03:18,830 - INFO - SuRL_FixedRL_140145411875920 - ✅ Using data directory: /home/maxboels/datasets/CholecT50
+2025-06-30 12:03:18,830 - INFO - SuRL_FixedRL_140145411875920 - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-06-30 12:03:18,909 - INFO - SuRL_FixedRL_140145411875920 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (21895, 156)
+2025-06-30 12:03:18,909 - INFO - SuRL_FixedRL_140145411875920 - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-30 12:03:18,909 - INFO - SuRL_FixedRL_140145411875920 - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-06-30 12:03:18,910 - INFO - SuRL_FixedRL_140145411875920 - [Test] Found 2 videos in metadata file
+2025-06-30 12:03:18,910 - INFO - SuRL_FixedRL_140145411875920 - [Test] Loading data for 2 videos
+2025-06-30 12:03:19,021 - INFO - SuRL_FixedRL_140145411875920 - ✅ Loaded video VID02: 2840 frames, 1024-dims embeddings
+2025-06-30 12:03:19,108 - INFO - SuRL_FixedRL_140145411875920 - ✅ Loaded video VID06: 2154 frames, 1024-dims embeddings
+2025-06-30 12:03:19,108 - INFO - SuRL_FixedRL_140145411875920 - 📂 Loaded 2 videos from test split
+2025-06-30 12:03:19,108 - INFO - SuRL_FixedRL_140145411875920 - ✅ Data loaded successfully
+2025-06-30 12:03:19,108 - INFO - SuRL_FixedRL_140145411875920 -    Training videos: 2
+2025-06-30 12:03:19,108 - INFO - SuRL_FixedRL_140145411875920 -    Test videos: 2
+2025-06-30 12:03:19,108 - INFO - SuRL_FixedRL_140145411875920 - 🎓 Method 1: Autoregressive IL is disabled, skipping...
+2025-06-30 12:03:19,108 - INFO - SuRL_FixedRL_140145411875920 - 🌍 Method 2: Conditional World Model + RL is disabled, skipping...
+2025-06-30 12:03:19,108 - INFO - SuRL_FixedRL_140145411875920 - 📹 Method 3: Direct Video RL is disabled, skipping...
+2025-06-30 12:03:19,108 - INFO - SuRL_FixedRL_140145411875920 - 🎯 Running Method 4: IRL Enhancement
+2025-06-30 12:03:19,108 - INFO - SuRL_FixedRL_140145411875920 - 🎯 Method 4: IRL Enhancement (Custom MaxEnt + GAIL)
+2025-06-30 12:03:19,108 - INFO - SuRL_FixedRL_140145411875920 - ----------------------------------------
+2025-06-30 12:03:19,319 - INFO - SuRL_FixedRL_140145411875920 - 📂 Loaded IL model from: best_checkpoints/autoregressive_il_best_combined_epoch_8.pt
+2025-06-30 12:03:19,325 - INFO - SuRL_FixedRL_140145411875920 - 🎯 Training Direct Surgical IRL (Simplified Approach)
+2025-06-30 12:03:19,325 - INFO - SuRL_FixedRL_140145411875920 - 🔧 Using device: cuda
+2025-06-30 12:03:19,326 - INFO - SuRL_FixedRL_140145411875920 - ✅ IL model moved to device: cuda
+2025-06-30 12:03:19,329 - INFO - SuRL_FixedRL_140145411875920 - 🎯 Starting IRL training with 100 iterations
+2025-06-30 12:03:19,329 - INFO - SuRL_FixedRL_140145411875920 - 🎯 Training Direct IRL on existing IVT labels (100 iterations)
+2025-06-30 12:03:53,486 - ERROR - SuRL_FixedRL_140145411875920 - ❌ Method 4 IRL failed: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
+2025-06-30 12:03:53,488 - ERROR - SuRL_FixedRL_140145411875920 - Full traceback: Traceback (most recent call last):
+  File "/home/maxboels/projects/surl/run_experiment_v8.py", line 586, in _run_method4_irl_enhancement
+    irl_results = train_direct_irl(
+                  ^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/projects/surl/training/irl_direct_trainer.py", line 553, in train_direct_irl
+    success = irl_trainer.train_direct_irl(train_data, num_iterations=num_iterations)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/projects/surl/training/irl_direct_trainer.py", line 179, in train_direct_irl
+    if phases and isinstance(phases, np.ndarray):
+       ^^^^^^
+ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
+
+2025-06-30 12:03:53,488 - ERROR - SuRL_FixedRL_140145411875920 - ❌ No test loaders available for evaluation

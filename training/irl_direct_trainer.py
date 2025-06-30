@@ -13,6 +13,9 @@ from collections import defaultdict
 import random
 from tqdm import tqdm
 import os
+import json
+
+from datasets.irl_negative_generator import CholecT50NegativeGenerator
 
 
 class DirectIRLSystem(nn.Module):
@@ -156,10 +159,12 @@ class DirectIRLTrainer:
         # Extract all expert state-action pairs from your data
         expert_states = []
         expert_actions = []
+        expert_phases = []
         
         for video in tqdm(train_data, desc="Extracting expert demonstrations"):
             frame_embeddings = video['frame_embeddings']
             actions_binaries = video['actions_binaries']
+            phases_binaries = video['phase_binaries']
             
             # Convert to tensors if needed
             if isinstance(frame_embeddings, np.ndarray):
@@ -171,12 +176,16 @@ class DirectIRLTrainer:
                 actions = torch.tensor(actions_binaries, dtype=torch.float32)
             else:
                 actions = actions_binaries
+
+            if isinstance(phases_binaries, np.ndarray):
+                phases = torch.tensor(phases_binaries, dtype=torch.float32)
             
             # Only include frames with actions (skip empty frames)
             for i in range(len(states)):
                 if torch.sum(actions[i]) > 0:  # Frame has at least one action
                     expert_states.append(states[i])
                     expert_actions.append(actions[i])
+                    expert_phases.append(phases[i])
         
         if not expert_states:
             self.logger.error("❌ No expert demonstrations found!")
@@ -184,13 +193,15 @@ class DirectIRLTrainer:
         
         expert_states = torch.stack(expert_states).to(self.device)
         expert_actions = torch.stack(expert_actions).to(self.device)
-        
+        expert_phases = torch.stack(expert_phases).to(self.device)
+                
         self.logger.info(f"📊 Training on {len(expert_states)} expert state-action pairs")
         
         # Train reward function using MaxEnt IRL
-        for iteration in range(num_iterations):
+        for iteration in tqdm(range(num_iterations), desc="Training reward function"):
+
             # Generate negative examples (realistic but suboptimal)
-            negative_actions = self._generate_realistic_negatives(expert_actions)
+            negative_actions = self._generate_realistic_negatives(expert_actions, expert_phases)
             
             # Compute rewards
             expert_rewards = self.irl_system.compute_reward(expert_states, expert_actions)
@@ -220,23 +231,36 @@ class DirectIRLTrainer:
         
         self.logger.info("✅ Direct IRL training completed")
         return True
-    
-    def _generate_realistic_negatives(self, expert_actions: torch.Tensor) -> torch.Tensor:
-        """Generate realistic but suboptimal action sequences"""
-        batch_size = expert_actions.shape[0]
+
+    def _generate_realistic_negatives(self, expert_actions, current_phase) -> torch.Tensor:
+        """Enhanced negative generation using domain knowledge"""
         
-        # Strategy 1: Random sparse actions (similar to your 0-3 actions per frame)
-        negative_actions = torch.zeros_like(expert_actions)
+        # Initialize the generator (do this once in __init__)
+        if not hasattr(self, 'negative_generator'):
+            with open('data/labels.json', 'r') as f:
+                labels_config = json.load(f)
+            self.negative_generator = CholecT50NegativeGenerator(labels_config)
+                
+        return self.negative_generator.generate_realistic_negatives(
+            expert_actions, current_phase=current_phase
+        )
+
+    # def _generate_random_negatives(self, expert_actions: torch.Tensor) -> torch.Tensor:
+    #     """Generate realistic but suboptimal action sequences"""
+    #     batch_size = expert_actions.shape[0]
         
-        for i in range(batch_size):
-            # Random number of actions (0-3, matching your data distribution)
-            num_actions = np.random.randint(0, 4)
-            if num_actions > 0:
-                # Random action indices
-                action_indices = np.random.choice(100, num_actions, replace=False)
-                negative_actions[i, action_indices] = 1.0
+    #     # Strategy 1: Random sparse actions (similar to your 0-3 actions per frame)
+    #     negative_actions = torch.zeros_like(expert_actions)
         
-        return negative_actions.to(self.device)
+    #     for i in range(batch_size):
+    #         # Random number of actions (0-3, matching your data distribution)
+    #         num_actions = np.random.randint(0, 4)
+    #         if num_actions > 0:
+    #             # Random action indices
+    #             action_indices = np.random.choice(100, num_actions, replace=False)
+    #             negative_actions[i, action_indices] = 1.0
+        
+    #     return negative_actions.to(self.device)
     
     def _train_policy_adjustment(self, expert_states: torch.Tensor, expert_actions: torch.Tensor, num_epochs: int = 30):
         """Train small policy adjustments to IL predictions"""
@@ -244,11 +268,12 @@ class DirectIRLTrainer:
         batch_size = 32
         num_samples = len(expert_states)
         
-        for epoch in range(num_epochs):
+        for epoch in tqdm(range(num_epochs), desc="Training policy adjustment"):
             epoch_loss = 0
             num_batches = 0
             
-            for i in range(0, num_samples, batch_size):
+            batch_indices = list(range(0, num_samples, batch_size))
+            for i in tqdm(batch_indices, desc=f"Epoch {epoch+1} batches", leave=False):
                 end_idx = min(i + batch_size, num_samples)
                 batch_states = expert_states[i:end_idx]
                 batch_expert_actions = expert_actions[i:end_idx]
@@ -346,7 +371,7 @@ class DirectIRLTrainer:
             'video_level': {}
         }
         
-        for video in test_data:
+        for video in tqdm(test_data, desc="Evaluating videos"):
             video_id = video['video_id']
             
             frame_embeddings = video['frame_embeddings']
@@ -368,7 +393,7 @@ class DirectIRLTrainer:
             irl_predictions = []
             
             # Get predictions for each frame
-            for i in range(len(states)):
+            for i in tqdm(range(len(states)), desc=f"Processing {video_id}", leave=False):
                 state = states[i]
                 
                 # IL prediction

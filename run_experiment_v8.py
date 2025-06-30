@@ -640,27 +640,27 @@ class ExperimentRunner:
                 'improvement_absolute': np.mean(overall_irl_scores) - np.mean(overall_il_scores),
                 'improvement_percentage': ((np.mean(overall_irl_scores) - np.mean(overall_il_scores)) / np.mean(overall_il_scores)) * 100
             },
-            'scenario_breakdown': evaluation_results['by_scenario'],
+            # 'scenario_breakdown': evaluation_results['by_scenario'],
             'video_level_results': evaluation_results['video_level'],
             'evaluation_approach': 'scenario_specific_irl_vs_il_comparison',
             'num_videos_evaluated': len(evaluation_results['video_level']),
             
             # MICCAI-specific metrics
-            'miccai_metrics': {
-                'scenarios_where_rl_helps': [
-                    scenario for scenario, results in evaluation_results['by_scenario'].items()
-                    if results.get('improvement', 0) > 0.02  # >2% improvement
-                ],
-                'scenarios_where_il_sufficient': [
-                    scenario for scenario, results in evaluation_results['by_scenario'].items()
-                    if results.get('improvement', 0) <= 0.01  # <=1% improvement
-                ],
-                'largest_rl_advantage': max(
-                    [(scenario, results.get('improvement', 0)) 
-                     for scenario, results in evaluation_results['by_scenario'].items()],
-                    key=lambda x: x[1]
-                )
-            }
+            # 'miccai_metrics': {
+            #     'scenarios_where_rl_helps': [
+            #         scenario for scenario, results in evaluation_results['by_scenario'].items()
+            #         if results.get('improvement', 0) > 0.02  # >2% improvement
+            #     ],
+            #     'scenarios_where_il_sufficient': [
+            #         scenario for scenario, results in evaluation_results['by_scenario'].items()
+            #         if results.get('improvement', 0) <= 0.01  # <=1% improvement
+            #     ],
+            #     'largest_rl_advantage': max(
+            #         [(scenario, results.get('improvement', 0)) 
+            #          for scenario, results in evaluation_results['by_scenario'].items()],
+            #         key=lambda x: x[1]
+            #     )
+            # }
         }
         
         return formatted_results
