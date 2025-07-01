@@ -11,26 +11,22 @@ experiment:
   # Experiment 1: Autoregressive IL with pre-trained embeddings
   autoregressive_il:
     enabled: false
-    train: true
+    train: false
     evaluate: true
     model_type_preference: 'combined'  # 'current', 'next', 'combined'
     save_all_best_models: true         # Save separate models for each task
     # il_model_path: null
     il_model_path: "best_checkpoints/autoregressive_il_best_combined_epoch_8.pt"
     # il_model_path: "results/2025-06-24_11-09-35/fold0/logs/checkpoints/autoregressive_il_best_epoch_1.pt"
-    # il_model_path: "results/2025-06-10_19-45-51/logs/checkpoints/autoregressive_il_best_epoch_1.pt"  # Path to the best IL model
-    
+    # il_model_path: "results/2025-06-10_19-45-51/logs/checkpoints/autoregressive_il_best_epoch_1.pt"  # Path to the best IL model    
     # IVT-specific settings
     ivt_saving:
       enabled: true
       current_weight: 0.4              # Weight for current recognition in combined score
       next_weight: 0.6                 # Weight for next prediction in combined score (prioritize this)
       save_frequency: 1                # Save every N epochs (1 = every epoch)
-      keep_top_k: 3                   # Keep top K models for each task
-      
-    # ENHANCED: Evaluation preferences
+      keep_top_k: 3                   # Keep top K models for each task      
     evaluation_model: 'combined'       # Which model to use for final evaluation
-    
     recognition: # We use the results from the Distil-Swin codebase
       enabled: false
       ivt_map: 36.1 # this is the IVT map we get when running the Distil-Swin model, which is 36.1% for 5 folds cross-validation
@@ -49,7 +45,7 @@ experiment:
   # Experiment 4: Inverse Reinforcement Learning (PRESERVED for other experiments)
   irl_enhancement:
     enabled: true
-    num_epochs: 25           # DataLoader epochs instead of iterations
+    num_epochs: 2           # DataLoader epochs instead of iterations default is 25
     task_focus: "next_action_prediction"  # Explicit task definition
     match_il_temporal_structure: true     # Ensure alignment
     scenarios_to_train: ['high_complexity', 'rare_actions', 'critical_moments', 'phase_transitions']

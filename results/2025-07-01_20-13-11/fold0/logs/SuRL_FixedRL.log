@@ -1,0 +1,79 @@
+2025-07-01 20:13:11,985 - INFO - SuRL_FixedRL_124650586937952 - Shared experiment log directory: results/2025-07-01_20-13-11/fold0/logs
+2025-07-01 20:13:11,985 - INFO - SuRL_FixedRL_124650586937952 - 🎯 RL Experiment: 2025-07-01_20-13-11
+2025-07-01 20:13:11,985 - INFO - SuRL_FixedRL_124650586937952 - 📁 Results dir: results/2025-07-01_20-13-11/fold0
+2025-07-01 20:13:11,985 - INFO - SuRL_FixedRL_124650586937952 - 📂 Plots dir: results/2025-07-01_20-13-11/fold0/publication_plots
+2025-07-01 20:13:11,985 - INFO - SuRL_FixedRL_124650586937952 - 🚀 Starting Complete RL Comparison
+2025-07-01 20:13:11,985 - INFO - SuRL_FixedRL_124650586937952 - ============================================================
+2025-07-01 20:13:11,985 - INFO - SuRL_FixedRL_124650586937952 - 📂 Loading CholecT50 data...
+2025-07-01 20:13:11,985 - INFO - SuRL_FixedRL_124650586937952 -    Training videos: 2
+2025-07-01 20:13:11,985 - INFO - SuRL_FixedRL_124650586937952 -    Test videos: 2
+2025-07-01 20:13:11,985 - INFO - SuRL_FixedRL_124650586937952 - ✅ Using data directory: /home/maxboels/datasets/CholecT50
+2025-07-01 20:13:11,985 - INFO - SuRL_FixedRL_124650586937952 - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-07-01 20:13:12,387 - INFO - SuRL_FixedRL_124650586937952 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (78968, 156)
+2025-07-01 20:13:12,387 - INFO - SuRL_FixedRL_124650586937952 - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-07-01 20:13:12,387 - INFO - SuRL_FixedRL_124650586937952 - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-07-01 20:13:12,389 - INFO - SuRL_FixedRL_124650586937952 - [Train] Found 2 videos in metadata file
+2025-07-01 20:13:12,389 - INFO - SuRL_FixedRL_124650586937952 - [Train] Loading data for 2 videos
+2025-07-01 20:13:12,575 - INFO - SuRL_FixedRL_124650586937952 - ✅ Loaded video VID01: 1734 frames, 1024-dims embeddings
+2025-07-01 20:13:12,640 - INFO - SuRL_FixedRL_124650586937952 - ✅ Loaded video VID04: 1523 frames, 1024-dims embeddings
+2025-07-01 20:13:12,640 - INFO - SuRL_FixedRL_124650586937952 - 📂 Loaded 2 videos from train split
+2025-07-01 20:13:12,642 - INFO - SuRL_FixedRL_124650586937952 - ✅ Using data directory: /home/maxboels/datasets/CholecT50
+2025-07-01 20:13:12,642 - INFO - SuRL_FixedRL_124650586937952 - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-07-01 20:13:12,718 - INFO - SuRL_FixedRL_124650586937952 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (21895, 156)
+2025-07-01 20:13:12,718 - INFO - SuRL_FixedRL_124650586937952 - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-07-01 20:13:12,718 - INFO - SuRL_FixedRL_124650586937952 - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-07-01 20:13:12,718 - INFO - SuRL_FixedRL_124650586937952 - [Test] Found 2 videos in metadata file
+2025-07-01 20:13:12,718 - INFO - SuRL_FixedRL_124650586937952 - [Test] Loading data for 2 videos
+2025-07-01 20:13:12,835 - INFO - SuRL_FixedRL_124650586937952 - ✅ Loaded video VID02: 2840 frames, 1024-dims embeddings
+2025-07-01 20:13:12,923 - INFO - SuRL_FixedRL_124650586937952 - ✅ Loaded video VID06: 2154 frames, 1024-dims embeddings
+2025-07-01 20:13:12,923 - INFO - SuRL_FixedRL_124650586937952 - 📂 Loaded 2 videos from test split
+2025-07-01 20:13:12,924 - INFO - SuRL_FixedRL_124650586937952 - ✅ Data loaded successfully
+2025-07-01 20:13:12,924 - INFO - SuRL_FixedRL_124650586937952 -    Training videos: 2
+2025-07-01 20:13:12,924 - INFO - SuRL_FixedRL_124650586937952 -    Test videos: 2
+2025-07-01 20:13:12,924 - INFO - SuRL_FixedRL_124650586937952 - 🎓 Method 1: Autoregressive IL is disabled, skipping...
+2025-07-01 20:13:12,924 - INFO - SuRL_FixedRL_124650586937952 - 🌍 Method 2: Conditional World Model + RL is disabled, skipping...
+2025-07-01 20:13:12,924 - INFO - SuRL_FixedRL_124650586937952 - 📹 Method 3: Direct Video RL is disabled, skipping...
+2025-07-01 20:13:12,924 - INFO - SuRL_FixedRL_124650586937952 - 🎯 Running Method 4: IRL Enhancement
+2025-07-01 20:13:12,924 - INFO - SuRL_FixedRL_124650586937952 - 🎯 Method 4: IRL Enhancement for Next Action Prediction
+2025-07-01 20:13:12,924 - INFO - SuRL_FixedRL_124650586937952 -    Matching AutoregressiveIL temporal structure and task definition
+2025-07-01 20:13:12,924 - INFO - SuRL_FixedRL_124650586937952 - ----------------------------------------
+2025-07-01 20:13:13,079 - INFO - SuRL_FixedRL_124650586937952 - 📂 Loaded IL model from: best_checkpoints/autoregressive_il_best_combined_epoch_8.pt
+2025-07-01 20:13:13,082 - INFO - SuRL_FixedRL_124650586937952 - 🎯 Training IRL for Next Action Prediction (Matching IL Approach)
+2025-07-01 20:13:13,263 - INFO - SuRL_FixedRL_124650586937952 - 🎯 Training IRL for Next Action Prediction (2 epochs)
+2025-07-01 20:13:13,263 - INFO - SuRL_FixedRL_124650586937952 -    Training batches per epoch: 346
+2025-07-01 20:13:13,263 - INFO - SuRL_FixedRL_124650586937952 -    Task: Learn rewards for next_action(t+1) predictions
+2025-07-01 20:13:14,539 - INFO - SuRL_FixedRL_124650586937952 - Epoch 1 completed: Avg Loss = 1.9827
+2025-07-01 20:13:15,685 - INFO - SuRL_FixedRL_124650586937952 - Epoch 2 completed: Avg Loss = 1.5920
+2025-07-01 20:13:15,685 - INFO - SuRL_FixedRL_124650586937952 - 🎮 Training policy adjustment for next action prediction...
+2025-07-01 20:13:15,685 - INFO - SuRL_FixedRL_124650586937952 - 🎮 Training Policy Adjustment for Next Action Prediction
+2025-07-01 20:13:21,479 - INFO - SuRL_FixedRL_124650586937952 - Policy epoch 1: Next Action Loss = -0.6565
+2025-07-01 20:13:27,044 - INFO - SuRL_FixedRL_124650586937952 - Policy epoch 2: Next Action Loss = -0.6724
+2025-07-01 20:13:32,630 - INFO - SuRL_FixedRL_124650586937952 - Policy epoch 3: Next Action Loss = -0.6645
+2025-07-01 20:13:38,319 - INFO - SuRL_FixedRL_124650586937952 - Policy epoch 4: Next Action Loss = -0.6713
+2025-07-01 20:13:44,017 - INFO - SuRL_FixedRL_124650586937952 - Policy epoch 5: Next Action Loss = -0.6704
+2025-07-01 20:13:49,690 - INFO - SuRL_FixedRL_124650586937952 - Policy epoch 6: Next Action Loss = -0.6607
+2025-07-01 20:13:55,538 - INFO - SuRL_FixedRL_124650586937952 - Policy epoch 7: Next Action Loss = -0.6741
+2025-07-01 20:14:01,314 - INFO - SuRL_FixedRL_124650586937952 - Policy epoch 8: Next Action Loss = -0.6648
+2025-07-01 20:14:07,283 - INFO - SuRL_FixedRL_124650586937952 - Policy epoch 9: Next Action Loss = -0.6707
+2025-07-01 20:14:13,306 - INFO - SuRL_FixedRL_124650586937952 - Policy epoch 10: Next Action Loss = -0.6679
+2025-07-01 20:14:13,306 - INFO - SuRL_FixedRL_124650586937952 - ✅ IRL Next Action Prediction training completed
+2025-07-01 20:14:13,415 - ERROR - SuRL_FixedRL_124650586937952 - ❌ Method 4 IRL Next Action failed: not enough values to unpack (expected 3, got 1)
+2025-07-01 20:14:13,418 - ERROR - SuRL_FixedRL_124650586937952 - Full traceback: Traceback (most recent call last):
+  File "/home/maxboels/projects/surl/run_experiment_v8.py", line 603, in _run_method4_irl_enhancement
+    irl_results = train_irl_next_action_prediction(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/projects/surl/training/irl_next_action_trainer.py", line 649, in train_irl_next_action_prediction
+    evaluation_results = trainer.evaluate_next_action_prediction(test_loaders)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/projects/surl/training/irl_next_action_trainer.py", line 380, in evaluate_next_action_prediction
+    irl_next_pred = self.irl_system.predict_with_irl(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/projects/surl/training/irl_next_action_trainer.py", line 78, in predict_with_irl
+    il_pred = il_model.forward(state) # NOTE: Make sure it has enough context length in its sequence dimension
+              ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/projects/surl/models/autoregressive_il_model.py", line 231, in forward
+    batch_size, seq_len, _ = frame_embeddings.shape
+    ^^^^^^^^^^^^^^^^^^^^^^
+ValueError: not enough values to unpack (expected 3, got 1)
+
+2025-07-01 20:14:13,431 - ERROR - SuRL_FixedRL_124650586937952 - ❌ No test loaders available for evaluation

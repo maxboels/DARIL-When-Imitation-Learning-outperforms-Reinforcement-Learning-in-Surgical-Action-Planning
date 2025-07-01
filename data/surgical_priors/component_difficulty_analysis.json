@@ -1,0 +1,498 @@
+{
+  "target_frequency": {
+    "gallbladder": 63978,
+    "cystic_duct": 9495,
+    "fluid": 2338,
+    "blood_vessel": 380,
+    "liver": 11661,
+    "abdominal_wall_cavity": 706,
+    "cystic_pedicle": 258,
+    "cystic_artery": 4018,
+    "specimen_bag": 3733,
+    "omentum": 6988,
+    "peritoneum": 935,
+    "gut": 400,
+    "cystic_plate": 3593,
+    "adhesion": 73
+  },
+  "target_diversity": {
+    "gallbladder": "{'hook,dissect', 'bipolar,coagulate', 'irrigator,retract', 'grasper,dissect', 'bipolar,dissect', 'irrigator,dissect', 'hook,coagulate', 'grasper,grasp', 'grasper,retract', 'hook,retract', 'scissors,dissect', 'bipolar,retract', 'grasper,pack'}",
+    "cystic_duct": "{'hook,dissect', 'clipper,clip', 'irrigator,dissect', 'bipolar,dissect', 'hook,coagulate', 'grasper,grasp', 'scissors,cut', 'grasper,retract'}",
+    "fluid": "{'irrigator,aspirate'}",
+    "blood_vessel": "{'clipper,clip', 'bipolar,coagulate', 'hook,dissect', 'hook,coagulate', 'scissors,cut', 'hook,cut'}",
+    "liver": "{'bipolar,coagulate', 'irrigator,retract', 'irrigator,irrigate', 'hook,coagulate', 'grasper,grasp', 'grasper,retract', 'hook,retract', 'bipolar,retract'}",
+    "abdominal_wall_cavity": "{'bipolar,coagulate', 'irrigator,irrigate'}",
+    "cystic_pedicle": "{'clipper,clip', 'bipolar,coagulate', 'irrigator,dissect', 'irrigator,irrigate', 'hook,coagulate', 'grasper,grasp', 'grasper,retract', 'bipolar,retract'}",
+    "cystic_artery": "{'clipper,clip', 'bipolar,coagulate', 'hook,dissect', 'bipolar,dissect', 'hook,coagulate', 'grasper,grasp', 'scissors,cut'}",
+    "specimen_bag": "{'bipolar,grasp', 'grasper,grasp'}",
+    "omentum": "{'hook,dissect', 'bipolar,coagulate', 'irrigator,retract', 'irrigator,dissect', 'bipolar,dissect', 'grasper,dissect', 'scissors,coagulate', 'hook,coagulate', 'grasper,grasp', 'scissors,cut', 'grasper,retract', 'scissors,dissect', 'bipolar,retract'}",
+    "peritoneum": "{'hook,dissect', 'bipolar,coagulate', 'grasper,grasp', 'grasper,retract', 'scissors,cut', 'hook,cut'}",
+    "gut": "{'grasper,retract', 'grasper,grasp'}",
+    "cystic_plate": "{'hook,dissect', 'bipolar,coagulate', 'clipper,clip', 'grasper,dissect', 'bipolar,dissect', 'irrigator,dissect', 'hook,coagulate', 'grasper,grasp', 'scissors,cut', 'grasper,retract', 'scissors,dissect'}",
+    "adhesion": "{'bipolar,dissect'}"
+  },
+  "combination_frequency": {
+    "grasper,grasp,gallbladder": 6457,
+    "hook,dissect,cystic_duct": 6231,
+    "irrigator,aspirate,fluid": 2338,
+    "bipolar,coagulate,blood_vessel": 223,
+    "bipolar,dissect,cystic_duct": 174,
+    "hook,coagulate,liver": 158,
+    "hook,dissect,gallbladder": 23195,
+    "grasper,retract,gallbladder": 32218,
+    "clipper,clip,cystic_duct": 1575,
+    "scissors,cut,cystic_duct": 614,
+    "irrigator,irrigate,abdominal_wall_cavity": 313,
+    "irrigator,irrigate,cystic_pedicle": 23,
+    "irrigator,irrigate,liver": 84,
+    "bipolar,coagulate,cystic_artery": 68,
+    "grasper,retract,liver": 9146,
+    "grasper,grasp,specimen_bag": 3649,
+    "grasper,grasp,liver": 46,
+    "grasper,pack,gallbladder": 233,
+    "irrigator,retract,liver": 261,
+    "scissors,cut,omentum": 27,
+    "hook,coagulate,blood_vessel": 51,
+    "clipper,clip,cystic_artery": 895,
+    "scissors,cut,cystic_artery": 505,
+    "bipolar,coagulate,peritoneum": 60,
+    "grasper,grasp,cystic_duct": 350,
+    "bipolar,coagulate,liver": 1734,
+    "grasper,retract,omentum": 3191,
+    "hook,dissect,omentum": 2763,
+    "grasper,retract,peritoneum": 159,
+    "grasper,retract,gut": 376,
+    "grasper,retract,cystic_pedicle": 41,
+    "hook,dissect,cystic_artery": 2314,
+    "hook,dissect,cystic_plate": 1866,
+    "bipolar,coagulate,abdominal_wall_cavity": 393,
+    "hook,retract,liver": 153,
+    "hook,dissect,peritoneum": 239,
+    "hook,retract,gallbladder": 373,
+    "bipolar,retract,liver": 79,
+    "bipolar,retract,omentum": 46,
+    "grasper,grasp,peritoneum": 329,
+    "grasper,grasp,omentum": 191,
+    "hook,coagulate,gallbladder": 171,
+    "grasper,grasp,cystic_artery": 38,
+    "clipper,clip,blood_vessel": 51,
+    "scissors,dissect,gallbladder": 52,
+    "scissors,dissect,cystic_plate": 12,
+    "bipolar,coagulate,cystic_plate": 311,
+    "bipolar,retract,gallbladder": 32,
+    "irrigator,retract,gallbladder": 30,
+    "hook,coagulate,omentum": 37,
+    "scissors,cut,cystic_plate": 6,
+    "grasper,grasp,cystic_plate": 132,
+    "clipper,clip,cystic_plate": 41,
+    "hook,coagulate,cystic_artery": 10,
+    "hook,coagulate,cystic_pedicle": 15,
+    "hook,dissect,blood_vessel": 21,
+    "scissors,cut,blood_vessel": 21,
+    "bipolar,coagulate,gallbladder": 262,
+    "irrigator,retract,omentum": 89,
+    "bipolar,coagulate,omentum": 228,
+    "grasper,retract,cystic_plate": 1074,
+    "hook,coagulate,cystic_duct": 41,
+    "irrigator,dissect,omentum": 100,
+    "bipolar,dissect,cystic_artery": 188,
+    "grasper,dissect,cystic_plate": 78,
+    "grasper,retract,cystic_duct": 469,
+    "hook,coagulate,cystic_plate": 9,
+    "irrigator,dissect,cystic_duct": 41,
+    "grasper,grasp,cystic_pedicle": 26,
+    "bipolar,retract,cystic_pedicle": 9,
+    "grasper,dissect,gallbladder": 639,
+    "irrigator,dissect,cystic_pedicle": 89,
+    "bipolar,dissect,omentum": 176,
+    "bipolar,dissect,gallbladder": 287,
+    "bipolar,dissect,cystic_plate": 54,
+    "bipolar,coagulate,cystic_pedicle": 42,
+    "bipolar,dissect,adhesion": 73,
+    "scissors,dissect,omentum": 93,
+    "scissors,coagulate,omentum": 17,
+    "bipolar,grasp,specimen_bag": 84,
+    "clipper,clip,cystic_pedicle": 13,
+    "scissors,cut,peritoneum": 56,
+    "grasper,dissect,omentum": 30,
+    "irrigator,dissect,gallbladder": 29,
+    "irrigator,dissect,cystic_plate": 10,
+    "hook,cut,blood_vessel": 13,
+    "hook,cut,peritoneum": 92,
+    "grasper,grasp,gut": 24
+  },
+  "rare_targets": [
+    [
+      "adhesion",
+      73,
+      0.0009244250835781583
+    ],
+    [
+      "cystic_pedicle",
+      258,
+      0.0032671461857967784
+    ],
+    [
+      "blood_vessel",
+      380,
+      0.004812075777530139
+    ],
+    [
+      "gut",
+      400,
+      0.005065342923715936
+    ],
+    [
+      "abdominal_wall_cavity",
+      706,
+      0.008940330260358627
+    ]
+  ],
+  "rare_combinations": [
+    [
+      "scissors,cut,cystic_plate",
+      6,
+      7.598014385573904e-05
+    ],
+    [
+      "hook,coagulate,cystic_plate",
+      9,
+      0.00011397021578360855
+    ],
+    [
+      "bipolar,retract,cystic_pedicle",
+      9,
+      0.00011397021578360855
+    ],
+    [
+      "hook,coagulate,cystic_artery",
+      10,
+      0.00012663357309289838
+    ],
+    [
+      "irrigator,dissect,cystic_plate",
+      10,
+      0.00012663357309289838
+    ],
+    [
+      "scissors,dissect,cystic_plate",
+      12,
+      0.00015196028771147807
+    ],
+    [
+      "clipper,clip,cystic_pedicle",
+      13,
+      0.00016462364502076792
+    ],
+    [
+      "hook,cut,blood_vessel",
+      13,
+      0.00016462364502076792
+    ],
+    [
+      "hook,coagulate,cystic_pedicle",
+      15,
+      0.00018995035963934758
+    ],
+    [
+      "scissors,coagulate,omentum",
+      17,
+      0.00021527707425792727
+    ],
+    [
+      "hook,dissect,blood_vessel",
+      21,
+      0.0002659305034950866
+    ],
+    [
+      "scissors,cut,blood_vessel",
+      21,
+      0.0002659305034950866
+    ],
+    [
+      "irrigator,irrigate,cystic_pedicle",
+      23,
+      0.0002912572181136663
+    ],
+    [
+      "grasper,grasp,gut",
+      24,
+      0.00030392057542295614
+    ],
+    [
+      "grasper,grasp,cystic_pedicle",
+      26,
+      0.00032924729004153583
+    ],
+    [
+      "scissors,cut,omentum",
+      27,
+      0.0003419106473508256
+    ],
+    [
+      "irrigator,dissect,gallbladder",
+      29,
+      0.0003672373619694053
+    ],
+    [
+      "irrigator,retract,gallbladder",
+      30,
+      0.00037990071927869516
+    ],
+    [
+      "grasper,dissect,omentum",
+      30,
+      0.00037990071927869516
+    ],
+    [
+      "bipolar,retract,gallbladder",
+      32,
+      0.00040522743389727485
+    ],
+    [
+      "hook,coagulate,omentum",
+      37,
+      0.00046854422044372403
+    ],
+    [
+      "grasper,grasp,cystic_artery",
+      38,
+      0.0004812075777530139
+    ],
+    [
+      "grasper,retract,cystic_pedicle",
+      41,
+      0.0005191976496808834
+    ],
+    [
+      "clipper,clip,cystic_plate",
+      41,
+      0.0005191976496808834
+    ],
+    [
+      "hook,coagulate,cystic_duct",
+      41,
+      0.0005191976496808834
+    ],
+    [
+      "irrigator,dissect,cystic_duct",
+      41,
+      0.0005191976496808834
+    ],
+    [
+      "bipolar,coagulate,cystic_pedicle",
+      42,
+      0.0005318610069901732
+    ],
+    [
+      "grasper,grasp,liver",
+      46,
+      0.0005825144362273326
+    ],
+    [
+      "bipolar,retract,omentum",
+      46,
+      0.0005825144362273326
+    ],
+    [
+      "hook,coagulate,blood_vessel",
+      51,
+      0.0006458312227737818
+    ],
+    [
+      "clipper,clip,blood_vessel",
+      51,
+      0.0006458312227737818
+    ],
+    [
+      "scissors,dissect,gallbladder",
+      52,
+      0.0006584945800830717
+    ],
+    [
+      "bipolar,dissect,cystic_plate",
+      54,
+      0.0006838212947016512
+    ],
+    [
+      "scissors,cut,peritoneum",
+      56,
+      0.0007091480093202309
+    ],
+    [
+      "bipolar,coagulate,peritoneum",
+      60,
+      0.0007598014385573903
+    ],
+    [
+      "bipolar,coagulate,cystic_artery",
+      68,
+      0.0008611082970317091
+    ],
+    [
+      "bipolar,dissect,adhesion",
+      73,
+      0.0009244250835781583
+    ],
+    [
+      "grasper,dissect,cystic_plate",
+      78,
+      0.0009877418701246074
+    ],
+    [
+      "bipolar,retract,liver",
+      79,
+      0.0010004052274338972
+    ],
+    [
+      "irrigator,irrigate,liver",
+      84,
+      0.0010637220139803464
+    ],
+    [
+      "bipolar,grasp,specimen_bag",
+      84,
+      0.0010637220139803464
+    ],
+    [
+      "irrigator,retract,omentum",
+      89,
+      0.0011270388005267956
+    ],
+    [
+      "irrigator,dissect,cystic_pedicle",
+      89,
+      0.0011270388005267956
+    ],
+    [
+      "hook,cut,peritoneum",
+      92,
+      0.0011650288724546652
+    ],
+    [
+      "scissors,dissect,omentum",
+      93,
+      0.001177692229763955
+    ],
+    [
+      "irrigator,dissect,omentum",
+      100,
+      0.001266335730928984
+    ],
+    [
+      "grasper,grasp,cystic_plate",
+      132,
+      0.0016715631648262588
+    ],
+    [
+      "hook,retract,liver",
+      153,
+      0.0019374936683213453
+    ],
+    [
+      "hook,coagulate,liver",
+      158,
+      0.0020008104548677945
+    ],
+    [
+      "grasper,retract,peritoneum",
+      159,
+      0.0020134738121770843
+    ],
+    [
+      "hook,coagulate,gallbladder",
+      171,
+      0.0021654340998885626
+    ],
+    [
+      "bipolar,dissect,cystic_duct",
+      174,
+      0.002203424171816432
+    ],
+    [
+      "bipolar,dissect,omentum",
+      176,
+      0.0022287508864350116
+    ],
+    [
+      "bipolar,dissect,cystic_artery",
+      188,
+      0.0023807111741464895
+    ],
+    [
+      "grasper,grasp,omentum",
+      191,
+      0.0024187012460743593
+    ],
+    [
+      "bipolar,coagulate,blood_vessel",
+      223,
+      0.002823928679971634
+    ],
+    [
+      "bipolar,coagulate,omentum",
+      228,
+      0.0028872454665180834
+    ],
+    [
+      "grasper,pack,gallbladder",
+      233,
+      0.0029505622530645323
+    ],
+    [
+      "hook,dissect,peritoneum",
+      239,
+      0.0030265423969202715
+    ],
+    [
+      "irrigator,retract,liver",
+      261,
+      0.003305136257724648
+    ],
+    [
+      "bipolar,coagulate,gallbladder",
+      262,
+      0.0033177996150339376
+    ],
+    [
+      "bipolar,dissect,gallbladder",
+      287,
+      0.0036343835477661837
+    ],
+    [
+      "bipolar,coagulate,cystic_plate",
+      311,
+      0.0039383041231891396
+    ],
+    [
+      "irrigator,irrigate,abdominal_wall_cavity",
+      313,
+      0.00396363083780772
+    ],
+    [
+      "grasper,grasp,peritoneum",
+      329,
+      0.004166244554756357
+    ],
+    [
+      "grasper,grasp,cystic_duct",
+      350,
+      0.004432175058251444
+    ],
+    [
+      "hook,retract,gallbladder",
+      373,
+      0.00472343227636511
+    ],
+    [
+      "grasper,retract,gut",
+      376,
+      0.004761422348292979
+    ],
+    [
+      "bipolar,coagulate,abdominal_wall_cavity",
+      393,
+      0.004976699422550907
+    ]
+  ]
+}

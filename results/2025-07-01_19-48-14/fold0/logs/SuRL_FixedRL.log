@@ -1,0 +1,91 @@
+2025-07-01 19:48:14,339 - INFO - SuRL_FixedRL_127301373243904 - Shared experiment log directory: results/2025-07-01_19-48-14/fold0/logs
+2025-07-01 19:48:14,339 - INFO - SuRL_FixedRL_127301373243904 - 🎯 RL Experiment: 2025-07-01_19-48-14
+2025-07-01 19:48:14,340 - INFO - SuRL_FixedRL_127301373243904 - 📁 Results dir: results/2025-07-01_19-48-14/fold0
+2025-07-01 19:48:14,340 - INFO - SuRL_FixedRL_127301373243904 - 📂 Plots dir: results/2025-07-01_19-48-14/fold0/publication_plots
+2025-07-01 19:48:14,340 - INFO - SuRL_FixedRL_127301373243904 - 🚀 Starting Complete RL Comparison
+2025-07-01 19:48:14,340 - INFO - SuRL_FixedRL_127301373243904 - ============================================================
+2025-07-01 19:48:14,340 - INFO - SuRL_FixedRL_127301373243904 - 📂 Loading CholecT50 data...
+2025-07-01 19:48:14,340 - INFO - SuRL_FixedRL_127301373243904 -    Training videos: 2
+2025-07-01 19:48:14,340 - INFO - SuRL_FixedRL_127301373243904 -    Test videos: 2
+2025-07-01 19:48:14,340 - INFO - SuRL_FixedRL_127301373243904 - ✅ Using data directory: /home/maxboels/datasets/CholecT50
+2025-07-01 19:48:14,340 - INFO - SuRL_FixedRL_127301373243904 - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-07-01 19:48:14,753 - INFO - SuRL_FixedRL_127301373243904 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (78968, 156)
+2025-07-01 19:48:14,753 - INFO - SuRL_FixedRL_127301373243904 - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-07-01 19:48:14,753 - INFO - SuRL_FixedRL_127301373243904 - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-07-01 19:48:14,755 - INFO - SuRL_FixedRL_127301373243904 - [Train] Found 2 videos in metadata file
+2025-07-01 19:48:14,755 - INFO - SuRL_FixedRL_127301373243904 - [Train] Loading data for 2 videos
+2025-07-01 19:48:14,951 - INFO - SuRL_FixedRL_127301373243904 - ✅ Loaded video VID01: 1734 frames, 1024-dims embeddings
+2025-07-01 19:48:15,017 - INFO - SuRL_FixedRL_127301373243904 - ✅ Loaded video VID04: 1523 frames, 1024-dims embeddings
+2025-07-01 19:48:15,017 - INFO - SuRL_FixedRL_127301373243904 - 📂 Loaded 2 videos from train split
+2025-07-01 19:48:15,019 - INFO - SuRL_FixedRL_127301373243904 - ✅ Using data directory: /home/maxboels/datasets/CholecT50
+2025-07-01 19:48:15,019 - INFO - SuRL_FixedRL_127301373243904 - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-07-01 19:48:15,097 - INFO - SuRL_FixedRL_127301373243904 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (21895, 156)
+2025-07-01 19:48:15,097 - INFO - SuRL_FixedRL_127301373243904 - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-07-01 19:48:15,097 - INFO - SuRL_FixedRL_127301373243904 - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-07-01 19:48:15,098 - INFO - SuRL_FixedRL_127301373243904 - [Test] Found 2 videos in metadata file
+2025-07-01 19:48:15,098 - INFO - SuRL_FixedRL_127301373243904 - [Test] Loading data for 2 videos
+2025-07-01 19:48:15,218 - INFO - SuRL_FixedRL_127301373243904 - ✅ Loaded video VID02: 2840 frames, 1024-dims embeddings
+2025-07-01 19:48:15,308 - INFO - SuRL_FixedRL_127301373243904 - ✅ Loaded video VID06: 2154 frames, 1024-dims embeddings
+2025-07-01 19:48:15,308 - INFO - SuRL_FixedRL_127301373243904 - 📂 Loaded 2 videos from test split
+2025-07-01 19:48:15,309 - INFO - SuRL_FixedRL_127301373243904 - ✅ Data loaded successfully
+2025-07-01 19:48:15,309 - INFO - SuRL_FixedRL_127301373243904 -    Training videos: 2
+2025-07-01 19:48:15,309 - INFO - SuRL_FixedRL_127301373243904 -    Test videos: 2
+2025-07-01 19:48:15,309 - INFO - SuRL_FixedRL_127301373243904 - 🎓 Method 1: Autoregressive IL is disabled, skipping...
+2025-07-01 19:48:15,309 - INFO - SuRL_FixedRL_127301373243904 - 🌍 Method 2: Conditional World Model + RL is disabled, skipping...
+2025-07-01 19:48:15,309 - INFO - SuRL_FixedRL_127301373243904 - 📹 Method 3: Direct Video RL is disabled, skipping...
+2025-07-01 19:48:15,309 - INFO - SuRL_FixedRL_127301373243904 - 🎯 Running Method 4: IRL Enhancement
+2025-07-01 19:48:15,309 - INFO - SuRL_FixedRL_127301373243904 - 🎯 Method 4: IRL Enhancement for Next Action Prediction
+2025-07-01 19:48:15,309 - INFO - SuRL_FixedRL_127301373243904 -    Matching AutoregressiveIL temporal structure and task definition
+2025-07-01 19:48:15,309 - INFO - SuRL_FixedRL_127301373243904 - ----------------------------------------
+2025-07-01 19:48:15,468 - INFO - SuRL_FixedRL_127301373243904 - 📂 Loaded IL model from: best_checkpoints/autoregressive_il_best_combined_epoch_8.pt
+2025-07-01 19:48:15,472 - INFO - SuRL_FixedRL_127301373243904 - 🎯 Training IRL for Next Action Prediction (Matching IL Approach)
+2025-07-01 19:48:15,662 - INFO - SuRL_FixedRL_127301373243904 - 🎯 Training IRL for Next Action Prediction (2 epochs)
+2025-07-01 19:48:15,662 - INFO - SuRL_FixedRL_127301373243904 -    Training batches per epoch: 346
+2025-07-01 19:48:15,662 - INFO - SuRL_FixedRL_127301373243904 -    Task: Learn rewards for next_action(t+1) predictions
+2025-07-01 19:48:17,039 - INFO - SuRL_FixedRL_127301373243904 - Epoch 1 completed: Avg Loss = 1.9784
+2025-07-01 19:48:18,266 - INFO - SuRL_FixedRL_127301373243904 - Epoch 2 completed: Avg Loss = 1.5890
+2025-07-01 19:48:18,266 - INFO - SuRL_FixedRL_127301373243904 - 🎮 Training policy adjustment for next action prediction...
+2025-07-01 19:48:18,266 - INFO - SuRL_FixedRL_127301373243904 - 🎮 Training Policy Adjustment for Next Action Prediction
+2025-07-01 19:48:18,440 - ERROR - SuRL_FixedRL_127301373243904 - ❌ Method 4 IRL Next Action failed: Expected all tensors to be on the same device, but found at least two devices, cpu and cuda:0! (when checking argument for argument mat1 in method wrapper_CUDA_addmm)
+2025-07-01 19:48:18,444 - ERROR - SuRL_FixedRL_127301373243904 - Full traceback: Traceback (most recent call last):
+  File "/home/maxboels/projects/surl/run_experiment_v8.py", line 603, in _run_method4_irl_enhancement
+    irl_results = train_irl_next_action_prediction(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/projects/surl/training/irl_next_action_trainer.py", line 631, in train_irl_next_action_prediction
+    success = trainer.train_next_action_irl(train_loader, test_loaders, num_epochs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/projects/surl/training/irl_next_action_trainer.py", line 263, in train_next_action_irl
+    self._train_next_action_policy_adjustment(train_loader)
+  File "/home/maxboels/projects/surl/training/irl_next_action_trainer.py", line 300, in _train_next_action_policy_adjustment
+    adjustments = self.irl_system.policy_adjustment(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/projects/surl/models/irl_policy_models.py", line 63, in forward
+    state_features = self.state_encoder(state)      # [batch, 128]
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+            ^^^^^^^^^^^^^
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 125, in forward
+    return F.linear(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Expected all tensors to be on the same device, but found at least two devices, cpu and cuda:0! (when checking argument for argument mat1 in method wrapper_CUDA_addmm)
+
+2025-07-01 19:48:18,457 - ERROR - SuRL_FixedRL_127301373243904 - ❌ No test loaders available for evaluation

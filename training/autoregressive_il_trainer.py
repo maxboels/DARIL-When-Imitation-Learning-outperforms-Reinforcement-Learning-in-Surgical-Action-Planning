@@ -650,6 +650,7 @@ class AutoregressiveILTrainer:
                 # Standard IVT video-wise mAP (main metric for publication)
                 ivt_result = ivt_rec_curr.compute_video_AP("ivt")
                 ivt_metrics['ivt_current_mAP'] = ivt_result["mAP"]
+                ivt_metrics['ivt_current_AP_per_class'] = ivt_result["AP"]
 
                 # Optional: Get component-wise results
                 for component in ['i', 'v', 't', 'iv', 'it']:
@@ -667,6 +668,7 @@ class AutoregressiveILTrainer:
                 # Standard IVT video-wise mAP (main metric for publication)
                 ivt_result = ivt_rec_next.compute_video_AP("ivt")
                 ivt_metrics['ivt_next_mAP'] = ivt_result["mAP"]
+                ivt_metrics['ivt_next_AP_per_class'] = ivt_result["AP"]
                 
                 # Optional: Get component-wise results
                 for component in ['i', 'v', 't', 'iv', 'it']:
@@ -801,7 +803,40 @@ class AutoregressiveILTrainer:
         for key, value in final_metrics.items():
             self.metrics_history[f"val_{key}"].append(value)
         
+        # Save per-class APs to JSON
+        if 'ivt_current_AP_per_class' in final_metrics and 'ivt_next_AP_per_class' in final_metrics:
+            self._save_per_class_AP_to_json(final_metrics)
+        
         return final_metrics
+
+    def _save_per_class_AP_to_json(self, final_metrics: Dict[str, np.ndarray]):
+
+        # use self.log_dir
+        output_path = os.path.join(self.log_dir, "per_class_APs.json")
+        self.logger.info(f"📊 Saving per-class APs to {output_path}...")
+        
+        # Mapping class indices to human-readable names
+        class_names_path = "data/labels.json"
+        with open(class_names_path, 'r') as f:
+            class_names = json.load(f)
+        action_classes = class_names.get('action', {}) # format: {"0": "class_name_0", "1": "class_name_1", ...}
+
+        # Prepare per-class AP data
+        per_class_data = {
+            'ivt_current_AP_per_class': {},
+            'ivt_next_AP_per_class': {}
+        }
+        # Map array values to class names
+        for i, ap in enumerate(final_metrics['ivt_current_AP_per_class']):
+            class_name = action_classes[str(i)]
+            per_class_data['ivt_current_AP_per_class'][class_name] = float(ap) if not np.isnan(ap) else None
+        for i, ap in enumerate(final_metrics['ivt_next_AP_per_class']):
+            class_name = action_classes[str(i)]
+            per_class_data['ivt_next_AP_per_class'][class_name] = float(ap) if not np.isnan(ap) else None
+        # Save to JSON
+        with open(output_path, 'w') as f:
+            json.dump(per_class_data, f, indent=4)
+        self.logger.info(f"📊 Per-class AP saved to {output_path}")
     
     def _log_epoch_metrics(self, train_metrics: Dict, val_metrics: Dict, epoch: int):
         """Log metrics to tensorboard and history with enhanced IVT tracking."""
@@ -1093,6 +1128,7 @@ class AutoregressiveILTrainer:
             self._last_planning_results = None
         
         return standard_metrics
+    
     def _analyze_video_performance(self, video_metrics: Dict[str, Dict]) -> Dict[str, Any]:
         """
         🔧 NEW: Analyze performance patterns across videos.

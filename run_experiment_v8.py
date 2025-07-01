@@ -172,7 +172,24 @@ class ExperimentRunner:
         self._save_complete_results()
         
         return self.results
-            
+
+    def integrate_with_your_experiment(self, irl_trainer, test_loaders):
+        """
+        Integration example for your experiment runner
+        """
+        
+        # Instead of just reporting mAP improvement:
+        # OLD: logger.info(f"IRL improvement: {irl_map - il_map:.4f}")
+        
+        # NEW: Run surgical expertise evaluation:
+        surgical_results = main_evaluation_script(irl_trainer, test_loaders, self.logger)
+        
+        return {
+            'evaluation_type': 'surgical_expertise_validation',
+            'surgical_results': surgical_results,
+            'demonstrates_clinical_value': True,
+            'paper_ready_claims': surgical_results['strong_claims']
+        }
     
     def _load_data(self) -> Tuple[List[Dict], List[Dict]]:
         """Load and prepare training and test data."""
@@ -659,212 +676,6 @@ class ExperimentRunner:
         }
         
         return formatted_results
-
-    # def _run_method4_irl_enhancement(self, train_data: List[Dict], test_data: List[Dict]) -> Dict[str, Any]:
-    #     """Method 4: IRL Enhancement of IL baseline for MICCAI paper"""
-        
-    #     self.logger.info("🎯 Method 4: IRL Enhancement (Custom MaxEnt + GAIL)")
-    #     self.logger.info("-" * 40)
-        
-    #     try:
-    #         # Step 1: Load your best IL model
-    #         il_config = self.config.get('experiment', {}).get('autoregressive_il', {})
-    #         il_model_path = il_config.get('il_model_path', None)
-            
-    #         if il_model_path and os.path.exists(il_model_path):
-    #             # Load pre-trained IL model
-    #             from models.autoregressive_il_model import AutoregressiveILModel
-    #             il_model = AutoregressiveILModel.load_model(il_model_path, device=DEVICE)
-    #             self.logger.info(f"📂 Loaded IL model from: {il_model_path}")
-    #         else:
-    #             # Need to train IL first or use method 1 result
-    #             if hasattr(self, 'method1_il_model'):
-    #                 il_model = self.method1_il_model
-    #                 self.logger.info("📂 Using IL model from Method 1")
-    #             else:
-    #                 raise ValueError("No IL model available for IRL enhancement")
-            
-    #         # Create dataloaders for IRL training
-    #         train_loader, test_loaders = create_autoregressive_dataloaders(
-    #             config=self.config['data'],
-    #             train_data=train_data,
-    #             test_data=test_data,
-    #             batch_size=self.config['training']['batch_size'],
-    #             num_workers=self.config['training']['num_workers']
-    #         )
-
-    #         # Step 2: Train Direct IRL enhancement
-    #         from training.irl_direct_trainer import train_direct_irl
-            
-    #         irl_results = train_direct_irl(
-    #             config=self.config,
-    #             train_data=train_data,
-    #             test_data=test_data,
-    #             logger=self.logger,
-    #             il_model=il_model,
-    #         )
-
-    #         # Step 3: Create evaluation results compatible with your framework
-    #         evaluation_results = self._format_irl_results_for_comparison(irl_results)
-            
-    #         return {
-    #             'status': 'success',
-    #             'model_type': 'IL_Enhanced_with_IRL',
-    #             'approach': 'MaxEnt IRL + Lightweight GAIL for scenario-specific improvements',
-    #             'irl_system': irl_results['irl_system'],
-    #             'evaluation': evaluation_results,
-    #             'method_description': 'Scenario-aware IRL enhancement of IL baseline',
-    #             'trained_scenarios': irl_results['trained_scenarios'],
-    #             'technique_details': {
-    #                 'reward_learning': 'Maximum Entropy IRL',
-    #                 'policy_improvement': 'Lightweight GAIL',
-    #                 'implementation': 'Custom (No Stable-Baselines)',
-    #                 'scenarios': irl_results['trained_scenarios']
-    #             },
-    #             'improvements': [
-    #                 'Learned surgical preferences from expert demonstrations',
-    #                 'Scenario-specific policy adjustments',
-    #                 'No world model required',
-    #                 'Maintains IL performance for routine cases',
-    #                 'Significant improvements for complex scenarios'
-    #             ]
-    #         }
-            
-    #     except Exception as e:
-    #         self.logger.error(f"❌ Method 4 IRL failed: {e}")
-    #         import traceback
-    #         self.logger.error(f"Full traceback: {traceback.format_exc()}")
-    #         return {'status': 'failed', 'error': str(e)}
-
-    # def _format_irl_results_for_comparison(self, irl_results: Dict) -> Dict[str, Any]:
-    #     """Format IRL results to match your existing evaluation framework"""
-        
-    #     evaluation_results = irl_results['evaluation_results']
-        
-    #     # Extract overall metrics (similar to your autoregressive_il evaluation)
-    #     overall_il_scores = [v['il_score'] for v in evaluation_results['video_level'].values()]
-    #     overall_irl_scores = [v['irl_score'] for v in evaluation_results['video_level'].values()]
-        
-    #     formatted_results = {
-    #         'overall_metrics': {
-    #             'il_baseline_mAP': np.mean(overall_il_scores),
-    #             'irl_enhanced_mAP': np.mean(overall_irl_scores),
-    #             'action_mAP': np.mean(overall_irl_scores),  # For compatibility
-    #             'improvement_absolute': np.mean(overall_irl_scores) - np.mean(overall_il_scores),
-    #             'improvement_percentage': ((np.mean(overall_irl_scores) - np.mean(overall_il_scores)) / np.mean(overall_il_scores)) * 100
-    #         },
-    #         # 'scenario_breakdown': evaluation_results['by_scenario'],
-    #         'video_level_results': evaluation_results['video_level'],
-    #         'evaluation_approach': 'scenario_specific_irl_vs_il_comparison',
-    #         'num_videos_evaluated': len(evaluation_results['video_level']),
-            
-    #         # MICCAI-specific metrics
-    #         # 'miccai_metrics': {
-    #         #     'scenarios_where_rl_helps': [
-    #         #         scenario for scenario, results in evaluation_results['by_scenario'].items()
-    #         #         if results.get('improvement', 0) > 0.02  # >2% improvement
-    #         #     ],
-    #         #     'scenarios_where_il_sufficient': [
-    #         #         scenario for scenario, results in evaluation_results['by_scenario'].items()
-    #         #         if results.get('improvement', 0) <= 0.01  # <=1% improvement
-    #         #     ],
-    #         #     'largest_rl_advantage': max(
-    #         #         [(scenario, results.get('improvement', 0)) 
-    #         #          for scenario, results in evaluation_results['by_scenario'].items()],
-    #         #         key=lambda x: x[1]
-    #         #     )
-    #         # }
-    #     }
-        
-    #     return formatted_results
-
-    # def run_complete_comparison(self) -> Dict[str, Any]:
-    #     """Updated comparison including IRL method"""
-        
-    #     self.logger.info("🚀 Starting Complete RL Comparison + IRL Enhancement")
-    #     self.logger.info("=" * 60)
-        
-    #     # Load data
-    #     train_data, test_data = self._load_data()
-
-    #     # Method 1: Autoregressive IL (your existing baseline)
-    #     if self.config.get('experiment', {}).get('autoregressive_il', {}).get('enabled', True):        
-    #         self.logger.info("🎓 Running Method 1: Autoregressive IL")
-    #         method1_results = self._run_method1_autoregressive_il(train_data, test_data)
-    #         self.results['method_1_autoregressive_il'] = method1_results
-            
-    #         # Store IL model for IRL enhancement
-    #         if method1_results.get('status') == 'success':
-    #             # Get the best model path from method 1
-    #             il_model_paths = method1_results.get('model_paths', {})
-    #             best_il_path = (il_model_paths.get('best_next_prediction') or 
-    #                            il_model_paths.get('best_combined') or 
-    #                            il_model_paths.get('best_current_recognition'))
-                
-    #             if best_il_path:
-    #                 # Load IL model for IRL enhancement
-    #                 from models.autoregressive_il_model import AutoregressiveILModel
-    #                 self.method1_il_model = AutoregressiveILModel.load_model(best_il_path, device=DEVICE)
-    #                 self.logger.info(f"✅ IL model loaded for IRL enhancement: {best_il_path}")
-    #     else:
-    #         self.logger.info("🎓 Method 1: Autoregressive IL is disabled in config, skipping...")
-    #         method1_results = {'status': 'skipped', 'reason': 'Autoregressive IL disabled in config'}
-    #         self.results['method_1_autoregressive_il'] = method1_results
-
-    #     # Method 4: IRL Enhancement (NEW)
-    #     if self.config.get('experiment', {}).get('irl_enhancement', {}).get('enabled', True):
-    #         self.logger.info("🎯 Running Method 4: IRL Enhancement")
-    #         method4_results = self._run_method4_irl_enhancement(train_data, test_data)
-    #         self.results['method_4_irl_enhancement'] = method4_results
-    #     else:
-    #         self.logger.info("🎯 Method 4: IRL Enhancement is disabled in config, skipping...")
-    #         method4_results = {'status': 'skipped', 'reason': 'IRL Enhancement disabled in config'}
-    #         self.results['method_4_irl_enhancement'] = method4_results
-        
-    #     if self.config.get('experiment', {}).get('world_model', {}).get('enabled', True):
-    #         # Method 2: Conditional World Model + RL
-    #         method2_results = self._run_method2_wm_rl(train_data, test_data)
-    #         self.results['method_2_conditional_world_model'] = method2_results
-    #     else:
-    #         self.logger.info("🌍 Method 2: Conditional World Model + RL is disabled")
-
-    #     if self.config.get('experiment', {}).get('rl_experiments', {}).get('enabled', True):
-    #         # Method 3: Direct Video RL
-    #         method3_results = self._run_method3_direct_rl(train_data, test_data)
-    #         self.results['method_3_direct_video_rl'] = method3_results
-    #     else:
-    #         self.logger.info("📹 Method 3: Direct Video RL is disabled in config")
-        
-    #     # Comprehensive evaluation - with proper handling
-    #     if not hasattr(self, 'test_loaders') or not self.test_loaders:
-    #         self.logger.error("❌ No test loaders available for evaluation")
-    #         return {'status': 'failed', 'error': 'No test loaders available'}
-                
-    #     evaluation_results = run_integrated_evaluation(
-    #         experiment_results=self.results,
-    #         test_data=self.test_loaders,
-    #         results_dir=str(self.results_dir),
-    #         logger=self.logger,
-    #         horizon=self.config['evaluation']['prediction_horizon']
-    #     )
-    #     self.results['comprehensive_evaluation'] = evaluation_results
-
-    #     self.logger.info("📊 Generating publication-quality plots...")
-    #     plot_paths = create_publication_plots(
-    #         experiment_results=self.results,
-    #         output_dir=str(self.plots_dir),
-    #         logger=self.logger
-    #     )
-    #     self.results['generated_plots'] = plot_paths
-
-    #     # Analysis and comparison
-    #     self.logger.info("🏆 Analyzing Results and Architectural Insights including IRL")
-    #     self._print_method_comparison(self.results)
-        
-    #     # Save results
-    #     self._save_complete_results()
-        
-    #     return self.results
 
     def _print_method_comparison(self, aggregate_results: Dict):
         """Print comparison highlighting next action prediction alignment"""

@@ -34,11 +34,11 @@ class StateAwarePolicyAdjustment(nn.Module):
         self.phase_encoder = nn.Sequential(
             nn.Linear(phase_dim, 16),
             nn.ReLU(),
-            nn.Linear(16, 8)
+            nn.Linear(16, 7)
         )
         
         # Fusion network
-        fusion_dim = 128 + 32 + 8  # 168
+        fusion_dim = 128 + 32 + 7  # State + Action + Phase
         self.fusion_net = nn.Sequential(
             nn.Linear(fusion_dim, 256),
             nn.ReLU(),
@@ -62,7 +62,10 @@ class StateAwarePolicyAdjustment(nn.Module):
         # Encode each modality
         state_features = self.state_encoder(state)      # [batch, 128]
         action_features = self.action_encoder(il_prediction)  # [batch, 32]
-        phase_features = self.phase_encoder(phase)      # [batch, 8]
+        phase_features = self.phase_encoder(phase)      # [batch, 7]
+
+        if len(action_features.shape) == 3:
+            action_features = action_features.squeeze(1)  # [batch, 32]
         
         # Fuse all information
         fused = torch.cat([state_features, action_features, phase_features], dim=1)
