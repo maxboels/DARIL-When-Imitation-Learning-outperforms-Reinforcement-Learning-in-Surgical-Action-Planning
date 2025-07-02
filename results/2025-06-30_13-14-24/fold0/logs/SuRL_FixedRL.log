@@ -98,3 +98,28 @@
 2025-06-30 14:12:33,569 - INFO - SuRL_FixedRL_140152052614048 -   Policy Epoch 0: Loss = 0.7038
 2025-06-30 15:02:44,913 - INFO - SuRL_FixedRL_140152052614048 -   Policy Epoch 10: Loss = 0.6915
 2025-06-30 15:52:34,183 - INFO - SuRL_FixedRL_140152052614048 -   Policy Epoch 20: Loss = 0.6915
+2025-06-30 16:39:41,894 - INFO - SuRL_FixedRL_140152052614048 - ✅ Direct IRL training completed
+2025-06-30 16:39:41,895 - INFO - SuRL_FixedRL_140152052614048 - 📊 Starting IRL evaluation...
+2025-06-30 16:39:41,895 - INFO - SuRL_FixedRL_140152052614048 - 📊 Evaluating Direct IRL vs IL
+2025-06-30 16:46:51,343 - INFO - SuRL_FixedRL_140152052614048 - 🏆 TOP 10 IMPROVEMENTS (Direct IRL vs IL):
+2025-06-30 16:46:51,343 - INFO - SuRL_FixedRL_140152052614048 -   action_66: +0.0000 mAP improvement
+2025-06-30 16:46:51,343 - INFO - SuRL_FixedRL_140152052614048 -   action_20: +0.0000 mAP improvement
+2025-06-30 16:46:51,343 - INFO - SuRL_FixedRL_140152052614048 -   action_97: +0.0000 mAP improvement
+2025-06-30 16:46:51,343 - INFO - SuRL_FixedRL_140152052614048 -   action_94: +0.0000 mAP improvement
+2025-06-30 16:46:51,344 - INFO - SuRL_FixedRL_140152052614048 -   action_19: +0.0000 mAP improvement
+2025-06-30 16:46:51,344 - INFO - SuRL_FixedRL_140152052614048 -   action_10: +0.0000 mAP improvement
+2025-06-30 16:46:51,344 - INFO - SuRL_FixedRL_140152052614048 -   action_18: +0.0000 mAP improvement
+2025-06-30 16:46:51,344 - INFO - SuRL_FixedRL_140152052614048 -   action_8: +0.0000 mAP improvement
+2025-06-30 16:46:51,344 - INFO - SuRL_FixedRL_140152052614048 -   action_7: +0.0000 mAP improvement
+2025-06-30 16:46:51,344 - INFO - SuRL_FixedRL_140152052614048 -   action_17: +0.0000 mAP improvement
+2025-06-30 16:46:51,350 - INFO - SuRL_FixedRL_140152052614048 - 🏆 DIRECT IRL TRAINING RESULTS:
+2025-06-30 16:46:51,350 - INFO - SuRL_FixedRL_140152052614048 - Overall IL mAP: 0.4592
+2025-06-30 16:46:51,350 - INFO - SuRL_FixedRL_140152052614048 - Overall IRL mAP: 0.4579
+2025-06-30 16:46:51,350 - INFO - SuRL_FixedRL_140152052614048 - Overall Improvement: -0.0013 (-0.3%)
+2025-06-30 16:46:51,350 - ERROR - SuRL_FixedRL_140152052614048 - ❌ Method 4 IRL failed: 'irl_system'
+2025-06-30 16:46:51,353 - ERROR - SuRL_FixedRL_140152052614048 - Full traceback: Traceback (most recent call last):
+  File "/nfs/home/mboels/projects/surl/run_experiment_v8.py", line 601, in _run_method4_irl_enhancement
+    'irl_system': irl_results['irl_system'],
+KeyError: 'irl_system'
+
+2025-06-30 16:46:51,355 - ERROR - SuRL_FixedRL_140152052614048 - ❌ No test loaders available for evaluation

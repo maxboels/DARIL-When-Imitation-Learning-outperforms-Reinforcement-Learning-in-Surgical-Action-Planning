@@ -38,6 +38,8 @@ class EnhancedIRLNextActionTrainer:
         self.num_epochs_policy_adjustment = self.irl_config.get('policy_adjustment', {}).get('num_epochs', 10)        
         self.checkpoint_dir = os.path.join(self.log_dir, 'checkpoints')
         os.makedirs(self.checkpoint_dir, exist_ok=True)
+        self.patience = self.irl_config.get('patience', 5)
+
         
         # Tensorboardavg
         tensorboard_dir = os.path.join(self.log_dir, 'tensorboard', 'irl')
@@ -52,6 +54,13 @@ class EnhancedIRLNextActionTrainer:
             labels_config_path='data/labels.json',
             performance_data_path='data/il_model_per_class_APs.json'
         )
+
+        # Curriculum generation system for sophisticated negatives
+        from datasets.curriculum_negative_generation import create_curriculum_negative_generator
+
+        self.curriculum_gen = create_curriculum_negative_generator('data/labels.json')
+
+
         self.logger.info("🛡️ Enhanced IRL Next Action Trainer initialized")
     
     def initialize_irl_system(self, state_dim: int = 1024, action_dim: int = 100, lr: float = 1e-4, device: str = 'cuda'):
@@ -60,10 +69,10 @@ class EnhancedIRLNextActionTrainer:
         self.reward_net = nn.Sequential(
             nn.Linear(state_dim + action_dim, 256),
             nn.ReLU(),
-            nn.Dropout(0.3),
+            nn.Dropout(0.2),
             nn.Linear(256, 128),
             nn.ReLU(),
-            nn.Dropout(0.2),
+            nn.Dropout(0.1),
             nn.Linear(128, 1),
             # NO Tanh activation - let rewards be unbounded but regularized
         ).to(device)
@@ -87,10 +96,10 @@ class EnhancedIRLNextActionTrainer:
 
         # Learning rate schedulers
         self.reward_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-            self.reward_optimizer, mode='min', factor=0.5, patience=3
+            self.reward_optimizer, mode='min', factor=0.8, patience=5
         )
         self.policy_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-            self.policy_optimizer, mode='max', factor=0.5, patience=3
+            self.policy_optimizer, mode='max', factor=0.8, patience=5
         )
         
     def compute_reward(self, states: torch.Tensor, actions: torch.Tensor) -> torch.Tensor:
@@ -119,7 +128,7 @@ class EnhancedIRLNextActionTrainer:
         state = context_frames[:, -1, :]  # Use last frame as current state
         adjustment = self.policy_adjustment(state, il_pred) # Why are we passing the phase here? Looks unfair
         
-        final_pred = torch.sigmoid(il_pred + 0.1 * adjustment)  # Can increase to 10%
+        final_pred = torch.sigmoid(il_pred + 0.3 * adjustment)
         return final_pred
     
     def train_next_action_irl(self, train_loader: DataLoader, 
@@ -140,6 +149,9 @@ class EnhancedIRLNextActionTrainer:
         self.logger.info(f"🎯 Training IRL for Next Action Prediction ({self.num_epochs} epochs)")
         self.logger.info(f"   Training batches per epoch: {len(train_loader)}")
         self.logger.info(f"   Task: Learn rewards for next_action(t+1) predictions")
+
+        best_improvement = -float('inf')
+        patience_counter = 0
         
         for epoch in range(self.num_epochs):
             epoch_loss = 0.0
@@ -164,11 +176,21 @@ class EnhancedIRLNextActionTrainer:
                     # If actions are in sequence format, take the last timestep
                     expert_next_actions = expert_next_actions[:, -1, :]
                 
-                # Generate negative NEXT actions using safety guardrails
-                negative_next_actions = self.safety_guardrails.generate_batch_negatives(
+                # REPLACE this in your IRL trainer:
+                # OLD (current approach):
+                # negative_next_actions = self.safety_guardrails.generate_batch_negatives(
+                #     expert_actions=expert_next_actions,
+                #     current_phase=current_phases,
+                #     validation_threshold=0.05
+                # )
+
+                # NEW (curriculum approach):
+                # During training:
+                batch_progress = epoch / self.num_epochs  # 0.0 → 1.0
+                negative_next_actions = self.curriculum_gen.generate_curriculum_negatives(
                     expert_actions=expert_next_actions,
-                    current_phase=current_phases,
-                    validation_threshold=0.05  # Filter negatives appearing >5% in training
+                    current_phase=current_phases, 
+                    batch_progress=batch_progress
                 )
                 
                 # Compute rewards for expert vs negative NEXT actions
@@ -200,6 +222,10 @@ class EnhancedIRLNextActionTrainer:
                 self.tb_writer.add_scalar('train_irl/total_loss', total_loss.item(), epoch * len(train_loader) + batch_idx)
                 self.tb_writer.add_scalar('train_irl/reward_loss', reward_loss.item(), epoch * len(train_loader) + batch_idx)
                 self.tb_writer.add_scalar('train_irl/l2_regularization', l2_reg.item(), epoch * len(train_loader) + batch_idx)
+
+                # Log expert and negative rewards to TensorBoard
+                self.tb_writer.add_scalar('train_irl/expert_rewards', expert_rewards.mean().item(), epoch * len(train_loader) + batch_idx)
+                self.tb_writer.add_scalar('train_irl/negative_rewards', negative_rewards.mean().item(), epoch * len(train_loader) + batch_idx)
                 
                 # Log batch progress
                 if batch_idx % 50 == 0:
@@ -215,6 +241,9 @@ class EnhancedIRLNextActionTrainer:
             # Epoch summary
             avg_loss = epoch_loss / num_batches
             self.logger.info(f"Epoch {epoch+1} completed: Avg Loss = {avg_loss:.4f}")
+
+            # Log learning rate to TensorBoard
+            self.tb_writer.add_scalar('train_irl/learning_rate', self.reward_optimizer.param_groups[0]['lr'], epoch)
             
             # Update learning rate
             self.reward_scheduler.step(avg_loss)
@@ -222,21 +251,21 @@ class EnhancedIRLNextActionTrainer:
             # FIXED: Evaluate every 5 epochs
             if (epoch + 1) % 5 == 0:
                 self.logger.info(f"🔍 Evaluating at epoch {epoch+1}")
-                eval_results = self.evaluate_next_action_prediction(test_loaders)
+                eval_results = self.evaluate_next_action_prediction(test_loaders, epoch=epoch+1)
                 improvement = eval_results['overall']['improvement']
                 
                 self.logger.info(f"Current improvement: {improvement:.4f} ({improvement*100:.2f}%)")
                 
                 # Early stopping with improvement tracking
-                if improvement > self.best_improvement + 0.001:  # 0.1% improvement threshold
-                    self.best_improvement = improvement
-                    self.patience_counter = 0
+                if improvement > best_improvement + 0.001:  # 0.1% improvement threshold
+                    best_improvement = improvement
+                    patience_counter = 0
                     self.logger.info(f"✅ New best improvement: {improvement:.4f}")
                 else:
-                    self.patience_counter += 1
-                    self.logger.info(f"⏳ No improvement for {self.patience_counter} evaluations")
+                    patience_counter += 1
+                    self.logger.info(f"⏳ No improvement for {patience_counter} evaluations")
                 
-                if self.patience_counter >= self.patience:
+                if patience_counter >= self.patience:
                     self.logger.info(f"🔄 Early stopping triggered at epoch {epoch+1}")
                     break
         
@@ -277,7 +306,7 @@ class EnhancedIRLNextActionTrainer:
                 # adaptive_scale = 0.1 + 0.15 * confidence
 
                 adjustments = self.policy_adjustment(current_states, il_next_predictions)
-                adjusted_next_predictions = torch.sigmoid(il_next_predictions + 0.10 * adjustments)
+                adjusted_next_predictions = torch.sigmoid(il_next_predictions + 0.30 * adjustments)
 
                 # Ensure adjusted predictions have the same shape as target actions
                 if len(adjusted_next_predictions.shape) == 3:
@@ -304,11 +333,20 @@ class EnhancedIRLNextActionTrainer:
                 # Log to TensorBoard
                 self.tb_writer.add_scalar('train_policy_adjustment/policy_loss', policy_loss.item(),
                                           epoch * len(train_loader) + num_batches)
+                self.tb_writer.add_scalar('train_policy_adjustment/adjusted_rewards', adjusted_rewards.mean().item(),
+                                          epoch * len(train_loader) + num_batches)
+                # Log the adjustements impact
+                self.tb_writer.add_scalar('train_policy_adjustment/adjustments_mean', adjustments.mean().item(),
+                                          epoch * len(train_loader) + num_batches)
+                self.tb_writer.add_scalar('train_policy_adjustment/il_rewards', il_rewards.mean().item(),
+                                          epoch * len(train_loader) + num_batches)
+
             # Log epoch loss
             avg_loss = epoch_loss / num_batches
             self.logger.info(f"Policy Adjustment Epoch {epoch+1} completed: Avg Loss = {avg_loss:.4f}")
     
-    def evaluate_next_action_prediction(self, test_loaders: Dict[str, DataLoader]) -> Dict[str, Any]:
+    def evaluate_next_action_prediction(self, test_loaders: Dict[str, DataLoader],
+                                        epoch: Optional[int] = -1) -> Dict[str, Any]:
         """
         Evaluate IRL vs IL on Next Action Prediction task
         Matches AutoregressiveILTrainer evaluation approach
@@ -353,7 +391,9 @@ class EnhancedIRLNextActionTrainer:
             il_next_predictions = torch.cat(video_il_next_predictions, dim=0)  # [total_samples, num_actions]
             irl_next_predictions = torch.cat(video_irl_next_predictions, dim=0)
             target_next_actions = torch.cat(video_target_next_actions, dim=0)  # [total_samples, num_actions]
-                                
+            
+
+            # TODO: replace with ivt_metrics.Recognition() for mAP calculation
             # Calculate mAP for next action prediction
             il_score = self._calculate_map(il_next_predictions, target_next_actions)
             irl_score = self._calculate_map(irl_next_predictions, target_next_actions)
@@ -373,6 +413,10 @@ class EnhancedIRLNextActionTrainer:
             
             all_il_scores.extend(video_il_scores)
             all_irl_scores.extend(video_irl_scores)
+        
+        if epoch >= 0:
+            self.tb_writer.add_scalar('eval_irl/il_next_action_mean', np.mean(all_il_scores), epoch)
+            self.tb_writer.add_scalar('eval_irl/irl_next_action_mean', np.mean(all_irl_scores), epoch)
         
         # Overall results
         results['overall'] = {
@@ -640,7 +684,7 @@ def train_irl_next_action_prediction(config, train_data, test_data, logger, il_m
         return {'status': 'failed', 'error': 'IRL Next Action training failed'}
     
     # Evaluate next action prediction performance
-    evaluation_results = trainer.evaluate_next_action_prediction(test_loaders)
+    evaluation_results = trainer.evaluate_next_action_prediction(test_loaders, epoch=-1)
     
     logger.info("🏆 IRL NEXT ACTION PREDICTION RESULTS:")
     logger.info(f"IL Next Action mAP: {evaluation_results['overall']['il_next_action_mean']:.4f}")
