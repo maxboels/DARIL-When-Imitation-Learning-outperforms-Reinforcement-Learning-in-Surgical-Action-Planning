@@ -1,0 +1,105 @@
+2025-07-02 16:16:07,511 - INFO - SuRL_FixedRL_128076339790192 - Shared experiment log directory: results/2025-07-02_16-16-07/fold0/logs
+2025-07-02 16:16:07,511 - INFO - SuRL_FixedRL_128076339790192 - 🎯 RL Experiment: 2025-07-02_16-16-07
+2025-07-02 16:16:07,511 - INFO - SuRL_FixedRL_128076339790192 - 📁 Results dir: results/2025-07-02_16-16-07/fold0
+2025-07-02 16:16:07,511 - INFO - SuRL_FixedRL_128076339790192 - 📂 Plots dir: results/2025-07-02_16-16-07/fold0/publication_plots
+2025-07-02 16:16:07,511 - INFO - SuRL_FixedRL_128076339790192 - 🚀 Starting Complete RL Comparison
+2025-07-02 16:16:07,511 - INFO - SuRL_FixedRL_128076339790192 - ============================================================
+2025-07-02 16:16:07,511 - INFO - SuRL_FixedRL_128076339790192 - 📂 Loading CholecT50 data...
+2025-07-02 16:16:07,511 - INFO - SuRL_FixedRL_128076339790192 -    Training videos: 40
+2025-07-02 16:16:07,511 - INFO - SuRL_FixedRL_128076339790192 -    Test videos: 10
+2025-07-02 16:16:07,511 - INFO - SuRL_FixedRL_128076339790192 - ✅ Using data directory: /home/maxboels/datasets/CholecT50
+2025-07-02 16:16:07,511 - INFO - SuRL_FixedRL_128076339790192 - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-07-02 16:16:07,915 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (78968, 156)
+2025-07-02 16:16:07,915 - INFO - SuRL_FixedRL_128076339790192 - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-07-02 16:16:07,915 - INFO - SuRL_FixedRL_128076339790192 - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-07-02 16:16:07,917 - INFO - SuRL_FixedRL_128076339790192 - [Train] Found 40 videos in metadata file
+2025-07-02 16:16:07,917 - INFO - SuRL_FixedRL_128076339790192 - [Train] Loading data for 40 videos
+2025-07-02 16:16:08,104 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID01: 1734 frames, 1024-dims embeddings
+2025-07-02 16:16:08,169 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID04: 1523 frames, 1024-dims embeddings
+2025-07-02 16:16:08,266 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID05: 2345 frames, 1024-dims embeddings
+2025-07-02 16:16:08,331 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID08: 1520 frames, 1024-dims embeddings
+2025-07-02 16:16:08,404 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID10: 1750 frames, 1024-dims embeddings
+2025-07-02 16:16:08,497 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID103: 2220 frames, 1024-dims embeddings
+2025-07-02 16:16:08,586 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID110: 2177 frames, 1024-dims embeddings
+2025-07-02 16:16:08,634 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID12: 1091 frames, 1024-dims embeddings
+2025-07-02 16:16:08,678 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID13: 982 frames, 1024-dims embeddings
+2025-07-02 16:16:08,765 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID15: 2059 frames, 1024-dims embeddings
+2025-07-02 16:16:08,849 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID18: 1943 frames, 1024-dims embeddings
+2025-07-02 16:16:08,916 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID22: 1533 frames, 1024-dims embeddings
+2025-07-02 16:16:08,994 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID26: 1774 frames, 1024-dims embeddings
+2025-07-02 16:16:09,085 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID27: 2085 frames, 1024-dims embeddings
+2025-07-02 16:16:09,187 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID29: 2351 frames, 1024-dims embeddings
+2025-07-02 16:16:09,357 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID31: 3946 frames, 1024-dims embeddings
+2025-07-02 16:16:09,447 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID32: 2117 frames, 1024-dims embeddings
+2025-07-02 16:16:09,538 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID35: 2107 frames, 1024-dims embeddings
+2025-07-02 16:16:09,640 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID36: 2388 frames, 1024-dims embeddings
+2025-07-02 16:16:09,735 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID40: 2223 frames, 1024-dims embeddings
+2025-07-02 16:16:09,895 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID42: 3713 frames, 1024-dims embeddings
+2025-07-02 16:16:09,995 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID43: 2363 frames, 1024-dims embeddings
+2025-07-02 16:16:10,092 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID47: 2260 frames, 1024-dims embeddings
+2025-07-02 16:16:10,171 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID48: 1835 frames, 1024-dims embeddings
+2025-07-02 16:16:10,243 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID49: 1672 frames, 1024-dims embeddings
+2025-07-02 16:16:10,330 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID52: 1967 frames, 1024-dims embeddings
+2025-07-02 16:16:10,409 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID56: 1837 frames, 1024-dims embeddings
+2025-07-02 16:16:10,524 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID57: 2633 frames, 1024-dims embeddings
+2025-07-02 16:16:10,631 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID60: 2533 frames, 1024-dims embeddings
+2025-07-02 16:16:10,718 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID62: 2033 frames, 1024-dims embeddings
+2025-07-02 16:16:10,800 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID65: 1874 frames, 1024-dims embeddings
+2025-07-02 16:16:10,887 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID68: 1973 frames, 1024-dims embeddings
+2025-07-02 16:16:10,940 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID70: 1195 frames, 1024-dims embeddings
+2025-07-02 16:16:11,001 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID73: 1357 frames, 1024-dims embeddings
+2025-07-02 16:16:11,073 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID74: 1635 frames, 1024-dims embeddings
+2025-07-02 16:16:11,157 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID75: 1924 frames, 1024-dims embeddings
+2025-07-02 16:16:11,191 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID78: 740 frames, 1024-dims embeddings
+2025-07-02 16:16:11,269 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID80: 1725 frames, 1024-dims embeddings
+2025-07-02 16:16:11,361 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID92: 2124 frames, 1024-dims embeddings
+2025-07-02 16:16:11,435 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID96: 1707 frames, 1024-dims embeddings
+2025-07-02 16:16:11,436 - INFO - SuRL_FixedRL_128076339790192 - 📂 Loaded 40 videos from train split
+2025-07-02 16:16:11,437 - INFO - SuRL_FixedRL_128076339790192 - ✅ Using data directory: /home/maxboels/datasets/CholecT50
+2025-07-02 16:16:11,438 - INFO - SuRL_FixedRL_128076339790192 - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-07-02 16:16:11,529 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (21895, 156)
+2025-07-02 16:16:11,529 - INFO - SuRL_FixedRL_128076339790192 - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-07-02 16:16:11,529 - INFO - SuRL_FixedRL_128076339790192 - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-07-02 16:16:11,530 - INFO - SuRL_FixedRL_128076339790192 - [Test] Found 10 videos in metadata file
+2025-07-02 16:16:11,530 - INFO - SuRL_FixedRL_128076339790192 - [Test] Loading data for 10 videos
+2025-07-02 16:16:11,646 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID02: 2840 frames, 1024-dims embeddings
+2025-07-02 16:16:11,735 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID06: 2154 frames, 1024-dims embeddings
+2025-07-02 16:16:11,830 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID111: 2146 frames, 1024-dims embeddings
+2025-07-02 16:16:11,905 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID14: 1709 frames, 1024-dims embeddings
+2025-07-02 16:16:11,978 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID23: 1636 frames, 1024-dims embeddings
+2025-07-02 16:16:12,084 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID25: 2130 frames, 1024-dims embeddings
+2025-07-02 16:16:12,134 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID50: 1095 frames, 1024-dims embeddings
+2025-07-02 16:16:12,266 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID51: 2945 frames, 1024-dims embeddings
+2025-07-02 16:16:12,346 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID66: 1825 frames, 1024-dims embeddings
+2025-07-02 16:16:12,497 - INFO - SuRL_FixedRL_128076339790192 - ✅ Loaded video VID79: 3415 frames, 1024-dims embeddings
+2025-07-02 16:16:12,497 - INFO - SuRL_FixedRL_128076339790192 - 📂 Loaded 10 videos from test split
+2025-07-02 16:16:12,498 - INFO - SuRL_FixedRL_128076339790192 - ✅ Data loaded successfully
+2025-07-02 16:16:12,498 - INFO - SuRL_FixedRL_128076339790192 -    Training videos: 40
+2025-07-02 16:16:12,498 - INFO - SuRL_FixedRL_128076339790192 -    Test videos: 10
+2025-07-02 16:16:12,498 - INFO - SuRL_FixedRL_128076339790192 - 🎓 Method 1: Autoregressive IL is disabled, skipping...
+2025-07-02 16:16:12,498 - INFO - SuRL_FixedRL_128076339790192 - 🌍 Method 2: Conditional World Model + RL is disabled, skipping...
+2025-07-02 16:16:12,498 - INFO - SuRL_FixedRL_128076339790192 - 📹 Method 3: Direct Video RL is disabled, skipping...
+2025-07-02 16:16:12,498 - INFO - SuRL_FixedRL_128076339790192 - 🎯 Running Method 4: IRL Enhancement
+2025-07-02 16:16:12,498 - INFO - SuRL_FixedRL_128076339790192 - 🎯 Method 4: IRL Enhancement for Next Action Prediction
+2025-07-02 16:16:12,498 - INFO - SuRL_FixedRL_128076339790192 -    Matching AutoregressiveIL temporal structure and task definition
+2025-07-02 16:16:12,498 - INFO - SuRL_FixedRL_128076339790192 - ----------------------------------------
+2025-07-02 16:16:12,681 - INFO - SuRL_FixedRL_128076339790192 - 📂 Loaded IL model from: best_checkpoints/autoregressive_il_best_combined_epoch_8.pt
+2025-07-02 16:16:12,685 - INFO - SuRL_FixedRL_128076339790192 - 🎯 Training IRL for Next Action Prediction (Matching IL Approach)
+2025-07-02 16:16:15,201 - INFO - SuRL_FixedRL_128076339790192 - 🛡️ Enhanced IRL Next Action Trainer initialized
+2025-07-02 16:16:15,201 - INFO - SuRL_FixedRL_128076339790192 - 🎯 Training IRL for Next Action Prediction (2 epochs)
+2025-07-02 16:16:15,201 - INFO - SuRL_FixedRL_128076339790192 -    Training batches per epoch: 8715
+2025-07-02 16:16:15,201 - INFO - SuRL_FixedRL_128076339790192 -    Task: Learn rewards for next_action(t+1) predictions
+2025-07-02 16:16:15,412 - ERROR - SuRL_FixedRL_128076339790192 - ❌ Method 4 IRL Next Action failed: 'EnhancedIRLNextActionTrainer' object has no attribute '_compute_rewards_loss'
+2025-07-02 16:16:15,413 - ERROR - SuRL_FixedRL_128076339790192 - Full traceback: Traceback (most recent call last):
+  File "/home/maxboels/projects/surl/run_experiment_v8.py", line 603, in _run_method4_irl_enhancement
+    irl_results = train_irl_next_action_prediction(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/projects/surl/training/irl_next_action_trainer.py", line 637, in train_irl_next_action_prediction
+    success = trainer.train_next_action_irl(train_loader, test_loaders)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/maxboels/projects/surl/training/irl_next_action_trainer.py", line 182, in train_next_action_irl
+    reward_loss = self._compute_rewards_loss(expert_rewards, negative_rewards)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'EnhancedIRLNextActionTrainer' object has no attribute '_compute_rewards_loss'. Did you mean: 'compute_rewards_loss'?
+
+2025-07-02 16:16:15,575 - ERROR - SuRL_FixedRL_128076339790192 - ❌ No test loaders available for evaluation

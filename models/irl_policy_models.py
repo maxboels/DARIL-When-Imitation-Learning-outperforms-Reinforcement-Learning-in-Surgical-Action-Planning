@@ -11,10 +11,10 @@ import numpy as np
 class StateAwarePolicyAdjustment(nn.Module):
     """
     Policy adjustment that can SEE the surgical scene
-    Input: state [1024] + IL_prediction [100] + phase [7] = [1131]
+    Input: state [1024] + IL_prediction [100]
     """
     
-    def __init__(self, state_dim=1024, action_dim=100, phase_dim=7):
+    def __init__(self, state_dim=1024, action_dim=100):
         super().__init__()
         
         # Process different input modalities
@@ -30,15 +30,9 @@ class StateAwarePolicyAdjustment(nn.Module):
             nn.ReLU(),
             nn.Linear(64, 32)
         )
-        
-        self.phase_encoder = nn.Sequential(
-            nn.Linear(phase_dim, 16),
-            nn.ReLU(),
-            nn.Linear(16, 7)
-        )
-        
+                
         # Fusion network
-        fusion_dim = 128 + 32 + 7  # State + Action + Phase
+        fusion_dim = 128 + 32  # State + Action
         self.fusion_net = nn.Sequential(
             nn.Linear(fusion_dim, 256),
             nn.ReLU(),
@@ -52,23 +46,21 @@ class StateAwarePolicyAdjustment(nn.Module):
             nn.Tanh()  # Bounded adjustments [-1, 1]
         )
     
-    def forward(self, state, il_prediction, phase):
+    def forward(self, state, il_prediction):
         """
         Args:
             state: [batch, 1024] - video frame embeddings
             il_prediction: [batch, 100] - IL model predictions  
-            phase: [batch, 7] - one-hot surgical phase
         """
         # Encode each modality
         state_features = self.state_encoder(state)      # [batch, 128]
         action_features = self.action_encoder(il_prediction)  # [batch, 32]
-        phase_features = self.phase_encoder(phase)      # [batch, 7]
 
         if len(action_features.shape) == 3:
             action_features = action_features.squeeze(1)  # [batch, 32]
         
         # Fuse all information
-        fused = torch.cat([state_features, action_features, phase_features], dim=1)
+        fused = torch.cat([state_features, action_features], dim=1)
         
         # Generate informed adjustments
         adjustments = self.fusion_net(fused)

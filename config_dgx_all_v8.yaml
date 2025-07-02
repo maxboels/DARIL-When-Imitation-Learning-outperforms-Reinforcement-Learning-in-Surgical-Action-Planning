@@ -3,9 +3,9 @@ debug: false
 # Experiment configuration
 experiment:
   train:
-    max_videos: 2  # default: 40
+    max_videos: 40  # default: 40
   test:
-    max_videos: 2  # default: 10
+    max_videos: 10  # default: 10
     test_on_train: false
     
   # Experiment 1: Autoregressive IL with pre-trained embeddings
@@ -49,6 +49,12 @@ experiment:
     task_focus: "next_action_prediction"  # Explicit task definition
     match_il_temporal_structure: true     # Ensure alignment
     scenarios_to_train: ['high_complexity', 'rare_actions', 'critical_moments', 'phase_transitions']
+    policy_adjustment:
+      num_epochs: 2  # Number of epochs for policy adjustment
+    learning_rate: 1e-4
+    early_stopping:
+      patience: 5
+      min_delta: 0.001
     maxent_irl:
       num_iterations: 10       # default 100
       learning_rate: 1e-4
