@@ -882,7 +882,6 @@ class AutoregressiveILTrainer:
         """
         
         self.logger.info("📊 Evaluating Autoregressive IL Model with Planning Assessment...")
-        
         self.model.eval()
         
         # Use the per-video validation approach (includes planning evaluation)
@@ -895,8 +894,8 @@ class AutoregressiveILTrainer:
         # Get detailed per-video results
         detailed_results = getattr(self, 'last_validation_details', {})
         
-        # Generation evaluation
-        generation_results = self._evaluate_generation_quality(test_loaders)
+        # TODO: delete later
+        # generation_results = self._evaluate_generation_quality(test_loaders)
 
         # FIXED: Extract planning results from the validation phase (avoid duplicate evaluation)
         self.logger.info("📊 Extracting planning results from validation phase...")
@@ -1267,39 +1266,39 @@ class AutoregressiveILTrainer:
         self.logger.info(f"📊 Per-video analysis saved to: {analysis_plot_path}")
         self.logger.info(f"📊 Performance data saved to: {performance_data_path}")
     
-    def _evaluate_generation_quality(self, test_loaders: Dict[str, DataLoader]) -> Dict[str, float]:
-        """Evaluate autoregressive generation quality."""
+    # def _evaluate_generation_quality(self, test_loaders: Dict[str, DataLoader]) -> Dict[str, float]:
+    #     """Evaluate autoregressive generation quality."""
         
-        generation_metrics = defaultdict(list)
-        self.logger.info("📊 Evaluating generation quality...")
+    #     generation_metrics = defaultdict(list)
+    #     self.logger.info("📊 Evaluating generation quality...")
         
-        # Test generation on a few samples
-        for video_id, test_loader in list(test_loaders.items())[:3]:  # Test on 3 videos
-            batch = next(iter(test_loader))
-            target_next_frames = batch['target_next_frames'][:10].to(self.device)  # First 10 samples
+    #     # Test generation on a few samples
+    #     for video_id, test_loader in list(test_loaders.items())[:3]:  # Test on 3 videos
+    #         batch = next(iter(test_loader))
+    #         target_next_frames = batch['target_next_frames'][:10].to(self.device)  # First 10 samples
             
-            # Generate sequences
-            generation_results = self.model.generate_sequence(
-                initial_frames=target_next_frames,
-                horizon=10,
-                temperature=0.8
-            )
+    #         # Generate sequences
+    #         generation_results = self.model.generate_sequence(
+    #             initial_frames=target_next_frames,
+    #             horizon=10,
+    #             temperature=0.8
+    #         )
             
-            # Calculate generation quality metrics
-            generated_frames = generation_results['generated_frames']
-            predicted_actions = generation_results['predicted_actions']
+    #         # Calculate generation quality metrics
+    #         generated_frames = generation_results['generated_frames']
+    #         predicted_actions = generation_results['predicted_actions']
             
-            # Frame generation consistency (smoothness)
-            frame_diffs = torch.diff(generated_frames, dim=1)
-            frame_smoothness = torch.mean(torch.norm(frame_diffs, dim=-1))
-            generation_metrics['frame_smoothness'].append(frame_smoothness.item())
+    #         # Frame generation consistency (smoothness)
+    #         frame_diffs = torch.diff(generated_frames, dim=1)
+    #         frame_smoothness = torch.mean(torch.norm(frame_diffs, dim=-1))
+    #         generation_metrics['frame_smoothness'].append(frame_smoothness.item())
             
-            # Action prediction diversity
-            action_diversity = torch.mean(torch.std(predicted_actions, dim=1))
-            generation_metrics['action_diversity'].append(action_diversity.item())
+    #         # Action prediction diversity
+    #         action_diversity = torch.mean(torch.std(predicted_actions, dim=1))
+    #         generation_metrics['action_diversity'].append(action_diversity.item())
         
-        # Average metrics
-        return {key: np.mean(values) for key, values in generation_metrics.items()}
+    #     # Average metrics
+    #     return {key: np.mean(values) for key, values in generation_metrics.items()}
     
     def get_video_performance_summary(self) -> Dict[str, Any]:
         """

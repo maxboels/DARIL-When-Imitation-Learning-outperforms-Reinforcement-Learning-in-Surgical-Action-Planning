@@ -10,7 +10,7 @@ experiment:
     
   # Experiment 1: Autoregressive IL with pre-trained embeddings
   autoregressive_il:
-    enabled: false
+    enabled: true
     train: false
     evaluate: true
     model_type_preference: 'combined'  # 'current', 'next', 'combined'
@@ -44,7 +44,10 @@ experiment:
 
   # Experiment 4: Inverse Reinforcement Learning (PRESERVED for other experiments)
   irl_enhancement:
-    enabled: true
+    enabled: false
+    train: false
+    evaluate: true
+    irl_model_path: null
     num_epochs: 25            # DataLoader epochs instead of iterations default is 25
     task_focus: "next_action_prediction"  # Explicit task definition
     match_il_temporal_structure: true     # Ensure alignment

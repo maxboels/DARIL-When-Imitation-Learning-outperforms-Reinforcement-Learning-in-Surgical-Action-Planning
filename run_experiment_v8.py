@@ -223,176 +223,154 @@ class ExperimentRunner:
         self.logger.info("🎓 Method 1: Enhanced Autoregressive IL with IVT-based Saving")
         self.logger.info("-" * 40)
         
-        try:
-            # Check if pretrained model is configured
-            il_config = self.config.get('experiment', {}).get('autoregressive_il', {})
-            training_enabled = il_config.get('train', True)
-            evaluate_enabled = il_config.get('evaluate', True)
-            il_enabled = il_config.get('enabled', False)
-            il_model_path = il_config.get('il_model_path', None)
+        # Check if pretrained model is configured
+        il_config = self.config.get('experiment', {}).get('autoregressive_il', {})
+        training_enabled = il_config.get('train', True)
+        evaluate_enabled = il_config.get('evaluate', True)
+        il_enabled = il_config.get('enabled', False)
+        il_model_path = il_config.get('il_model_path', None)
 
-            # ENHANCED: Allow specifying which model type to load
-            model_type_preference = il_config.get('model_type_preference', 'combined')  # 'current', 'next', 'combined'
-            
-            # FIXED: Initialize best_model_path to handle all cases
-            best_model_paths = {}
-            
-            # Determine if we should use pretrained model
-            use_pretrained = il_enabled and il_model_path and os.path.exists(il_model_path)
-            
-            if use_pretrained:
-                self.logger.info(f"📂 Loading pretrained IL model from: {il_model_path}")
-                # Load pretrained model
-                model = AutoregressiveILModel.load_model(il_model_path, device=DEVICE)
-                self.logger.info("✅ Pretrained IL model loaded successfully")
-                
-                # FIXED: Set best_model_path to the loaded model path
-                best_model_paths['loaded'] = il_model_path
-                
-                # Use None for train_data since we're using pretrained model
-                train_data_for_loader = None
-                
-            elif il_enabled:
-                self.logger.info("🏋️ Training enhanced IL model from scratch...")
-                
-                # Create model from scratch
-                model = AutoregressiveILModel(
-                    hidden_dim=self.config['models']['autoregressive_il']['hidden_dim'],
-                    embedding_dim=self.config['models']['autoregressive_il']['embedding_dim'],
-                    n_layer=self.config['models']['autoregressive_il']['n_layer'],
-                    num_action_classes=self.config['models']['autoregressive_il']['num_action_classes'],
-                    dropout=self.config['models']['autoregressive_il']['dropout']
-                ).to(DEVICE)
-                
-                # Use original training data
-                train_data_for_loader = train_data
-                
-            else:
-                self.logger.info("❌ Autoregressive IL is disabled in config, skipping...")
-                return {'status': 'skipped', 'reason': 'Autoregressive IL disabled in config'}
-            
-            # Create datasets
-            train_loader, test_loaders = create_autoregressive_dataloaders(
-                config=self.config['data'],
-                train_data=train_data_for_loader,  # None if using pretrained model
-                test_data=test_data,
-                batch_size=self.config['training']['batch_size'],
-                num_workers=self.config['training']['num_workers']
-            )
-
-            self.test_loaders = test_loaders  # Store test loaders for evaluation
-            
-            # ENHANCED: Create trainer with IVT-based saving
-            from training.autoregressive_il_trainer import AutoregressiveILTrainer
-            trainer = AutoregressiveILTrainer(
-                model=model,
-                config=self.config,
-                logger=self.logger,
-                device=DEVICE
-            )
-
-            # Training phase (only if not using pretrained model and training is enabled)
-            if training_enabled and not use_pretrained:
-                self.logger.info("🌟 Training Enhanced Autoregressive IL model with IVT-based saving...")                
-                best_combined_path = trainer.train(train_loader, test_loaders)
-                
-                # ENHANCED: Get all best model paths
-                best_model_paths = trainer.get_best_model_paths()
-                best_metrics = trainer.get_best_metrics()
-                
-                self.logger.info("📊 TRAINING COMPLETED - Best Models Summary:")
-                self.logger.info(f"   🎯 Best Current Recognition mAP: {best_metrics['best_ivt_current_mAP']:.4f}")
-                self.logger.info(f"      Model: {best_model_paths['best_current_recognition']}")
-                self.logger.info(f"   🎯 Best Next Prediction mAP: {best_metrics['best_ivt_next_mAP']:.4f}")
-                self.logger.info(f"      Model: {best_model_paths['best_next_prediction']}")
-                self.logger.info(f"   🎯 Best Combined Score: {best_metrics['best_combined_score']:.4f}")
-                self.logger.info(f"      Model: {best_model_paths['best_combined']}")
-                
-            elif use_pretrained:
-                self.logger.info("📊 Skipping training (using pretrained model)")
-            else:
-                self.logger.info("📊 Skipping training (training disabled)")
-
-            # ENHANCED: Choose which model to use for evaluation
-            if evaluate_enabled:
-                self.logger.info("📊 Evaluating Enhanced Autoregressive IL model...")
-                
-                # Determine which model to use for evaluation
-                if not use_pretrained and best_model_paths:
-                    # Choose model based on preference
-                    if model_type_preference == 'current' and best_model_paths.get('best_current_recognition'):
-                        eval_model_path = best_model_paths['best_current_recognition']
-                        self.logger.info(f"🎯 Using best CURRENT recognition model for evaluation")
-                    elif model_type_preference == 'next' and best_model_paths.get('best_next_prediction'):
-                        eval_model_path = best_model_paths['best_next_prediction']
-                        self.logger.info(f"🎯 Using best NEXT prediction model for evaluation")
-                    else:
-                        eval_model_path = best_model_paths.get('best_combined') or best_model_paths.get('best_next_prediction')
-                        self.logger.info(f"🎯 Using best COMBINED model for evaluation")
-                    
-                    # Load the chosen best model for evaluation
-                    if eval_model_path and os.path.exists(eval_model_path):
-                        self.logger.info(f"📂 Loading best model for evaluation: {eval_model_path}")
-                        model = AutoregressiveILModel.load_model(eval_model_path, device=DEVICE)
-                        trainer.model = model  # Update trainer's model
-                
-                evaluation_results = trainer.evaluate_model(test_loaders)
-                
-                # Extract key metrics for comparison
-                single_step_map = evaluation_results['overall_metrics'].get('action_mAP', 0)
-                planning_2s_map = evaluation_results['publication_metrics'].get('planning_2s_mAP', 0)
-                planning_degradation = evaluation_results['evaluation_summary'].get('planning_degradation', 0)
-                
-                # ENHANCED: Add best metrics from training
-                training_best_metrics = {}
-                if not use_pretrained and hasattr(trainer, 'get_best_metrics'):
-                    training_best_metrics = trainer.get_best_metrics()
-                
-                return {
-                    'status': 'success',
-                    'model_paths': best_model_paths,  # ENHANCED: All model paths
-                    'model_type': 'AutoregressiveIL',
-                    'approach': 'Enhanced: Causal frame generation → action anticipation with IVT-based saving',
-                    'evaluation': evaluation_results,
-                    
-                    # Enhanced summary with planning and training metrics
-                    'method_description': 'Enhanced Autoregressive IL with IVT-optimized model saving',
-                    'capabilities': {
-                        'single_step_recognition': single_step_map,
-                        'short_term_planning_2s': planning_2s_map,
-                        'planning_degradation': planning_degradation,
-                        'planning_horizon': 'up_to_5_seconds'
-                    },
-                    
-                    # ENHANCED: Training performance summary
-                    'training_performance': training_best_metrics,
-                    'model_selection_strategy': f'IVT-based ({model_type_preference} preference)',
-                    
-                    # Your t+1 target choice is PERFECT for planning!
-                    'target_type': 'next_action_prediction',  # This is ideal for planning evaluation
-                    'planning_ready': True,
-                    'pretrained': use_pretrained,
-                    'enhanced_saving': True
-                }
-            else:
-                self.logger.info("📊 Evaluation disabled, returning basic results")
-                return {
-                    'status': 'success',
-                    'model_paths': best_model_paths,  # ENHANCED: All model paths
-                    'model_type': 'AutoregressiveIL',
-                    'approach': 'Enhanced: Causal frame generation → action anticipation with IVT-based saving',
-                    'evaluation': None,
-                    'method_description': 'Enhanced Autoregressive IL (evaluation skipped)',
-                    'pretrained': use_pretrained,
-                    'enhanced_saving': True
-                }
+        # ENHANCED: Allow specifying which model type to load
+        model_type_preference = il_config.get('model_type_preference', 'combined')  # 'current', 'next', 'combined'
         
-        except Exception as e:
-            self.logger.error(f"❌ Enhanced Method 1 failed: {e}")
-            import traceback
-            self.logger.error(f"Full traceback: {traceback.format_exc()}")
-            return {'status': 'failed', 'error': str(e)}
+        # FIXED: Initialize best_model_path to handle all cases
+        best_model_paths = {}
+        
+        # Determine if we should use pretrained model
+        use_pretrained = il_enabled and il_model_path and os.path.exists(il_model_path)
+        
+        if use_pretrained:
+            self.logger.info(f"📂 Loading pretrained IL model from: {il_model_path}")
+            # Load pretrained model
+            model = AutoregressiveILModel.load_model(il_model_path, device=DEVICE)
+            self.logger.info("✅ Pretrained IL model loaded successfully")
+            
+            # FIXED: Set best_model_path to the loaded model path
+            best_model_paths['loaded'] = il_model_path
+            
+            # Use None for train_data since we're using pretrained model
+            train_data_for_loader = None
+            
+        elif il_enabled:
+            self.logger.info("🏋️ Training enhanced IL model from scratch...")
+            
+            # Create model from scratch
+            model = AutoregressiveILModel(
+                hidden_dim=self.config['models']['autoregressive_il']['hidden_dim'],
+                embedding_dim=self.config['models']['autoregressive_il']['embedding_dim'],
+                n_layer=self.config['models']['autoregressive_il']['n_layer'],
+                num_action_classes=self.config['models']['autoregressive_il']['num_action_classes'],
+                dropout=self.config['models']['autoregressive_il']['dropout']
+            ).to(DEVICE)
+            
+            # Use original training data
+            train_data_for_loader = train_data
+            
+        else:
+            self.logger.info("❌ Autoregressive IL is disabled in config, skipping...")
+            return {'status': 'skipped', 'reason': 'Autoregressive IL disabled in config'}
+        
+        # Create datasets
+        train_loader, test_loaders = create_autoregressive_dataloaders(
+            config=self.config['data'],
+            train_data=train_data_for_loader,  # None if using pretrained model
+            test_data=test_data,
+            batch_size=self.config['training']['batch_size'],
+            num_workers=self.config['training']['num_workers']
+        )
 
+        self.test_loaders = test_loaders  # Store test loaders for evaluation
+        
+        trainer = AutoregressiveILTrainer(
+            model=model,
+            config=self.config,
+            logger=self.logger,
+            device=DEVICE
+        )
+
+        # Training phase (only if not using pretrained model and training is enabled)
+        if training_enabled and not use_pretrained:
+            self.logger.info("🌟 Training Enhanced Autoregressive IL model with IVT-based saving...")                
+            best_combined_path = trainer.train(train_loader, test_loaders)
+            
+            # ENHANCED: Get all best model paths
+            best_model_paths = trainer.get_best_model_paths()
+            best_metrics = trainer.get_best_metrics()
+            
+            self.logger.info("📊 TRAINING COMPLETED - Best Models Summary:")
+            self.logger.info(f"   🎯 Best Current Recognition mAP: {best_metrics['best_ivt_current_mAP']:.4f}")
+            self.logger.info(f"      Model: {best_model_paths['best_current_recognition']}")
+            self.logger.info(f"   🎯 Best Next Prediction mAP: {best_metrics['best_ivt_next_mAP']:.4f}")
+            self.logger.info(f"      Model: {best_model_paths['best_next_prediction']}")
+            self.logger.info(f"   🎯 Best Combined Score: {best_metrics['best_combined_score']:.4f}")
+            self.logger.info(f"      Model: {best_model_paths['best_combined']}")
+            
+        elif use_pretrained:
+            self.logger.info("📊 Skipping training (using pretrained model)")
+        else:
+            self.logger.info("📊 Skipping training (training disabled)")
+
+        if evaluate_enabled:
+            self.logger.info("📊 Evaluating Enhanced Autoregressive IL model...")                
+            if not use_pretrained and best_model_paths:
+                if model_type_preference == 'current' and best_model_paths.get('best_current_recognition'):
+                    eval_model_path = best_model_paths['best_current_recognition']
+                    self.logger.info(f"🎯 Using best CURRENT recognition model for evaluation")
+                elif model_type_preference == 'next' and best_model_paths.get('best_next_prediction'):
+                    eval_model_path = best_model_paths['best_next_prediction']
+                    self.logger.info(f"🎯 Using best NEXT prediction model for evaluation")
+                else:
+                    eval_model_path = best_model_paths.get('best_combined') or best_model_paths.get('best_next_prediction')
+                    self.logger.info(f"🎯 Using best COMBINED model for evaluation")                    
+                if eval_model_path and os.path.exists(eval_model_path):
+                    self.logger.info(f"📂 Loading best model for evaluation: {eval_model_path}")
+                    model = AutoregressiveILModel.load_model(eval_model_path, device=DEVICE)
+                    trainer.model = model
+            
+            self.logger.info("📊 Running evaluation on test loaders...")
+            evaluation_results = trainer.evaluate_model(test_loaders)
+            
+            single_step_map = evaluation_results['overall_metrics'].get('action_mAP', 0)
+            planning_2s_map = evaluation_results['publication_metrics'].get('planning_2s_mAP', 0)
+            planning_degradation = evaluation_results['evaluation_summary'].get('planning_degradation', 0)
+            
+            training_best_metrics = {}
+            if not use_pretrained and hasattr(trainer, 'get_best_metrics'):
+                training_best_metrics = trainer.get_best_metrics()
+            
+            return {
+                'status': 'success',
+                'model_paths': best_model_paths,
+                'model_type': 'AutoregressiveIL',
+                'approach': 'Enhanced: Causal frame generation → action anticipation with IVT-based saving',
+                'evaluation': evaluation_results,                    
+                'method_description': 'Enhanced Autoregressive IL with IVT-optimized model saving',
+                'capabilities': {
+                    'single_step_recognition': single_step_map,
+                    'short_term_planning_2s': planning_2s_map,
+                    'planning_degradation': planning_degradation,
+                    'planning_horizon': 'up_to_5_seconds'
+                },                    
+                'training_performance': training_best_metrics,
+                'model_selection_strategy': f'IVT-based ({model_type_preference} preference)',                    
+                'target_type': 'next_action_prediction',
+                'planning_ready': True,
+                'pretrained': use_pretrained,
+                'enhanced_saving': True
+            }
+        else:
+            self.logger.info("📊 Evaluation disabled, returning basic results")
+            return {
+                'status': 'success',
+                'model_paths': best_model_paths,  # ENHANCED: All model paths
+                'model_type': 'AutoregressiveIL',
+                'approach': 'Enhanced: Causal frame generation → action anticipation with IVT-based saving',
+                'evaluation': None,
+                'method_description': 'Enhanced Autoregressive IL (evaluation skipped)',
+                'pretrained': use_pretrained,
+                'enhanced_saving': True
+            }
+        
     def _run_method2_wm_rl(self, train_data: List[Dict], test_data: List[Dict]) -> Dict[str, Any]:
             """FIXED Method 2: Conditional World Model + Improved RL - supports pretrained models."""
             
