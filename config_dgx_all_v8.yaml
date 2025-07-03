@@ -71,7 +71,7 @@ experiment:
 # ENHANCED: Training parameters optimized for IVT metric tracking
 training:
   epochs: 15                    # OPTIMIZED: Sufficient for temporal learning with good features
-  batch_size: 8                 # OPTIMIZED: Larger batches possible with good embeddings
+  batch_size: 16                 # OPTIMIZED: Larger batches possible with good embeddings
   learning_rate: 8e-5           # OPTIMIZED: Lower LR for fine-tuning scenario
   log_every_n_steps: 20         # OPTIMIZED: More frequent logging for shorter training
   
@@ -244,10 +244,11 @@ rl_training:
 
 # ENHANCED: Data configuration for IVT metrics
 data:
-  context_length: 12            # OPTIMIZED: Shorter context with good features
+  context_length: 20            # OPTIMIZED: Shorter context with good features
+  future_length: 10             # OPTIMIZED: Shorter future for temporal learning
   train_shift: 1
   padding_value: 0.0
-  max_horizon: 8                # OPTIMIZED: More realistic with strong features
+  max_horizon: 10                # OPTIMIZED: More realistic with strong features
   
   # Feature processing for pre-trained embeddings
   normalize_embeddings: true    # Normalize Swin features

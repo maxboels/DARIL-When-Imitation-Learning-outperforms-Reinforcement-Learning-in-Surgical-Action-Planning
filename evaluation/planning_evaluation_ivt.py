@@ -51,7 +51,8 @@ class AutoregressivePlanningEvaluator:
             '1s': 1 * fps,   # 1 frame at 1fps
             '2s': 2 * fps,  # 2 frames at 1fps  
             '3s': 3 * fps,  # 3 frames at 1fps
-            '5s': 5 * fps   # 5 frames at 1fps
+            '5s': 5 * fps,   # 5 frames at 1fps
+            '10s': 10 * fps
         }
 
         # Results storage
@@ -66,7 +67,7 @@ class AutoregressivePlanningEvaluator:
     def evaluate_planning_on_video(self, 
                                   video_dataloader,
                                   video_id: str,
-                                  context_length: int = 10,
+                                  context_length: int = 20,
                                   future_length: int = 10,
                                   temperature: float = 0.1,
                                   deterministic: bool = True) -> Dict[str, Any]:
@@ -105,92 +106,82 @@ class AutoregressivePlanningEvaluator:
         
         with torch.no_grad():
             for batch_idx, batch in enumerate(tqdm(video_dataloader, desc=f"Planning eval {video_id}")):
-                try:
-                    # For recognition (current state) - slice sequence dimension 
-                    input_frames = batch['target_next_frames'][:, :-1].to(self.device)  # [batch_size, context_length, embedding_dim]
-                    target_actions = batch['target_future_actions'].to(self.device)  # [batch, seq, actions]
-                    
-                    batch_size, seq_len, _ = input_frames.shape
-                    _, target_seq_len, num_actions = target_actions.shape
-                    
-                    # For each sample in batch
-                    for sample_idx in range(batch_size):
-                        sample_frames = input_frames[sample_idx:sample_idx+1]  # [1, seq, dim]
-                        sample_targets = target_actions[sample_idx]  # [seq, actions]
-                        
-                        # Use last context_length frames as context
-                        context_frames = sample_frames[:, -context_length:, :] # [1, context_length, dim]
-                        
-                        # Get maximum horizon we can evaluate
-                        max_horizon = target_seq_len
-                        
-                        if max_horizon > 0:
-                            # Generate sequence for maximum horizon
-                            generation_result = self.model.generate_sequence(
-                                initial_frames=context_frames,
-                                horizon=max_horizon,
-                                temperature=temperature if not deterministic else 0.1
-                            )
-                            
-                            predicted_actions = generation_result['predicted_actions']  # [1, horizon, actions]
-                            predicted_actions = predicted_actions[0]  # [horizon, actions]
+                # For recognition (current state) - slice sequence dimension 
+                input_frames = batch['target_next_frames'][:, :-1].to(self.device)  # [batch_size, context_length, embedding_dim]
+                target_actions = batch['target_future_actions'].to(self.device)  # [batch, seq, actions]
+                
+                batch_size, seq_len, _ = input_frames.shape
+                _, target_seq_len, num_actions = target_actions.shape
+                
+                # For each sample in batch
+                # for sample_idx in range(batch_size):
+                sample_frames = input_frames#[sample_idx:sample_idx+1]  # [1, seq, dim]
+                sample_targets = target_actions#[sample_idx]  # [seq, actions]
+                
+                # Use last context_length frames as context
+                context_frames = sample_frames[:, -context_length:, :] # [1, context_length, dim]
+                
+                # Get maximum horizon we can evaluate
+                max_horizon = target_seq_len
+                
+                # Generate sequence for maximum horizon
+                generation_result = self.model.generate_sequence(
+                    initial_frames=context_frames,
+                    horizon=max_horizon,
+                    temperature=temperature if not deterministic else 0.1
+                )
+                
+                predicted_actions = generation_result['predicted_actions']  # [1, horizon, actions]
+                # predicted_actions = predicted_actions[0]  # [horizon, actions]
 
-                            # FIXED: Evaluate only the target step for each horizon
-                            for horizon_name, horizon_frames in self.planning_horizons.items():
-                                if horizon_frames <= max_horizon:
-                                    # Get prediction for ONLY the target step
-                                    target_step_idx = horizon_frames - 1  # 0-indexed
-                                    horizon_preds = predicted_actions[target_step_idx:target_step_idx+1]  # [1, actions]
-                                    
-                                    # Get ground truth for ONLY the target step  
-                                    gt_target_idx = horizon_frames - 1
-                                    horizon_gt = sample_targets[gt_target_idx:gt_target_idx+1]  # [1, actions]
-                                    
-                                    # Store predictions and ground truth
-                                    horizon_predictions[horizon_name].append(horizon_preds.cpu().numpy())
-                                    horizon_ground_truth[horizon_name].append(horizon_gt.cpu().numpy())                                
-
-                            successful_predictions += 1
+                # FIXED: Evaluate only the target step for each horizon
+                for horizon_name, horizon_frames in self.planning_horizons.items():
+                    # Get prediction for ONLY the target step
+                    target_step_idx = horizon_frames - 1  # 0-indexed
+                    horizon_preds = predicted_actions[:, target_step_idx:target_step_idx+1]  # [batch_size, actions]
                     
-                    total_sequences += 1
-                        
-                except Exception as e:
-                    if self.logger:
-                        self.logger.warning(f"Error processing batch {batch_idx}: {e}")
-                    continue
-        
+                    # Get ground truth for ONLY the target step  
+                    gt_target_idx = horizon_frames - 1
+                    horizon_gt = sample_targets[:, gt_target_idx:gt_target_idx+1]  # [batch_size, actions]
+                    
+                    # Store predictions and ground truth
+                    horizon_predictions[horizon_name].append(horizon_preds.cpu().numpy())
+                    horizon_ground_truth[horizon_name].append(horizon_gt.cpu().numpy())
+            
+        # Convert lists to numpy arrays
+        for horizon_name in self.planning_horizons.keys():
+            horizon_predictions[horizon_name] = np.concatenate(horizon_predictions[horizon_name], axis=0)
+            horizon_ground_truth[horizon_name] = np.concatenate(horizon_ground_truth[horizon_name], axis=0)
+                    
         # Compute planning metrics for each horizon
         video_results = {
             'video_id': video_id,
-            'total_sequences': total_sequences,
-            'successful_predictions': successful_predictions,
-            'success_rate': successful_predictions / max(total_sequences, 1),
             'horizon_results': {}
         }
         
         for horizon_name in self.planning_horizons.keys():
-            if horizon_predictions[horizon_name]:
-                horizon_result = self._compute_horizon_metrics(
-                    predictions=horizon_predictions[horizon_name],
-                    ground_truth=horizon_ground_truth[horizon_name],
-                    horizon_name=horizon_name,
-                    video_id=video_id
-                )
-                video_results['horizon_results'][horizon_name] = horizon_result
+            self.logger.info(f"Evaluating horizon {horizon_name} for video {video_id}...")
+            horizon_result = self._compute_horizon_metrics(
+                predictions=horizon_predictions[horizon_name],
+                ground_truth=horizon_ground_truth[horizon_name],
+                horizon_name=horizon_name,
+                video_id=video_id
+            )
+            video_results['horizon_results'][horizon_name] = horizon_result
         
         return video_results
     
     def _compute_horizon_metrics(self, 
-                                predictions: List[np.ndarray],
-                                ground_truth: List[np.ndarray], 
+                                predictions: np.
+                                ground_truth:  
                                 horizon_name: str,
                                 video_id: str) -> Dict[str, Any]:
         """
         Compute metrics for a specific planning horizon.
         
         Args:
-            predictions: List of prediction arrays [horizon_frames, actions]
-            ground_truth: List of ground truth arrays [horizon_frames, actions]
+            predictions: np.array of prediction arrays [horizon_frames, actions]
+            ground_truth: np.array of ground truth arrays [horizon_frames, actions]
             horizon_name: Name of the planning horizon
             video_id: Video identifier
             
@@ -198,53 +189,40 @@ class AutoregressivePlanningEvaluator:
             Dictionary with horizon-specific metrics
         """
         
-        if not predictions:
-            return {"error": "No predictions available"}
-        
-        # Concatenate all predictions and ground truth
-        all_predictions = np.concatenate(predictions, axis=0)  # [total_frames, actions]
-        all_ground_truth = np.concatenate(ground_truth, axis=0)  # [total_frames, actions]
+        if len(predictions.shape) == 3:
+            predictions = np.concatenate(predictions, axis=0)  # [total_frames, actions]
+            ground_truth = np.concatenate(ground_truth, axis=0)  # [total_frames, actions]
         
         # Convert ground truth to binary
-        all_ground_truth_binary = (all_ground_truth > 0.5).astype(int)
+        ground_truth_binary = (ground_truth > 0.5).astype(int)
         
         horizon_result = {
             'num_sequences': len(predictions),
-            'total_frames': all_predictions.shape[0],
+            'total_frames': predictions.shape[0],
             'horizon_frames': self.planning_horizons[horizon_name],
-            'avg_frames_per_sequence': all_predictions.shape[0] / len(predictions)
+            'avg_frames_per_sequence': predictions.shape[0] / len(predictions)
         }
         
         # Compute IVT metrics if available
-        if IVT_AVAILABLE:
-            try:
-                # Use fresh IVT recognizer for this horizon
-                ivt_rec = ivtmetrics.Recognition(num_class=100)
-                
-                # Update IVT recognizer with all predictions
-                ivt_rec.update(all_ground_truth_binary, all_predictions)
-                ivt_rec.video_end()
-                
-                # Get IVT results
-                ivt_result = ivt_rec.compute_video_AP("ivt")
-                horizon_result['ivt_mAP'] = ivt_result["mAP"]
-                
-                # Component-wise results
-                for component in ['i', 'v', 't', 'iv', 'it']:
-                    try:
-                        comp_result = ivt_rec.compute_video_AP(component)
-                        horizon_result[f'ivt_{component}_mAP'] = comp_result["mAP"]
-                    except:
-                        horizon_result[f'ivt_{component}_mAP'] = 0.0
-                
-            except Exception as e:
-                if self.logger:
-                    self.logger.warning(f"Error computing IVT metrics for {horizon_name}: {e}")
-                horizon_result['ivt_mAP'] = 0.0
+        # Use fresh IVT recognizer for this horizon
+        ivt_rec = ivtmetrics.Recognition(num_class=100)
         
+        # Update IVT recognizer with all predictions
+        ivt_rec.update(ground_truth_binary, predictions)
+        ivt_rec.video_end()
+        
+        # Get IVT results
+        ivt_result = ivt_rec.compute_video_AP("ivt")
+        horizon_result['ivt_mAP'] = ivt_result["mAP"]
+        
+        # Component-wise results
+        for component in ['i', 'v', 't', 'iv', 'it']:
+            comp_result = ivt_rec.compute_video_AP(component)
+            horizon_result[f'ivt_{component}_mAP'] = comp_result["mAP"]
+                        
         # Compute additional planning-specific metrics
         horizon_result.update(self._compute_planning_specific_metrics(
-            all_predictions, all_ground_truth_binary
+            predictions, ground_truth_binary
         ))
         
         return horizon_result
@@ -323,8 +301,7 @@ class AutoregressivePlanningEvaluator:
         # Evaluate each video
         video_results = {}
         for video_id, dataloader in test_loaders.items():
-            if self.logger:
-                self.logger.info(f"📹 Evaluating planning on video {video_id}...")
+            self.logger.info(f"📹 Evaluating planning on video {video_id}...")
             
             video_result = self.evaluate_planning_on_video(
                 dataloader, video_id, context_length, temperature
@@ -408,7 +385,6 @@ class AutoregressivePlanningEvaluator:
         overall = self.planning_results
         self.logger.info(f"📊 Overall Results:")
         self.logger.info(f"   Videos evaluated: {overall['num_videos']}")
-        self.logger.info(f"   Success rate: {overall['overall_success_rate']:.3f}")
         
         self.logger.info(f"📈 Planning Horizon Results:")
         for horizon_name, horizon_data in overall['horizon_aggregated'].items():

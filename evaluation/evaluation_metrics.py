@@ -30,7 +30,8 @@ class SurgicalEvaluationMetrics:
                                              predictions: np.ndarray, 
                                              ground_truth: np.ndarray, 
                                              method_name: str = "unknown",
-                                             exclude_last_n: int = 6) -> Dict[str, float]:
+                                             ignore_null_verbs: bool = False,
+                                             exclude_last_n: int = 6) -> Dict[str, Any]:
         """
         Calculate comprehensive single-step action prediction metrics.
         
@@ -66,61 +67,59 @@ class SurgicalEvaluationMetrics:
                     pred_sample = preds[sample_idx]
                     
                     if np.sum(gt_sample) > 0:  # Only if sample has positive actions
-                        try:
-                            ap = average_precision_score(gt_sample, pred_sample)
-                            sample_aps.append(ap)
-                        except:
-                            sample_aps.append(0.0)
-                
-                return np.mean(sample_aps) if sample_aps else 0.0
-            
-            # Action-wise approaches
-            ap_scores = []
-            action_frequencies = []
-            
-            for i in range(gt.shape[1]):  # iterate over actions
-                gt_class_i = gt[:, i]
-                pred_class_i = preds[:, i]
-                action_freq = np.sum(gt_class_i) / len(gt_class_i)  # frequency of this action
-                
-                if np.sum(gt_class_i) > 0:
-                    try:
-                        ap = average_precision_score(gt_class_i, pred_class_i)
-                        ap_scores.append(ap)
-                        action_frequencies.append(action_freq)
-                    except:
-                        ap_scores.append(0.0)
-                        action_frequencies.append(action_freq)
-                else:
-                    # Action not present in this batch/video
-                    if handle_sparsity == 'standard':
-                        # Original behavior
-                        if np.sum(binary_preds[:, i]) == 0:
-                            ap_scores.append(1.0)  # Perfect score for absent action
-                        else:
-                            ap_scores.append(0.0)  # False positive
-                        action_frequencies.append(action_freq)
-                    elif handle_sparsity == 'present_only':
-                        # Skip absent actions entirely
-                        continue
-                    # For frequency_weighted, we'll skip absent actions too
-            
-            if not ap_scores:
-                return 0.0
-                
-            if handle_sparsity == 'frequency_weighted' and action_frequencies:
-                # Weight by action frequency to reduce impact of rare actions
-                weights = np.array(action_frequencies)
-                weights = weights / np.sum(weights) if np.sum(weights) > 0 else np.ones_like(weights)
-                return np.average(ap_scores, weights=weights)
+                        ap = average_precision_score(gt_sample, pred_sample)
+                        sample_aps.append(ap)
+                    else:
+                        # Set as nan for samples with no actions
+                        sample_aps.append(np.nan)
+                return np.nanmean(sample_aps) if sample_aps else 0.0
             else:
-                return np.mean(ap_scores)
+                # Action-wise approaches
+                ap_scores = []
+                action_frequencies = []
+                
+                for i in range(gt.shape[1]):  # iterate over actions
+                    gt_class_i = gt[:, i]
+                    pred_class_i = preds[:, i]
+                    action_freq = np.sum(gt_class_i) / len(gt_class_i)  # frequency of this action
+                    
+                    if np.sum(gt_class_i) > 0:
+                        try:
+                            ap = average_precision_score(gt_class_i, pred_class_i)
+                            ap_scores.append(ap)
+                            action_frequencies.append(action_freq)
+                        except:
+                            ap_scores.append(0.0)
+                            action_frequencies.append(action_freq)
+                    else:
+                        # Action not present in this batch/video
+                        if handle_sparsity == 'standard':
+                            # Original behavior
+                            if np.sum(binary_preds[:, i]) == 0:
+                                ap_scores.append(1.0)  # Perfect score for absent action
+                            else:
+                                ap_scores.append(0.0)  # False positive
+                            action_frequencies.append(action_freq)
+                        elif handle_sparsity == 'present_only':
+                            # Skip absent actions entirely
+                            continue
+                        # For frequency_weighted, we'll skip absent actions too
+                
+                if not ap_scores:
+                    return 0.0
+                    
+                if handle_sparsity == 'frequency_weighted' and action_frequencies:
+                    # Weight by action frequency to reduce impact of rare actions
+                    weights = np.array(action_frequencies)
+                    weights = weights / np.sum(weights) if np.sum(weights) > 0 else np.ones_like(weights)
+                    return np.average(ap_scores, weights=weights)
+                else:
+                    return np.mean(ap_scores)
         
         def _compute_sequence_metrics(preds, gt):
             """Helper to compute sequence-level metrics."""
             binary_preds = (preds > 0.5).astype(int)
             
-            exact_match = np.mean(np.all(binary_preds == gt, axis=1))
             hamming_accuracy = np.mean(binary_preds == gt)
             
             try:
@@ -131,13 +130,14 @@ class SurgicalEvaluationMetrics:
             except:
                 precision = recall = f1 = 0.0
                 
-            return exact_match, hamming_accuracy, precision, recall, f1
+            return hamming_accuracy, precision, recall, f1
         
         # 🔧 MAIN mAP CALCULATION: Present actions only from subset excluding last N
         main_mAP = 0.0
         main_mAP_info = {
             'calculated_from': 'subset_excluding_last_classes_present_actions_only',
             'excluded_classes': exclude_last_n,
+            'ignore_null_verbs': ignore_null_verbs,
             'subset_size': 0,
             'present_actions_in_subset': 0
         }
@@ -148,7 +148,7 @@ class SurgicalEvaluationMetrics:
             gt_subset = ground_truth[:, :-exclude_last_n]
             
             # Calculate mAP on present actions only from this subset
-            main_mAP = _compute_map_scores(preds_subset, gt_subset, 'present_only')
+            mAP_present_only_ignore_null_verbs = _compute_map_scores(preds_subset, gt_subset, 'present_only')
             
             # Update info
             present_actions_subset = np.sum(np.sum(gt_subset, axis=0) > 0)
@@ -172,7 +172,7 @@ class SurgicalEvaluationMetrics:
         mAP_sample_wise_all = _compute_map_scores(predictions, ground_truth, 'sample_wise')
         
         # Other metrics on all actions
-        exact_match_all, hamming_all, precision_all, recall_all, f1_all = _compute_sequence_metrics(
+        hamming_all, precision_all, recall_all, f1_all = _compute_sequence_metrics(
             predictions, ground_truth)
         
         # Count present actions for context (on all actions)
@@ -181,7 +181,7 @@ class SurgicalEvaluationMetrics:
         
         results = {
             # 🎯 MAIN mAP: Present actions only from subset excluding last N classes (NORMAL)
-            'mAP': main_mAP,
+            'mAP': mAP_present_only_all,  # Main mAP calculated from present actions only and not excluding null verbs
             'mAP_info': main_mAP_info,
             
             # Alternative mAP variants for comparison (calculated on all actions INCLUDING null verbs)
@@ -197,7 +197,6 @@ class SurgicalEvaluationMetrics:
             'mAP_sample_wise_all_actions': mAP_sample_wise_all,
             
             # Other metrics (calculated on all actions INCLUDING null verbs)
-            'exact_match_with_null_verb': exact_match_all,
             'hamming_accuracy_with_null_verb': hamming_all,
             'precision_with_null_verb': precision_all,
             'recall_with_null_verb': recall_all,
@@ -212,56 +211,8 @@ class SurgicalEvaluationMetrics:
             'method_name': method_name,
             'exclude_last_n': exclude_last_n
         }
-        
-        # 🔧 SUBSET METRICS: Add comprehensive subset analysis (NORMAL metrics - no prefix)
-        if predictions.shape[1] > exclude_last_n:
-            preds_subset = predictions[:, :-exclude_last_n]
-            gt_subset = ground_truth[:, :-exclude_last_n]
-            
-            # All mAP variants on subset (NORMAL - no prefix)
-            mAP_subset_standard = _compute_map_scores(preds_subset, gt_subset, 'standard')
-            mAP_subset_present = _compute_map_scores(preds_subset, gt_subset, 'present_only')
-            mAP_subset_freq_weighted = _compute_map_scores(preds_subset, gt_subset, 'frequency_weighted')
-            
-            # Other metrics on subset (NORMAL - no prefix)
-            exact_match_subset, hamming_subset, precision_subset, recall_subset, f1_subset = _compute_sequence_metrics(
-                preds_subset, gt_subset)
-            
-            present_actions_subset = np.sum(np.sum(gt_subset, axis=0) > 0)
-            
-            # Add subset metrics as NORMAL metrics (clean names)
-            subset_metrics = {
-                'mAP_standard': mAP_subset_standard,
-                'mAP_present_only': mAP_subset_present,  # Same as main mAP but explicit
-                'mAP_freq_weighted': mAP_subset_freq_weighted,
-                'exact_match': exact_match_subset,
-                'hamming_accuracy': hamming_subset,
-                'precision': precision_subset,
-                'recall': recall_subset,
-                'f1': f1_subset,
-                'num_actions_total': preds_subset.shape[1],
-                'num_actions_present': present_actions_subset,
-                'action_sparsity': 1 - (present_actions_subset / preds_subset.shape[1]) if preds_subset.shape[1] > 0 else 1.0
-            }
-            
-            results.update(subset_metrics)
-        else:
-            # Add placeholder values when subset is not available
-            results.update({
-                'mAP_standard': None,
-                'mAP_present_only': None,
-                'mAP_freq_weighted': None,
-                'exact_match': None,
-                'hamming_accuracy': None,
-                'precision': None,
-                'recall': None,
-                'f1': None,
-                'num_actions_total': 0,
-                'num_actions_present': 0,
-                'action_sparsity': 1.0
-            })
-        
         return results
+
     
     def calculate_planning_stability(self, planning_sequences: np.ndarray) -> float:
         """Calculate planning stability across sequences."""
@@ -407,7 +358,6 @@ class SurgicalEvaluationMetrics:
             subset_sparsity = metrics.get('action_sparsity', 0)
             with_null_sparsity = metrics.get('action_sparsity_with_null_verb', 0)
             self.logger.info(f"   📈 Sparsity: Surgical actions={subset_sparsity:.3f}, With null verbs={with_null_sparsity:.3f}")
-            self.logger.info(f"   📈 Exact Match: {metrics.get('exact_match', 0):.4f} (surgical actions only)")
 
 
 # Global instance for easy access

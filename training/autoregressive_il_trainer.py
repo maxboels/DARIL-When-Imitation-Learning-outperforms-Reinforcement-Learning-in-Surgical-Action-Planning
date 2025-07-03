@@ -501,13 +501,8 @@ class AutoregressiveILTrainer:
         
         self.model.eval()
 
-        ivt_rec_curr = None
-        if IVT_AVAILABLE:
-            ivt_rec_curr = ivtmetrics.Recognition(num_class=100)
-        
-        ivt_rec_next = None
-        if IVT_AVAILABLE:
-            ivt_rec_next = ivtmetrics.Recognition(num_class=100)
+        ivt_rec_curr = ivtmetrics.Recognition(num_class=100)        
+        ivt_rec_next = ivtmetrics.Recognition(num_class=100)
 
         # Store metrics per video
         video_loss_metrics = {}
@@ -545,8 +540,7 @@ class AutoregressiveILTrainer:
                         if key.endswith('loss') and isinstance(value, torch.Tensor):
                             video_losses[key] += value.item()
                     
-                    # Current action recognition
-                    # FIXED: Get action recognition predictions properly
+                    # CURRENT ACTION RECOGNITION
                     if 'action_rec_probs' in outputs:
                         action_rec_probs = outputs['action_rec_probs']
                         current_actions = data['current_actions']  # [batch, seq_len, num_actions]
@@ -566,40 +560,32 @@ class AutoregressiveILTrainer:
                         # Convert targets to int (ivtmetrics expects binary labels)
                         target_current_actions_int = (target_current_actions_flat > 0.5).astype(int)
 
-                        # Update IVT recognizer for current actions (standard protocol)
-                        if ivt_rec_curr is not None:
-                            ivt_rec_curr.update(target_current_actions_int, action_rec_probs_flat)
+                        ivt_rec_curr.update(target_current_actions_int, action_rec_probs_flat)
                     
-                    # Next actions predictions
-                    # FIXED: Use correct variable name 'next_actions'
-                    # Collect next action predictions for this video
+                    # NEXT ACTION PREDICTION
                     action_probs = outputs['action_pred']  # [batch, seq_len, num_actions]
                     next_actions = data['target_next_actions']  # [batch, seq_len, num_actions]
 
-                    video_predictions.append(action_probs.cpu().numpy())
-                    video_targets.append(next_actions.cpu().numpy())  # FIXED: next_actions instead of target_actions
-
-                    if ivt_rec_next is not None:
-                        # Handle sequence dimension
-                        if action_probs.ndim == 3:  # [batch, seq_len, num_actions]
-                            action_probs_flat = action_probs[:, -1, :].cpu().numpy()  # Last timestep
-                            next_actions_flat = next_actions[:, -1, :].cpu().numpy()  # FIXED: next_actions
-                        else:
-                            action_probs_flat = action_probs.cpu().numpy()
-                            next_actions_flat = next_actions.cpu().numpy()  # FIXED: next_actions
-                        
-                        # Convert targets to int (ivtmetrics expects binary labels)
-                        next_actions_int = (next_actions_flat > 0.5).astype(int)  # FIXED: next_actions
-                        
-                        # Update IVT recognizer (standard protocol)
-                        ivt_rec_next.update(next_actions_int, action_probs_flat)
+                    # Handle sequence dimension
+                    if action_probs.ndim == 3:  # [batch, seq_len, num_actions]
+                        action_probs_flat = action_probs[:, -1, :].cpu().numpy()  # Last timestep
+                        next_actions_flat = next_actions[:, -1, :].cpu().numpy()  # FIXED: next_actions
+                    else:
+                        action_probs_flat = action_probs.cpu().numpy()
+                        next_actions_flat = next_actions.cpu().numpy()  # FIXED: next_actions
+                    
+                    video_predictions.append(action_probs_flat)
+                    video_targets.append(next_actions_flat)
+                    
+                    # Convert targets to int (ivtmetrics expects binary labels)
+                    next_actions_int = (next_actions_flat > 0.5).astype(int)  # FIXED: next_actions
+                    
+                    # Update IVT recognizer (standard protocol)
+                    ivt_rec_next.update(next_actions_int, action_probs_flat)
             
                 # End of current video processing
-                if ivt_rec_curr is not None:
-                    ivt_rec_curr.video_end()
-
-                if ivt_rec_next is not None:
-                    ivt_rec_next.video_end()
+                ivt_rec_curr.video_end()
+                ivt_rec_next.video_end()
 
                 # 🎯 PER-VIDEO: Compute action metrics for this specific video
                 if video_predictions:
@@ -629,7 +615,6 @@ class AutoregressiveILTrainer:
                     self.video_performance_history[video_id].append({
                         'epoch': epoch,
                         'mAP': video_action_result['mAP'],
-                        'exact_match': video_action_result['exact_match'],
                     })
                 
                 # Average loss metrics for this video
@@ -645,55 +630,29 @@ class AutoregressiveILTrainer:
         final_metrics = {}
         ivt_metrics = {}
 
-        if ivt_rec_curr is not None:
-            try:
-                # Standard IVT video-wise mAP (main metric for publication)
-                ivt_result = ivt_rec_curr.compute_video_AP("ivt")
-                ivt_metrics['ivt_current_mAP'] = ivt_result["mAP"]
-                ivt_metrics['ivt_current_AP_per_class'] = ivt_result["AP"]
+        # ACTION RECOGNITION IVT metrics
+        ivt_result = ivt_rec_curr.compute_video_AP("ivt")
+        ivt_metrics['ivt_current_mAP'] = ivt_result["mAP"]
+        ivt_metrics['ivt_current_AP_per_class'] = ivt_result["AP"]
+        self.logger.info(f"IVT current mAP: {ivt_metrics['ivt_current_mAP']:.4f}")
 
-                # Optional: Get component-wise results
-                for component in ['i', 'v', 't', 'iv', 'it']:
-                    try:
-                        comp_result = ivt_rec_curr.compute_video_AP(component)
-                        ivt_metrics[f'ivt_rec_{component}_mAP'] = comp_result["mAP"]
-                    except:
-                        ivt_metrics[f'ivt_rec_{component}_mAP'] = 0.0
-            except Exception as e:
-                self.logger.error(f"Error computing IVT metrics for current actions: {e}")
-                ivt_metrics['ivt_current_mAP'] = 0.0
-
-        if ivt_rec_next is not None:
-            try:
-                # Standard IVT video-wise mAP (main metric for publication)
-                ivt_result = ivt_rec_next.compute_video_AP("ivt")
-                ivt_metrics['ivt_next_mAP'] = ivt_result["mAP"]
-                ivt_metrics['ivt_next_AP_per_class'] = ivt_result["AP"]
-                
-                # Optional: Get component-wise results
-                for component in ['i', 'v', 't', 'iv', 'it']:
-                    try:
-                        comp_result = ivt_rec_next.compute_video_AP(component)
-                        ivt_metrics[f'ivt_{component}_mAP'] = comp_result["mAP"]
-                    except:
-                        ivt_metrics[f'ivt_{component}_mAP'] = 0.0
-            
-            except Exception as e:
-                self.logger.error(f"Error computing IVT metrics for next actions: {e}")
-                ivt_metrics['ivt_next_mAP'] = 0.0
-        else:
-            ivt_metrics['ivt_next_mAP'] = 0.0
+        for component in ['i', 'v', 't', 'iv', 'it']:
+            comp_result = ivt_rec_curr.compute_video_AP(component)
+            ivt_metrics[f'ivt_rec_{component}_mAP'] = comp_result["mAP"]
+            self.logger.info(f"IVT {component} mAP: {ivt_metrics[f'ivt_rec_{component}_mAP']:.4f}")
         
+        # NEXT ACTION PREDICTION IVT metrics
+        ivt_result = ivt_rec_next.compute_video_AP("ivt")
+        ivt_metrics['ivt_next_mAP'] = ivt_result["mAP"]
+        ivt_metrics['ivt_next_AP_per_class'] = ivt_result["AP"]
+        self.logger.info(f"IVT next mAP: {ivt_metrics['ivt_next_mAP']:.4f}")
+
+        for component in ['i', 'v', 't', 'iv', 'it']:
+            comp_result = ivt_rec_next.compute_video_AP(component)
+            ivt_metrics[f'ivt_{component}_mAP'] = comp_result["mAP"]
+            self.logger.info(f"IVT {component} mAP: {ivt_metrics[f'ivt_{component}_mAP']:.4f}")
+                
         final_metrics.update(ivt_metrics)
-
-        next_map = final_metrics.get('action_mAP', 0.0)
-        ivt_next_map = final_metrics.get('ivt_next_mAP', 0.0)
-
-        self.logger.info(
-            f"✅ All videos processed: "
-            f"   IVT current mAP: {final_metrics.get('ivt_current_mAP', 0):.4f}, "
-            f"   IVT next mAP: {final_metrics.get('ivt_next_mAP', 0):.4f}, "
-        )
 
         # 🎯 AGGREGATE: Average metrics across all videos
         aggregated_loss_metrics = {}
@@ -735,7 +694,6 @@ class AutoregressiveILTrainer:
                 'action_mAP': aggregated_action_metrics.get('mAP', 0.0),  # Main mAP (surgical actions only)
                 'action_mAP_standard': aggregated_action_metrics.get('mAP_standard', 0.0),  # Standard on surgical actions
                 'action_mAP_freq_weighted': aggregated_action_metrics.get('mAP_freq_weighted', 0.0),  # Freq weighted on surgical actions
-                'action_exact_match': aggregated_action_metrics.get('exact_match', 0.0),  # Exact match on surgical actions
                 'action_hamming_accuracy': aggregated_action_metrics.get('hamming_accuracy', 0.0),  # Hamming on surgical actions
                 'action_precision': aggregated_action_metrics.get('precision', 0.0),  # Precision on surgical actions
                 'action_recall': aggregated_action_metrics.get('recall', 0.0),  # Recall on surgical actions
@@ -745,7 +703,6 @@ class AutoregressiveILTrainer:
                                 
                 # 🔧 NEW: Add alternative metrics for comparison (with null verbs)
                 'action_mAP_with_null_verb': aggregated_action_metrics.get('mAP_present_only_with_null_verb', 0.0),
-                'action_exact_match_with_null_verb': aggregated_action_metrics.get('exact_match_with_null_verb', 0.0),
                 'action_sparsity_with_null_verb': aggregated_action_metrics.get('action_sparsity_with_null_verb', 0.0),
                 'num_actions_total': aggregated_action_metrics.get('num_actions_total', 0.0),  # Total surgical actions
                 'num_actions_total_with_null_verb': aggregated_action_metrics.get('num_actions_total_with_null_verb', 0.0)  # All 100 actions
@@ -757,7 +714,6 @@ class AutoregressiveILTrainer:
                 # Map variance metrics to training expected names
                 variance_mapping = {
                     'action_mAP_std': action_metric_variance.get('mAP_std', 0.0),
-                    'action_exact_match_std': action_metric_variance.get('exact_match_std', 0.0),
                     'action_sparsity_std': action_metric_variance.get('action_sparsity_std', 0.0)
                 }
                 final_metrics.update(variance_mapping)
@@ -775,20 +731,16 @@ class AutoregressiveILTrainer:
         self.logger.info(f"   📊 IVT current mAP:                {ivt_current_map:.4f}")
         self.logger.info(f"   📊 IVT next mAP:                   {ivt_next_map:.4f}")
 
-        # Log IVT component-wise metrics
-        for comp in ['i', 'v', 't', 'iv', 'it']:
-            comp_map = final_metrics.get(f'ivt_{comp}_mAP', 0.0)
-            self.logger.info(f"   📊 IVT next {comp.upper()} mAP:     {comp_map:.4f}")
-        
-        # Add the current recognition task mAP
-        if ivt_rec_curr is not None:
-            curr_ivt_map = final_metrics.get('ivt_current_mAP', 0.0)
-            self.logger.info(f"   📊 IVT current mAP:         {curr_ivt_map:.4f}")
-        
+        curr_ivt_map = final_metrics.get('ivt_current_mAP', 0.0)
+        self.logger.info(f"   📊 IVT current mAP:         {curr_ivt_map:.4f}")
+
         for comp in ['i', 'v', 't', 'iv', 'it']:
             comp_map = final_metrics.get(f'ivt_rec_{comp}_mAP', 0.0)
             self.logger.info(f"   📊 IVT current {comp.upper()} mAP: {comp_map:.4f}")
-
+        
+        for comp in ['i', 'v', 't', 'iv', 'it']:
+            comp_map = final_metrics.get(f'ivt_{comp}_mAP', 0.0)
+            self.logger.info(f"   📊 IVT next {comp.upper()} mAP:     {comp_map:.4f}")
         
         # Store detailed per-video results for analysis
         self.last_validation_details = {
@@ -902,36 +854,6 @@ class AutoregressiveILTrainer:
         
         # Get planning results from the stored validation details or create minimal fallback
         planning_results = getattr(self, '_last_planning_results', None)
-        if planning_results is None:
-            self.logger.info("🎯 No planning results found, creating minimal fallback...")
-            # Create minimal planning results structure
-            planning_results = {
-                'aggregated_results': {
-                    'horizon_aggregated': {
-                        '1s': {
-                            'mean_ivt_mAP': evaluate_results.get('planning_1s_mAP', 0.0),
-                            'mean_action_consistency': 0.85,
-                            'planning_horizon_seconds': 1
-                        },
-                        '2s': {
-                            'mean_ivt_mAP': evaluate_results.get('planning_2s_mAP', 0.0),
-                            'mean_action_consistency': 0.85,
-                            'planning_horizon_seconds': 2
-                        },
-                        '3s': {
-                            'mean_ivt_mAP': evaluate_results.get('planning_3s_mAP', 0.0),
-                            'mean_action_consistency': 0.85,
-                            'planning_horizon_seconds': 3
-                        },
-                        '5s': {
-                            'mean_ivt_mAP': evaluate_results.get('planning_5s_mAP', 0.0),
-                            'mean_action_consistency': 0.85,
-                            'planning_horizon_seconds': 5
-                        }
-                    }
-                }
-            }
-
         evaluation_results = {
             # FIXED: Use correct variable name
             'overall_metrics': evaluate_results,
@@ -958,6 +880,7 @@ class AutoregressiveILTrainer:
                 'planning_2s_mAP': self._extract_planning_metric(planning_results, '2s', 'mean_ivt_mAP'),
                 'planning_3s_mAP': self._extract_planning_metric(planning_results, '3s', 'mean_ivt_mAP'),
                 'planning_5s_mAP': self._extract_planning_metric(planning_results, '5s', 'mean_ivt_mAP'),
+                'planning_10s_mAP': self._extract_planning_metric(planning_results, '10s', 'mean_ivt_mAP'),
                 
                 # Comparison
                 'evaluation_types': ['single_step_recognition', 'multi_step_planning'],
@@ -968,10 +891,11 @@ class AutoregressiveILTrainer:
                 'single_step_performance': evaluate_results.get('action_mAP', 0.0),
                 'short_term_planning': self._extract_planning_metric(planning_results, '2s', 'mean_ivt_mAP'),
                 'medium_term_planning': self._extract_planning_metric(planning_results, '5s', 'mean_ivt_mAP'),
+                'long_term_planning': self._extract_planning_metric(planning_results, '10s', 'mean_ivt_mAP'),
                 'planning_degradation': self._calculate_planning_degradation(planning_results),
                 'strength': 'Autoregressive planning with causal generation',
                 'architecture': 'GPT-2 based autoregressive model',
-                'planning_horizon_capability': 'up_to_5_seconds',
+                'planning_horizon_capability': 'up_to_10_seconds',
                 'target_prediction_type': 'next_action_anticipation'  # Since you use t+1 targets
             }
         }
@@ -1004,21 +928,20 @@ class AutoregressiveILTrainer:
         if planning_results is None:
             return 0.0
         
-        try:
-            aggregated = planning_results.get('aggregated_results', {})
-            horizon_data = aggregated.get('horizon_aggregated', {})
-            
-            # FIXED: Use consistent key names
-            perf_1s = horizon_data.get('1s', {}).get('mean_ivt_mAP', 0)
-            perf_5s = horizon_data.get('5s', {}).get('mean_ivt_mAP', 0)
-            
-            if perf_1s > 0:
-                degradation = (perf_1s - perf_5s) / perf_1s
-                return max(0, degradation)  # Return 0 if performance improves
-            
-            return 0.0
-        except (KeyError, TypeError, AttributeError):
-            return 0.0
+        aggregated = planning_results.get('aggregated_results', {})
+        horizon_data = aggregated.get('horizon_aggregated', {})
+        
+        # FIXED: Use consistent key names
+        perf_1s = horizon_data.get('1s', {}).get('mean_ivt_mAP', 0)
+        perf_5s = horizon_data.get('5s', {}).get('mean_ivt_mAP', 0)
+        perf_10s = horizon_data.get('10s', {}).get('mean_ivt_mAP', 0)
+        
+        if perf_1s > 0:
+            degradation = (perf_1s - perf_5s) / perf_1s
+            return max(0, degradation)  # Return 0 if performance improves
+        
+        return 0.0
+
 
     def _log_comprehensive_results(self, overall_metrics: Dict, planning_results: Dict):
         """FIXED: Enhanced logging with planning results."""
@@ -1038,7 +961,7 @@ class AutoregressiveILTrainer:
             aggregated = planning_results['aggregated_results'].get('horizon_aggregated', {})
             
             # FIXED: Use consistent key names
-            for horizon_name in ['1s', '2s', '3s', '5s']:
+            for horizon_name in ['1s', '2s', '3s', '5s', '10s']:
                 if horizon_name in aggregated:
                     horizon_data = aggregated[horizon_name]
                     seconds = horizon_data.get('planning_horizon_seconds', 0)
@@ -1068,60 +991,39 @@ class AutoregressiveILTrainer:
         if include_planning and (epoch % 5 == 0 or epoch == -1):  # Every 5 epochs or final
             self.logger.info(f"🎯 Including planning evaluation for epoch {epoch}...")
             
-            try:
-                # Quick planning evaluation (shorter horizons only)
-                planning_evaluator = AutoregressivePlanningEvaluator(
-                    model=self.model,
-                    device=self.device,
-                    logger=self.logger,
-                    fps=1
-                )
-                
-                # Override planning horizons for faster evaluation during training
-                if epoch == -1:  # Final evaluation
-                    planning_evaluator.planning_horizons = {
-                        '1s': 1,
-                        '2s': 2,
-                        '3s': 3,
-                        '5s': 5
-                    }
-                
-                planning_results = planning_evaluator.evaluate_planning_on_dataset(
-                    test_loaders=test_loaders,
-                    context_length=20,  # Shorter context during training
-                    temperature=0.1
-                )
-                
-                # FIXED: Store planning results for reuse in evaluate_model
-                self._last_planning_results = planning_results
-                
-                # Add planning metrics to standard metrics
-                planning_metrics = {}
-                for name, seconds in planning_evaluator.planning_horizons.items():
-                    planning_metrics[f'planning_{name}_mAP'] = self._extract_planning_metric(planning_results, name, 'mean_ivt_mAP')
-                standard_metrics.update(planning_metrics)
-                standard_metrics.update({
-                    'planning_available': True
-                })
-                            
-            except Exception as e:
-                self.logger.warning(f"Planning evaluation failed: {e}")
-                # Store empty planning results
-                self._last_planning_results = {
-                    'aggregated_results': {
-                        'horizon_aggregated': {
-                            '1s': {'mean_ivt_mAP': 0.0, 'mean_action_consistency': 0.0},
-                            '2s': {'mean_ivt_mAP': 0.0, 'mean_action_consistency': 0.0},
-                            '3s': {'mean_ivt_mAP': 0.0, 'mean_action_consistency': 0.0},
-                            '5s': {'mean_ivt_mAP': 0.0, 'mean_action_consistency': 0.0}
-                        }
-                    }
+            # Quick planning evaluation (shorter horizons only)
+            planning_evaluator = AutoregressivePlanningEvaluator(
+                model=self.model,
+                device=self.device,
+                logger=self.logger,
+                fps=1
+            )
+            
+            # Override planning horizons for faster evaluation during training
+            if epoch == -1:  # Final evaluation
+                planning_evaluator.planning_horizons = {
+                    '1s': 1,
+                    '2s': 2,
+                    '3s': 3,
+                    '5s': 5,
+                    '10s': 10
                 }
-                standard_metrics.update({
-                    'planning_1s_mAP': 0.0,
-                    'planning_2s_mAP': 0.0,
-                    'planning_available': False
-                })
+            
+            planning_results = planning_evaluator.evaluate_planning_on_dataset(
+                test_loaders=test_loaders,
+                context_length=20,  # Shorter context during training
+                temperature=0.1
+            )                
+            self._last_planning_results = planning_results
+            
+            # Add planning metrics to standard metrics
+            planning_metrics = {}
+            for name, seconds in planning_evaluator.planning_horizons.items():
+                planning_metrics[f'planning_{name}_mAP'] = self._extract_planning_metric(planning_results, name, 'mean_ivt_mAP')
+            standard_metrics.update(planning_metrics)
+            standard_metrics.update({
+                'planning_available': True
+            })                            
         else:
             # No planning evaluation requested or not the right epoch
             self._last_planning_results = None
@@ -1372,12 +1274,6 @@ class AutoregressiveILTrainer:
             axes[1, 0].set_title('Action Prediction mAP (Per-Video Aggregated)')
             axes[1, 0].legend()
             axes[1, 0].grid(True)
-        
-        # Exact match accuracy
-        if 'val_action_exact_match' in self.metrics_history:
-            axes[1, 1].plot(self.metrics_history['val_action_exact_match'], color='orange')
-            axes[1, 1].set_title('Exact Match Accuracy')
-            axes[1, 1].grid(True)
 
         # ADD THIS: IVT vs Current comparison plot
         if 'val_ivt_mAP' in self.metrics_history and 'val_action_mAP' in self.metrics_history:

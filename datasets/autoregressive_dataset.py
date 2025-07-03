@@ -35,8 +35,8 @@ class AutoregressiveDataset(Dataset):
         """
         self.samples = []
         
-        context_length = config.get('context_length', 10)
-        future_length = config.get('future_length', 5)
+        context_length = config.get('context_length', 20)
+        future_length = config.get('future_length', 10)
         padding_value = config.get('padding_value', 0.0)
         
         for video in data:
@@ -207,7 +207,7 @@ def create_autoregressive_dataloaders(config: Dict,
             if len(video_dataset) > 0:
                 test_loaders[video_id] = DataLoader(
                     video_dataset,
-                    batch_size=batch_size,
+                    batch_size=32,
                     shuffle=False,
                     num_workers=num_workers,
                     pin_memory=True
