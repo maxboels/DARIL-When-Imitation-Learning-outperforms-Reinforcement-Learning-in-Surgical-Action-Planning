@@ -413,11 +413,7 @@ class EnhancedIRLNextActionTrainer:
             
             all_il_scores.extend(video_il_scores)
             all_irl_scores.extend(video_irl_scores)
-        
-        if epoch >= 0:
-            self.tb_writer.add_scalar('eval_irl/il_next_action_mean', np.mean(all_il_scores), epoch)
-            self.tb_writer.add_scalar('eval_irl/irl_next_action_mean', np.mean(all_irl_scores), epoch)
-        
+                
         # Overall results
         results['overall'] = {
             'il_next_action_mean': np.mean(all_il_scores),
