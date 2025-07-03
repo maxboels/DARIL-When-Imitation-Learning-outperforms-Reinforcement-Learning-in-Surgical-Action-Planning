@@ -357,7 +357,7 @@ class AutoregressiveILModel(nn.Module):
 
     def generate_sequence(self, 
                          initial_frames: torch.Tensor,
-                         horizon: int = 15,
+                         horizon: int = 20,
                          temperature: float = 1.0,
                          top_p: Optional[float] = None) -> Dict[str, torch.Tensor]:
         """
@@ -375,38 +375,20 @@ class AutoregressiveILModel(nn.Module):
                 
         with torch.no_grad():
             for step in range(horizon):
-                max_context = min(self.max_length - 1, generated_frames.size(1))
+                max_context = min(context_len, generated_frames.size(1))
                 current_context = generated_frames[:, -max_context:]
                 
                 outputs = self.forward(current_context)
                 
                 # Get predictions for next timestep
+                next_action_probs = outputs['action_pred'][:, -1, :]
                 next_frame = outputs['next_frame_pred'][:, -1:, :]
                 action_logits = outputs['action_logits'][:, -1, :]
                 phase_logits = outputs['phase_logits'][:, -1, :]
                 
-                # Apply temperature and nucleus sampling
-                if temperature != 1.0:
-                    action_logits = action_logits / temperature
                 
-                if top_p is not None:
-                    action_probs = torch.sigmoid(action_logits)
-                    sorted_probs, sorted_indices = torch.sort(action_probs, descending=True, dim=-1)
-                    cumulative_probs = torch.cumsum(sorted_probs, dim=-1)
-                    
-                    sorted_indices_to_remove = cumulative_probs > top_p
-                    sorted_indices_to_remove[:, 1:] = sorted_indices_to_remove[:, :-1].clone()
-                    sorted_indices_to_remove[:, 0] = 0
-                    
-                    indices_to_remove = sorted_indices.gather(-1, sorted_indices_to_remove.long())
-                    action_logits.scatter_(-1, indices_to_remove, float('-inf'))
-                
-                action_probs = torch.sigmoid(action_logits)
-                sampled_actions = torch.bernoulli(action_probs)
-                phase_probs = F.softmax(phase_logits, dim=-1)
-                
-                predicted_actions.append(sampled_actions)
-                predicted_phases.append(phase_probs)
+                predicted_actions.append(next_action_probs)
+                predicted_phases.append(F.softmax(phase_logits, dim=-1))
                 generated_frames = torch.cat([generated_frames, next_frame], dim=1)
                 
         result = {

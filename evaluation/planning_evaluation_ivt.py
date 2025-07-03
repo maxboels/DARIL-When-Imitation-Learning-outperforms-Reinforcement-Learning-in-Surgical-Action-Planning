@@ -138,11 +138,11 @@ class AutoregressivePlanningEvaluator:
                 for horizon_name, horizon_frames in self.planning_horizons.items():
                     # Get prediction for ONLY the target step
                     target_step_idx = horizon_frames - 1  # 0-indexed
-                    horizon_preds = predicted_actions[:, target_step_idx:target_step_idx+1]  # [batch_size, actions]
+                    horizon_preds = predicted_actions[:, target_step_idx] # [batch_size, actions]
                     
                     # Get ground truth for ONLY the target step  
                     gt_target_idx = horizon_frames - 1
-                    horizon_gt = sample_targets[:, gt_target_idx:gt_target_idx+1]  # [batch_size, actions]
+                    horizon_gt = sample_targets[:, gt_target_idx]  # [batch_size, actions]
                     
                     # Store predictions and ground truth
                     horizon_predictions[horizon_name].append(horizon_preds.cpu().numpy())
@@ -160,7 +160,7 @@ class AutoregressivePlanningEvaluator:
         }
         
         for horizon_name in self.planning_horizons.keys():
-            self.logger.info(f"Evaluating horizon {horizon_name} for video {video_id}...")
+            self.logger.info(f"Evaluation Horizon {horizon_name}...")
             horizon_result = self._compute_horizon_metrics(
                 predictions=horizon_predictions[horizon_name],
                 ground_truth=horizon_ground_truth[horizon_name],
@@ -172,27 +172,23 @@ class AutoregressivePlanningEvaluator:
         return video_results
     
     def _compute_horizon_metrics(self, 
-                                predictions: np.
-                                ground_truth:  
+                                predictions: np.ndarray,
+                                ground_truth: np.ndarray,
                                 horizon_name: str,
                                 video_id: str) -> Dict[str, Any]:
         """
         Compute metrics for a specific planning horizon.
         
         Args:
-            predictions: np.array of prediction arrays [horizon_frames, actions]
-            ground_truth: np.array of ground truth arrays [horizon_frames, actions]
+            predictions: [total_frames, actions] prediction probabilities
+            ground_truth: [total_frames, actions] binary ground truth
             horizon_name: Name of the planning horizon
             video_id: Video identifier
             
         Returns:
             Dictionary with horizon-specific metrics
         """
-        
-        if len(predictions.shape) == 3:
-            predictions = np.concatenate(predictions, axis=0)  # [total_frames, actions]
-            ground_truth = np.concatenate(ground_truth, axis=0)  # [total_frames, actions]
-        
+                 
         # Convert ground truth to binary
         ground_truth_binary = (ground_truth > 0.5).astype(int)
         
@@ -335,7 +331,7 @@ class AutoregressivePlanningEvaluator:
         
         aggregated = {
             'num_videos': len(video_results),
-            'overall_success_rate': np.mean([v['success_rate'] for v in video_results.values()]),
+            # 'overall_success_rate': np.mean([v['success_rate'] for v in video_results.values()]),
             'horizon_aggregated': {}
         }
         
@@ -356,7 +352,7 @@ class AutoregressivePlanningEvaluator:
                 }
                 
                 # Average metrics across videos
-                metric_names = ['ivt_mAP', 'exact_match_rate', 'hamming_accuracy', 
+                metric_names = ['ivt_mAP', 'hamming_accuracy', 
                                'action_consistency', 'temporal_smoothness', 'sparsity_similarity']
                 
                 for metric in metric_names:

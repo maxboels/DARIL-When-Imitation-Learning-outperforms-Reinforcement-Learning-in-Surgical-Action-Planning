@@ -859,7 +859,7 @@ class AutoregressiveILTrainer:
             'overall_metrics': evaluate_results,
             'detailed_video_metrics': detailed_results.get('video_action_metrics', {}),
             'video_loss_metrics': detailed_results.get('video_loss_metrics', {}),
-            'generation_quality': generation_results,
+            # 'generation_quality': generation_results,
             
             # Planning evaluation results
             'planning_evaluation': planning_results,
@@ -1011,7 +1011,7 @@ class AutoregressiveILTrainer:
             
             planning_results = planning_evaluator.evaluate_planning_on_dataset(
                 test_loaders=test_loaders,
-                context_length=20,  # Shorter context during training
+                context_length=self.config.get('data', {}).get('context_length', 20),
                 temperature=0.1
             )                
             self._last_planning_results = planning_results
