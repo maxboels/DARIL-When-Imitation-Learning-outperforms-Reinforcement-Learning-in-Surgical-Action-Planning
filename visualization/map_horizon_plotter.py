@@ -12,7 +12,7 @@ def plot_map_vs_horizon(planning_results: Dict,
                        style: str = 'paper',
                        show_confidence_intervals: bool = True,
                        include_overall_ivt: bool = True,
-                       include_additional_metrics: bool = True) -> plt.Figure:
+                       include_additional_metrics: bool = True):
     """
     Plot mAP scores for triplet components vs planning horizon for MICCAI paper.
     
@@ -47,12 +47,13 @@ def plot_map_vs_horizon(planning_results: Dict,
     video_ids = list(detailed_results.keys())
     num_videos = len(video_ids)
     
-    # Aggregate data across videos
-    horizon_data = aggregate_video_results(detailed_results)
+    # Extract horizon keys from the first video and sort them
+    first_video_results = detailed_results[video_ids[0]]['horizon_results']
+    horizons = sorted(first_video_results.keys(), key=lambda x: float(x.rstrip('s')))
+    horizon_seconds = [float(h.rstrip('s')) for h in horizons]
     
-    # Define horizons and metrics to plot
-    horizons = ['1s', '2s', '3s', '5s', '10s']
-    horizon_seconds = [1, 2, 3, 5, 10]
+    # Aggregate data across videos
+    horizon_data = aggregate_video_results(detailed_results, horizons)
     
     # Define triplet components and their styling
     metrics_config = {
@@ -227,18 +228,18 @@ def plot_map_vs_horizon(planning_results: Dict,
     
     return
 
-def aggregate_video_results(detailed_results: Dict) -> Dict:
+def aggregate_video_results(detailed_results: Dict, horizons: List[str]) -> Dict:
     """
     Aggregate results across multiple videos to compute means and standard deviations.
     
     Args:
         detailed_results: Dictionary with video_id -> horizon_results structure
+        horizons: List of horizon keys to process
         
     Returns:
         Dictionary with aggregated statistics per horizon
     """
     
-    horizons = ['1s', '2s', '3s', '5s', '10s']
     aggregated = {}
     
     for horizon in horizons:
@@ -403,13 +404,16 @@ def add_background_shading(ax, horizon_seconds):
 def plot_sparsity_analysis(planning_results: Dict, save_path: Optional[str] = None) -> plt.Figure:
     """
     Create a focused sparsity analysis plot showing prediction vs ground truth sparsity.
-    """
-    
+    """    
     detailed_results = planning_results['detailed_video_results']
-    horizon_data = aggregate_video_results(detailed_results)
     
-    horizons = ['1s', '2s', '3s', '5s', '10s']
-    horizon_seconds = [1, 2, 3, 5, 10]
+    # Extract horizon keys from the first video and sort them
+    video_ids = list(detailed_results.keys())
+    first_video_results = detailed_results[video_ids[0]]['horizon_results']
+    horizons = sorted(first_video_results.keys(), key=lambda x: float(x.rstrip('s')))
+    horizon_seconds = [float(h.rstrip('s')) for h in horizons]
+    
+    horizon_data = aggregate_video_results(detailed_results, horizons)
     
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6), dpi=300)
     

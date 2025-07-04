@@ -81,7 +81,7 @@ class ExperimentRunner:
         self.plots_dir = self.results_dir / "publication_plots"
         self.plots_dir.mkdir(parents=True, exist_ok=True)
 
-        self.visualization_dir = self.logs_dir / "visualizations"
+        self.visualization_dir = self.logs_dir / "visualization"
         os.makedirs(self.visualization_dir, exist_ok=True)
 
         # Initialize logger
@@ -362,7 +362,7 @@ class ExperimentRunner:
                 planning_pred = np.load(os.path.join(predictions_dir, f'{video_id}_planning_pred.npy'))  # [frames x 10 x 100]
 
                 # Visualization save paths
-                output_dir = os.path.join(self.visualization_dir, "autoregressive_il", "predictions")
+                output_dir = os.path.join(self.visualization_dir, "autoregressive_il")
                 os.makedirs(output_dir, exist_ok=True)
 
                 # Create visualizer and find best examples
@@ -372,7 +372,7 @@ class ExperimentRunner:
                 )
 
                 # Generate paper figures for top 3 examples
-                for i, point in enumerate(transitions[:3]):
+                for i, point in enumerate(transitions[:min(10, len(transitions))]):
                     fig = visualizer.plot_recognition_and_planning(
                         recognition_gt=recognition_gt,
                         recognition_pred=recognition_pred,  

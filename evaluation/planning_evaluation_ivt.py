@@ -32,7 +32,8 @@ class AutoregressivePlanningEvaluator:
                  device: torch.device,
                  logger=None,
                  fps: int = 1,
-                 save_predictions: bool = True):
+                 save_predictions: bool = True,
+                 planning_horizons: Dict[str, int] = None):
         """
         Initialize planning evaluator.
         
@@ -47,6 +48,7 @@ class AutoregressivePlanningEvaluator:
         self.logger = logger
         self.fps = fps
         self.save_predictions = save_predictions
+        self.planning_horizons = planning_horizons
 
         self.log_dir = logger.log_dir
 
@@ -58,13 +60,9 @@ class AutoregressivePlanningEvaluator:
             os.makedirs(self.ground_truth_dir, exist_ok=True)
                 
         # Planning horizons to evaluate (in seconds and frames)
-        self.planning_horizons = {
-            '1s': 1 * fps,   # 1 frame at 1fps
-            '2s': 2 * fps,  # 2 frames at 1fps  
-            '3s': 3 * fps,  # 3 frames at 1fps
-            '5s': 5 * fps,   # 5 frames at 1fps
-            '10s': 10 * fps
-        }
+        if planning_horizons is None:
+            planning_horizons = [1, 2, 3, 5, 10, 20]
+            self.planning_horizons = {f'{h}s': h * fps for h in planning_horizons}
 
         # Results storage
         self.planning_results = {}
@@ -79,7 +77,7 @@ class AutoregressivePlanningEvaluator:
                                   video_dataloader,
                                   video_id: str,
                                   context_length: int = 20,
-                                  future_length: int = 10,
+                                  future_length: int = 20,
                                   temperature: float = 0.1,
                                   deterministic: bool = True) -> Dict[str, Any]:
         """
@@ -528,7 +526,8 @@ def add_planning_evaluation_to_trainer(trainer_instance, test_loaders, context_l
         model=trainer_instance.model,
         device=trainer_instance.device,
         logger=trainer_instance.logger,
-        fps=1  # CholecT50 is 1fps
+        fps=1,  # CholecT50 is 1fps
+        planning_horizons=[1, 2, 3, 5, 10, 20]  # Evaluate up to 20 seconds
     )
     
     # Run planning evaluation

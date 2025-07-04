@@ -68,6 +68,13 @@ class AutoregressiveILTrainer:
         self.clip_grad = self.train_config.get('gradient_clip_val', 1.0)
         self.log_every_n_steps = self.train_config.get('log_every_n_steps', 100)
         
+        # Defaults for planning horizons and frames per second
+        self.fps = 1 # Default FPS for CholecT50 dataset
+        self.context_length = self.config.get('data', {}).get('context_length', 20)
+        planning_horizons = self.config.get('planning_evaluation', {}).get('planning_horizons', [1, 2, 3, 5, 10, 20])
+        self.planning_horizons = {f"{h}s": h * self.fps for h in planning_horizons} 
+        self.fps = 1
+
         # Setup logging directories
         self.log_dir = logger.log_dir
         self.checkpoint_dir = os.path.join(self.log_dir, 'checkpoints')
@@ -1028,7 +1035,7 @@ class AutoregressiveILTrainer:
         
         # Standard validation
         standard_metrics = self._validate_epoch_per_video(test_loaders, epoch)
-        
+
         # Add planning evaluation every few epochs
         if include_planning and (epoch % 5 == 0 or epoch == -1):  # Every 5 epochs or final
             self.logger.info(f"🎯 Including planning evaluation for epoch {epoch}...")
@@ -1038,45 +1045,32 @@ class AutoregressiveILTrainer:
                 model=self.model,
                 device=self.device,
                 logger=self.logger,
-                fps=1
+                fps=self.fps,
+                planning_horizons=self.planning_horizons,
             )
-            
-            # Override planning horizons for faster evaluation during training
-            if epoch == -1:  # Final evaluation
-                planning_evaluator.planning_horizons = {
-                    '1s': 1,
-                    '2s': 2,
-                    '3s': 3,
-                    '5s': 5,
-                    '10s': 10
-                }
-            
-            planning_results = planning_evaluator.evaluate_planning_on_dataset(
-                test_loaders=test_loaders,
-                context_length=self.config.get('data', {}).get('context_length', 20),
-                temperature=0.1
-            )                
+                        
+            planning_results = planning_evaluator.evaluate_planning_on_dataset(test_loaders, self.context_length)
             self._last_planning_results = planning_results
             
             from visualization.map_horizon_plotter import plot_map_vs_horizon, plot_sparsity_analysis
             if self.config.get('visualization', {}).get('enhanced_planning_analysis', True):
                 self.logger.info("📊 Generating enhanced planning analysis plots...")
                 plot_map_vs_horizon(planning_results, 
-                                                save_path=os.path.join(self.visualization_dir, 'planning_analysis.png'),
-                                                style='paper',
-                                                include_additional_metrics=True)
+                                    save_path=os.path.join(self.visualization_dir, 'planning_analysis.png'),
+                                    style='paper',
+                                    include_additional_metrics=True)
 
             if self.config.get('visualization', {}).get('simple_planning_analysis', True):
                 self.logger.info("📊 Generating simple planning analysis plots...")
                 plot_map_vs_horizon(planning_results,
-                                                save_path=os.path.join(self.visualization_dir, 'planning_analysis_simple.png'),
-                                                style='paper', 
-                                                include_additional_metrics=False)
+                                    save_path=os.path.join(self.visualization_dir, 'planning_analysis_simple.png'),
+                                    style='paper', 
+                                    include_additional_metrics=False)
 
             if self.config.get('visualization', {}).get('sparsity_analysis', True):
                 self.logger.info("📊 Generating sparsity analysis plots...")
                 plot_sparsity_analysis(planning_results,
-                                                    save_path=os.path.join(self.visualization_dir, 'planning_sparsity_analysis.png'))
+                                    save_path=os.path.join(self.visualization_dir, 'planning_sparsity_analysis.png'))
 
             # Add planning metrics to standard metrics
             planning_metrics = {}

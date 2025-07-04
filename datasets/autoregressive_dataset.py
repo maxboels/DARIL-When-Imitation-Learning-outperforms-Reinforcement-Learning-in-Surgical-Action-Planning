@@ -36,7 +36,7 @@ class AutoregressiveDataset(Dataset):
         self.samples = []
         
         context_length = config.get('context_length', 20)
-        future_length = config.get('future_length', 10)
+        future_length = config.get('future_length', 20)
         padding_value = config.get('padding_value', 0.0)
         
         for video in data:

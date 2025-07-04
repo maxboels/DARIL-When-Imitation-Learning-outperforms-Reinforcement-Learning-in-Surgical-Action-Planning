@@ -191,7 +191,7 @@ evaluation:
   # ENHANCED: Planning evaluation (for next prediction models)
   planning_evaluation:
     enabled: true
-    horizons: [1, 2, 3, 5]          # Planning horizons in seconds
+    planning_horizons: [1, 2, 3, 5, 10, 20]  # Planning horizons in seconds
     use_best_next_model: true        # Use best next prediction model for planning
   
   # General evaluation (preserved)
@@ -252,10 +252,10 @@ rl_training:
 # ENHANCED: Data configuration for IVT metrics
 data:
   context_length: 20            # OPTIMIZED: Shorter context with good features
-  future_length: 10             # OPTIMIZED: Shorter future for temporal learning
+  future_length: 20             # OPTIMIZED: Shorter future for temporal learning
   train_shift: 1
   padding_value: 0.0
-  max_horizon: 10                # OPTIMIZED: More realistic with strong features
+  max_horizon: 20                # OPTIMIZED: More realistic with strong features
   
   # Feature processing for pre-trained embeddings
   normalize_embeddings: true    # Normalize Swin features
