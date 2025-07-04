@@ -180,7 +180,7 @@ class SurgicalActionVisualizer:
                                     threshold: float = 0.5,
                                     save_path: Optional[str] = None,
                                     title_suffix: str = "",
-                                    show_transitions: bool = True,
+                                    show_transitions: bool = False,
                                     use_time_format: bool = True) -> plt.Figure:
         """
         Create a comprehensive visualization of recognition and planning performance.
@@ -590,7 +590,7 @@ class SurgicalActionVisualizer:
                  vmin=0, vmax=3, interpolation='nearest')
         
         # Current frame line (separator between recognition and planning)
-        ax.axvline(x=current_pos, color='red', linewidth=4, linestyle='-', alpha=0.9)
+        ax.axvline(x=current_pos, color='red', linewidth=3, linestyle='--', alpha=0.8)
         
         # Add region labels
         if current_pos > 0:
