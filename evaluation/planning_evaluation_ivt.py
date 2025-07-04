@@ -31,7 +31,8 @@ class AutoregressivePlanningEvaluator:
                  model,
                  device: torch.device,
                  logger=None,
-                 fps: int = 1):
+                 fps: int = 1,
+                 save_predictions: bool = True):
         """
         Initialize planning evaluator.
         
@@ -45,7 +46,17 @@ class AutoregressivePlanningEvaluator:
         self.device = device
         self.logger = logger
         self.fps = fps
-        
+        self.save_predictions = save_predictions
+
+        self.log_dir = logger.log_dir
+
+        # Save directory for predictions
+        if self.save_predictions:
+            self.predictions_dir = os.path.join(self.log_dir, "outputs", "predictions")
+            self.ground_truth_dir = os.path.join(self.log_dir, "outputs", "ground_truth")
+            os.makedirs(self.predictions_dir, exist_ok=True)
+            os.makedirs(self.ground_truth_dir, exist_ok=True)
+                
         # Planning horizons to evaluate (in seconds and frames)
         self.planning_horizons = {
             '1s': 1 * fps,   # 1 frame at 1fps
@@ -103,6 +114,11 @@ class AutoregressivePlanningEvaluator:
         # Video-level statistics
         total_sequences = 0
         successful_predictions = 0
+
+        # if save_predictions:
+        if self.save_predictions:
+            video_predictions = []
+            video_ground_truth = []
         
         with torch.no_grad():
             for batch_idx, batch in enumerate(tqdm(video_dataloader, desc=f"Planning eval {video_id}")):
@@ -131,8 +147,9 @@ class AutoregressivePlanningEvaluator:
                     temperature=temperature if not deterministic else 0.1
                 )
                 
-                predicted_actions = generation_result['predicted_actions']  # [1, horizon, actions]
-                # predicted_actions = predicted_actions[0]  # [horizon, actions]
+                predicted_actions = generation_result['predicted_actions']  # [batch_size, horizon, actions]
+                video_predictions.append(predicted_actions.cpu().numpy())
+                video_ground_truth.append(sample_targets.cpu().numpy())
 
                 # FIXED: Evaluate only the target step for each horizon
                 for horizon_name, horizon_frames in self.planning_horizons.items():
@@ -168,6 +185,16 @@ class AutoregressivePlanningEvaluator:
                 video_id=video_id
             )
             video_results['horizon_results'][horizon_name] = horizon_result
+        
+        # If save predictions and ground truth
+        if self.save_predictions:
+            # Save predictions and ground truth for this video
+            video_predictions = np.concatenate(video_predictions, axis=0)
+            video_ground_truth = np.concatenate(video_ground_truth, axis=0)
+            # Save predictions and ground truth
+            np.save(os.path.join(self.predictions_dir, f'{video_id}_planning_pred.npy'), video_predictions)
+            np.save(os.path.join(self.ground_truth_dir, f'{video_id}_planning_gt.npy'), video_ground_truth)
+            self.logger.info(f"Saved planning predictions and ground truth for video {video_id}")
         
         return video_results
     

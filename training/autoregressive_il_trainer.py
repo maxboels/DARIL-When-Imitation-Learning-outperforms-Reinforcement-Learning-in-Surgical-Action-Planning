@@ -77,6 +77,10 @@ class AutoregressiveILTrainer:
         tensorboard_dir = os.path.join(self.log_dir, 'tensorboard', 'autoregressive_il')
         os.makedirs(tensorboard_dir, exist_ok=True)
         self.tb_writer = SummaryWriter(log_dir=tensorboard_dir)
+
+        # Visualization
+        self.visualization_dir = os.path.join(self.log_dir, 'visualization', 'autoregressive_il')
+        os.makedirs(self.visualization_dir, exist_ok=True)
         
         # Setup optimizer and scheduler
         self._setup_optimizer()
@@ -546,8 +550,8 @@ class AutoregressiveILTrainer:
                         current_actions = data['current_actions']  # [batch, seq_len, num_actions]
                         
                         # Collect action recognition predictions
-                        video_actions_recognition.append(action_rec_probs.cpu().numpy())
-                        video_actions_targets_curr.append(current_actions.cpu().numpy())
+                        # video_actions_recognition.append(action_rec_probs.cpu().numpy())
+                        # video_actions_targets_curr.append(current_actions.cpu().numpy())
 
                         # Handle sequence dimension for IVT metrics
                         if action_rec_probs.ndim == 3:  # [batch, seq_len, num_actions]
@@ -559,8 +563,10 @@ class AutoregressiveILTrainer:
 
                         # Convert targets to int (ivtmetrics expects binary labels)
                         target_current_actions_int = (target_current_actions_flat > 0.5).astype(int)
-
                         ivt_rec_curr.update(target_current_actions_int, action_rec_probs_flat)
+
+                        video_actions_recognition.append((action_rec_probs_flat > 0.5).astype(int))
+                        video_actions_targets_curr.append(target_current_actions_flat)
                     
                     # NEXT ACTION PREDICTION
                     action_probs = outputs['action_pred']  # [batch, seq_len, num_actions]
@@ -623,6 +629,15 @@ class AutoregressiveILTrainer:
                 
                 # Store this video's loss metrics
                 video_loss_metrics[video_id] = dict(video_losses)
+
+                # if save_predictions and epoch<0:
+                if self.config.get('visualization', {}).get('qualitative_evaluation', False):
+                    # Save qualitative predictions for this video
+                    self._save_video_predictions(
+                        video_id=video_id,
+                        predictions=video_actions_recognition,
+                        targets=video_actions_targets_curr,
+                    )
         
         # END OF ALL VIDEOS PROCESSING
 
@@ -760,6 +775,33 @@ class AutoregressiveILTrainer:
             self._save_per_class_AP_to_json(final_metrics)
         
         return final_metrics
+
+    def _save_video_predictions(self, video_id: str, predictions: List[np.ndarray], targets: List[np.ndarray]):
+        """
+        Save qualitative predictions for a specific video.
+        
+        Args:
+            video_id: Unique identifier for the video
+            predictions: List of action recognition predictions
+            targets: List of ground truth actions
+        """
+        
+        # Create directory if it doesn't exist
+        predictions_dir = os.path.join(self.log_dir, "outputs", "predictions")
+        ground_truth_dir = os.path.join(self.log_dir, "outputs", "ground_truth")
+        os.makedirs(predictions_dir, exist_ok=True)
+        os.makedirs(ground_truth_dir, exist_ok=True)
+        
+        # Save predictions and targets as numpy arrays
+        pred_path = os.path.join(predictions_dir, f'{video_id}_recognition_pred.npy')
+        target_path = os.path.join(ground_truth_dir, f'{video_id}_recognition_gt.npy')
+        
+        np.save(pred_path, np.concatenate(predictions, axis=0))  # Concatenate across batches
+        np.save(target_path, np.concatenate(targets, axis=0))
+        
+        self.logger.info(f"📁 Saved video predictions for {video_id} to:")
+        self.logger.info(f"   Predictions: {pred_path}")
+        self.logger.info(f"   Ground Truth: {target_path}")
 
     def _save_per_class_AP_to_json(self, final_metrics: Dict[str, np.ndarray]):
 
@@ -1016,6 +1058,26 @@ class AutoregressiveILTrainer:
             )                
             self._last_planning_results = planning_results
             
+            from visualization.map_horizon_plotter import plot_map_vs_horizon, plot_sparsity_analysis
+            if self.config.get('visualization', {}).get('enhanced_planning_analysis', True):
+                self.logger.info("📊 Generating enhanced planning analysis plots...")
+                fig_enhanced = plot_map_vs_horizon(planning_results, 
+                                                save_path=os.path.join(self.visualization_dir, 'planning_analysis.png'),
+                                                style='paper',
+                                                include_additional_metrics=True)
+
+            if self.config.get('visualization', {}).get('simple_planning_analysis', True):
+                self.logger.info("📊 Generating simple planning analysis plots...")
+                fig_simple = plot_map_vs_horizon(planning_results,
+                                                save_path=os.path.join(self.visualization_dir, 'planning_analysis_simple.png'),
+                                                style='paper', 
+                                                include_additional_metrics=False)
+
+            if self.config.get('visualization', {}).get('sparsity_analysis', True):
+                self.logger.info("📊 Generating sparsity analysis plots...")
+                fig_sparsity = plot_sparsity_analysis(planning_results,
+                                                    save_path=os.path.join(self.visualization_dir, 'planning_sparsity_analysis.png'))
+
             # Add planning metrics to standard metrics
             planning_metrics = {}
             for name, seconds in planning_evaluator.planning_horizons.items():
@@ -1040,7 +1102,7 @@ class AutoregressiveILTrainer:
         
         # Extract metrics for analysis
         map_values = [metrics['mAP'] for metrics in video_metrics.values()]
-        sparsity_values = [metrics['action_sparsity'] for metrics in video_metrics.values()]
+        # sparsity_values = [metrics['action_sparsity'] for metrics in video_metrics.values()]
         frame_counts = [metrics['num_predictions'] for metrics in video_metrics.values()]
         
         # Performance categories
@@ -1060,9 +1122,9 @@ class AutoregressiveILTrainer:
                     'q75': np.percentile(map_values, 75)
                 },
                 'sparsity_stats': {
-                    'mean': np.mean(sparsity_values),
-                    'std': np.std(sparsity_values),
-                    'correlation_with_mAP': np.corrcoef(map_values, sparsity_values)[0, 1] if len(map_values) > 1 else 0
+                    # 'mean': np.mean(sparsity_values),
+                    # 'std': np.std(sparsity_values),
+                    # 'correlation_with_mAP': np.corrcoef(map_values, sparsity_values)[0, 1] if len(map_values) > 1 else 0
                 }
             },
             'performance_categories': {

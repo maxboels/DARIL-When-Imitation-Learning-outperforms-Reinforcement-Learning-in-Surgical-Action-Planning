@@ -13,6 +13,7 @@ experiment:
     enabled: true
     train: false
     evaluate: true
+    visualization: true
     model_type_preference: 'combined'  # 'current', 'next', 'combined'
     save_all_best_models: true         # Save separate models for each task
     # il_model_path: null
@@ -197,6 +198,12 @@ evaluation:
   world_model:
     use_memory: false
     overall_horizon: 1
+
+visualization:
+  enhanced_planning_analysis: true
+  simple_planning_analysis: true
+  sparsity_analysis: true
+  qualitative_evaluation: true
 
 # RL training configuration (PRESERVED for other experiments)
 rl_training:

@@ -79,6 +79,9 @@ class ExperimentRunner:
         self.plots_dir = self.results_dir / "publication_plots"
         self.plots_dir.mkdir(parents=True, exist_ok=True)
 
+        self.visualization_dir = self.results_dir / "visualization"
+        os.makedirs(self.visualization_dir, exist_ok=True)
+
         # Initialize logger
         self.logger = SimpleLogger(
             log_dir=str(self.results_dir),
@@ -227,6 +230,7 @@ class ExperimentRunner:
         il_config = self.config.get('experiment', {}).get('autoregressive_il', {})
         training_enabled = il_config.get('train', True)
         evaluate_enabled = il_config.get('evaluate', True)
+        visualization_enabled = il_config.get('visualization', False)
         il_enabled = il_config.get('enabled', False)
         il_model_path = il_config.get('il_model_path', None)
 
@@ -337,39 +341,69 @@ class ExperimentRunner:
             training_best_metrics = {}
             if not use_pretrained and hasattr(trainer, 'get_best_metrics'):
                 training_best_metrics = trainer.get_best_metrics()
-            
-            return {
-                'status': 'success',
-                'model_paths': best_model_paths,
-                'model_type': 'AutoregressiveIL',
-                'approach': 'Enhanced: Causal frame generation → action anticipation with IVT-based saving',
-                'evaluation': evaluation_results,                    
-                'method_description': 'Enhanced Autoregressive IL with IVT-optimized model saving',
-                'capabilities': {
-                    'single_step_recognition': single_step_map,
-                    'short_term_planning_2s': planning_2s_map,
-                    'planning_degradation': planning_degradation,
-                    'planning_horizon': 'up_to_5_seconds'
-                },                    
-                'training_performance': training_best_metrics,
-                'model_selection_strategy': f'IVT-based ({model_type_preference} preference)',                    
-                'target_type': 'next_action_prediction',
-                'planning_ready': True,
-                'pretrained': use_pretrained,
-                'enhanced_saving': True
-            }
+            self.logger.info("📊 EVALUATION COMPLETED - Results Summary:")
         else:
             self.logger.info("📊 Evaluation disabled, returning basic results")
-            return {
-                'status': 'success',
-                'model_paths': best_model_paths,  # ENHANCED: All model paths
-                'model_type': 'AutoregressiveIL',
-                'approach': 'Enhanced: Causal frame generation → action anticipation with IVT-based saving',
-                'evaluation': None,
-                'method_description': 'Enhanced Autoregressive IL (evaluation skipped)',
-                'pretrained': use_pretrained,
-                'enhanced_saving': True
-            }
+
+        if visualization_enabled:
+            from visualization.surgical_action_visualizer import SurgicalActionVisualizer
+            for video_id, _ in test_loaders.items():
+                predictions_dir = os.path.join(self.results_dir, "logs", "outputs", "predictions")
+                ground_truth_dir = os.path.join(self.results_dir, "logs", "outputs", "ground_truth")
+                os.makedirs(predictions_dir, exist_ok=True)
+                os.makedirs(ground_truth_dir, exist_ok=True)
+
+                # Load your numpy arrays
+                recognition_gt = np.load(os.path.join(ground_truth_dir, f'{video_id}_recognition_gt.npy'))  # [frames x 100]
+                recognition_pred = np.load(os.path.join(predictions_dir, f'{video_id}_recognition_pred.npy'))  # [frames x 100]
+                planning_gt = np.load(os.path.join(ground_truth_dir, f'{video_id}_planning_gt.npy'))  # [frames x 10 x 100]
+                planning_pred = np.load(os.path.join(predictions_dir, f'{video_id}_planning_pred.npy'))  # [frames x 10 x 100]
+
+                # Visualization save paths
+                output_dir = os.path.join(self.visualization_dir, "autoregressive_il", "predictions")
+                os.makedirs(output_dir, exist_ok=True)
+
+                # Create visualizer and find best examples
+                visualizer = SurgicalActionVisualizer(figsize=(20, 12))
+                transitions = visualizer.find_interesting_transitions(
+                    recognition_gt, planning_gt, planning_pred
+                )
+
+                # Generate paper figures for top 3 examples
+                for i, point in enumerate(transitions[:3]):
+                    save_path = os.path.join(output_dir, f"{video_id}_preds_sample_{i+1}.png")
+                    fig = visualizer.plot_recognition_and_planning(
+                        recognition_gt=recognition_gt,
+                        recognition_pred=recognition_pred,  
+                        planning_gt=planning_gt,
+                        planning_pred=planning_pred,
+                        center_frame=point['frame'],
+                        time_window=100,
+                        save_path=save_path,
+                        title_suffix=f"Qualitative Evaluation Sample {i+1} - {video_id}",
+                    )
+
+
+        return {
+            'status': 'success',
+            'model_paths': best_model_paths,
+            'model_type': 'AutoregressiveIL',
+            'approach': 'Enhanced: Causal frame generation → action anticipation with IVT-based saving',
+            'evaluation': evaluation_results,                    
+            'method_description': 'Enhanced Autoregressive IL with IVT-optimized model saving',
+            'capabilities': {
+                'single_step_recognition': single_step_map,
+                'short_term_planning_2s': planning_2s_map,
+                'planning_degradation': planning_degradation,
+                'planning_horizon': 'up_to_5_seconds'
+            },                    
+            'training_performance': training_best_metrics,
+            'model_selection_strategy': f'IVT-based ({model_type_preference} preference)',                    
+            'target_type': 'next_action_prediction',
+            'planning_ready': True,
+            'pretrained': use_pretrained,
+            'enhanced_saving': True
+        }
         
     def _run_method2_wm_rl(self, train_data: List[Dict], test_data: List[Dict]) -> Dict[str, Any]:
             """FIXED Method 2: Conditional World Model + Improved RL - supports pretrained models."""
