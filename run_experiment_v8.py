@@ -76,10 +76,12 @@ class ExperimentRunner:
         self.results_dir = Path("results") / self.experiment_name / f"fold{self.config['data']['paths']['fold']}"
         self.results_dir.mkdir(parents=True, exist_ok=True)
 
+        self.logs_dir = self.results_dir / "logs"
+
         self.plots_dir = self.results_dir / "publication_plots"
         self.plots_dir.mkdir(parents=True, exist_ok=True)
 
-        self.visualization_dir = self.results_dir / "visualization"
+        self.visualization_dir = self.logs_dir / "visualizations"
         os.makedirs(self.visualization_dir, exist_ok=True)
 
         # Initialize logger
@@ -371,7 +373,6 @@ class ExperimentRunner:
 
                 # Generate paper figures for top 3 examples
                 for i, point in enumerate(transitions[:3]):
-                    save_path = os.path.join(output_dir, f"{video_id}_preds_sample_{i+1}.png")
                     fig = visualizer.plot_recognition_and_planning(
                         recognition_gt=recognition_gt,
                         recognition_pred=recognition_pred,  
@@ -379,7 +380,7 @@ class ExperimentRunner:
                         planning_pred=planning_pred,
                         center_frame=point['frame'],
                         time_window=100,
-                        save_path=save_path,
+                        save_path=os.path.join(output_dir, f"{video_id}_preds_sample_{i+1}.png"),
                         title_suffix=f"Qualitative Evaluation Sample {i+1} - {video_id}",
                     )
 

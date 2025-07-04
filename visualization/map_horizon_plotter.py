@@ -443,9 +443,8 @@ def plot_sparsity_analysis(planning_results: Dict, save_path: Optional[str] = No
     if save_path:
         plt.savefig(save_path, dpi=300, bbox_inches='tight', facecolor='white')
         print(f"Sparsity analysis saved to: {save_path}")
-    
     return
-
+    
 # Demo usage function
 def demo_plot_with_sample_data():
     """Demo function showing how to use the plotting functions."""
@@ -519,9 +518,7 @@ def demo_plot_with_sample_data():
                               save_path='simple_map_vs_horizon.png', 
                               style='paper',
                               include_additional_metrics=False)
-    
-    # plt.show()
-    # return fig1, fig2
+    print("Demo plots created successfully!")
 
 if __name__ == "__main__":
     # Run demo

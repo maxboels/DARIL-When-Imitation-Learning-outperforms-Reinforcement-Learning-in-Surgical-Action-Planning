@@ -1061,21 +1061,21 @@ class AutoregressiveILTrainer:
             from visualization.map_horizon_plotter import plot_map_vs_horizon, plot_sparsity_analysis
             if self.config.get('visualization', {}).get('enhanced_planning_analysis', True):
                 self.logger.info("📊 Generating enhanced planning analysis plots...")
-                fig_enhanced = plot_map_vs_horizon(planning_results, 
+                plot_map_vs_horizon(planning_results, 
                                                 save_path=os.path.join(self.visualization_dir, 'planning_analysis.png'),
                                                 style='paper',
                                                 include_additional_metrics=True)
 
             if self.config.get('visualization', {}).get('simple_planning_analysis', True):
                 self.logger.info("📊 Generating simple planning analysis plots...")
-                fig_simple = plot_map_vs_horizon(planning_results,
+                plot_map_vs_horizon(planning_results,
                                                 save_path=os.path.join(self.visualization_dir, 'planning_analysis_simple.png'),
                                                 style='paper', 
                                                 include_additional_metrics=False)
 
             if self.config.get('visualization', {}).get('sparsity_analysis', True):
                 self.logger.info("📊 Generating sparsity analysis plots...")
-                fig_sparsity = plot_sparsity_analysis(planning_results,
+                plot_sparsity_analysis(planning_results,
                                                     save_path=os.path.join(self.visualization_dir, 'planning_sparsity_analysis.png'))
 
             # Add planning metrics to standard metrics

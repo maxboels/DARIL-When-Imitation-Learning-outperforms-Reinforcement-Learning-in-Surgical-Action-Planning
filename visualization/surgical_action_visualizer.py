@@ -132,7 +132,7 @@ class SurgicalActionVisualizer:
                                     center_frame: int,
                                     time_window: int = 60,
                                     selected_actions: Optional[List[int]] = None,
-                                    rollout_horizon: int = 20,
+                                    rollout_horizon: int = 10,
                                     threshold: float = 0.5,
                                     save_path: Optional[str] = None,
                                     title_suffix: str = "",
@@ -437,14 +437,14 @@ class SurgicalActionVisualizer:
         # Calculate planning accuracy (simplified)
         planning_accuracy = 0.0
         if center_frame < len(planning_pred):
-            plan_horizon = min(20, planning_pred.shape[1])
+            plan_horizon = min(10, planning_pred.shape[1])
             correct_predictions = 0
             total_predictions = 0
             
             for h in range(plan_horizon):
                 future_frame = center_frame + h + 1
                 if future_frame < len(planning_gt):
-                    gt_future = (planning_gt[future_frame, selected_actions] > threshold).astype(int)
+                    gt_future = (planning_gt[future_frame, h, selected_actions] > threshold).astype(int)
                     pred_future = (planning_pred[center_frame, h, selected_actions] > threshold).astype(int)
                     
                     correct_predictions += np.sum(gt_future == pred_future)
@@ -511,7 +511,7 @@ Threshold:
                                  marker='o', alpha=0.8, edgecolors='white', linewidth=2)
 
 def create_sample_data(num_frames: int = 200, num_classes: int = 100, 
-                      rollout_horizon: int = 20) -> Tuple[np.ndarray, ...]:
+                      rollout_horizon: int = 10) -> Tuple[np.ndarray, ...]:
     """
     Create sample data for testing the visualizer.
     This simulates realistic surgical action patterns.
@@ -525,8 +525,8 @@ def create_sample_data(num_frames: int = 200, num_classes: int = 100,
     
     for i, action in enumerate(active_actions):
         # Create smooth action curves with transitions
-        start_frame = i * 20 + np.random.randint(-5, 5)
-        duration = 30 + np.random.randint(-10, 20)
+        start_frame = i * 10 + np.random.randint(-5, 5)
+        duration = 30 + np.random.randint(-10, 10)
         
         for f in range(max(0, start_frame), min(num_frames, start_frame + duration)):
             # Smooth activation with noise
@@ -612,11 +612,11 @@ if __name__ == "__main__":
     # Load your numpy arrays
     recognition_gt = np.load('recognition_gt.npy')      # [frames x 100]
     recognition_pred = np.load('recognition_pred.npy')  # [frames x 100]  
-    planning_gt = np.load('planning_gt.npy')            # [frames x 20 x 100]
-    planning_pred = np.load('planning_pred.npy')        # [frames x 20 x 100]
+    planning_gt = np.load('planning_gt.npy')            # [frames x 10 x 100]
+    planning_pred = np.load('planning_pred.npy')        # [frames x 10 x 100]
     
     # Create visualizer
-    visualizer = SurgicalActionVisualizer(figsize=(20, 12))
+    visualizer = SurgicalActionVisualizer(figsize=(10, 12))
     
     # Find best transition points
     transitions = visualizer.find_interesting_transitions(
