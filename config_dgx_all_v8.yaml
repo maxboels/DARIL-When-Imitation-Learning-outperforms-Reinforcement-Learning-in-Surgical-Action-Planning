@@ -5,7 +5,7 @@ experiment:
   train:
     max_videos: 40  # default: 40
   test:
-    max_videos: 1  # default: 10
+    max_videos: 10  # default: 10
     test_on_train: false
     
   # Experiment 1: Autoregressive IL with pre-trained embeddings
@@ -200,6 +200,7 @@ evaluation:
     overall_horizon: 1
 
 visualization:
+  plot_top: 5
   enhanced_planning_analysis: true
   simple_planning_analysis: true
   sparsity_analysis: true

@@ -1,0 +1,31 @@
+{
+  "experiment_type": "four_method_architectural_comparison_with_irl",
+  "methods_tested": [
+    "autoregressive_il",
+    "conditional_world_model",
+    "direct_video_rl",
+    "irl_enhancement"
+  ],
+  "rl_improvements_applied": true,
+  "irl_enhancement_included": true,
+  "key_findings": [],
+  "performance_ranking": [
+    [
+      "Autoregressive IL",
+      0.45633955794895603
+    ]
+  ],
+  "rl_fixes": [
+    "Expert demonstration matching rewards",
+    "Proper continuous action space",
+    "Enhanced monitoring and debugging",
+    "Optimized hyperparameters",
+    "Better episode termination"
+  ],
+  "irl_improvements": [
+    "Scenario-specific policy adjustments",
+    "Learned surgical preferences",
+    "MaxEnt IRL reward learning",
+    "Lightweight GAIL policy improvement"
+  ]
+}

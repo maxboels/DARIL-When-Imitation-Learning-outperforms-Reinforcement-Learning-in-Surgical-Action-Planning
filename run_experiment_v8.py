@@ -370,9 +370,10 @@ class ExperimentRunner:
                 transitions = visualizer.find_interesting_transitions(
                     recognition_gt, planning_gt, planning_pred
                 )
+                plot_top = min(self.config.get('visualization', {}).get('plot_top', 5), len(transitions))
 
-                # Generate paper figures for top 3 examples
-                for i, point in enumerate(transitions[:min(10, len(transitions))]):
+                # Generate paper figures for top 5 examples
+                for i, point in enumerate(transitions[:plot_top]):
                     fig = visualizer.plot_recognition_and_planning(
                         recognition_gt=recognition_gt,
                         recognition_pred=recognition_pred,  

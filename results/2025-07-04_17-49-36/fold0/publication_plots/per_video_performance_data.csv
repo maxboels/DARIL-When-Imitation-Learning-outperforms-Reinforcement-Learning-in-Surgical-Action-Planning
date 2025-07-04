@@ -1,0 +1,21 @@
+Method,Video_ID,mAP_Percentage
+Autoregressive IL,VID02,42.42550218619622
+Autoregressive IL,VID06,51.860984913372135
+Autoregressive IL,VID111,42.74076870491411
+Autoregressive IL,VID14,31.844424822274725
+Autoregressive IL,VID23,39.947180510433625
+Autoregressive IL,VID25,56.442193843008596
+Autoregressive IL,VID50,49.49844702585701
+Autoregressive IL,VID51,44.322950648264914
+Autoregressive IL,VID66,59.3313543777427
+Autoregressive IL,VID79,37.92575091689199
+Autoregressive IL (IVT),VID02,0.0
+Autoregressive IL (IVT),VID06,0.0
+Autoregressive IL (IVT),VID111,0.0
+Autoregressive IL (IVT),VID14,0.0
+Autoregressive IL (IVT),VID23,0.0
+Autoregressive IL (IVT),VID25,0.0
+Autoregressive IL (IVT),VID50,0.0
+Autoregressive IL (IVT),VID51,0.0
+Autoregressive IL (IVT),VID66,0.0
+Autoregressive IL (IVT),VID79,0.0
