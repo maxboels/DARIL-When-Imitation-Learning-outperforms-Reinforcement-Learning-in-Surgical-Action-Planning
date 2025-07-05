@@ -318,8 +318,8 @@ class AutoregressiveILModel(nn.Module):
         # Loss 4: Phase Prediction
         if target_phases is not None:
             phase_loss = F.cross_entropy(
-                phase_logits.view(-1, self.num_phase_classes),
-                target_phases.view(-1),
+                phase_logits.permute(0, 2, 1),  # [B, num_classes, T] → [B, T, num_classes]
+                target_phases,
                 ignore_index=-1
             )
             outputs['phase_loss'] = phase_loss

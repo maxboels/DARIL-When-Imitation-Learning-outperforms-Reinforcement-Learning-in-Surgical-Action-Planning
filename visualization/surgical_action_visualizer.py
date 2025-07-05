@@ -187,6 +187,7 @@ class SurgicalActionVisualizer:
                                     save_path: Optional[str] = None,
                                     title_suffix: str = "",
                                     show_transitions: bool = False,
+                                    show_performance_stats: bool = False,
                                     use_time_format: bool = True) -> plt.Figure:
         """
         Create a comprehensive visualization of recognition and planning performance.
@@ -205,9 +206,6 @@ class SurgicalActionVisualizer:
             title_suffix: Additional text for title
             show_transitions: Whether to highlight transitions
             use_time_format: Whether to show HH:MM:SS format (True) or frame indices (False)
-            
-        Returns:
-            matplotlib Figure object
         """
         
         # Define time range
@@ -247,10 +245,11 @@ class SurgicalActionVisualizer:
                                 selected_actions, center_frame, rollout_horizon, threshold, use_time_format)
         
         # Statistics panel (right)
-        ax_stats = fig.add_subplot(gs[:, 2], facecolor='white')
-        self._plot_statistics_panel(ax_stats, recognition_gt, recognition_pred,
-                                   planning_gt, planning_pred, start_frame, end_frame,
-                                   selected_actions, center_frame, threshold)
+        if show_performance_stats:
+            ax_stats = fig.add_subplot(gs[:, 2], facecolor='white')
+            self._plot_statistics_panel(ax_stats, recognition_gt, recognition_pred,
+                                    planning_gt, planning_pred, start_frame, end_frame,
+                                    selected_actions, center_frame, threshold)
         
         # Add transitions overlay if requested
         if show_transitions:
@@ -264,16 +263,15 @@ class SurgicalActionVisualizer:
         fig.suptitle(main_title, fontsize=16, fontweight='bold', y=0.95)
         
         # Add timestamp info
-        fig.text(0.02, 0.02, f"Center Frame: {center_frame} | Time Window: ±{time_window//2} frames | "
-                            f"Actions: {len(selected_actions)} selected", fontsize=10)
+        additional_info = False
+        if additional_info:
+            fig.text(0.02, 0.02, f"Center Frame: {center_frame} | Time Window: ±{time_window//2} frames | "
+                                f"Actions: {len(selected_actions)} selected", fontsize=10)
         
         plt.tight_layout()
         
         if save_path:
             plt.savefig(save_path, dpi=300, bbox_inches='tight', facecolor='white')
-            print(f"Figure saved to: {save_path}")
-            
-        return fig
 
     def _format_time_axis(self, ax, start_frame, end_frame, center_frame, use_time_format=True, axis_type="combined"):
         """Format x-axis with proper frame indices or time stamps relative to center frame."""
@@ -363,19 +361,19 @@ class SurgicalActionVisualizer:
         
         if legend_type == "recognition":
             legend_elements = [
-                plt.Rectangle((0, 0), 1, 1, facecolor=self.fn_color, alpha=0.8, label='Ground Truth (FN)'),
+                plt.Rectangle((0, 0), 1, 1, facecolor=self.fn_color, alpha=0.8, label='False Negative'),
                 plt.Rectangle((0, 0), 1, 1, facecolor=self.tp_color, alpha=0.8, label='True Positive'),
                 plt.Rectangle((0, 0), 1, 1, facecolor=self.fp_color, alpha=0.8, label='False Positive')
             ]
         elif legend_type == "planning":
             legend_elements = [
-                plt.Rectangle((0, 0), 1, 1, facecolor=self.fn_color, alpha=0.8, label='Ground Truth'),
+                plt.Rectangle((0, 0), 1, 1, facecolor=self.fn_color, alpha=0.8, label='False Negative'),
                 plt.Rectangle((0, 0), 1, 1, facecolor=self.tp_color, alpha=0.8, label='True Positive'),
                 plt.Rectangle((0, 0), 1, 1, facecolor=self.fp_color, alpha=0.8, label='False Positive'),
             ]
         elif legend_type == "combined":
             legend_elements = [
-                plt.Rectangle((0, 0), 1, 1, facecolor=self.fn_color, alpha=0.8, label='Ground Truth (FN)'),
+                plt.Rectangle((0, 0), 1, 1, facecolor=self.fn_color, alpha=0.8, label='False Negative'),
                 plt.Rectangle((0, 0), 1, 1, facecolor=self.tp_color, alpha=0.8, label='True Positive'),
                 plt.Rectangle((0, 0), 1, 1, facecolor=self.fp_color, alpha=0.8, label='False Positive'),
                 plt.Line2D([0], [0], color='red', linewidth=4, label='Current Frame')
@@ -452,7 +450,7 @@ class SurgicalActionVisualizer:
                       label='Future (Unobserved)')
         
         ax.set_title('Recognition: Observed Performance', fontweight='bold')
-        ax.set_ylabel('Action Classes')
+        # ax.set_ylabel('Action Classes')
         
         # Format time axis
         self._format_time_axis(ax, start_frame, end_frame, center_frame, use_time_format, "recognition")
@@ -526,12 +524,13 @@ class SurgicalActionVisualizer:
         if horizon_end > current_pos:
             rect = patches.Rectangle((current_pos + 0.5, -0.5), horizon_end - current_pos - 0.5, 
                                    len(selected_actions), linewidth=2, 
-                                   edgecolor='darkgreen', facecolor='none', alpha=0.6,
+                                   edgecolor='lightgreen',
+                                   facecolor='none', alpha=0.6,
                                    label='Planning Horizon')
             ax.add_patch(rect)
         
         ax.set_title('Planning: Future Prediction Performance', fontweight='bold')
-        ax.set_ylabel('Action Classes')
+        ax.set_ylabel('Action Class IDs')
         
         # Format time axis
         self._format_time_axis(ax, start_frame, end_frame, center_frame, use_time_format, "planning")
@@ -619,7 +618,7 @@ class SurgicalActionVisualizer:
                    bbox=dict(boxstyle="round,pad=0.3", facecolor="lightgreen", alpha=0.7))
         
         ax.set_title('Combined View: Recognition (Past) + Planning (Future)', fontweight='bold')
-        ax.set_ylabel('Action Classes')
+        # ax.set_ylabel('Action Classes')
         
         # Format time axis with relative indexing
         self._format_time_axis(ax, start_frame, end_frame, center_frame, use_time_format, "combined")

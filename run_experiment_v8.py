@@ -108,6 +108,7 @@ class ExperimentRunner:
         
         self.logger.info("🚀 Starting Complete RL Comparison")
         self.logger.info("=" * 60)
+        all_methods_results = {}
         
         # Load data
         train_data, test_data = self._load_data()
@@ -115,86 +116,41 @@ class ExperimentRunner:
         # Method 1: Autoregressive IL (unchanged, was working well)
         if self.config.get('experiment', {}).get('autoregressive_il', {}).get('enabled', False):        
             self.logger.info("🎓 Running Method 1: Autoregressive IL")
-            method1_results = self._run_method1_autoregressive_il(train_data, test_data)
-            self.results['method_1_autoregressive_il'] = method1_results
-        else:
-            self.logger.info("🎓 Method 1: Autoregressive IL is disabled, skipping...")
-            method1_results = {'status': 'skipped', 'reason': 'Autoregressive IL disabled in config'}
-            self.results['method_1_autoregressive_il'] = method1_results
+            all_methods_results['Method 1'] = self._run_method1_autoregressive_il(train_data, test_data)
 
-        # Method 2: Conditional World Model + RL (IMPROVED)                
+        # Method 2: Conditional World Model + RL
         if self.config.get('experiment', {}).get('world_model', {}).get('enabled', False):
-            method2_results = self._run_method2_wm_rl(train_data, test_data)
-            self.results['method_2_conditional_world_model'] = method2_results
-        else:
-            self.logger.info("🌍 Method 2: Conditional World Model + RL is disabled, skipping...")
+            self.logger.info("🌍 Running Method 2: Conditional World Model + RL")
+            all_methods_results['Method 2'] = self._run_method2_wm_rl(train_data, test_data)
 
-        # Method 3: Direct Video RL (IMPROVED)
+        # Method 3: Direct Video RL
         if self.config.get('experiment', {}).get('rl_experiments', {}).get('enabled', False):
-            method3_results = self._run_method3_direct_rl(train_data, test_data)
-            self.results['method_3_direct_video_rl'] = method3_results
-        else:
-            self.logger.info("📹 Method 3: Direct Video RL is disabled, skipping...")
+            self.logger.info("📹 Running Method 3: Direct Video RL")
+            all_methods_results['Method 3'] = self._run_method3_direct_rl(train_data, test_data)
 
-        # Method 4: IRL Enhancement (NEW)
+        # Method 4: IRL Enhancement
         if self.config.get('experiment', {}).get('irl_enhancement', {}).get('enabled', False):
             self.logger.info("🎯 Running Method 4: IRL Enhancement")
-            method4_results = self._run_method4_irl_enhancement(train_data, test_data)
-            self.results['method_4_irl_enhancement'] = method4_results
-        else:
-            self.logger.info("🎯 Method 4: IRL Enhancement is disabled in config, skipping...")
-            method4_results = {'status': 'skipped', 'reason': 'IRL Enhancement disabled in config'}
-            self.results['method_4_irl_enhancement'] = method4_results
+            all_methods_results['Method 4'] = self._run_method4_irl_enhancement(train_data, test_data)
+        
+        # Save results per experiment method
+        for experiment_name, method_results in all_methods_results.items():
+            self.logger.info(f"✅ Saving results for {experiment_name}")
+            self.save_experiment_results_to_json(method_results, filename=f"{experiment_name}_results.json")
 
-        # Comprehensive evaluation - with proper handling
-        # evaluation_results = self._run_comprehensive_evaluation_fixed()
-        if not hasattr(self, 'test_loaders') or not self.test_loaders:
-            self.logger.error("❌ No test loaders available for evaluation")
-            return {'status': 'failed', 'error': 'No test loaders available'}
-                
-        # evaluation_results = run_integrated_evaluation(
-        #     experiment_results=self.results,
-        #     test_data=self.test_loaders,
-        #     results_dir=str(self.results_dir),
-        #     logger=self.logger,
-        #     horizon=self.config['evaluation']['prediction_horizon']
-        # )
-        # self.results['comprehensive_evaluation'] = evaluation_results
+        self._generate_paper_from_saved_results(self.results_dir)
+        self.logger.info("All methods executed, results saved.")
 
-        # self.logger.info("📊 Generating publication-quality plots...")
-        # plot_paths = create_publication_plots(
-        #     experiment_results=self.results,
-        #     output_dir=str(self.plots_dir),
-        #     logger=self.logger
-        # )
-        # self.results['generated_plots'] = plot_paths
-
-        # Analysis and comparison
-        # self.logger.info("🏆 Analyzing Results and Architectural Insights including IRL")
-        # self._print_method_comparison(self.results)
-        
-        # Save results and generate paper
-        self._save_and_generate_paper_resuts()
-        
-        return self.results
-
-    def integrate_with_your_experiment(self, irl_trainer, test_loaders):
-        """
-        Integration example for your experiment runner
-        """
-        
-        # Instead of just reporting mAP improvement:
-        # OLD: logger.info(f"IRL improvement: {irl_map - il_map:.4f}")
-        
-        # NEW: Run surgical expertise evaluation:
-        surgical_results = main_evaluation_script(irl_trainer, test_loaders, self.logger)
-        
-        return {
-            'evaluation_type': 'surgical_expertise_validation',
-            'surgical_results': surgical_results,
-            'demonstrates_clinical_value': True,
-            'paper_ready_claims': surgical_results['strong_claims']
-        }
+    def save_experiment_results_to_json(self, results: Dict[str, Any], filename: Optional[str] = None):
+        """Save experiment results to a json file."""
+        import json
+        if filename is None:
+            filename = f"results_{self.experiment_name}.json"
+        results_path = self.results_dir / filename        
+        json_serializable_results = self._convert_for_json(results)
+        with open(results_path, 'w') as f:
+            json.dump(json_serializable_results, f, indent=4)
+        self.logger.info(f"✅ Results saved to: {results_path}")
     
     def _load_data(self) -> Tuple[List[Dict], List[Dict]]:
         """Load and prepare training and test data."""
@@ -908,34 +864,27 @@ class ExperimentRunner:
                     reward = result.get('mean_reward', 0)
                     self.logger.info(f"     Method 3 {alg}: {reward:.3f}")
           
-    def _save_and_generate_paper_resuts(self):
-        """Save all experimental results."""
-        
-        # Convert results to JSON-serializable format
-        json_results = self._convert_for_json(self.results)
-        
-        # Save detailed results
-        import json
-        results_path = self.results_dir / 'complete_results.json'
-        with open(results_path, 'w') as f:
-            json.dump(json_results, f, indent=2, default=str)
-        
-        # Save summary
-        summary = self._create_evaluation_summary(self.results)
-        summary_path = self.results_dir / 'experiment_summary.json'
-        with open(summary_path, 'w') as f:
-            json.dump(summary, f, indent=2, default=str)
-        
-        # Generate paper
-        self._generate_paper_results()
-        
-        self.logger.info(f"💾 All RL results saved to: {self.results_dir}")
-        self.logger.info(f"📄 Complete results: {results_path}")
-        self.logger.info(f"📄 Summary: {summary_path}")
+    def _generate_paper_from_saved_results(self, results_dir: str):
+        from paper_generation.paper_generator import MICCAIPaperGenerator
 
-        generated_plots = self.results.get('generated_plots', {})
-        if generated_plots:
-            self.logger.info(f"📊 Publication plots: {self.plots_dir}")
+        if not os.path.exists(results_dir):
+            raise FileNotFoundError(f"Results directory does not exist: {results_dir}")        
+            results_dir = "results/2025-07-05_16-33-26/fold0"  # Update this path
+        self.logger.info(f"📄 Generating MICCAI paper from results in: {results_dir}")
+        
+        generator = MICCAIPaperGenerator(results_dir)
+        generator.generate_complete_paper()
+        generator.generate_submission_checklist()
+        
+        print("\n🎯 Your MICCAI paper is ready!")
+        print(f"📁 Check the generated files in: {generator.paper_dir}")
+        print("\n📝 Next steps:")
+        print("1. Review the generated content")
+        print("2. Add your references to references.bib")  
+        print("3. Compile with pdflatex")
+        print("4. Review against MICCAI guidelines")
+        print("5. Submit before deadline!")
+
 
     def _create_evaluation_summary(self, results: Dict) -> Dict:
         """Create evaluation summary including IRL improvements."""
@@ -1003,16 +952,7 @@ class ExperimentRunner:
     
     def _generate_paper_results(self):
         """Generate research paper with results."""
-        
-        try:
-            summary = self._create_evaluation_summary(self.results)
-            
-            paper_dir = generate_research_paper(self.results_dir, self.logger)
-            
-            self.logger.info(f"📄 Research paper generated: {paper_dir}")
-            
-        except Exception as e:
-            self.logger.warning(f"⚠️ Paper generation failed: {e}")
+
     
     def _convert_for_json(self, obj: Any) -> Any:
         """Convert objects to JSON-serializable format."""
@@ -1063,35 +1003,19 @@ def main():
     else:
         print(f"📄 Using config: {config_path}")
     
-    try:
-        import argparse
-        parser = argparse.ArgumentParser(description="Run enhanced RL surgical experiment with IRL")
-        parser.add_argument('--config', type=str, default=config_path, help="Path to config file")
-        args = parser.parse_args()
-        print(f"🔧 Arguments: {args}")
+    import argparse
+    parser = argparse.ArgumentParser(description="Run enhanced RL surgical experiment with IRL")
+    parser.add_argument('--config', type=str, default=config_path, help="Path to config file")
+    args = parser.parse_args()
+    print(f"🔧 Arguments: {args}")
 
-        # Run enhanced comparison
-        experiment = ExperimentRunner(args.config)
-        results = experiment.run_complete_comparison()
-        
-        print("\n🎉 ENHANCED RL EXPERIMENT WITH IRL COMPLETED SUCCESSFULLY!")
-        print("=" * 50)
-        print(f"📁 Results saved to: {experiment.results_dir}")
-        generated_plots = results.get('generated_plots', {})
-        
-        if generated_plots:
-            print(f"📊 Publication plots generated:")
-            for plot_type, plot_path in generated_plots.items():
-                print(f"   📈 {plot_type}: {plot_path}")
-        else:
-            print(f"⚠️ No plots generated (check for errors)")
-        
-        print(f"🎯 Ready for MICCAI publication!")
-        
-    except Exception as e:
-        print(f"\n❌ ENHANCED RL EXPERIMENT FAILED: {e}")
-        import traceback
-        traceback.print_exc()
+    # Run enhanced comparison
+    experiment = ExperimentRunner(args.config)
+    experiment.run_complete_comparison()
+    
+    print("\n🎉 ENHANCED RL EXPERIMENT WITH IRL COMPLETED SUCCESSFULLY!")
+    print("=" * 50)
+    print(f"📁 Results saved to: {experiment.results_dir}")
 
 if __name__ == "__main__":
     main()

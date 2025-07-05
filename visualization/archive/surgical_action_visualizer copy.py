@@ -265,9 +265,7 @@ class SurgicalActionVisualizer:
         
         if save_path:
             plt.savefig(save_path, dpi=300, bbox_inches='tight', facecolor='white')
-            print(f"Figure saved to: {save_path}")
-            
-        return fig
+            plt.close(fig)
 
     def _format_time_axis(self, ax, start_frame, end_frame, use_time_format=True):
         """Format x-axis with proper frame indices or time stamps."""

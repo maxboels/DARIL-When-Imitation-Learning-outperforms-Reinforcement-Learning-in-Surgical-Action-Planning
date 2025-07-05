@@ -543,7 +543,7 @@ class AutoregressiveILTrainer:
                         target_next_frames=data['target_next_frames'],
                         target_current_actions=data['current_actions'],
                         target_actions=data['target_next_actions'],
-                        target_phases=data['target_next_phases'],
+                        target_phases=data['target_next_phases'] if epoch >= 0 else None,
                     )
                     
                     # Accumulate loss metrics for this video
