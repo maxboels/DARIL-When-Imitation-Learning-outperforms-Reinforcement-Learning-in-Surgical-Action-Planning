@@ -1,7 +1,7 @@
 # Fdb version 4
-["pdflatex"] 1751555343.79479 "/home/maxboels/projects/surl/paper_manuscript/surgical_action_prediction_miccai2025.tex" "surgical_action_prediction_miccai2025.pdf" "surgical_action_prediction_miccai2025" 1751555344.15364 2
+["pdflatex"] 1751712453.48404 "/home/maxboels/projects/surl/paper_manuscript/surgical_action_prediction_miccai2025.tex" "surgical_action_prediction_miccai2025.pdf" "surgical_action_prediction_miccai2025" 1751712453.85658 2
   "/etc/texmf/web2c/texmf.cnf" 1730199251.52305 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/maxboels/projects/surl/paper_manuscript/surgical_action_prediction_miccai2025.tex" 1751555343.50767 13443 c317e63a3081bc6f70ecd778b12e5274 ""
+  "/home/maxboels/projects/surl/paper_manuscript/surgical_action_prediction_miccai2025.tex" 1751712453.22231 13319 474343b12cc8b64ebe978126e4bd6240 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecbx0900.tfm" 1136768653 3584 1a7de6c99457381c64abc1a7c545505f ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecbx1000.tfm" 1136768653 3584 2d666ecf6d466d8b007246bc2f94d9da ""
@@ -86,8 +86,8 @@
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1746530043.52338 5472669 54eaf61a88b6b7896ebd0dac973cb29c ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1746530131 8214692 262f898aaa86ff062f19eebdfca17a6e ""
   "figures/planning_performance.pdf" 0 -1 0 ""
-  "surgical_action_prediction_miccai2025.aux" 1751555344.08968 3855 8d9787b185e3aadf79e2542d9c07a315 "pdflatex"
-  "surgical_action_prediction_miccai2025.tex" 1751555343.50767 13443 c317e63a3081bc6f70ecd778b12e5274 ""
+  "surgical_action_prediction_miccai2025.aux" 1751712453.78133 3731 0d49e13b296fbf38f1ed16d0a70c3068 "pdflatex"
+  "surgical_action_prediction_miccai2025.tex" 1751712453.22231 13319 474343b12cc8b64ebe978126e4bd6240 ""
   (generated)
   "surgical_action_prediction_miccai2025.aux"
   "surgical_action_prediction_miccai2025.log"
