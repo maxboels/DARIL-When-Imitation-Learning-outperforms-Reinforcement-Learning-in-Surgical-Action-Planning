@@ -35,6 +35,8 @@ results/*/*/*.zip
 *.zip
 *.npz
 *.pt
+*.npy
+
 events.out.tfevents.*
 
 results/*/complete_results.json

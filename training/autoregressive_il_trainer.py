@@ -894,70 +894,13 @@ class AutoregressiveILTrainer:
         
         # Get detailed per-video results
         detailed_results = getattr(self, 'last_validation_details', {})
-        
-        # TODO: delete later
-        # generation_results = self._evaluate_generation_quality(test_loaders)
 
-        # FIXED: Extract planning results from the validation phase (avoid duplicate evaluation)
-        self.logger.info("📊 Extracting planning results from validation phase...")
-        
-        # Get planning results from the stored validation details or create minimal fallback
-        planning_results = getattr(self, '_last_planning_results', None)
-        evaluation_results = {
-            # FIXED: Use correct variable name
+        return {
             'overall_metrics': evaluate_results,
-            'detailed_video_metrics': detailed_results.get('video_action_metrics', {}),
-            'video_loss_metrics': detailed_results.get('video_loss_metrics', {}),
-            # 'generation_quality': generation_results,
-            
-            # Planning evaluation results
-            'planning_evaluation': planning_results,
-            
-            # Model info
-            'model_type': 'AutoregressiveIL',
-            'evaluation_approach': 'comprehensive_with_planning',
-            'num_videos_evaluated': detailed_results.get('num_videos', 0),
-            
-            # FIXED: Publication metrics with correct variable and key names
-            'publication_metrics': {
-                # Single-step metrics (current action recognition)
-                'single_step_mAP': evaluate_results.get('action_mAP', 0.0),
-                'single_step_ivt_mAP': evaluate_results.get('ivt_mAP', 0.0),
-                
-                # FIXED: Planning metrics with correct variable and key names
-                'planning_1s_mAP': self._extract_planning_metric(planning_results, '1s', 'mean_ivt_mAP'),
-                'planning_2s_mAP': self._extract_planning_metric(planning_results, '2s', 'mean_ivt_mAP'),
-                'planning_3s_mAP': self._extract_planning_metric(planning_results, '3s', 'mean_ivt_mAP'),
-                'planning_5s_mAP': self._extract_planning_metric(planning_results, '5s', 'mean_ivt_mAP'),
-                'planning_10s_mAP': self._extract_planning_metric(planning_results, '10s', 'mean_ivt_mAP'),
-                
-                # Comparison
-                'evaluation_types': ['single_step_recognition', 'multi_step_planning'],
-                'planning_consistency': self._extract_planning_metric(planning_results, '2s', 'mean_action_consistency')
-            },
-            
-            'evaluation_summary': {
-                'single_step_performance': evaluate_results.get('action_mAP', 0.0),
-                'short_term_planning': self._extract_planning_metric(planning_results, '2s', 'mean_ivt_mAP'),
-                'medium_term_planning': self._extract_planning_metric(planning_results, '5s', 'mean_ivt_mAP'),
-                'long_term_planning': self._extract_planning_metric(planning_results, '10s', 'mean_ivt_mAP'),
-                'planning_degradation': self._calculate_planning_degradation(planning_results),
-                'strength': 'Autoregressive planning with causal generation',
-                'architecture': 'GPT-2 based autoregressive model',
-                'planning_horizon_capability': 'up_to_10_seconds',
-                'target_prediction_type': 'next_action_anticipation'  # Since you use t+1 targets
-            }
+            'detailed_results': detailed_results,
+            'last_planning_results': self._last_planning_results if hasattr(self, '_last_planning_results') else None,
+            'best_model_paths': self.get_best_model_paths(),
         }
-        
-        # Performance analysis
-        if hasattr(self, '_analyze_video_performance'):
-            performance_analysis = self._analyze_video_performance(detailed_results.get('video_action_metrics', {}))
-            evaluation_results['performance_analysis'] = performance_analysis
-        
-        # FIXED: Enhanced logging with correct variable names
-        self._log_comprehensive_results(evaluate_results, planning_results)
-        
-        return evaluation_results
 
     def _extract_planning_metric(self, planning_results: Dict, horizon: str, metric: str) -> float:
         """FIXED: Helper to extract planning metrics safely with proper error handling."""

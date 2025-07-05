@@ -152,29 +152,29 @@ class ExperimentRunner:
             self.logger.error("❌ No test loaders available for evaluation")
             return {'status': 'failed', 'error': 'No test loaders available'}
                 
-        evaluation_results = run_integrated_evaluation(
-            experiment_results=self.results,
-            test_data=self.test_loaders,
-            results_dir=str(self.results_dir),
-            logger=self.logger,
-            horizon=self.config['evaluation']['prediction_horizon']
-        )
-        self.results['comprehensive_evaluation'] = evaluation_results
+        # evaluation_results = run_integrated_evaluation(
+        #     experiment_results=self.results,
+        #     test_data=self.test_loaders,
+        #     results_dir=str(self.results_dir),
+        #     logger=self.logger,
+        #     horizon=self.config['evaluation']['prediction_horizon']
+        # )
+        # self.results['comprehensive_evaluation'] = evaluation_results
 
-        self.logger.info("📊 Generating publication-quality plots...")
-        plot_paths = create_publication_plots(
-            experiment_results=self.results,
-            output_dir=str(self.plots_dir),
-            logger=self.logger
-        )
-        self.results['generated_plots'] = plot_paths
+        # self.logger.info("📊 Generating publication-quality plots...")
+        # plot_paths = create_publication_plots(
+        #     experiment_results=self.results,
+        #     output_dir=str(self.plots_dir),
+        #     logger=self.logger
+        # )
+        # self.results['generated_plots'] = plot_paths
 
         # Analysis and comparison
-        self.logger.info("🏆 Analyzing Results and Architectural Insights including IRL")
-        self._print_method_comparison(self.results)
+        # self.logger.info("🏆 Analyzing Results and Architectural Insights including IRL")
+        # self._print_method_comparison(self.results)
         
-        # Save results
-        self._save_complete_results()
+        # Save results and generate paper
+        self._save_and_generate_paper_resuts()
         
         return self.results
 
@@ -336,10 +336,9 @@ class ExperimentRunner:
             self.logger.info("📊 Running evaluation on test loaders...")
             evaluation_results = trainer.evaluate_model(test_loaders)
             
-            single_step_map = evaluation_results['overall_metrics'].get('action_mAP', 0)
-            planning_2s_map = evaluation_results['publication_metrics'].get('planning_2s_mAP', 0)
-            planning_degradation = evaluation_results['evaluation_summary'].get('planning_degradation', 0)
-            
+            # ivt_current_mAP = evaluation_results['overall_metrics'].get('ivt_current_mAP', 0)
+            # ivt_next_mAP = evaluation_results['overall_metrics'].get('ivt_next_mAP', 0)
+            # for 'planning_1s_mAP', 'planning_2s_mAP', ..., 'planning_20_s_mAP'
             training_best_metrics = {}
             if not use_pretrained and hasattr(trainer, 'get_best_metrics'):
                 training_best_metrics = trainer.get_best_metrics()
@@ -384,29 +383,13 @@ class ExperimentRunner:
                         save_path=os.path.join(output_dir, f"{video_id}_preds_sample_{i+1}.png"),
                         title_suffix=f"Qualitative Evaluation Sample {i+1} - {video_id}",
                     )
+                    self.logger.info(f"📸 Saved visualization for {video_id} sample {i+1} to {output_dir}")
+
+        # Return results
+        return evaluation_results
 
 
-        return {
-            'status': 'success',
-            'model_paths': best_model_paths,
-            'model_type': 'AutoregressiveIL',
-            'approach': 'Enhanced: Causal frame generation → action anticipation with IVT-based saving',
-            'evaluation': evaluation_results,                    
-            'method_description': 'Enhanced Autoregressive IL with IVT-optimized model saving',
-            'capabilities': {
-                'single_step_recognition': single_step_map,
-                'short_term_planning_2s': planning_2s_map,
-                'planning_degradation': planning_degradation,
-                'planning_horizon': 'up_to_5_seconds'
-            },                    
-            'training_performance': training_best_metrics,
-            'model_selection_strategy': f'IVT-based ({model_type_preference} preference)',                    
-            'target_type': 'next_action_prediction',
-            'planning_ready': True,
-            'pretrained': use_pretrained,
-            'enhanced_saving': True
-        }
-        
+
     def _run_method2_wm_rl(self, train_data: List[Dict], test_data: List[Dict]) -> Dict[str, Any]:
             """FIXED Method 2: Conditional World Model + Improved RL - supports pretrained models."""
             
@@ -925,7 +908,7 @@ class ExperimentRunner:
                     reward = result.get('mean_reward', 0)
                     self.logger.info(f"     Method 3 {alg}: {reward:.3f}")
           
-    def _save_complete_results(self):
+    def _save_and_generate_paper_resuts(self):
         """Save all experimental results."""
         
         # Convert results to JSON-serializable format

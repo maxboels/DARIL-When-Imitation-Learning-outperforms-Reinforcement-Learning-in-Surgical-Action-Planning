@@ -18,6 +18,12 @@ class SurgicalActionVisualizer:
         self.figsize = figsize
         self.fps = fps  # Frames per second for time conversion
         self.setup_colormaps()
+        self.load_class_mapping('data/labels.json')  # Load class mapping from JSON file
+
+    def load_class_mapping(self, class_labels_path: str) -> Dict[int, str]:
+        import json
+        with open(class_labels_path, 'r') as f:
+            self.class_mapping = json.load(f)
         
     def setup_colormaps(self):
         """Setup custom colormaps using TP/FN/FP/TN color scheme."""
@@ -450,10 +456,17 @@ class SurgicalActionVisualizer:
         
         # Format time axis
         self._format_time_axis(ax, start_frame, end_frame, center_frame, use_time_format, "recognition")
+
+        # Define y-ticks names based on selected actions and class mapping
+        y_ticks_labels = []
+        for action in selected_actions:
+            action_name = f"'{self.class_mapping['action'][str(action)]}' (A{action})"
+            y_ticks_labels.append(action_name)
         
         # Set action labels
         ax.set_yticks(range(len(selected_actions)))
-        ax.set_yticklabels([f'A{a}' for a in selected_actions])
+        ax.set_yticklabels(y_ticks_labels, rotation=45, fontsize=9)
+        
         
         # Add color legend
         self._add_color_legend(ax, "recognition")
@@ -522,6 +535,7 @@ class SurgicalActionVisualizer:
         
         # Format time axis
         self._format_time_axis(ax, start_frame, end_frame, center_frame, use_time_format, "planning")
+        
         
         # Set action labels
         ax.set_yticks(range(len(selected_actions)))
@@ -610,9 +624,15 @@ class SurgicalActionVisualizer:
         # Format time axis with relative indexing
         self._format_time_axis(ax, start_frame, end_frame, center_frame, use_time_format, "combined")
         
+        # Define y-ticks names based on selected actions and class mapping
+        y_ticks_labels = []
+        for action in selected_actions:
+            action_name = f"'{self.class_mapping['action'][str(action)]}' (A{action})"
+            y_ticks_labels.append(action_name)
+
         # Set action labels
         ax.set_yticks(range(len(selected_actions)))
-        ax.set_yticklabels([f'A{a}' for a in selected_actions])
+        ax.set_yticklabels(y_ticks_labels, rotation=45, fontsize=9)
         
         # Add color legend for combined view
         self._add_color_legend(ax, "combined")
