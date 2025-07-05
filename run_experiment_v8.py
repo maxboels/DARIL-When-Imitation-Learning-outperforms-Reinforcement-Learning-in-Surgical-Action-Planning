@@ -139,7 +139,7 @@ class ExperimentRunner:
             self.save_experiment_results_to_json(method_results, filename=f"{experiment_name}_results.json")
 
         self._generate_paper_from_saved_results(self.results_dir)
-        self.logger.info("All methods executed, results saved.")
+        self.logger.info("🏁 Completed all experiments successfully!")
 
     def save_experiment_results_to_json(self, results: Dict[str, Any], filename: Optional[str] = None):
         """Save experiment results to a json file."""
@@ -869,7 +869,7 @@ class ExperimentRunner:
 
         if not os.path.exists(results_dir):
             raise FileNotFoundError(f"Results directory does not exist: {results_dir}")        
-            results_dir = "results/2025-07-05_16-33-26/fold0"  # Update this path
+            results_dir = "results/2025-07-05_16-33-26/fold0"
         self.logger.info(f"📄 Generating MICCAI paper from results in: {results_dir}")
         
         generator = MICCAIPaperGenerator(results_dir)
@@ -959,10 +959,20 @@ class ExperimentRunner:
         
         if isinstance(obj, dict):
             return {k: self._convert_for_json(v) for k, v in obj.items()}
+        elif isinstance(obj, (np.integer, np.int64, np.int32)):  # Handle all numpy integer types
+            return int(obj)
+        elif isinstance(obj, (np.floating, np.float64, np.float32)):  # Handle all numpy float types
+            return float(obj)
+        elif isinstance(obj, np.bool_):  # Handle numpy boolean
+            return bool(obj)
+        elif isinstance(obj, np.ndarray):  # Handle numpy arrays
+            return obj.tolist()
+        elif isinstance(obj, torch.Tensor):  # Handle PyTorch tensors
+            return obj.detach().cpu().numpy().tolist() if obj.requires_grad else obj.cpu().numpy().tolist()
         elif isinstance(obj, list):
             return [self._convert_for_json(item) for item in obj]
-        elif isinstance(obj, (torch.Tensor, np.ndarray)):
-            return obj.tolist()
+        elif isinstance(obj, tuple):
+            return [self._convert_for_json(item) for item in obj]
         elif isinstance(obj, Path):
             return str(obj)
         elif hasattr(obj, '__dict__'):

@@ -1,0 +1,33 @@
+
+\section{Results}
+
+\subsection{Main Comparative Results}
+
+Table~\ref{tab:main_results} presents our main experimental findings comparing IL and RL approaches for surgical action planning. Our IL baseline achieves 45.6\% current action mAP and 44.9\% next action mAP, outperforming all RL variants tested.
+
+Notably, the IRL enhanced approach achieves 44.2\% current mAP and 43.8\% next mAP, representing a 1.4\% and 1.1\% decrease from the IL baseline, respectively. Similarly, world model RL achieves 42.1\% and 41.6\% for current and next action prediction, while direct video RL achieves 43.9\% and 43.1\%.
+
+\subsection{Planning Performance Analysis}
+
+Figure~\ref{fig:planning_analysis} shows the temporal planning performance across different horizons. Our IL baseline demonstrates graceful degradation from 47.1\% mAP at 1-second planning to 29.1\% at 10-second planning, representing a 38.2\% relative decrease.
+
+The planning degradation pattern is consistent across all methods, suggesting that this limitation is fundamental to the temporal planning task rather than method-specific. However, the IL baseline consistently maintains higher absolute performance at all horizons.
+
+\subsection{Component-wise Analysis}
+
+Table~\ref{tab:component_analysis} provides detailed component-wise analysis of our IL baseline. The Instrument component shows the highest stability with 90.3\% current recognition declining to 87.9\% for next prediction. The Target component shows more variability, with 57.1\% current recognition and 56.1\% next prediction performance.
+
+Combination components (IV: 45.7\%, IT: 53.2\%) show the expected multiplicative effects of their constituent components, with performance levels that reflect the interaction complexity.
+
+\subsection{Why RL Underperformed}
+
+Our analysis reveals several key factors explaining why RL approaches failed to improve upon IL:
+
+\begin{enumerate}
+\item \textbf{Expert-Optimal Training Data}: The CholecT50 dataset contains expert-level demonstrations that are already near-optimal for the evaluation metrics.
+\item \textbf{Evaluation Metric Alignment}: The test set evaluation directly rewards behavior similar to the training demonstrations.
+\item \textbf{Limited Exploration Benefits}: RL exploration discovers valid alternative surgical approaches that are nonetheless suboptimal for the specific evaluation criteria.
+\item \textbf{Domain Constraints}: Surgical domain constraints limit the potential benefits of exploration-based learning.
+\end{enumerate}
+
+These findings suggest that in domains with high-quality expert demonstrations and aligned evaluation metrics, sophisticated RL approaches may not provide benefits over well-optimized imitation learning.

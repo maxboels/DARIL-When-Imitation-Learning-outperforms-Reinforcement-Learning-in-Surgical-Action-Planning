@@ -1,0 +1,203 @@
+2025-07-05 18:45:01,199 - INFO - SuRL_FixedRL_132071083140848 - Shared experiment log directory: results/2025-07-05_18-45-01/fold0/logs
+2025-07-05 18:45:01,200 - INFO - SuRL_FixedRL_132071083140848 - 🎯 RL Experiment: 2025-07-05_18-45-01
+2025-07-05 18:45:01,200 - INFO - SuRL_FixedRL_132071083140848 - 📁 Results dir: results/2025-07-05_18-45-01/fold0
+2025-07-05 18:45:01,200 - INFO - SuRL_FixedRL_132071083140848 - 📂 Plots dir: results/2025-07-05_18-45-01/fold0/publication_plots
+2025-07-05 18:45:01,200 - INFO - SuRL_FixedRL_132071083140848 - 🚀 Starting Complete RL Comparison
+2025-07-05 18:45:01,200 - INFO - SuRL_FixedRL_132071083140848 - ============================================================
+2025-07-05 18:45:01,200 - INFO - SuRL_FixedRL_132071083140848 - 📂 Loading CholecT50 data...
+2025-07-05 18:45:01,200 - INFO - SuRL_FixedRL_132071083140848 -    Training videos: 40
+2025-07-05 18:45:01,200 - INFO - SuRL_FixedRL_132071083140848 -    Test videos: 2
+2025-07-05 18:45:01,200 - INFO - SuRL_FixedRL_132071083140848 - ✅ Using data directory: /home/maxboels/datasets/CholecT50
+2025-07-05 18:45:01,200 - INFO - SuRL_FixedRL_132071083140848 - Loading train data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-07-05 18:45:01,604 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (78968, 156)
+2025-07-05 18:45:01,604 - INFO - SuRL_FixedRL_132071083140848 - [Train] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-07-05 18:45:01,604 - INFO - SuRL_FixedRL_132071083140848 - [Train] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_train_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-07-05 18:45:01,606 - INFO - SuRL_FixedRL_132071083140848 - [Train] Found 40 videos in metadata file
+2025-07-05 18:45:01,606 - INFO - SuRL_FixedRL_132071083140848 - [Train] Loading data for 40 videos
+2025-07-05 18:45:01,689 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID01: 1734 frames, 1024-dims embeddings
+2025-07-05 18:45:01,754 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID04: 1523 frames, 1024-dims embeddings
+2025-07-05 18:45:01,851 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID05: 2345 frames, 1024-dims embeddings
+2025-07-05 18:45:01,914 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID08: 1520 frames, 1024-dims embeddings
+2025-07-05 18:45:01,987 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID10: 1750 frames, 1024-dims embeddings
+2025-07-05 18:45:02,077 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID103: 2220 frames, 1024-dims embeddings
+2025-07-05 18:45:02,166 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID110: 2177 frames, 1024-dims embeddings
+2025-07-05 18:45:02,213 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID12: 1091 frames, 1024-dims embeddings
+2025-07-05 18:45:02,256 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID13: 982 frames, 1024-dims embeddings
+2025-07-05 18:45:02,340 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID15: 2059 frames, 1024-dims embeddings
+2025-07-05 18:45:02,420 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID18: 1943 frames, 1024-dims embeddings
+2025-07-05 18:45:02,487 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID22: 1533 frames, 1024-dims embeddings
+2025-07-05 18:45:02,564 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID26: 1774 frames, 1024-dims embeddings
+2025-07-05 18:45:02,656 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID27: 2085 frames, 1024-dims embeddings
+2025-07-05 18:45:02,759 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID29: 2351 frames, 1024-dims embeddings
+2025-07-05 18:45:02,928 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID31: 3946 frames, 1024-dims embeddings
+2025-07-05 18:45:03,018 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID32: 2117 frames, 1024-dims embeddings
+2025-07-05 18:45:03,110 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID35: 2107 frames, 1024-dims embeddings
+2025-07-05 18:45:03,216 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID36: 2388 frames, 1024-dims embeddings
+2025-07-05 18:45:03,321 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID40: 2223 frames, 1024-dims embeddings
+2025-07-05 18:45:03,484 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID42: 3713 frames, 1024-dims embeddings
+2025-07-05 18:45:03,585 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID43: 2363 frames, 1024-dims embeddings
+2025-07-05 18:45:03,684 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID47: 2260 frames, 1024-dims embeddings
+2025-07-05 18:45:03,763 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID48: 1835 frames, 1024-dims embeddings
+2025-07-05 18:45:03,837 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID49: 1672 frames, 1024-dims embeddings
+2025-07-05 18:45:03,925 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID52: 1967 frames, 1024-dims embeddings
+2025-07-05 18:45:04,005 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID56: 1837 frames, 1024-dims embeddings
+2025-07-05 18:45:04,123 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID57: 2633 frames, 1024-dims embeddings
+2025-07-05 18:45:04,232 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID60: 2533 frames, 1024-dims embeddings
+2025-07-05 18:45:04,321 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID62: 2033 frames, 1024-dims embeddings
+2025-07-05 18:45:04,404 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID65: 1874 frames, 1024-dims embeddings
+2025-07-05 18:45:04,492 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID68: 1973 frames, 1024-dims embeddings
+2025-07-05 18:45:04,546 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID70: 1195 frames, 1024-dims embeddings
+2025-07-05 18:45:04,608 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID73: 1357 frames, 1024-dims embeddings
+2025-07-05 18:45:04,681 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID74: 1635 frames, 1024-dims embeddings
+2025-07-05 18:45:04,767 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID75: 1924 frames, 1024-dims embeddings
+2025-07-05 18:45:04,802 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID78: 740 frames, 1024-dims embeddings
+2025-07-05 18:45:04,880 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID80: 1725 frames, 1024-dims embeddings
+2025-07-05 18:45:04,976 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID92: 2124 frames, 1024-dims embeddings
+2025-07-05 18:45:05,051 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID96: 1707 frames, 1024-dims embeddings
+2025-07-05 18:45:05,051 - INFO - SuRL_FixedRL_132071083140848 - 📂 Loaded 40 videos from train split
+2025-07-05 18:45:05,051 - INFO - SuRL_FixedRL_132071083140848 - ✅ Using data directory: /home/maxboels/datasets/CholecT50
+2025-07-05 18:45:05,051 - INFO - SuRL_FixedRL_132071083140848 - Loading test data from /home/maxboels/datasets/CholecT50 with fold 0
+2025-07-05 18:45:05,144 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded metadata: /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv - Shape: (21895, 156)
+2025-07-05 18:45:05,144 - INFO - SuRL_FixedRL_132071083140848 - [Test] Start processing metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-07-05 18:45:05,144 - INFO - SuRL_FixedRL_132071083140848 - [Test] Rewards extraction skipped, using metadata file /home/maxboels/datasets/CholecT50/embeddings_test_set/fold0/embeddings_f0_swin_bas_129_phase_complet_phase_transit_prog_prob_action_risk_glob_outcome.csv
+2025-07-05 18:45:05,144 - INFO - SuRL_FixedRL_132071083140848 - [Test] Found 2 videos in metadata file
+2025-07-05 18:45:05,144 - INFO - SuRL_FixedRL_132071083140848 - [Test] Loading data for 2 videos
+2025-07-05 18:45:05,261 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID02: 2840 frames, 1024-dims embeddings
+2025-07-05 18:45:05,351 - INFO - SuRL_FixedRL_132071083140848 - ✅ Loaded video VID06: 2154 frames, 1024-dims embeddings
+2025-07-05 18:45:05,351 - INFO - SuRL_FixedRL_132071083140848 - 📂 Loaded 2 videos from test split
+2025-07-05 18:45:05,351 - INFO - SuRL_FixedRL_132071083140848 - ✅ Data loaded successfully
+2025-07-05 18:45:05,351 - INFO - SuRL_FixedRL_132071083140848 -    Training videos: 40
+2025-07-05 18:45:05,351 - INFO - SuRL_FixedRL_132071083140848 -    Test videos: 2
+2025-07-05 18:45:05,351 - INFO - SuRL_FixedRL_132071083140848 - 🎓 Running Method 1: Autoregressive IL
+2025-07-05 18:45:05,351 - INFO - SuRL_FixedRL_132071083140848 - 🎓 Method 1: Enhanced Autoregressive IL with IVT-based Saving
+2025-07-05 18:45:05,351 - INFO - SuRL_FixedRL_132071083140848 - ----------------------------------------
+2025-07-05 18:45:05,352 - INFO - SuRL_FixedRL_132071083140848 - 📂 Loading pretrained IL model from: best_checkpoints/autoregressive_il_best_combined_epoch_8.pt
+2025-07-05 18:45:05,475 - INFO - SuRL_FixedRL_132071083140848 - ✅ Pretrained IL model loaded successfully
+2025-07-05 18:45:05,656 - INFO - SuRL_FixedRL_132071083140848 - 📊 BiLSTM params: 1,623,268
+2025-07-05 18:45:05,656 - INFO - SuRL_FixedRL_132071083140848 - 📊 GPT2 params: 5,717,760
+2025-07-05 18:45:05,657 - INFO - SuRL_FixedRL_132071083140848 - 📊 Frame processing params: 815,296
+2025-07-05 18:45:05,657 - INFO - SuRL_FixedRL_132071083140848 - 📊 Action prediction params: 93,988
+2025-07-05 18:45:05,657 - INFO - SuRL_FixedRL_132071083140848 - 📊 Auxiliary params: 76,039
+2025-07-05 18:45:05,658 - INFO - SuRL_FixedRL_132071083140848 - 🎯 Enhanced optimizer created with 5 parameter groups
+2025-07-05 18:45:05,658 - INFO - SuRL_FixedRL_132071083140848 - 📊 Total parameters: 8,326,351
+2025-07-05 18:45:05,658 - INFO - SuRL_FixedRL_132071083140848 - 🔧 Optimizer type: ADAMW
+2025-07-05 18:45:05,659 - INFO - SuRL_FixedRL_132071083140848 - 📈 Scheduler: cosine_with_warmup
+2025-07-05 18:45:05,659 - INFO - SuRL_FixedRL_132071083140848 - 🔥 Warmup steps: 300
+2025-07-05 18:45:05,659 - INFO - SuRL_FixedRL_132071083140848 - 🎯 Enhanced Optimizer & Scheduler Setup:
+2025-07-05 18:45:05,659 - INFO - SuRL_FixedRL_132071083140848 -    bilstm_recognition:
+2025-07-05 18:45:05,659 - INFO - SuRL_FixedRL_132071083140848 -      LR: 0.000000
+2025-07-05 18:45:05,659 - INFO - SuRL_FixedRL_132071083140848 -      Weight Decay: 0.012500
+2025-07-05 18:45:05,659 - INFO - SuRL_FixedRL_132071083140848 -      Parameters: 1,623,268
+2025-07-05 18:45:05,659 - INFO - SuRL_FixedRL_132071083140848 -    gpt2_backbone:
+2025-07-05 18:45:05,659 - INFO - SuRL_FixedRL_132071083140848 -      LR: 0.000000
+2025-07-05 18:45:05,659 - INFO - SuRL_FixedRL_132071083140848 -      Weight Decay: 0.025000
+2025-07-05 18:45:05,659 - INFO - SuRL_FixedRL_132071083140848 -      Parameters: 5,717,760
+2025-07-05 18:45:05,659 - INFO - SuRL_FixedRL_132071083140848 -    frame_processing:
+2025-07-05 18:45:05,659 - INFO - SuRL_FixedRL_132071083140848 -      LR: 0.000000
+2025-07-05 18:45:05,659 - INFO - SuRL_FixedRL_132071083140848 -      Weight Decay: 0.007500
+2025-07-05 18:45:05,659 - INFO - SuRL_FixedRL_132071083140848 -      Parameters: 815,296
+2025-07-05 18:45:05,659 - INFO - SuRL_FixedRL_132071083140848 -    action_prediction:
+2025-07-05 18:45:05,659 - INFO - SuRL_FixedRL_132071083140848 -      LR: 0.000000
+2025-07-05 18:45:05,659 - INFO - SuRL_FixedRL_132071083140848 -      Weight Decay: 0.002500
+2025-07-05 18:45:05,659 - INFO - SuRL_FixedRL_132071083140848 -      Parameters: 93,988
+2025-07-05 18:45:05,659 - INFO - SuRL_FixedRL_132071083140848 -    auxiliary_heads:
+2025-07-05 18:45:05,659 - INFO - SuRL_FixedRL_132071083140848 -      LR: 0.000000
+2025-07-05 18:45:05,659 - INFO - SuRL_FixedRL_132071083140848 -      Weight Decay: 0.025000
+2025-07-05 18:45:05,659 - INFO - SuRL_FixedRL_132071083140848 -      Parameters: 76,039
+2025-07-05 18:45:05,660 - INFO - SuRL_FixedRL_132071083140848 - ✅ Enhanced optimizer and scheduler integrated
+2025-07-05 18:45:05,660 - INFO - SuRL_FixedRL_132071083140848 - 🎓 ENHANCED Autoregressive IL Trainer initialized with IVT-based saving
+2025-07-05 18:45:05,660 - INFO - SuRL_FixedRL_132071083140848 -    Device: cpu
+2025-07-05 18:45:05,660 - INFO - SuRL_FixedRL_132071083140848 -    Epochs: 15
+2025-07-05 18:45:05,660 - INFO - SuRL_FixedRL_132071083140848 -    Learning rate: 8e-5
+2025-07-05 18:45:05,660 - INFO - SuRL_FixedRL_132071083140848 -    ✅ IVT-based model saving enabled with minimum thresholds
+2025-07-05 18:45:05,660 - INFO - SuRL_FixedRL_132071083140848 -    📊 Will track: Current mAP, Next mAP, Combined score
+2025-07-05 18:45:05,660 - INFO - SuRL_FixedRL_132071083140848 -    🎯 Minimum thresholds: Current=0.34, Next=0.34, Combined=0.34
+2025-07-05 18:45:05,660 - INFO - SuRL_FixedRL_132071083140848 - 📊 Skipping training (using pretrained model)
+2025-07-05 18:45:05,660 - INFO - SuRL_FixedRL_132071083140848 - 📊 Evaluating Enhanced Autoregressive IL model...
+2025-07-05 18:45:05,660 - INFO - SuRL_FixedRL_132071083140848 - 📊 Running evaluation on test loaders...
+2025-07-05 18:45:05,660 - INFO - SuRL_FixedRL_132071083140848 - 📊 Evaluating Autoregressive IL Model with Planning Assessment...
+2025-07-05 18:45:14,774 - INFO - SuRL_FixedRL_132071083140848 - 📁 Saved video predictions for VID02 to:
+2025-07-05 18:45:14,774 - INFO - SuRL_FixedRL_132071083140848 -    Predictions: results/2025-07-05_18-45-01/fold0/logs/outputs/predictions/VID02_recognition_pred.npy
+2025-07-05 18:45:14,774 - INFO - SuRL_FixedRL_132071083140848 -    Ground Truth: results/2025-07-05_18-45-01/fold0/logs/outputs/ground_truth/VID02_recognition_gt.npy
+2025-07-05 18:45:23,274 - INFO - SuRL_FixedRL_132071083140848 - 📁 Saved video predictions for VID06 to:
+2025-07-05 18:45:23,274 - INFO - SuRL_FixedRL_132071083140848 -    Predictions: results/2025-07-05_18-45-01/fold0/logs/outputs/predictions/VID06_recognition_pred.npy
+2025-07-05 18:45:23,274 - INFO - SuRL_FixedRL_132071083140848 -    Ground Truth: results/2025-07-05_18-45-01/fold0/logs/outputs/ground_truth/VID06_recognition_gt.npy
+2025-07-05 18:45:23,348 - INFO - SuRL_FixedRL_132071083140848 - IVT current mAP: 0.4562
+2025-07-05 18:45:23,877 - INFO - SuRL_FixedRL_132071083140848 - IVT i mAP: 0.9031
+2025-07-05 18:45:24,697 - INFO - SuRL_FixedRL_132071083140848 - IVT v mAP: 0.6807
+2025-07-05 18:45:25,903 - INFO - SuRL_FixedRL_132071083140848 - IVT t mAP: 0.5713
+2025-07-05 18:45:27,842 - INFO - SuRL_FixedRL_132071083140848 - IVT iv mAP: 0.4567
+2025-07-05 18:45:32,165 - INFO - SuRL_FixedRL_132071083140848 - IVT it mAP: 0.5322
+2025-07-05 18:45:32,238 - INFO - SuRL_FixedRL_132071083140848 - IVT next mAP: 0.4492
+2025-07-05 18:45:32,763 - INFO - SuRL_FixedRL_132071083140848 - IVT i mAP: 0.8788
+2025-07-05 18:45:33,596 - INFO - SuRL_FixedRL_132071083140848 - IVT v mAP: 0.6509
+2025-07-05 18:45:34,809 - INFO - SuRL_FixedRL_132071083140848 - IVT t mAP: 0.5608
+2025-07-05 18:45:36,817 - INFO - SuRL_FixedRL_132071083140848 - IVT iv mAP: 0.4260
+2025-07-05 18:45:41,187 - INFO - SuRL_FixedRL_132071083140848 - IVT it mAP: 0.5225
+2025-07-05 18:45:41,188 - INFO - SuRL_FixedRL_132071083140848 - 📊 Validation Summary (averaged across 2 videos):
+2025-07-05 18:45:41,188 - INFO - SuRL_FixedRL_132071083140848 -    📊 IVT current mAP:                0.4562
+2025-07-05 18:45:41,188 - INFO - SuRL_FixedRL_132071083140848 -    📊 IVT next mAP:                   0.4492
+2025-07-05 18:45:41,188 - INFO - SuRL_FixedRL_132071083140848 -    📊 IVT current mAP:         0.4562
+2025-07-05 18:45:41,188 - INFO - SuRL_FixedRL_132071083140848 -    📊 IVT current I mAP: 0.9031
+2025-07-05 18:45:41,188 - INFO - SuRL_FixedRL_132071083140848 -    📊 IVT current V mAP: 0.6807
+2025-07-05 18:45:41,188 - INFO - SuRL_FixedRL_132071083140848 -    📊 IVT current T mAP: 0.5713
+2025-07-05 18:45:41,188 - INFO - SuRL_FixedRL_132071083140848 -    📊 IVT current IV mAP: 0.4567
+2025-07-05 18:45:41,188 - INFO - SuRL_FixedRL_132071083140848 -    📊 IVT current IT mAP: 0.5322
+2025-07-05 18:45:41,188 - INFO - SuRL_FixedRL_132071083140848 -    📊 IVT next I mAP:     0.8788
+2025-07-05 18:45:41,188 - INFO - SuRL_FixedRL_132071083140848 -    📊 IVT next V mAP:     0.6509
+2025-07-05 18:45:41,189 - INFO - SuRL_FixedRL_132071083140848 -    📊 IVT next T mAP:     0.5608
+2025-07-05 18:45:41,189 - INFO - SuRL_FixedRL_132071083140848 -    📊 IVT next IV mAP:     0.4260
+2025-07-05 18:45:41,189 - INFO - SuRL_FixedRL_132071083140848 -    📊 IVT next IT mAP:     0.5225
+2025-07-05 18:45:41,189 - INFO - SuRL_FixedRL_132071083140848 - 📊 Saving per-class APs to results/2025-07-05_18-45-01/fold0/logs/per_class_APs.json...
+2025-07-05 18:45:41,189 - INFO - SuRL_FixedRL_132071083140848 - 📊 Per-class AP saved to results/2025-07-05_18-45-01/fold0/logs/per_class_APs.json
+2025-07-05 18:45:41,189 - INFO - SuRL_FixedRL_132071083140848 - 🎯 Including planning evaluation for epoch -1...
+2025-07-05 18:45:41,190 - INFO - SuRL_FixedRL_132071083140848 - 🎯 Planning Evaluator initialized
+2025-07-05 18:45:41,190 - INFO - SuRL_FixedRL_132071083140848 -    Planning horizons: ['1s', '2s', '3s', '5s', '10s', '20s']
+2025-07-05 18:45:41,190 - INFO - SuRL_FixedRL_132071083140848 -    IVT available: True
+2025-07-05 18:45:41,190 - INFO - SuRL_FixedRL_132071083140848 - 🎯 Starting comprehensive planning evaluation...
+2025-07-05 18:45:41,190 - INFO - SuRL_FixedRL_132071083140848 - 📹 Evaluating planning on video VID02...
+2025-07-05 18:46:50,952 - INFO - SuRL_FixedRL_132071083140848 - Evaluation Horizon 1s...
+2025-07-05 18:46:56,162 - INFO - SuRL_FixedRL_132071083140848 - Evaluation Horizon 2s...
+2025-07-05 18:47:01,251 - INFO - SuRL_FixedRL_132071083140848 - Evaluation Horizon 3s...
+2025-07-05 18:47:06,257 - INFO - SuRL_FixedRL_132071083140848 - Evaluation Horizon 5s...
+2025-07-05 18:47:11,248 - INFO - SuRL_FixedRL_132071083140848 - Evaluation Horizon 10s...
+2025-07-05 18:47:16,213 - INFO - SuRL_FixedRL_132071083140848 - Evaluation Horizon 20s...
+2025-07-05 18:47:21,210 - INFO - SuRL_FixedRL_132071083140848 - Saved planning predictions and ground truth for video VID02
+2025-07-05 18:47:21,210 - INFO - SuRL_FixedRL_132071083140848 - 📹 Evaluating planning on video VID06...
+2025-07-05 18:48:21,521 - INFO - SuRL_FixedRL_132071083140848 - Evaluation Horizon 1s...
+2025-07-05 18:48:25,474 - INFO - SuRL_FixedRL_132071083140848 - Evaluation Horizon 2s...
+2025-07-05 18:48:29,330 - INFO - SuRL_FixedRL_132071083140848 - Evaluation Horizon 3s...
+2025-07-05 18:48:33,170 - INFO - SuRL_FixedRL_132071083140848 - Evaluation Horizon 5s...
+2025-07-05 18:48:36,970 - INFO - SuRL_FixedRL_132071083140848 - Evaluation Horizon 10s...
+2025-07-05 18:48:40,820 - INFO - SuRL_FixedRL_132071083140848 - Evaluation Horizon 20s...
+2025-07-05 18:48:44,622 - INFO - SuRL_FixedRL_132071083140848 - Saved planning predictions and ground truth for video VID06
+2025-07-05 18:48:44,623 - INFO - SuRL_FixedRL_132071083140848 - ✅ Planning evaluation completed
+2025-07-05 18:48:44,623 - INFO - SuRL_FixedRL_132071083140848 - 🎯 PLANNING EVALUATION SUMMARY
+2025-07-05 18:48:44,623 - INFO - SuRL_FixedRL_132071083140848 - ============================================================
+2025-07-05 18:48:44,623 - INFO - SuRL_FixedRL_132071083140848 - 📊 Overall Results:
+2025-07-05 18:48:44,623 - INFO - SuRL_FixedRL_132071083140848 -    Videos evaluated: 2
+2025-07-05 18:48:44,623 - INFO - SuRL_FixedRL_132071083140848 - 📈 Planning Horizon Results:
+2025-07-05 18:48:44,623 - INFO - SuRL_FixedRL_132071083140848 -    Planning at 1s mAP: 0.471
+2025-07-05 18:48:44,623 - INFO - SuRL_FixedRL_132071083140848 -    Planning at 2s mAP: 0.427
+2025-07-05 18:48:44,624 - INFO - SuRL_FixedRL_132071083140848 -    Planning at 3s mAP: 0.391
+2025-07-05 18:48:44,624 - INFO - SuRL_FixedRL_132071083140848 -    Planning at 5s mAP: 0.345
+2025-07-05 18:48:44,624 - INFO - SuRL_FixedRL_132071083140848 -    Planning at 10s mAP: 0.291
+2025-07-05 18:48:44,624 - INFO - SuRL_FixedRL_132071083140848 -    Planning at 20s mAP: 0.228
+2025-07-05 18:48:44,625 - INFO - SuRL_FixedRL_132071083140848 - 📊 Generating enhanced planning analysis plots...
+2025-07-05 18:48:45,447 - INFO - SuRL_FixedRL_132071083140848 - 📊 Generating simple planning analysis plots...
+2025-07-05 18:48:46,109 - INFO - SuRL_FixedRL_132071083140848 - 📊 Generating sparsity analysis plots...
+2025-07-05 18:48:46,517 - INFO - SuRL_FixedRL_132071083140848 - 📊 EVALUATION COMPLETED - Results Summary:
+2025-07-05 18:48:47,864 - INFO - SuRL_FixedRL_132071083140848 - 📸 Saved visualization for VID02 sample 1 to results/2025-07-05_18-45-01/fold0/logs/visualization/autoregressive_il
+2025-07-05 18:48:48,960 - INFO - SuRL_FixedRL_132071083140848 - 📸 Saved visualization for VID02 sample 2 to results/2025-07-05_18-45-01/fold0/logs/visualization/autoregressive_il
+2025-07-05 18:48:50,276 - INFO - SuRL_FixedRL_132071083140848 - 📸 Saved visualization for VID02 sample 3 to results/2025-07-05_18-45-01/fold0/logs/visualization/autoregressive_il
+2025-07-05 18:48:51,375 - INFO - SuRL_FixedRL_132071083140848 - 📸 Saved visualization for VID02 sample 4 to results/2025-07-05_18-45-01/fold0/logs/visualization/autoregressive_il
+2025-07-05 18:48:52,357 - INFO - SuRL_FixedRL_132071083140848 - 📸 Saved visualization for VID02 sample 5 to results/2025-07-05_18-45-01/fold0/logs/visualization/autoregressive_il
+2025-07-05 18:48:53,506 - INFO - SuRL_FixedRL_132071083140848 - 📸 Saved visualization for VID06 sample 1 to results/2025-07-05_18-45-01/fold0/logs/visualization/autoregressive_il
+2025-07-05 18:48:54,461 - INFO - SuRL_FixedRL_132071083140848 - 📸 Saved visualization for VID06 sample 2 to results/2025-07-05_18-45-01/fold0/logs/visualization/autoregressive_il
+2025-07-05 18:48:55,437 - INFO - SuRL_FixedRL_132071083140848 - 📸 Saved visualization for VID06 sample 3 to results/2025-07-05_18-45-01/fold0/logs/visualization/autoregressive_il
+2025-07-05 18:48:56,470 - INFO - SuRL_FixedRL_132071083140848 - 📸 Saved visualization for VID06 sample 4 to results/2025-07-05_18-45-01/fold0/logs/visualization/autoregressive_il
+2025-07-05 18:48:57,453 - INFO - SuRL_FixedRL_132071083140848 - 📸 Saved visualization for VID06 sample 5 to results/2025-07-05_18-45-01/fold0/logs/visualization/autoregressive_il
+2025-07-05 19:32:17,362 - INFO - SuRL_FixedRL_132071083140848 - ✅ Saving results for Method 1
+2025-07-05 19:33:58,328 - INFO - SuRL_FixedRL_132071083140848 - ✅ Results saved to: results/2025-07-05_18-45-01/fold0/Method 1_results.json
+2025-07-05 19:36:12,444 - INFO - SuRL_FixedRL_132071083140848 - 📄 Generating MICCAI paper from results in: results/2025-07-05_18-45-01/fold0
+2025-07-05 19:36:30,336 - INFO - SuRL_FixedRL_132071083140848 - All methods executed, results saved.
