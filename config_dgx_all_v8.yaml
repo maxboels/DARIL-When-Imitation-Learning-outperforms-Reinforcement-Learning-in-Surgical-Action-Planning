@@ -201,6 +201,7 @@ evaluation:
 
 visualization:
   plot_top: 5
+  time_window: 60                # OPTIMIZED: 60 seconds for temporal context
   enhanced_planning_analysis: true
   simple_planning_analysis: true
   sparsity_analysis: true

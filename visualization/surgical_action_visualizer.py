@@ -14,9 +14,10 @@ class SurgicalActionVisualizer:
     Uses TP/FN/FP/TN color scheme for journal-quality figures.
     """
     
-    def __init__(self, figsize=(16, 10), fps=1.0):
+    def __init__(self, figsize=(16, 10), fps=1.0, max_horizon: int = 20):
         self.figsize = figsize
         self.fps = fps  # Frames per second for time conversion
+        self.max_horizon = max_horizon  # Maximum planning horizon for visualization
         self.setup_colormaps()
         self.load_class_mapping('data/labels.json')  # Load class mapping from JSON file
 
@@ -275,7 +276,7 @@ class SurgicalActionVisualizer:
 
     def _format_time_axis(self, ax, start_frame, end_frame, center_frame, use_time_format=True, axis_type="combined"):
         """Format x-axis with proper frame indices or time stamps relative to center frame."""
-        
+        # max_horizon = 20
         # Set major ticks every 10-20 frames depending on window size
         time_range = end_frame - start_frame
         if time_range <= 50:
@@ -304,7 +305,7 @@ class SurgicalActionVisualizer:
                     if axis_type == "combined":
                         # Show relative time with +/- indicators
                         if relative_to_center == 0:
-                            tick_labels.append(f"T₀\n{hours:02d}:{minutes:02d}:{seconds:02d}")
+                            tick_labels.append(f"NOW\n{hours:02d}:{minutes:02d}:{seconds:02d}")
                         elif relative_to_center > 0:
                             tick_labels.append(f"+{relative_to_center}\n{hours:02d}:{minutes:02d}:{seconds:02d}")
                         else:
@@ -315,7 +316,7 @@ class SurgicalActionVisualizer:
                     # Show relative frame indices
                     if axis_type == "combined":
                         if relative_to_center == 0:
-                            tick_labels.append(f"T₀ ({frame})")
+                            tick_labels.append(f"NOW ({frame})")
                         elif relative_to_center > 0:
                             tick_labels.append(f"+{relative_to_center}")
                         else:
@@ -333,14 +334,29 @@ class SurgicalActionVisualizer:
                 minutes = (total_seconds % 3600) // 60
                 seconds = total_seconds % 60
                 if axis_type == "combined":
-                    tick_labels.append(f"T₀\n{hours:02d}:{minutes:02d}:{seconds:02d}")
+                    tick_labels.append(f"NOW\n{hours:02d}:{minutes:02d}:{seconds:02d}")
                 else:
                     tick_labels.append(f"{hours:02d}:{minutes:02d}:{seconds:02d}")
             else:
                 if axis_type == "combined":
-                    tick_labels.append(f"T₀ ({center_frame})")
+                    tick_labels.append(f"NOW ({center_frame})")
                 else:
                     tick_labels.append(f"{center_frame}")
+        
+        # Add max horizon tick for planning subplot
+        if axis_type == "planning":
+            horizon_position = center_position + self.max_horizon
+            if horizon_position <= time_range and horizon_position not in tick_positions:
+                tick_positions.append(horizon_position)
+                if use_time_format:
+                    horizon_frame = center_frame + self.max_horizon
+                    total_seconds = int(horizon_frame / self.fps)
+                    hours = total_seconds // 3600
+                    minutes = (total_seconds % 3600) // 60
+                    seconds = total_seconds % 60
+                    tick_labels.append(f"H{self.max_horizon}\n{hours:02d}:{minutes:02d}:{seconds:02d}")
+                else:
+                    tick_labels.append(f"H{self.max_horizon}")
         
         # Sort tick positions and labels together
         sorted_pairs = sorted(zip(tick_positions, tick_labels))
@@ -350,7 +366,7 @@ class SurgicalActionVisualizer:
         ax.set_xticklabels(tick_labels, rotation=45 if use_time_format else 0, fontsize=9)
         
         if axis_type == "combined":
-            ax.set_xlabel('Relative Time (Past ← T₀ → Future)', fontweight='bold')
+            ax.set_xlabel('Relative Time (Past ← NOW → Future)', fontweight='bold')
         elif use_time_format:
             ax.set_xlabel('Time (HH:MM:SS)', fontweight='bold')
         else:
@@ -474,7 +490,7 @@ class SurgicalActionVisualizer:
                            center_frame, rollout_horizon, threshold, use_time_format):
         """Plot planning ground truth vs predictions using TP/FN/FP/TN colors.
         Focuses on future frames (right of current time)."""
-        
+        # max_horizon = 20
         # Create planning visualization matrix
         time_range = end_frame - start_frame
         classification_matrix = np.zeros((len(selected_actions), time_range))
@@ -519,15 +535,12 @@ class SurgicalActionVisualizer:
             ax.axvspan(0, current_pos + 0.5, alpha=0.2, color='lightgray', 
                       label='Past (Not Predicted)')
         
-        # Planning horizon indicator
-        horizon_end = min(current_pos + rollout_horizon, time_range)
-        if horizon_end > current_pos:
-            rect = patches.Rectangle((current_pos + 0.5, -0.5), horizon_end - current_pos - 0.5, 
-                                   len(selected_actions), linewidth=2, 
-                                   edgecolor='lightgreen',
-                                   facecolor='none', alpha=0.6,
-                                   label='Planning Horizon')
-            ax.add_patch(rect)
+        # Max planning horizon vertical line (fixed at 20)
+        
+        horizon_end = current_pos + self.max_horizon
+        if horizon_end <= time_range:
+            ax.axvline(x=horizon_end, color='darkgreen', linewidth=2, 
+                      linestyle=':', alpha=0.8, label=f'Max Horizon (H{self.max_horizon})')
         
         ax.set_title('Planning: Future Prediction Performance', fontweight='bold')
         ax.set_ylabel('Action Class IDs')
@@ -604,6 +617,12 @@ class SurgicalActionVisualizer:
         
         # Current frame line (separator between recognition and planning)
         ax.axvline(x=current_pos, color='red', linewidth=3, linestyle='--', alpha=0.8)
+        
+        # Max planning horizon vertical line (fixed at 20)
+        horizon_end = current_pos + self.max_horizon
+        if horizon_end <= time_range:
+            ax.axvline(x=horizon_end, color='darkgreen', linewidth=2, 
+                      linestyle=':', alpha=0.8, label=f'Max Horizon (H{self.max_horizon})')
         
         # Add region labels
         if current_pos > 0:

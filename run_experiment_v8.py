@@ -321,11 +321,16 @@ class ExperimentRunner:
                 os.makedirs(output_dir, exist_ok=True)
 
                 # Create visualizer and find best examples
-                visualizer = SurgicalActionVisualizer(figsize=(20, 12))
+                visualizer = SurgicalActionVisualizer(
+                    figsize=(20, 12), 
+                    max_horizon=self.config.get('data', {}).get('future_length', 20)
+                )
+
                 transitions = visualizer.find_interesting_transitions(
                     recognition_gt, planning_gt, planning_pred
                 )
                 plot_top = min(self.config.get('visualization', {}).get('plot_top', 5), len(transitions))
+                time_window = self.config.get('visualization', {}).get('time_window', 60)  # Default to 60 seconds
 
                 # Generate paper figures for top 5 examples
                 for i, point in enumerate(transitions[:plot_top]):
@@ -335,7 +340,7 @@ class ExperimentRunner:
                         planning_gt=planning_gt,
                         planning_pred=planning_pred,
                         center_frame=point['frame'],
-                        time_window=100,
+                        time_window=time_window,
                         save_path=os.path.join(output_dir, f"{video_id}_preds_sample_{i+1}.png"),
                         title_suffix=f"Qualitative Evaluation Sample {i+1} - {video_id}",
                     )
@@ -866,10 +871,8 @@ class ExperimentRunner:
           
     def _generate_paper_from_saved_results(self, results_dir: str):
         from paper_generation.paper_generator import MICCAIPaperGenerator
-
         if not os.path.exists(results_dir):
             raise FileNotFoundError(f"Results directory does not exist: {results_dir}")        
-            results_dir = "results/2025-07-05_16-33-26/fold0"
         self.logger.info(f"📄 Generating MICCAI paper from results in: {results_dir}")
         
         generator = MICCAIPaperGenerator(results_dir)

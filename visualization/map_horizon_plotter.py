@@ -12,7 +12,8 @@ def plot_map_vs_horizon(planning_results: Dict,
                        style: str = 'paper',
                        show_confidence_intervals: bool = True,
                        include_overall_ivt: bool = True,
-                       include_additional_metrics: bool = True):
+                       include_additional_metrics: bool = True,
+                       include_steepest_decline: bool = False) -> None:
     """
     Plot mAP scores for triplet components vs planning horizon for MICCAI paper.
     
@@ -192,9 +193,10 @@ def plot_map_vs_horizon(planning_results: Dict,
                       frameon=True, fancybox=True, shadow=True,
                       framealpha=0.9, edgecolor='black')
     legend.get_frame().set_facecolor('white')
-    
-    # Add performance annotations
-    add_performance_annotations(ax, horizon_data, horizons, horizon_seconds, font_size)
+
+    if include_steepest_decline:    
+        # Add performance annotations
+        add_performance_annotations(ax, horizon_data, horizons, horizon_seconds, font_size)
     
     # Add statistical significance indicators (if multiple videos)
     if num_videos > 1:
@@ -386,20 +388,23 @@ def add_significance_indicators(ax, horizon_data, horizons, horizon_seconds):
 def add_background_shading(ax, horizon_seconds):
     """Add subtle background shading to separate time ranges."""
     
-    # Short-term (1-2s)
-    ax.axvspan(0.5, 2.5, alpha=0.05, color='green', zorder=0)
-    ax.text(1.5, 0.02, 'Short-term', ha='center', va='bottom', 
-           fontsize=9, alpha=0.6, style='italic')
+    # Short-term (1-5s)
+    ax.axvspan(0.5, 5.0, alpha=0.05, color='green', zorder=0)
+    ax.text(2.5, # Center of 1-5s range
+        0.02, 'Short-term', ha='center', va='bottom', 
+        fontsize=9, alpha=0.6, style='italic')
     
-    # Medium-term (3-5s)
-    ax.axvspan(2.5, 5.5, alpha=0.05, color='orange', zorder=0)
-    ax.text(4, 0.02, 'Medium-term', ha='center', va='bottom', 
-           fontsize=9, alpha=0.6, style='italic')
+    # Medium-term (5-10s)
+    ax.axvspan(5.0, 10.0, alpha=0.05, color='orange', zorder=0)
+    ax.text(7.5, # Center of 5-10s range
+        0.02, 'Medium-term', ha='center', va='bottom', 
+        fontsize=9, alpha=0.6, style='italic')
     
-    # Long-term (10s)
-    ax.axvspan(5.5, 10.5, alpha=0.05, color='red', zorder=0)
-    ax.text(8, 0.02, 'Long-term', ha='center', va='bottom', 
-           fontsize=9, alpha=0.6, style='italic')
+    # Long-term (10s-20s)
+    ax.axvspan(10.0, 20.0, alpha=0.05, color='red', zorder=0)
+    ax.text(15.0, # Center of 10-20s range
+        0.02, 'Long-term', ha='center', va='bottom', 
+        fontsize=9, alpha=0.6, style='italic')
 
 def plot_sparsity_analysis(planning_results: Dict, save_path: Optional[str] = None) -> plt.Figure:
     """
