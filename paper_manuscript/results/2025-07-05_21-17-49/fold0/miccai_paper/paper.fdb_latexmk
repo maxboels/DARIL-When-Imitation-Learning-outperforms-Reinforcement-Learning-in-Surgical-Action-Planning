@@ -1,5 +1,5 @@
 # Fdb version 4
-["bibtex paper"] 0 "paper.aux" "paper.bbl" "paper" 0 0
+["bibtex paper"] 0 "paper.aux" "paper.bbl" "paper" 1751817077.35267 0
   "/usr/share/texlive/texmf-dist/bibtex/bst/llncs/splncs04.bst" 1698954974 32146 aadf770ded437d161532035219ea6f45 ""
   "paper.aux" 0 -1 0 "pdflatex"
   "references.bib" 0 -1 0 ""
@@ -7,9 +7,9 @@
   "paper.bbl"
   "paper.blg"
   (rewritten before read)
-["pdflatex"] 1751810992.34622 "/home/maxboels/projects/surl/paper_manuscript/results/2025-07-05_21-17-49/fold0/miccai_paper/paper.tex" "paper.pdf" "paper" 1751810993.11148 2
+["pdflatex"] 1751817075.71227 "/home/maxboels/projects/surl/paper_manuscript/results/2025-07-05_21-17-49/fold0/miccai_paper/paper.tex" "paper.pdf" "paper" 1751817077.35284 0
   "/etc/texmf/web2c/texmf.cnf" 1730199251.52305 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/maxboels/projects/surl/paper_manuscript/results/2025-07-05_21-17-49/fold0/miccai_paper/paper.tex" 1751810991.89472 18548 6e8ab3d6cd60221d085819fab1eb36a4 ""
+  "/home/maxboels/projects/surl/paper_manuscript/results/2025-07-05_21-17-49/fold0/miccai_paper/paper.tex" 1751817075.53573 21598 5a34aa0f9752a28bd6470c778c99a92a ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecbx0900.tfm" 1136768653 3584 1a7de6c99457381c64abc1a7c545505f ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecbx1000.tfm" 1136768653 3584 2d666ecf6d466d8b007246bc2f94d9da ""
@@ -78,11 +78,11 @@
   "/usr/share/texmf/web2c/texmf.cnf" 1707919699 40399 f2c302f7d2af602abb742093540a5834 ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1746530043.52338 5472669 54eaf61a88b6b7896ebd0dac973cb29c ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1746530131 8214692 262f898aaa86ff062f19eebdfca17a6e ""
-  "paper.aux" 1751810992.63274 4023 2b6cd36cee4f7b90802df436397cb380 "pdflatex"
+  "VID14_preds_sample_1.png" 1751812457.84942 945035 518d6a628accc3adcf3ae8767a2e6b3f ""
+  "paper.aux" 1751817077.12876 4956 793fdafde82aee968f8a4e4120adc4cc "pdflatex"
   "paper.bbl" 0 -1 0 "bibtex paper"
-  "paper.tex" 1751810991.89472 18548 6e8ab3d6cd60221d085819fab1eb36a4 ""
-  "qualitative_combined_examples.eps" 0 -1 0 ""
-  "triplet_component_planning_horizon.eps" 0 -1 0 ""
+  "paper.tex" 1751817075.53573 21598 5a34aa0f9752a28bd6470c778c99a92a ""
+  "planning_analysis_simple.png" 1751812351.25951 552303 95d0fe8da67b2a690829807f47889af8 ""
   (generated)
   "paper.aux"
   "paper.log"

@@ -29,29 +29,29 @@
 \maketitle              % typeset the header of the contribution
 %
 \begin{abstract}
-Teleoperated robotic surgery provides a natural interface for acquiring expert demonstrations for imitation learning, while reinforcement learning could in principle discover new strategies and achieve beyond expert-level performance. We conducted a comprehensive comparison of IL versus RL approaches for surgical action planning on the CholecT50 dataset. Our baseline uses supervised learning on expert demonstration videos to emulate surgical behavior through direct mimicking. We systematically evaluated: (1) standard IL with causal prediction, (2) RL with learned rewards via inverse RL, and (3) world model-based RL with forward simulation. Our IL baseline achieves 34.6\% current action mAP and 33.6\% next action mAP with graceful planning degradation (45.6\% at 1s to 29.2\% at 10s). Surprisingly, sophisticated RL approaches failed to improve upon this baseline. We found that distribution matching on the evaluation test set favors the IL baseline over potentially valid or even better new policies that differ from expert demonstrations used for training. This challenges assumptions about method hierarchy and provides crucial insights for surgical AI development.
+Teleoperated robotic surgery provides a natural interface for acquiring expert demonstrations for imitation learning. We conducted a comprehensive comparison of IL versus RL approaches for surgical action planning on the CholecT50 dataset. Our baseline uses supervised learning on expert demonstration videos to emulate surgical behavior through direct mimicking. We systematically evaluated: (1) standard IL with causal prediction, (2) RL with learned rewards via inverse RL, and (3) world model-based RL with forward simulation. Our IL baseline achieves 34.6\% current action mAP and 33.6\% next action mAP with graceful planning degradation (33.6\% at 1s to 29.2\% at 10s). Surprisingly, sophisticated RL approaches failed to improve upon this baseline. We found that distribution matching on the evaluation test set favors the IL baseline over potentially valid or even better new policies that differ from expert demonstrations used for training. This challenges assumptions about method hierarchy and provides crucial insights for surgical AI development.
 
-\keywords{Surgical Action Planning \and Imitation Learning \and Reinforcement Learning \and Temporal Planning \and Medical AI}
+\keywords{Surgical Action Planning \and Imitation Learning \and Reinforcement Learning \and Temporal Planning \and Surgical AI}
 \end{abstract}
 
 
 \section{Introduction}
 
-Surgical action planning in teleoperated robotic surgery represents one of the most challenging applications of artificial intelligence in healthcare~\cite{nwoye2022cholect50}. Teleoperated robotic surgery provides a natural interface for acquiring expert demonstrations for imitation learning, while reinforcement learning could in principle discover new strategies and achieve beyond expert-level performance. The question of when to use imitation learning (IL) versus reinforcement learning (RL) in such safety-critical domains remains largely unexplored, despite its importance for practical deployment.
+Surgical action planning in teleoperated robotic surgery represents one of the most challenging applications of artificial intelligence in healthcare~\cite{nwoye2022cholect50,nwoye2020recognition}. Recent advances in surgical action triplet recognition~\cite{nwoye2023cholectriplet2021} and surgical gesture prediction~\cite{shi2022recognition,weerasinghe2024multimodal} have demonstrated the potential for AI-driven surgical assistance. Teleoperated robotic surgery provides a natural interface for acquiring expert demonstrations for imitation learning. The question of when to use imitation learning (IL) versus reinforcement learning (RL) in such safety-critical domains remains largely unexplored, despite its importance for practical deployment.
 
-While RL has demonstrated remarkable success in games~\cite{mnih2015human} and robotics~\cite{levine2016end}, its application to surgical domains presents unique challenges. Expert surgical demonstrations represent years of refined technique and training, potentially making them near-optimal for many evaluation criteria. This raises a fundamental question: under what conditions does RL improve upon well-optimized IL in expert domains?
+While RL has demonstrated remarkable success in games~\cite{mnih2015human} and robotics~\cite{levine2016end}, its application to surgical domains presents unique challenges. Recent work in surgical automation~\cite{liu2024surgical} has shown promise for integrating RL with imitation learning, while vision transformers have emerged as powerful tools for surgical video analysis~\cite{wagner2023vision,liu2023skit,liu2025lovit}. Additionally, advances in long-term surgical workflow prediction~\cite{boels2025swag} demonstrate the potential for anticipatory surgical planning systems. Expert surgical demonstrations represent decades of refined technique and training, potentially making them near-optimal for many evaluation criteria. This raises a fundamental question: under what conditions does RL improve upon well-optimized IL in expert domains?
 
 This work provides the first comprehensive comparison of IL and RL approaches for surgical action planning, using the CholecT50 dataset~\cite{nwoye2022cholect50} for laparoscopic cholecystectomy. Our findings suggest that distribution matching problems on evaluation test sets may favor IL baselines over potentially valid or even superior policies that differ from expert demonstrations, though we acknowledge this conclusion is based on a limited dataset with constraining evaluation metrics.
 
-\textbf{Contributions}: (1) First systematic comparison of IL vs RL for surgical action planning, (2) Important negative result showing when RL doesn't help in expert domains, (3) Comprehensive evaluation framework for temporal surgical planning, and (4) Domain insights about expert data characteristics affecting method selection.
+\textbf{Contributions}: (1) First systematic comparison of IL vs RL for surgical action planning, (2) Important negative result showing when RL doesn't help in expert domains, (3) Comprehensive evaluation framework for temporal surgical planning, and (4) Analysis of how expert data quality and evaluation metrics affect method selection in surgical domains.
 
 \section{Methods}
 
 \subsection{Baseline: Optimized Imitation Learning}
 
-Our IL baseline uses an autoregressive transformer architecture with dual-path training for both current action recognition and next action prediction. The model combines a BiLSTM for temporal current action recognition with a GPT-2 backbone for causal next action prediction.
+Our IL baseline uses an autoregressive transformer architecture with dual-path training for both current action recognition and next action prediction. The model combines a BiLSTM for temporal current action recognition with a GPT-2 backbone~\cite{radford2019language} for causal next action prediction.
 
-\textbf{Architecture}: The model processes 1024-dimensional Swin transformer features~\cite{liu2021swin} extracted from surgical video frames. A BiLSTM encoder captures temporal patterns for current action recognition, while a GPT-2 decoder generates future action sequences autoregressively.
+\textbf{Architecture}: The model processes 1024-dimensional Swin transformer features~\cite{liu2021swin} extracted from surgical video frames using distilled feature extraction~\cite{yamlahi2023self}. A BiLSTM encoder captures temporal patterns for current action recognition, while a GPT-2 decoder generates future action sequences autoregressively.
 
 \textbf{Training}: We employ dual-task learning with separate loss functions for current action recognition and next action prediction, enabling the model to excel at both real-time recognition and planning tasks.
 
@@ -59,13 +59,13 @@ Our IL baseline uses an autoregressive transformer architecture with dual-path t
 
 \textbf{Inverse RL with Learned Rewards}: We implement Maximum Entropy IRL~\cite{ziebart2008maximum} with sophisticated negative generation to learn reward functions from expert demonstrations. The learned rewards are then used to adjust IL predictions through policy optimization.
 
-\textbf{World Model RL}: We develop an action-conditioned world model that predicts future states and rewards given current states and actions. PPO~\cite{schulman2017proximal} is trained in the simulated environment for action planning.
+\textbf{World Model RL}: We develop an action-conditioned world model that predicts future states and rewards given current states and actions, following the paradigm established by Dreamer~\cite{hafner2020dream}. PPO~\cite{schulman2017proximal} is trained in the simulated environment for action planning.
 
 \textbf{Direct Video RL}: We apply model-free RL directly to video sequences using expert demonstration matching rewards. Multiple algorithms (PPO, A2C) are evaluated with careful hyperparameter optimization.
 
 \subsection{Evaluation Framework}
 
-\textbf{Temporal Planning Evaluation}: We evaluate planning performance across multiple horizons (1s, 2s, 3s, 5s, 10s, 20s) using mean Average Precision (mAP) computed with the IVT metrics~\cite{nwoye2022cholect50}.
+\textbf{Temporal Planning Evaluation}: We evaluate planning performance across multiple horizons (1s, 2s, 3s, 5s, 10s, 20s) using mean Average Precision (mAP) computed with the IVT metrics~\cite{nwoye2022data,nwoye2022cholect50}.
 
 \textbf{Component-wise Analysis}: We analyze performance for individual components (Instrument, Verb, Target) and their combinations (IV, IT, IVT) to understand degradation patterns.
 
@@ -120,12 +120,12 @@ Instrument-Verb-Target (IVT) & 34.6 & 33.6 \\
 
 \subsection{Planning Performance Analysis}
 
-Figure~\ref{fig:planning_analysis} shows the temporal planning performance across different horizons. Our IL baseline demonstrates graceful degradation from 45.6\% mAP at 1-second planning to 29.2\% at 10-second planning, representing a 36.0\% relative decrease. The planning degradation pattern reveals that longer-term predictions become increasingly challenging, with performance dropping to 23.3\% at 20-second horizons.
+Figure~\ref{fig:planning_analysis} shows the temporal planning performance across different horizons. Our IL baseline demonstrates graceful degradation from 33.6\% mAP at 1-second planning to 29.2\% at 10-second planning, representing a 13.1\% relative decrease. The planning degradation pattern reveals that longer-term predictions become increasingly challenging, with performance dropping to 23.3\% at 20-second horizons.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=\textwidth]{triplet_component_planning_horizon.eps}
-\caption{Triplet Component mAP Deterioration over Planning Horizon. The figure shows how different components (Instrument, Verb, Target) and their combinations degrade as planning horizon increases. Key insights show Overall IVT mAP drops from 45.6\% at 1s to 29.2\% at 10s, with Target being the most robust component (23.7\% loss). Stars indicate statistical significance regions.}
+\includegraphics[width=\textwidth]{planning_analysis_simple.png}
+\caption{Triplet Component mAP Deterioration over Planning Horizon. The figure shows how different components (Instrument, Verb, Target) and their combinations degrade as planning horizon increases. Key insights show Overall IVT mAP drops from 33.6\% at 1s to 29.2\% at 10s, with Target being the most robust component (23.7\% loss). Stars indicate statistical significance regions.}
 \label{fig:planning_analysis}
 \end{figure}
 
@@ -135,7 +135,7 @@ Figure~\ref{fig:qualitative_examples} presents qualitative examples from our IL 
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=\textwidth]{qualitative_combined_examples.eps}
+\includegraphics[width=\textwidth]{VID14_preds_sample_1.png}
 \caption{Qualitative evaluation showing recognition and planning performance from two representative video sequences. Top: VID79 sample showing recognition and planning transitions. Bottom: VID51 sample demonstrating action sequence planning. Left panels show past recognition performance, right panels show future planning predictions. The model demonstrates strong current action recognition with graceful degradation in planning accuracy over time. Green indicates true positives, blue shows false positives, and beige represents false negatives.}
 \label{fig:qualitative_examples}
 \end{figure}
@@ -154,7 +154,7 @@ Our analysis reveals several key factors explaining why RL approaches failed to 
 
 However, one key limitation of imitation learning on expert demonstrations from surgeries with good outcomes and non-complicated procedures is that it may overlook the trial-and-error learning from RL, which permits recovery from mistakes and unexplored events. The lack of exploration during learning limits safety capabilities when encountering novel or challenging scenarios.
 
-These findings suggest that in domains with high-quality expert demonstrations and aligned evaluation metrics, sophisticated RL approaches may not provide benefits over well-optimized imitation learning, though this conclusion must be considered within the constraints of our experimental setup.
+These findings suggest that in domains with high-quality expert demonstrations and aligned evaluation metrics, sophisticated RL approaches may not provide benefits over well-optimized imitation learning, though this conclusion must be considered within the constraints of our experimental setup. This aligns with recent observations that expert demonstrations can significantly improve RL learning efficiency in surgical domains~\cite{liu2024surgical}.
 
 
 \section{Discussion}
@@ -218,24 +218,63 @@ Future surgical AI development should carefully consider domain characteristics,
 \bibliography{references}
 
 % Note: For the final submission, create these reference entries:
-% \begin{thebibliography}{8}
-% \bibitem{nwoye2022cholect50}
-% Nwoye, C.I., et al.: CholecT50: An endoscopic image dataset for surgical action triplet recognition. Medical Image Analysis \textbf{77}, 102337 (2022)
-% 
-% \bibitem{mnih2015human}
-% Mnih, V., et al.: Human-level control through deep reinforcement learning. Nature \textbf{518}(7540), 529--533 (2015)
-% 
-% \bibitem{levine2016end}
-% Levine, S., et al.: End-to-end training of deep visuomotor policies. Journal of Machine Learning Research \textbf{17}(1), 1334--1373 (2016)
-% 
-% \bibitem{liu2021swin}
-% Liu, Z., et al.: Swin transformer: Hierarchical vision transformer using shifted windows. In: ICCV, pp. 10012--10022 (2021)
-% 
-% \bibitem{ziebart2008maximum}
-% Ziebart, B.D., et al.: Maximum entropy inverse reinforcement learning. In: AAAI, pp. 1433--1438 (2008)
-% 
-% \bibitem{schulman2017proximal}
-% Schulman, J., et al.: Proximal policy optimization algorithms. arXiv preprint arXiv:1707.06347 (2017)
-% \end{thebibliography}
+\begin{thebibliography}{22}
+\bibitem{nwoye2022cholect50}
+Nwoye, C.I., et al.: Rendezvous: Attention mechanisms for the recognition of surgical action triplets in endoscopic videos. Medical Image Analysis \textbf{78}, 102433 (2022)
+
+\bibitem{nwoye2020recognition}
+Nwoye, C.I., et al.: Recognition of instrument-tissue interactions in endoscopic videos via action triplets. In: MICCAI, pp. 364--374 (2020)
+
+\bibitem{nwoye2023cholectriplet2021}
+Nwoye, C.I., et al.: CholecTriplet2021: A benchmark challenge for surgical action triplet recognition. Medical Image Analysis \textbf{86}, 102803 (2023)
+
+\bibitem{shi2022recognition}
+Shi, C., et al.: Recognition and prediction of surgical gestures and trajectories using transformer models in robot-assisted surgery. IEEE Robotics and Automation Letters \textbf{7}(4), 9821--9828 (2022)
+
+\bibitem{weerasinghe2024multimodal}
+Weerasinghe, K., et al.: Multimodal transformers for real-time surgical activity prediction. arXiv preprint arXiv:2403.06705 (2024)
+
+\bibitem{wagner2023vision}
+Wagner, C., et al.: A vision transformer for decoding surgeon activity from surgical videos. npj Precision Oncology \textbf{7}, 16 (2023)
+
+\bibitem{liu2023skit}
+Liu, Y., et al.: SKiT: a fast key information video transformer for online surgical phase recognition. In: ICCV, pp. 21486--21496 (2023)
+
+\bibitem{liu2025lovit}
+Liu, Y., et al.: Lovit: Long video transformer for surgical phase recognition. Medical Image Analysis \textbf{99}, 103366 (2025)
+
+\bibitem{boels2025swag}
+Boels, M., et al.: SWAG: long-term surgical workflow prediction with generative-based anticipation. International Journal of Computer Assisted Radiology and Surgery, pp. 1--11 (2025)
+
+\bibitem{liu2024surgical}
+Liu, J., et al.: Surgical task automation using actor-critic frameworks and self-supervised imitation learning. arXiv preprint arXiv:2409.02724 (2024)
+
+\bibitem{mnih2015human}
+Mnih, V., et al.: Human-level control through deep reinforcement learning. Nature \textbf{518}(7540), 529--533 (2015)
+
+\bibitem{levine2016end}
+Levine, S., et al.: End-to-end training of deep visuomotor policies. Journal of Machine Learning Research \textbf{17}(1), 1334--1373 (2016)
+
+\bibitem{radford2019language}
+Radford, A., et al.: Language models are unsupervised multitask learners. OpenAI Blog \textbf{1}(8), 9 (2019)
+
+\bibitem{liu2021swin}
+Liu, Z., et al.: Swin transformer: Hierarchical vision transformer using shifted windows. In: ICCV, pp. 10012--10022 (2021)
+
+\bibitem{yamlahi2023self}
+Yamlahi, A., et al.: Self-distillation for surgical action recognition. In: International Conference on Medical Image Computing and Computer-Assisted Intervention, pp. 637--646. Springer (2023)
+
+\bibitem{hafner2020dream}
+Hafner, D., et al.: Dream to control: Learning behaviors by latent imagination. In: ICLR (2020)
+
+\bibitem{ziebart2008maximum}
+Ziebart, B.D., et al.: Maximum entropy inverse reinforcement learning. In: AAAI, pp. 1433--1438 (2008)
+
+\bibitem{schulman2017proximal}
+Schulman, J., et al.: Proximal policy optimization algorithms. arXiv preprint arXiv:1707.06347 (2017)
+
+\bibitem{nwoye2022data}
+Nwoye, C.I., Padoy, N.: Data splits and metrics for method benchmarking on surgical action triplet datasets. arXiv preprint arXiv:2204.05235 (2022)
+\end{thebibliography}
 
 \end{document}

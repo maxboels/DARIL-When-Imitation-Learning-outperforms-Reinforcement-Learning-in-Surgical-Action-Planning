@@ -189,7 +189,6 @@ class SurgicalActionVisualizer:
                                     title_suffix: str = "",
                                     show_transitions: bool = False,
                                     show_performance_stats: bool = False,
-                                    show_combined_only: bool = True,
                                     use_time_format: bool = True) -> plt.Figure:
         """
         Create a comprehensive visualization of recognition and planning performance.
@@ -207,7 +206,6 @@ class SurgicalActionVisualizer:
             save_path: Path to save figure (optional)
             title_suffix: Additional text for title
             show_transitions: Whether to highlight transitions
-            show_combined_only: If True, only show the combined panel without separate recognition/planning subplots
             use_time_format: Whether to show HH:MM:SS format (True) or frame indices (False)
         """
         
@@ -224,49 +222,32 @@ class SurgicalActionVisualizer:
                 max_actions=15
             )
         
-        # Create figure with different layouts based on show_combined_only
-        if show_combined_only:
-            # Single subplot layout
-            if show_performance_stats:
-                fig, (ax_combined, ax_stats) = plt.subplots(1, 2, figsize=self.figsize, facecolor='white',
-                                                           gridspec_kw={'width_ratios': [3, 1], 'wspace': 0.3})
-            else:
-                fig, ax_combined = plt.subplots(1, 1, figsize=self.figsize, facecolor='white')
-                ax_stats = None
-        else:
-            # Original multi-subplot layout
-            fig = plt.figure(figsize=self.figsize, facecolor='white')
-            gs = fig.add_gridspec(2, 3, height_ratios=[1, 1], width_ratios=[2, 2, 1], 
-                                 hspace=0.3, wspace=0.3)
-            
-            # Recognition subplot (top left)
-            ax_recog = fig.add_subplot(gs[0, 0], facecolor='white')
-            self._plot_recognition_panel(ax_recog, recognition_gt, recognition_pred, 
-                                       start_frame, end_frame, selected_actions, 
-                                       center_frame, threshold, use_time_format)
-            
-            # Planning subplot (top right) 
-            ax_plan = fig.add_subplot(gs[0, 1], facecolor='white')
-            self._plot_planning_panel(ax_plan, recognition_gt, planning_pred,
-                                    start_frame, end_frame, selected_actions,
-                                    center_frame, rollout_horizon, threshold, use_time_format)
-            
-            # Combined overview (bottom span)
-            ax_combined = fig.add_subplot(gs[1, :2], facecolor='white')
-            
-            # Statistics panel (right)
-            if show_performance_stats:
-                ax_stats = fig.add_subplot(gs[:, 2], facecolor='white')
-            else:
-                ax_stats = None
+        # Create figure with subplots
+        fig = plt.figure(figsize=self.figsize, facecolor='white')
+        gs = fig.add_gridspec(2, 3, height_ratios=[1, 1], width_ratios=[2, 2, 1], 
+                             hspace=0.3, wspace=0.3)
         
-        # Always plot the combined panel
+        # Recognition subplot (top left)
+        ax_recog = fig.add_subplot(gs[0, 0], facecolor='white')
+        self._plot_recognition_panel(ax_recog, recognition_gt, recognition_pred, 
+                                   start_frame, end_frame, selected_actions, 
+                                   center_frame, threshold, use_time_format)
+        
+        # Planning subplot (top right) 
+        ax_plan = fig.add_subplot(gs[0, 1], facecolor='white')
+        self._plot_planning_panel(ax_plan, recognition_gt, planning_pred,
+                                start_frame, end_frame, selected_actions,
+                                center_frame, rollout_horizon, threshold, use_time_format)
+        
+        # Combined overview (bottom span)
+        ax_combined = fig.add_subplot(gs[1, :2], facecolor='white')
         self._plot_combined_panel(ax_combined, recognition_gt, recognition_pred,
                                 planning_gt, planning_pred, start_frame, end_frame,
                                 selected_actions, center_frame, rollout_horizon, threshold, use_time_format)
         
-        # Statistics panel (if requested)
-        if show_performance_stats and ax_stats is not None:
+        # Statistics panel (right)
+        if show_performance_stats:
+            ax_stats = fig.add_subplot(gs[:, 2], facecolor='white')
             self._plot_statistics_panel(ax_stats, recognition_gt, recognition_pred,
                                     planning_gt, planning_pred, start_frame, end_frame,
                                     selected_actions, center_frame, threshold)
@@ -280,14 +261,7 @@ class SurgicalActionVisualizer:
         main_title = f"Surgical Action Recognition & Planning Analysis"
         if title_suffix:
             main_title += f" - {title_suffix}"
-        
-        if show_combined_only:
-            if ax_stats is not None:
-                fig.suptitle(main_title, fontsize=16, fontweight='bold', y=0.95)
-            else:
-                ax_combined.set_title(main_title, fontsize=16, fontweight='bold', pad=20)
-        else:
-            fig.suptitle(main_title, fontsize=16, fontweight='bold', y=0.95)
+        fig.suptitle(main_title, fontsize=16, fontweight='bold', y=0.95)
         
         # Add timestamp info
         additional_info = False
@@ -299,8 +273,6 @@ class SurgicalActionVisualizer:
         
         if save_path:
             plt.savefig(save_path, dpi=300, bbox_inches='tight', facecolor='white')
-
-        return fig
 
     def _format_time_axis(self, ax, start_frame, end_frame, center_frame, use_time_format=True, axis_type="combined"):
         """Format x-axis with proper frame indices or time stamps relative to center frame."""

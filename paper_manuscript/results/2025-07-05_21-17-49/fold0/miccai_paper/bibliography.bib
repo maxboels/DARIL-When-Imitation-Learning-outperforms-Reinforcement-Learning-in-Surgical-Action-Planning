@@ -1,0 +1,50 @@
+Understood, Max. I will identify relevant scientific literature from high-impact venues such as CVPR, NeurIPS, MICCAI, IPCAI, IJCARS, and IEEE/clinical journals to support the claims and context of your MICCAI paper. I will focus on bolstering your bibliography and manuscript with recent and authoritative sources that align with your topic.
+
+I will let you know once the curated list of literature is ready.
+
+
+# Background/Related Work
+
+* **Nwoye et al. (2020)** – *“Recognition of Instrument-Tissue Interactions in Endoscopic Videos via Action Triplets”*, MICCAI 2020. This foundational work introduced the concept of surgical **action triplets** (\<instrument, verb, target>) and the CholecT40 video dataset (40 annotated videos).
+* **Nwoye et al. (2022)** – *“Rendezvous: Attention Mechanisms for the Recognition of Surgical Action Triplets in Endoscopic Videos”*, Med. Image Anal. 78:102433 (2022). Proposed an attention-based model for instrument-verb-target recognition and introduced the **CholecT50** dataset (50 videos, 100 triplet classes).
+* **Nwoye et al. (2023)** – *“CholecTriplet2021: A benchmark challenge for surgical action triplet recognition”*, Med. Image Anal. 86:102803 (2023). Reports the MICCAI 2021 challenge on triplet recognition (mAP 4.2–38.1%), highlighting the difficulty of fine-grained action recognition in surgical videos.
+* **Shi et al. (2022)** – *“Recognition and Prediction of Surgical Gestures and Trajectories Using Transformer Models in Robot-Assisted Surgery”*, IEEE RAL (IROS) 2022. Applied Transformer architectures to predict surgical gestures from robot kinematics. The model achieved \~84.6% accuracy for 1-second-ahead gesture prediction on the JIGSAWS dataset.
+* **Wagner et al. (2023)** – *“A vision transformer for decoding surgeon activity from surgical videos”*, npj Precision Oncology 7:16 (2023). Uses a vision Transformer with supervised contrastive learning to decode surgical steps, actions, and skill from endoscopic videos, demonstrating generalization across hospitals and procedures.
+* **Weerasinghe et al. (2024)** – *“Multimodal Transformers for Real-Time Surgical Activity Prediction”*, arXiv:2403.06705. Fuses video and kinematic data with a Transformer for real-time gesture and trajectory prediction, achieving 89.5% gesture-prediction accuracy on JIGSAWS.
+* **Liu et al. (2023)** – *“SKiT: a Fast Key Information Video Transformer for Online Surgical Phase Recognition”*, ICCV 2023. Introduced a fast “key-information” video Transformer for online phase recognition on surgical videos (Cholec80), achieving state-of-the-art accuracy (92.5% on Cholec80) with real-time performance.
+* **Liu et al. (2021)** – *“Swin Transformer: Hierarchical Vision Transformer Using Shifted Windows”*, ICCV 2021. Proposed the Swin Transformer backbone (used in our IL baseline for feature extraction).
+* **Mnih et al. (2015)** – *“Human-level control through deep reinforcement learning”*, Nature 518:529–533 (2015). Demonstrated deep Q-networks (DQN) learning Atari games from pixels, a landmark success of deep RL.
+* **Levine et al. (2016)** – *“End-to-End Training of Deep Visuomotor Policies”*, JMLR 17(39):1–40 (2016). Showed that deep neural networks can learn complex robotic manipulation policies end-to-end from vision to control, illustrating the power of RL in real-world tasks.
+* **Radford et al. (2019)** – *“Language Models are Unsupervised Multitask Learners”*, OpenAI (GPT-2 paper, 2019). Introduced the GPT-2 autoregressive Transformer, demonstrating zero-shot multitask performance (used as the backbone in our IL “sequence model” for action planning).
+
+# Methods
+
+* **Liu et al. (2021)** – *Swin Transformer* (ICCV 2021). We use a pretrained Swin Transformer to extract 1024-d visual features from each frame.
+* **Radford et al. (2019)** – *GPT-2: Language Models are Unsupervised Multitask Learners*. The IL baselines use a GPT-2 Transformer decoder (autoregressive) to predict future actions.
+* **Ziebart et al. (2008)** – *“Maximum Entropy Inverse Reinforcement Learning”*, AAAI 2008. We use max-entropy IRL to infer a reward function from demonstrations for the IRL baseline.
+* **Schulman et al. (2017)** – *“Proximal Policy Optimization Algorithms”* (arXiv:1707.06347). PPO is our chosen on-policy RL algorithm for training policies (used in the model-based RL approach).
+* **Hafner et al. (2020)** – *“Dream to Control: Learning Behaviors by Latent Imagination”*, ICLR 2020. This work introduces “Dreamer”, a world-model-based RL agent. We follow its paradigm: learn an action-conditioned world model from video, then optimize a policy in the latent “imagination” (as described in Section 3.2 of the manuscript).
+* **Nwoye & Padoy (2022)** – *“Data splits and metrics for method benchmarking on surgical action triplet datasets”* (arXiv:2204.05235). Defines the **IVT metrics** (Instrument-Verb-Target precision/recall) and provides the `ivtmetrics` library used for evaluation in our experiments.
+
+# Discussion
+
+* **Liu et al. (2024)** – *“Surgical Task Automation Using Actor-Critic Frameworks and Self-Supervised Imitation Learning”* (arXiv:2409.02724). This recent study examines integrating imitation learning into RL for surgical tasks, noting that expert demonstrations significantly improve RL learning efficiency even when action labels are unavailable. Our finding that IL-based policies outperform RL aligns with the observation that guidance from demonstrations can be crucial in surgical domains.
+
+**References:** (Authors, *Title*, Venue, Year, DOI/URL)
+
+* Nwoye C.I. et al. *Recognition of Instrument-Tissue Interactions in Endoscopic Videos via Action Triplets*. MICCAI (2020).
+* Nwoye C.I. et al. *Rendezvous: Attention Mechanisms for the Recognition of Surgical Action Triplets in Endoscopic Videos*. Med. Image Anal. 78:102433 (2022). DOI:10.1016/j.media.2022.102433.
+* Nwoye C.I. et al. *CholecTriplet2021: A benchmark challenge for surgical action triplet recognition*. Med. Image Anal. 86:102803 (2023). DOI:10.1016/j.media.2023.102803.
+* Shi C. et al. *Recognition and Prediction of Surgical Gestures and Trajectories Using Transformer Models in Robot-Assisted Surgery*. IEEE Robot. Autom. Lett. (IROS) 2022. DOI:10.1109/LRA.2022.3173371.
+* Wagner C. et al. *A vision transformer for decoding surgeon activity from surgical videos*. npj Precision Oncology 7:16 (2023). DOI:10.1038/s41698-023-00388-6.
+* Weerasinghe K. et al. *Multimodal Transformers for Real-Time Surgical Activity Prediction*. In Proc. ACM/IEEE \* Robotics: Science & Systems\* (RSS) Workshop (2024). arXiv:2403.06705.
+* Liu Y. et al. *SKiT: a Fast Key Information Video Transformer for Online Surgical Phase Recognition*. ICCV 2023. (OpenAccess).
+* Liu Z. et al. *Swin Transformer: Hierarchical Vision Transformer Using Shifted Windows*. ICCV 2021. DOI:10.1109/ICCV48922.2021.00992.
+* Mnih V. et al. *Human-level control through deep reinforcement learning*. Nature 518:529–533 (2015). DOI:10.1038/nature14236.
+* Levine S. et al. *End-to-End Training of Deep Visuomotor Policies*. JMLR 17(39):1–40 (2016).
+* Radford A. et al. *Language Models are Unsupervised Multitask Learners* (GPT-2). OpenAI (2019). [https://cdn.openai.com/better-language-models/language\_models\_are\_unsupervised\_multitask\_learners.pdf\:contentReference\[oaicite:27\]{index=27}](https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf:contentReference[oaicite:27]{index=27}).
+* Ziebart B.D. et al. *Maximum Entropy Inverse Reinforcement Learning*. AAAI (2008).
+* Schulman J. et al. *Proximal Policy Optimization Algorithms*. arXiv:1707.06347 (2017).
+* Hafner D. et al. *Dream to Control: Learning Behaviors by Latent Imagination*. ICLR (2020). DOI:10.1109/TPAMI.2021.3133340 (Dreamer).
+* Nwoye C.I., Padoy N. *Data splits and metrics for method benchmarking on surgical action triplet datasets*. arXiv:2204.05235 (2022).
+* Liu J. et al. *Surgical Task Automation Using Actor-Critic Frameworks and Self-Supervised Imitation Learning*. arXiv:2409.02724 (2024).
