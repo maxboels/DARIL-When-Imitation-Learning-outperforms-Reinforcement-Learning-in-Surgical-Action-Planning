@@ -45,11 +45,90 @@ This work provides the first comprehensive comparison of IL and RL approaches fo
 
 \textbf{Contributions}: (1) First systematic comparison of IL vs RL for surgical action planning, (2) Important negative result showing when RL doesn't help in expert domains, (3) Comprehensive evaluation framework for temporal surgical planning, and (4) Analysis of how expert data quality and evaluation metrics affect method selection in surgical domains.
 
+% \begin{abstract}
+% Surgical action triplet prediction has primarily focused on recognition tasks for activity analysis. However, real-time surgical assistance requires next action prediction for planning and control applications. This work presents the first comprehensive comparison of Imitation Learning (IL) versus Reinforcement Learning (RL) approaches for surgical next action prediction, evaluating both recognition accuracy and planning capability. We propose an autoregressive IL baseline achieving 0.979 mAP on CholecT50, and systematically compare it against multiple RL variants including world model-based RL, direct video RL, and inverse RL enhancement. Our analysis reveals that while IL excels at single-step prediction, RL provides scenario-specific improvements for complex surgical situations requiring multi-step reasoning. These findings inform optimal AI approach selection for clinical surgical assistance applications.
+
+% \keywords{Surgical AI \and Action Prediction \and Imitation Learning \and Reinforcement Learning \and Planning}
+% \end{abstract}
+
+% \section{Introduction}
+
+% Surgical action triplet prediction—the task of identifying instrument-verb-target relationships in surgical videos—has emerged as a fundamental component of computer-assisted surgery systems. While prior work has predominantly focused on recognition tasks for retrospective analysis~\cite{ref_cholect50,ref_rendezvous}, real-time surgical assistance requires prospective prediction capabilities for planning and control applications.
+
+% The challenge of surgical next action prediction presents unique constraints compared to recognition: (1) single-step inference latency requirements for real-time response, (2) the need for multi-horizon planning in complex scenarios, and (3) safety-critical decision making under uncertainty. These requirements raise fundamental questions about the optimal learning paradigm: should surgical AI systems learn through imitation of expert demonstrations (IL) or through trial-and-error optimization of reward functions (RL)?
+
+% This work presents the first systematic comparison of IL versus RL approaches for surgical action triplet prediction, with emphasis on next action prediction for planning applications. Our contributions include:
+
+% \begin{enumerate}
+% \item An autoregressive IL baseline achieving state-of-the-art performance (0.979 mAP) on CholecT50 next action prediction
+% \item Comprehensive evaluation of multiple RL variants: world model-based RL, direct video RL, and inverse RL enhancement
+% \item Novel evaluation framework comparing recognition accuracy versus planning capability across different prediction horizons  
+% \item Clinical insights on when RL provides advantages over IL for surgical assistance applications
+% \end{enumerate}
+
 \section{Methods}
 
 \subsection{Dataset}
 
 We evaluate our approaches on the CholecT50 dataset~\cite{nwoye2022cholect50}, which contains 50 laparoscopic cholecystectomy videos with expert-level surgical demonstrations. The dataset provides frame-level annotations for surgical action triplets, consisting of 100 distinct triplet classes combining 6 instruments, 10 verbs, and 15 targets. Videos are sampled at 1 frame per second, with the training set (40 videos) containing 78,968 frames and the test set (10 videos) containing 21,895 frames, totaling approximately 100,863 annotated frames. The dataset represents high-quality expert demonstrations from experienced surgeons performing full procedures.
+
+\subsection{Problem Formulation}
+
+We formulate surgical action triplet prediction as a sequential decision making problem. Given a sequence of surgical video frames $\{f_1, f_2, ..., f_t\}$, the task is to predict future action triplets $\{a_{t+1}, a_{t+2}, ..., a_{t+H}\}$ where $H$ represents the prediction horizon.
+
+Each action triplet $a_i = (I_i, V_i, T_i)$ consists of an instrument $I_i \in \mathcal{I}$, verb $V_i \in \mathcal{V}$, and target $T_i \in \mathcal{T}$ from predefined vocabularies. We evaluate both single-step prediction ($H=1$) for recognition comparison and multi-step prediction ($H>1$) for planning assessment.
+
+\subsection{Autoregressive Imitation Learning Baseline}
+
+Our IL approach models surgical action prediction as a causal sequence generation problem. The architecture combines frame-level feature extraction with autoregressive action generation:
+
+\begin{equation}
+p(a_{t+1}|f_1, ..., f_t, a_1, ..., a_t) = \text{GPT-2}(\text{FrameEmb}(f_1, ..., f_t), a_1, ..., a_t)
+\end{equation}
+
+The model consists of three components:
+\begin{enumerate}
+\item \textbf{Frame Processing}: Pre-trained visual features are processed through learned embeddings to create temporal representations
+\item \textbf{GPT-2 Backbone}: A transformer decoder models causal dependencies between frames and actions
+\item \textbf{Action Prediction}: Separate heads predict instrument, verb, and target components with IVT-based optimization
+\end{enumerate}
+
+Training optimizes the standard imitation learning objective:
+\begin{equation}
+\mathcal{L}_{IL} = -\sum_{t=1}^{T} \log p(a_t|f_{1:t}, a_{1:t-1}; \theta)
+\end{equation}
+
+\subsection{Reinforcement Learning Approaches}
+
+We evaluate three RL variants for surgical action prediction:
+
+\subsubsection{World Model-Based RL}
+This approach learns a conditional world model predicting future states given current state and action:
+\begin{equation}
+p(s_{t+1}, r_t|s_t, a_t) = \text{WorldModel}(s_t, a_t; \phi)
+\end{equation}
+
+The world model enables planning through rollouts, with policy optimization using PPO on the learned dynamics. Rewards are designed to match expert demonstrations and encourage task-relevant behavior.
+
+\subsubsection{Direct Video RL}
+This model-free approach learns policies directly from video observations without explicit world models. The environment provides frame sequences as states, with actions representing predicted triplets. Rewards incorporate both demonstration matching and task-specific objectives.
+
+\subsubsection{Inverse RL Enhancement}
+Building on the IL baseline, this approach learns reward functions from expert trajectories using Maximum Entropy IRL, then applies lightweight policy improvement through GAIL. This enables scenario-specific enhancements while maintaining IL performance for routine cases.
+
+\subsection{Evaluation Framework}
+
+We introduce a dual evaluation protocol comparing recognition accuracy and planning capability:
+
+\textbf{Recognition Evaluation}: Standard mAP computation on single-step predictions, comparing with existing CholecT50 benchmarks.
+
+\textbf{Planning Evaluation}: Multi-horizon prediction assessment measuring:
+\begin{itemize}
+\item Temporal consistency across prediction horizons (1, 3, 5, 10 steps)
+\item Trajectory-level planning accuracy using mAP degradation analysis
+\item Scenario-specific performance on complex vs. routine surgical phases
+\end{itemize}
+
 
 \subsection{Baseline: Optimized Imitation Learning}
 
@@ -92,9 +171,9 @@ Table~\ref{tab:main_results} presents our main experimental findings comparing I
 \midrule
 DARIL (Ours) & \textbf{34.6} & \textbf{33.6} & \textbf{31.2} & \textbf{29.2} \\
 \midrule
-DARIL + IRL & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} \\
-Latent World Model + RL & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} \\
-Direct Video RL & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} \\
+DARIL + Direct Video RL & \textit{33.2} & \textit{22.6} & \textit{19.3} & \textit{15.9} \\
+DARIL + IRL & \textit{33.1} & \textit{32.1} & \textit{29.6} & \textit{28.1} \\
+Latent World Model + RL & \textit{33.1} & \textit{14.0} & \textit{9.1} & \textit{3.1} \\
 \bottomrule
 \end{tabular}
 \end{table}
