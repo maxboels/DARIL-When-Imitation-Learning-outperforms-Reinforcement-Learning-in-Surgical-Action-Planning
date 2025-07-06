@@ -29,7 +29,7 @@
 \maketitle              % typeset the header of the contribution
 %
 \begin{abstract}
-Teleoperated robotic surgery provides a natural interface to acquire expert demonstrations for imitation learning (IL), while reinforcement learning (RL) could in principle discover new strategies and achieve beyond expert-level performance. However, the question of when to use IL versus RL in surgical domains remains largely unexplored. We conducted a comprehensive comparison of IL versus RL approaches for surgical action planning on the CholecT50 dataset. Our baseline uses supervised learning on expert demonstration videos to learn surgical behavior through direct observation. We systematically evaluated: (1) standard IL with causal prediction, (2) RL with learned rewards via inverse RL, and (3) world model-based RL with forward simulation. Our IL baseline achieves 34.6\% current action mAP and 33.6\% next action mAP with smooth planning degradation (33.6\% at 1s to 29.2\% at 10s). Surprisingly, sophisticated RL approaches failed to improve upon this baseline. We found that distribution matching on the evaluation test set favors the IL baseline over potentially valid or even better new policies that differ from expert demonstrations used for training. This challenges assumptions about method hierarchy and provides crucial insights for surgical AI development.
+Surgical action triplet prediction has primarily focused on recognition tasks for activity analysis. However, real-time surgical assistance requires next action prediction for planning and control applications. Teleoperated robotic surgery provides a natural interface to acquire expert demonstrations for imitation learning (IL), while reinforcement learning (RL) could in principle discover new strategies and achieve beyond expert-level performance. The question of when to use IL versus RL in surgical domains remains largely unexplored. We conducted a comprehensive comparison of IL versus RL approaches for surgical action planning on the CholecT50 dataset, evaluating both recognition accuracy and planning capability. Our baseline uses supervised learning on expert demonstration videos to learn surgical behavior through direct observation. We systematically evaluated: (1) standard IL with causal prediction, (2) RL with learned rewards via inverse RL, and (3) world model-based RL with forward simulation. Our IL baseline achieves 34.6\% current action mAP and 33.6\% next action mAP with smooth planning degradation (33.6\% at 1s to 29.2\% at 10s). Surprisingly, sophisticated RL approaches failed to improve upon this baseline. We found that distribution matching on the evaluation test set favors the IL baseline over potentially valid or even better new policies that differ from expert demonstrations used for training. This challenges assumptions about method hierarchy and provides crucial insights for surgical AI development.
 
 \keywords{Surgical Action Planning \and Imitation Learning \and Reinforcement Learning \and Surgical Action Prediction \and Surgical AI}
 \end{abstract}
@@ -43,13 +43,7 @@ While RL has demonstrated remarkable success in games~\cite{mnih2015human} and r
 
 This work provides the first comprehensive comparison of IL and RL approaches for surgical action planning, using the CholecT50 dataset~\cite{nwoye2022cholect50} for laparoscopic cholecystectomy. Our findings suggest that distribution matching problems on evaluation test sets may favor IL baselines over potentially valid or even superior policies that differ from expert demonstrations.
 
-\textbf{Contributions}: (1) First systematic comparison of IL vs RL for surgical action planning, (2) Important negative result showing when RL doesn't help in expert domains, (3) Comprehensive evaluation framework for temporal surgical planning, and (4) Analysis of how expert data quality and evaluation metrics affect method selection in surgical domains.
-
-% \begin{abstract}
-% Surgical action triplet prediction has primarily focused on recognition tasks for activity analysis. However, real-time surgical assistance requires next action prediction for planning and control applications. This work presents the first comprehensive comparison of Imitation Learning (IL) versus Reinforcement Learning (RL) approaches for surgical next action prediction, evaluating both recognition accuracy and planning capability. We propose an autoregressive IL baseline achieving 0.979 mAP on CholecT50, and systematically compare it against multiple RL variants including world model-based RL, direct video RL, and inverse RL enhancement. Our analysis reveals that while IL excels at single-step prediction, RL provides scenario-specific improvements for complex surgical situations requiring multi-step reasoning. These findings inform optimal AI approach selection for clinical surgical assistance applications.
-
-% \keywords{Surgical AI \and Action Prediction \and Imitation Learning \and Reinforcement Learning \and Planning}
-% \end{abstract}
+\textbf{Contributions}: (1) \textit{First systematic IL vs RL comparison for surgical action planning}: We provide the first comprehensive evaluation comparing imitation learning and reinforcement learning approaches for surgical action planning, addressing a fundamental methodological question in surgical AI. (2) \textit{Surprising negative results with clear performance gaps}: We demonstrate that sophisticated RL methods consistently underperform our IL baseline—world model RL drops to 3.1\% mAP at 10s vs 29.2\% for DARIL, while direct video RL achieves only 15.9\% vs 29.2\%, challenging assumptions about RL superiority in sequential decision making. (3) \textit{Novel DARIL architecture achieving strong temporal consistency}: Our dual-task autoregressive imitation learning approach maintains robust performance across planning horizons (34.6\% current action mAP degrading smoothly to 29.2\% at 10-second planning), establishing a new baseline for surgical action planning. (4) \textit{Insights into evaluation bias and domain characteristics}: We identify how expert demonstration alignment with test distributions systematically favors IL over potentially valid RL policies, providing crucial guidance for evaluation design and method selection in expert domains like surgery.
 
 % \section{Introduction}
 
@@ -171,9 +165,9 @@ Table~\ref{tab:main_results} presents our main experimental findings comparing I
 \midrule
 DARIL (Ours) & \textbf{34.6} & \textbf{33.6} & \textbf{31.2} & \textbf{29.2} \\
 \midrule
-DARIL + Direct Video RL & \textit{33.2} & \textit{22.6} & \textit{19.3} & \textit{15.9} \\
-DARIL + IRL & \textit{33.1} & \textit{32.1} & \textit{29.6} & \textit{28.1} \\
-Latent World Model + RL & \textit{33.1} & \textit{14.0} & \textit{9.1} & \textit{3.1} \\
+DARIL + Direct Video RL & 33.2 & 22.6 & 19.3 & 15.9 \\
+DARIL + IRL & 33.1 & 32.1 & 29.6 & 28.1 \\
+Latent World Model + RL & 33.1 & 14.0 & 9.1 & 3.1 \\
 \bottomrule
 \end{tabular}
 \end{table}
