@@ -123,7 +123,10 @@ def plot_map_vs_horizon(planning_results: Dict,
         ax_additional = fig.add_subplot(gs[1, 0])  # Additional metrics
         ax_stats = fig.add_subplot(gs[1, 1])  # Statistics
     else:
-        fig, ax = plt.subplots(figsize=figsize, dpi=300 if style == 'paper' else 100)
+        # Calculate height for single plot to match the main plot area in multi-subplot version
+        # The main plot takes 2/3 of the total height (height_ratio=[2,1])
+        single_plot_height = figsize[1] * (2/3)
+        fig, ax = plt.subplots(figsize=(figsize[0], single_plot_height), dpi=300 if style == 'paper' else 100)
     
     # Extract data for each metric
     for metric_name, config in metrics_config.items():
