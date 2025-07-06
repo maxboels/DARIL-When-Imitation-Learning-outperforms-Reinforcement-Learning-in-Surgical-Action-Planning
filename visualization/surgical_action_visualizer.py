@@ -15,7 +15,7 @@ class SurgicalActionVisualizer:
     """
     
     def __init__(self, figsize=(16, 10), fps=1.0, max_horizon: int = 20):
-        self.figsize = figsize
+        self.figsize = figsize # Dimenions are: (Width, Height) in inches
         self.fps = fps  # Frames per second for time conversion
         self.max_horizon = max_horizon  # Maximum planning horizon for visualization
         self.setup_colormaps()
@@ -218,20 +218,23 @@ class SurgicalActionVisualizer:
         
         # Auto-select interesting actions if not provided
         if selected_actions is None:
+            # Increase max_actions when showing combined view only
+            max_actions = 25 if show_combined_only else 15
             selected_actions = self._auto_select_actions(
                 recognition_gt[start_frame:end_frame], 
                 planning_pred[start_frame:end_frame] if start_frame < len(planning_pred) else None,
-                max_actions=15
+                max_actions=max_actions
             )
         
         # Create figure with different layouts based on show_combined_only
         if show_combined_only:
-            # Single subplot layout
+            # Single subplot layout with reduced height
+            adjusted_figsize = (self.figsize[0], self.figsize[1] - 2)
             if show_performance_stats:
-                fig, (ax_combined, ax_stats) = plt.subplots(1, 2, figsize=self.figsize, facecolor='white',
+                fig, (ax_combined, ax_stats) = plt.subplots(1, 2, figsize=adjusted_figsize, facecolor='white',
                                                            gridspec_kw={'width_ratios': [3, 1], 'wspace': 0.3})
             else:
-                fig, ax_combined = plt.subplots(1, 1, figsize=self.figsize, facecolor='white')
+                fig, ax_combined = plt.subplots(1, 1, figsize=adjusted_figsize, facecolor='white')
                 ax_stats = None
         else:
             # Original multi-subplot layout
@@ -390,11 +393,14 @@ class SurgicalActionVisualizer:
         sorted_pairs = sorted(zip(tick_positions, tick_labels))
         tick_positions, tick_labels = zip(*sorted_pairs)
         
+        # Increase font size for combined view
+        fontsize = 12 if axis_type == "combined" else 9
+        
         ax.set_xticks(tick_positions)
-        ax.set_xticklabels(tick_labels, rotation=45 if use_time_format else 0, fontsize=9)
+        ax.set_xticklabels(tick_labels, rotation=45 if use_time_format else 0, fontsize=fontsize)
         
         if axis_type == "combined":
-            ax.set_xlabel('Relative Time (Past ← NOW → Future)', fontweight='bold')
+            ax.set_xlabel('Relative Time (Past ← NOW → Future)', fontweight='bold', fontsize=14)
         elif use_time_format:
             ax.set_xlabel('Time (HH:MM:SS)', fontweight='bold')
         else:
@@ -423,7 +429,10 @@ class SurgicalActionVisualizer:
                 plt.Line2D([0], [0], color='red', linewidth=4, label='Current Frame')
             ]
         
-        legend = ax.legend(handles=legend_elements, loc='upper right', fontsize=9, 
+        # Use larger font size for combined view
+        fontsize = 11 if legend_type == "combined" else 9
+        
+        legend = ax.legend(handles=legend_elements, loc='upper right', fontsize=fontsize, 
                          frameon=True, fancybox=True, shadow=True, framealpha=0.9)
         legend.get_frame().set_facecolor('white')
         legend.get_frame().set_edgecolor('black')
@@ -504,11 +513,15 @@ class SurgicalActionVisualizer:
         for action in selected_actions:
             action_name = f"'{self.class_mapping['action'][str(action)]}' (A{action})"
             y_ticks_labels.append(action_name)
-        
-        # Set action labels
+
+        # Set action labels with increased font size for combined view
+        # Note: axis_type is not available in this function, so we check if this is a combined-only plot
+        fontsize = 11
         ax.set_yticks(range(len(selected_actions)))
-        ax.set_yticklabels(y_ticks_labels, rotation=45, fontsize=9)
+        ax.set_yticklabels(y_ticks_labels, rotation=45, fontsize=11)
         
+        # Set y-axis label
+        ax.set_ylabel('Action Classes', fontweight='bold', fontsize=14)
         
         # Add color legend
         self._add_color_legend(ax, "recognition")
@@ -676,9 +689,12 @@ class SurgicalActionVisualizer:
             action_name = f"'{self.class_mapping['action'][str(action)]}' (A{action})"
             y_ticks_labels.append(action_name)
 
-        # Set action labels
+        # Set action labels with larger font size for combined view
         ax.set_yticks(range(len(selected_actions)))
-        ax.set_yticklabels(y_ticks_labels, rotation=45, fontsize=9)
+        ax.set_yticklabels(y_ticks_labels, rotation=45, fontsize=11)
+        
+        # Set y-axis label
+        ax.set_ylabel('Action Classes', fontweight='bold', fontsize=14)
         
         # Add color legend for combined view
         self._add_color_legend(ax, "combined")

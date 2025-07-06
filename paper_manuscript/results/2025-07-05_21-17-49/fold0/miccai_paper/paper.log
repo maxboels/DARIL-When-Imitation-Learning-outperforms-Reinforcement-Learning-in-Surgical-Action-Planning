@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2025.5.6)  6 JUL 2025 16:51
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2025.5.6)  6 JUL 2025 17:56
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -346,11 +346,11 @@ File: planning_analysis_simple.png Graphic file (type png)
 Package pdftex.def Info: planning_analysis_simple.png  used on input line 127.
 (pdftex.def)             Requested size: 347.12354pt x 197.20247pt.
 [3] [4 <./planning_analysis_simple.png>]
-<VID14_preds_sample_1.png, id=27, 1041.1698pt x 829.4187pt>
+<VID14_preds_sample_1.png, id=27, 1438.8957pt x 714.7503pt>
 File: VID14_preds_sample_1.png Graphic file (type png)
 <use VID14_preds_sample_1.png>
 Package pdftex.def Info: VID14_preds_sample_1.png  used on input line 138.
-(pdftex.def)             Requested size: 347.12354pt x 276.51862pt.
+(pdftex.def)             Requested size: 347.12354pt x 172.42697pt.
  [5 <./VID14_preds_sample_1.png>]
 Overfull \hbox (0.87372pt too wide) in paragraph at lines 170--171
 \T1/cmr/m/n/10 on safe and ef-fec-tive ac-tions. While RL ex-plo-ration can dis-cover novel ap-proaches,
@@ -383,7 +383,7 @@ Here is how much of TeX's memory you used:
  1141 hyphenation exceptions out of 8191
  57i,8n,65p,1185b,322s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texmf/fonts/type1/public/cm-super/sfbx0900.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx1000.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx1200.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx1440.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm0900.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1000.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfti0900.pfb></usr/share/texmf/fonts/type1/public/cm-super/sftt0900.pfb>
-Output written on paper.pdf (9 pages, 1341328 bytes).
+Output written on paper.pdf (9 pages, 1150259 bytes).
 PDF statistics:
  84 PDF objects out of 1000 (max. 8388607)
  51 compressed objects within 1 object stream
