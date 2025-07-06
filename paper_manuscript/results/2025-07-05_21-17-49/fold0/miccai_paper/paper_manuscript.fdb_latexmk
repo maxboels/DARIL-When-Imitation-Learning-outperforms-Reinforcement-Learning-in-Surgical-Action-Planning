@@ -1,7 +1,7 @@
 # Fdb version 4
-["pdflatex"] 1751843536.46649 "/home/maxboels/projects/surl/paper_manuscript/results/2025-07-05_21-17-49/fold0/miccai_paper/paper_manuscript.tex" "paper_manuscript.pdf" "paper_manuscript" 1751843537.8396 0
+["pdflatex"] 1751844583.86125 "/home/maxboels/projects/surl/paper_manuscript/results/2025-07-05_21-17-49/fold0/miccai_paper/paper_manuscript.tex" "paper_manuscript.pdf" "paper_manuscript" 1751844585.12421 0
   "/etc/texmf/web2c/texmf.cnf" 1730199251.52305 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/maxboels/projects/surl/paper_manuscript/results/2025-07-05_21-17-49/fold0/miccai_paper/paper_manuscript.tex" 1751843535.77029 18223 ebca8e2990b3ab90a022119074f4f700 ""
+  "/home/maxboels/projects/surl/paper_manuscript/results/2025-07-05_21-17-49/fold0/miccai_paper/paper_manuscript.tex" 1751844582.39693 18223 ebca8e2990b3ab90a022119074f4f700 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecbx0900.tfm" 1136768653 3584 1a7de6c99457381c64abc1a7c545505f ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecbx1000.tfm" 1136768653 3584 2d666ecf6d466d8b007246bc2f94d9da ""
@@ -80,9 +80,9 @@
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1746530043.52338 5472669 54eaf61a88b6b7896ebd0dac973cb29c ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1746530131 8214692 262f898aaa86ff062f19eebdfca17a6e ""
   "VID14_preds_sample_1.png" 1751820927.95363 648933 d98d82db4d151ebe91a38002df7ac5ac ""
-  "paper_manuscript.aux" 1751843537.79035 4622 c79e9c455717f0e4fe458eccf48be5c6 "pdflatex"
-  "paper_manuscript.tex" 1751843535.77029 18223 ebca8e2990b3ab90a022119074f4f700 ""
-  "planning_analysis_simple.png" 1751812351.25951 552303 95d0fe8da67b2a690829807f47889af8 ""
+  "paper_manuscript.aux" 1751844585.077 4622 a7d00efc601412efeb41f161efa454ea "pdflatex"
+  "paper_manuscript.tex" 1751844582.39693 18223 ebca8e2990b3ab90a022119074f4f700 ""
+  "planning_analysis_simple.png" 1751844173.50426 433382 93bcb2b20084f79e0d68b38b0d26981c ""
   (generated)
   "paper_manuscript.aux"
   "paper_manuscript.log"
