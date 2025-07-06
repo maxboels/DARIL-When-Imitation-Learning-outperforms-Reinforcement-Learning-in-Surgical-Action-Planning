@@ -1,0 +1,78 @@
+\relax 
+\citation{nwoye2022cholect50,nwoye2020recognition}
+\citation{nwoye2023cholectriplet2021}
+\citation{shi2022recognition,weerasinghe2024multimodal}
+\citation{mnih2015human}
+\citation{levine2016end}
+\citation{liu2024surgical}
+\citation{wagner2023vision,liu2023skit,liu2025lovit}
+\citation{boels2025swag}
+\@writefile{toc}{\contentsline {title}{When Imitation Learning Outperforms Reinforcement Learning in Surgical Action Planning}{1}{}\protected@file@percent }
+\@writefile{toc}{\authcount {1}}
+\@writefile{toc}{\contentsline {author}{Anonymized Authors}{1}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{}\protected@file@percent }
+\citation{nwoye2022cholect50}
+\citation{nwoye2022cholect50}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Methods}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Dataset}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Problem Formulation}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Autoregressive Imitation Learning Baseline}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Reinforcement Learning Approaches}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{World Model-Based RL}{3}{}\protected@file@percent }
+\citation{radford2019language}
+\citation{liu2021swin}
+\citation{yamlahi2023self}
+\citation{hafner2020dream}
+\citation{schulman2017proximal}
+\citation{ziebart2008maximum}
+\@writefile{toc}{\contentsline {subsubsection}{Direct Video RL}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Inverse RL Enhancement}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Evaluation Framework}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6}Baseline: Optimized Imitation Learning}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.7}RL Approaches Evaluated}{4}{}\protected@file@percent }
+\citation{nwoye2022data,nwoye2022cholect50}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.8}Evaluation Framework}{5}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Results}{5}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Main Comparative Results}{5}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Comparative Results: IL vs RL Approaches for Surgical Action Planning. All values are IVT mAP scores in \%. mAP$_{t=0}$ refers to current action recognition, mAP$_{t+1s}$ to 1-second prediction, etc.}}{5}{}\protected@file@percent }
+\newlabel{tab:main_results}{{1}{5}{}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Component-wise Analysis}{6}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Component-wise Performance Analysis of DARIL Baseline. All values are mAP scores in \% for each component and combination.}}{6}{}\protected@file@percent }
+\newlabel{tab:component_analysis}{{2}{6}{}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Planning Performance Analysis}{6}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Qualitative Analysis}{6}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Why RL Underperformed}{6}{}\protected@file@percent }
+\citation{liu2024surgical}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Discussion}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}When IL Excels Over RL}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Implications for Surgical AI}{8}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Limitations and Future Directions}{8}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Conclusion}{8}{}\protected@file@percent }
+\bibstyle{splncs04}
+\bibdata{references}
+\bibcite{nwoye2022cholect50}{1}
+\bibcite{nwoye2020recognition}{2}
+\bibcite{nwoye2023cholectriplet2021}{3}
+\bibcite{shi2022recognition}{4}
+\bibcite{weerasinghe2024multimodal}{5}
+\bibcite{wagner2023vision}{6}
+\bibcite{liu2023skit}{7}
+\bibcite{liu2025lovit}{8}
+\bibcite{boels2025swag}{9}
+\bibcite{liu2024surgical}{10}
+\bibcite{mnih2015human}{11}
+\bibcite{levine2016end}{12}
+\bibcite{radford2019language}{13}
+\bibcite{liu2021swin}{14}
+\bibcite{yamlahi2023self}{15}
+\bibcite{hafner2020dream}{16}
+\bibcite{ziebart2008maximum}{17}
+\bibcite{schulman2017proximal}{18}
+\bibcite{nwoye2022data}{19}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Planning Performance Comparison Across Methods and Time Horizons. The figure shows mAP performance for each method (DARIL, DARIL+IRL, Latent World Model+RL, Direct Video RL) across different planning horizons (1s, 2s, 3s, 5s, 10s, 20s). DARIL demonstrates superior performance across all time horizons, with RL approaches showing varying degrees of performance degradation. Error bars indicate 95\% confidence intervals across video splits.}}{11}{}\protected@file@percent }
+\newlabel{fig:method_comparison}{{1}{11}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Triplet Component mAP Deterioration over Planning Horizon. The figure shows how different components (Instrument, Verb, Target) and their combinations degrade as planning horizon increases. Key insights show Overall IVT mAP drops from 33.6\% at 1s to 29.2\% at 10s, with Target being the most robust component (23.7\% loss). Stars indicate statistical significance regions.}}{12}{}\protected@file@percent }
+\newlabel{fig:planning_analysis}{{2}{12}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Qualitative evaluation showing recognition and planning performance from a representative video sequence. VID51 sample demonstrating action sequence planning. Left panels show past recognition performance, right panels show future planning predictions. The model demonstrates strong current action recognition with smooth degradation in planning accuracy over time. Green indicates true positives, blue shows false positives, and beige represents false negatives.}}{13}{}\protected@file@percent }
+\newlabel{fig:qualitative_examples}{{3}{13}{}{}{}}
+\gdef \@abspage@last{13}
