@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2025.5.6)  6 JUL 2025 19:43
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2025.5.6)  6 JUL 2025 19:45
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -325,13 +325,82 @@ File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
 Title too long for running head. Please supply
 a shorter form with \titlerunning prior to \maketitle
 
-Overfull \hbox (4.4043pt too wide) in paragraph at lines 42--43
-[]\T1/cmr/m/n/10 While RL has demon-strated re-mark-able suc-cess in games [11] and robotics [12],
- []
+LaTeX Warning: Citation `nwoye2022cholect50' on page 1 undefined on input line 40.
+
+
+LaTeX Warning: Citation `nwoye2020recognition' on page 1 undefined on input line 40.
+
+
+LaTeX Warning: Citation `nwoye2023cholectriplet2021' on page 1 undefined on input line 40.
+
+
+LaTeX Warning: Citation `shi2022recognition' on page 1 undefined on input line 40.
+
+
+LaTeX Warning: Citation `weerasinghe2024multimodal' on page 1 undefined on input line 40.
+
+
+LaTeX Warning: Citation `mnih2015human' on page 1 undefined on input line 42.
+
+
+LaTeX Warning: Citation `levine2016end' on page 1 undefined on input line 42.
+
+
+LaTeX Warning: Citation `liu2024surgical' on page 1 undefined on input line 42.
+
+
+LaTeX Warning: Citation `wagner2023vision' on page 1 undefined on input line 42.
+
+
+LaTeX Warning: Citation `liu2023skit' on page 1 undefined on input line 42.
+
+
+LaTeX Warning: Citation `liu2025lovit' on page 1 undefined on input line 42.
+
+
+LaTeX Warning: Citation `boels2025swag' on page 1 undefined on input line 42.
 
 [1
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-t1.enc}{/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-ts1.enc}] [2]
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-t1.enc}{/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-ts1.enc}]
+
+LaTeX Warning: Citation `nwoye2022cholect50' on page 2 undefined on input line 44.
+
+
+LaTeX Warning: Citation `nwoye2022cholect50' on page 2 undefined on input line 52.
+
+
+LaTeX Warning: Citation `radford2019language' on page 2 undefined on input line 56.
+
+
+LaTeX Warning: Citation `liu2021swin' on page 2 undefined on input line 58.
+
+
+LaTeX Warning: Citation `yamlahi2023self' on page 2 undefined on input line 58.
+
+
+LaTeX Warning: Citation `hafner2020dream' on page 2 undefined on input line 64.
+
+
+LaTeX Warning: Citation `schulman2017proximal' on page 2 undefined on input line 64.
+
+[2]
+
+LaTeX Warning: Citation `ziebart2008maximum' on page 3 undefined on input line 68.
+
+
+LaTeX Warning: Citation `nwoye2022data' on page 3 undefined on input line 72.
+
+
+LaTeX Warning: Citation `nwoye2022cholect50' on page 3 undefined on input line 72.
+
+
+LaTeX Warning: Reference `tab:main_results' on page 3 undefined on input line 83.
+
+
+LaTeX Warning: Reference `fig:method_comparison' on page 3 undefined on input line 83.
+
+
 Overfull \hbox (53.5194pt too wide) in paragraph at lines 89--100
  [][] 
  []
@@ -340,70 +409,100 @@ Overfull \hbox (53.5194pt too wide) in paragraph at lines 89--100
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
+LaTeX Warning: File `method_comparison_planning.png' not found on input line 104.
+
+
+/home/maxboels/projects/surl/paper_manuscript/results/2025-07-05_21-17-49/fold0/miccai_paper/paper.tex:104: Package pdftex.def Error: File `method_comparison_planning.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.104 ...extwidth]{method_comparison_planning.png}
+                                                  
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
 LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+LaTeX Warning: Reference `tab:component_analysis' on page 3 undefined on input line 111.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+LaTeX Warning: Reference `fig:planning_analysis' on page 3 undefined on input line 134.
 
 [3]
 <planning_analysis_simple.png, id=20, 1004.553pt x 570.6921pt>
 File: planning_analysis_simple.png Graphic file (type png)
 <use planning_analysis_simple.png>
-Package pdftex.def Info: planning_analysis_simple.png  used on input line 131.
+Package pdftex.def Info: planning_analysis_simple.png  used on input line 138.
 (pdftex.def)             Requested size: 347.12354pt x 197.20247pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-Overfull \hbox (1.20807pt too wide) in paragraph at lines 138--139
-\T1/cmr/m/n/10 recog-ni-tion (past) and plan-ning (fu-ture) per-for-mance on sur-gi-cal video se-quences.
- []
+LaTeX Warning: Reference `fig:qualitative_examples' on page 4 undefined on input line 145.
 
 <VID14_preds_sample_1.png, id=22, 1438.8957pt x 714.7503pt>
 File: VID14_preds_sample_1.png Graphic file (type png)
 <use VID14_preds_sample_1.png>
-Package pdftex.def Info: VID14_preds_sample_1.png  used on input line 142.
+Package pdftex.def Info: VID14_preds_sample_1.png  used on input line 149.
 (pdftex.def)             Requested size: 347.12354pt x 172.42697pt.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[4] [5 <./planning_analysis_simple.png>]
-Overfull \hbox (0.87372pt too wide) in paragraph at lines 174--175
+[4]
+
+LaTeX Warning: Citation `liu2024surgical' on page 5 undefined on input line 168.
+
+
+Overfull \hbox (0.87372pt too wide) in paragraph at lines 181--182
 \T1/cmr/m/n/10 on safe and ef-fec-tive ac-tions. While RL ex-plo-ration can dis-cover novel ap-proaches,
  []
 
-
-Underfull \vbox (badness 3884) has occurred while \output is active []
-
- [6 <./VID14_preds_sample_1.png>]
-Overfull \hbox (2.37256pt too wide) in paragraph at lines 192--193
+[5]
+Overfull \hbox (2.37256pt too wide) in paragraph at lines 199--200
 []\T1/cmr/bx/n/10 Single Dataset Eval-u-a-tion\T1/cmr/m/n/10 : Our re-sults are based on the CholecT50 dataset
  []
 
 
-Overfull \hbox (1.54132pt too wide) in paragraph at lines 198--199
+Overfull \hbox (1.54132pt too wide) in paragraph at lines 205--206
 \T1/cmr/m/n/10 com-pre-hen-sive state rep-re-sen-ta-tions, re-ward de-sign, and out-come mod-el-ing might
  []
 
-[7]
+[6]
 No file paper.bbl.
-[8] [9] (./paper.aux)
+[7] [8] [9] [10 <./planning_analysis_simple.png> <./VID14_preds_sample_1.png>] (./paper.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
  ***********
+
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
  ) 
 Here is how much of TeX's memory you used:
- 3411 strings out of 474222
- 48368 string characters out of 5748734
- 1934975 words of memory out of 5000000
- 25632 multiletter control sequences out of 15000+600000
+ 3442 strings out of 474222
+ 49595 string characters out of 5748734
+ 1935975 words of memory out of 5000000
+ 25663 multiletter control sequences out of 15000+600000
  570369 words of font info for 67 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 57i,8n,65p,1405b,322s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 57i,8n,65p,1405b,325s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texmf/fonts/type1/public/cm-super/sfbx0900.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx1000.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx1200.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx1440.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm0900.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1000.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfti0900.pfb></usr/share/texmf/fonts/type1/public/cm-super/sftt0900.pfb>
-Output written on paper.pdf (9 pages, 1151244 bytes).
+Output written on paper.pdf (10 pages, 1154062 bytes).
 PDF statistics:
- 84 PDF objects out of 1000 (max. 8388607)
- 51 compressed objects within 1 object stream
+ 87 PDF objects out of 1000 (max. 8388607)
+ 53 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  11 words of extra memory for PDF output out of 10000 (max. 10000000)
 

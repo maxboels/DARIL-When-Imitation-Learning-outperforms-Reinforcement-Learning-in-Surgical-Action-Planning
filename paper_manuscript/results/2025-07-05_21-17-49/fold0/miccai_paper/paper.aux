@@ -36,15 +36,11 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Qualitative Analysis}{4}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Why RL Underperformed}{4}{}\protected@file@percent }
 \citation{liu2024surgical}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Triplet Component mAP Deterioration over Planning Horizon. The figure shows how different components (Instrument, Verb, Target) and their combinations degrade as planning horizon increases. Key insights show Overall IVT mAP drops from 33.6\% at 1s to 29.2\% at 10s, with Target being the most robust component (23.7\% loss). Stars indicate statistical significance regions.}}{5}{}\protected@file@percent }
-\newlabel{fig:planning_analysis}{{1}{5}{}{}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Qualitative evaluation showing recognition and planning performance from a representative video sequence. VID51 sample demonstrating action sequence planning. Left panels show past recognition performance, right panels show future planning predictions. The model demonstrates strong current action recognition with smooth degradation in planning accuracy over time. Green indicates true positives, blue shows false positives, and beige represents false negatives.}}{6}{}\protected@file@percent }
-\newlabel{fig:qualitative_examples}{{2}{6}{}{}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Discussion}{6}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}When IL Excels Over RL}{6}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Implications for Surgical AI}{7}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Limitations and Future Directions}{7}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {5}Conclusion}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Discussion}{5}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}When IL Excels Over RL}{5}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Implications for Surgical AI}{6}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Limitations and Future Directions}{6}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Conclusion}{6}{}\protected@file@percent }
 \bibstyle{splncs04}
 \bibdata{references}
 \bibcite{nwoye2022cholect50}{1}
@@ -66,4 +62,10 @@
 \bibcite{ziebart2008maximum}{17}
 \bibcite{schulman2017proximal}{18}
 \bibcite{nwoye2022data}{19}
-\gdef \@abspage@last{9}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Planning Performance Comparison Across Methods and Time Horizons. The figure shows mAP performance for each method (DARIL, DARIL+IRL, Latent World Model+RL, Direct Video RL) across different planning horizons (1s, 2s, 3s, 5s, 10s, 20s). DARIL demonstrates superior performance across all time horizons, with RL approaches showing varying degrees of performance degradation. Error bars indicate 95\% confidence intervals across video splits.}}{9}{}\protected@file@percent }
+\newlabel{fig:method_comparison}{{1}{9}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Triplet Component mAP Deterioration over Planning Horizon. The figure shows how different components (Instrument, Verb, Target) and their combinations degrade as planning horizon increases. Key insights show Overall IVT mAP drops from 33.6\% at 1s to 29.2\% at 10s, with Target being the most robust component (23.7\% loss). Stars indicate statistical significance regions.}}{10}{}\protected@file@percent }
+\newlabel{fig:planning_analysis}{{2}{10}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Qualitative evaluation showing recognition and planning performance from a representative video sequence. VID51 sample demonstrating action sequence planning. Left panels show past recognition performance, right panels show future planning predictions. The model demonstrates strong current action recognition with smooth degradation in planning accuracy over time. Green indicates true positives, blue shows false positives, and beige represents false negatives.}}{10}{}\protected@file@percent }
+\newlabel{fig:qualitative_examples}{{3}{10}{}{}{}}
+\gdef \@abspage@last{10}

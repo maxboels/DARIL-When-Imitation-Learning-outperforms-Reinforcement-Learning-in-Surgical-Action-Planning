@@ -80,7 +80,7 @@ Our IL baseline uses an autoregressive transformer architecture with dual-path t
 
 \subsection{Main Comparative Results}
 
-Table~\ref{tab:main_results} presents our main experimental findings comparing IL and RL approaches for surgical action planning. Our DARIL baseline achieves 34.6\% current action mAP and 33.6\% next action mAP, demonstrating strong performance on expert demonstration learning.
+Table~\ref{tab:main_results} presents our main experimental findings comparing IL and RL approaches for surgical action planning. Our DARIL baseline achieves 34.6\% current action mAP and 33.6\% next action mAP, demonstrating strong performance on expert demonstration learning. Figure~\ref{fig:method_comparison} provides a comprehensive view of how each method performs across different planning horizons, highlighting the consistent superiority of our DARIL approach.
 
 \begin{table}[h]
 \centering
@@ -98,6 +98,13 @@ Direct Video RL & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{method_comparison_planning.png}
+\caption{Planning Performance Comparison Across Methods and Time Horizons. The figure shows mAP performance for each method (DARIL, DARIL+IRL, Latent World Model+RL, Direct Video RL) across different planning horizons (1s, 2s, 3s, 5s, 10s, 20s). DARIL demonstrates superior performance across all time horizons, with RL approaches showing varying degrees of performance degradation. Error bars indicate 95\% confidence intervals across video splits.}
+\label{fig:method_comparison}
+\end{figure}
 
 \subsection{Component-wise Analysis}
 
