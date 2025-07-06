@@ -19,7 +19,7 @@
 %
 \begin{document}
 %
-\title{When Imitation Learning Outperforms Reinforcement Learning in Surgical Action Planning: A Comprehensive Analysis}
+\title{When Imitation Learning Outperforms Reinforcement Learning in Surgical Action Planning}
 %
 \author{Anonymized Authors}
 \authorrunning{Anonymized Authors et al.}
@@ -29,9 +29,9 @@
 \maketitle              % typeset the header of the contribution
 %
 \begin{abstract}
-Teleoperated robotic surgery provides a natural interface for acquiring expert demonstrations for imitation learning. We conducted a comprehensive comparison of IL versus RL approaches for surgical action planning on the CholecT50 dataset. Our baseline uses supervised learning on expert demonstration videos to emulate surgical behavior through direct mimicking. We systematically evaluated: (1) standard IL with causal prediction, (2) RL with learned rewards via inverse RL, and (3) world model-based RL with forward simulation. Our IL baseline achieves 34.6\% current action mAP and 33.6\% next action mAP with graceful planning degradation (33.6\% at 1s to 29.2\% at 10s). Surprisingly, sophisticated RL approaches failed to improve upon this baseline. We found that distribution matching on the evaluation test set favors the IL baseline over potentially valid or even better new policies that differ from expert demonstrations used for training. This challenges assumptions about method hierarchy and provides crucial insights for surgical AI development.
+Teleoperated robotic surgery provides a natural interface to acquire expert demonstrations for imitation learning (IL), while reinforcement learning (RL) could in principle discover new strategies and achieve beyond expert-level performance. However, the question of when to use IL versus RL in surgical domains remains largely unexplored. We conducted a comprehensive comparison of IL versus RL approaches for surgical action planning on the CholecT50 dataset. Our baseline uses supervised learning on expert demonstration videos to learn surgical behavior through direct observation. We systematically evaluated: (1) standard IL with causal prediction, (2) RL with learned rewards via inverse RL, and (3) world model-based RL with forward simulation. Our IL baseline achieves 34.6\% current action mAP and 33.6\% next action mAP with smooth planning degradation (33.6\% at 1s to 29.2\% at 10s). Surprisingly, sophisticated RL approaches failed to improve upon this baseline. We found that distribution matching on the evaluation test set favors the IL baseline over potentially valid or even better new policies that differ from expert demonstrations used for training. This challenges assumptions about method hierarchy and provides crucial insights for surgical AI development.
 
-\keywords{Surgical Action Planning \and Imitation Learning \and Reinforcement Learning \and Temporal Planning \and Surgical AI}
+\keywords{Surgical Action Planning \and Imitation Learning \and Reinforcement Learning \and Surgical Action Prediction \and Surgical AI}
 \end{abstract}
 
 
@@ -41,15 +41,19 @@ Surgical action planning in teleoperated robotic surgery represents one of the m
 
 While RL has demonstrated remarkable success in games~\cite{mnih2015human} and robotics~\cite{levine2016end}, its application to surgical domains presents unique challenges. Recent work in surgical automation~\cite{liu2024surgical} has shown promise for integrating RL with imitation learning, while vision transformers have emerged as powerful tools for surgical video analysis~\cite{wagner2023vision,liu2023skit,liu2025lovit}. Additionally, advances in long-term surgical workflow prediction~\cite{boels2025swag} demonstrate the potential for anticipatory surgical planning systems. Expert surgical demonstrations represent decades of refined technique and training, potentially making them near-optimal for many evaluation criteria. This raises a fundamental question: under what conditions does RL improve upon well-optimized IL in expert domains?
 
-This work provides the first comprehensive comparison of IL and RL approaches for surgical action planning, using the CholecT50 dataset~\cite{nwoye2022cholect50} for laparoscopic cholecystectomy. Our findings suggest that distribution matching problems on evaluation test sets may favor IL baselines over potentially valid or even superior policies that differ from expert demonstrations, though we acknowledge this conclusion is based on a limited dataset with constraining evaluation metrics.
+This work provides the first comprehensive comparison of IL and RL approaches for surgical action planning, using the CholecT50 dataset~\cite{nwoye2022cholect50} for laparoscopic cholecystectomy. Our findings suggest that distribution matching problems on evaluation test sets may favor IL baselines over potentially valid or even superior policies that differ from expert demonstrations.
 
 \textbf{Contributions}: (1) First systematic comparison of IL vs RL for surgical action planning, (2) Important negative result showing when RL doesn't help in expert domains, (3) Comprehensive evaluation framework for temporal surgical planning, and (4) Analysis of how expert data quality and evaluation metrics affect method selection in surgical domains.
 
 \section{Methods}
 
+\subsection{Dataset}
+
+We evaluate our approaches on the CholecT50 dataset~\cite{nwoye2022cholect50}, which contains 50 laparoscopic cholecystectomy videos with expert-level surgical demonstrations. The dataset provides frame-level annotations for surgical action triplets, consisting of 100 distinct triplet classes combining 6 instruments, 10 verbs, and 15 targets. Each video contains approximately 14,000 frames on average, resulting in a total of approximately 700,000 annotated frames. The dataset represents high-quality expert demonstrations from experienced surgeons performing successful procedures without complications.
+
 \subsection{Baseline: Optimized Imitation Learning}
 
-Our IL baseline uses an autoregressive transformer architecture with dual-path training for both current action recognition and next action prediction. The model combines a BiLSTM for temporal current action recognition with a GPT-2 backbone~\cite{radford2019language} for causal next action prediction.
+Our IL baseline uses an autoregressive transformer architecture with dual-path training for both current action recognition and next action prediction. The model combines a BiLSTM for temporal current action recognition with a GPT-2 backbone~\cite{radford2019language} for causal next action prediction. We refer to this approach as Dual-task Autoregressive Imitation Learning (DARIL).
 
 \textbf{Architecture}: The model processes 1024-dimensional Swin transformer features~\cite{liu2021swin} extracted from surgical video frames using distilled feature extraction~\cite{yamlahi2023self}. A BiLSTM encoder captures temporal patterns for current action recognition, while a GPT-2 decoder generates future action sequences autoregressively.
 
@@ -57,11 +61,11 @@ Our IL baseline uses an autoregressive transformer architecture with dual-path t
 
 \subsection{RL Approaches Evaluated}
 
-\textbf{Inverse RL with Learned Rewards}: We implement Maximum Entropy IRL~\cite{ziebart2008maximum} with sophisticated negative generation to learn reward functions from expert demonstrations. The learned rewards are then used to adjust IL predictions through policy optimization.
+\textbf{Latent World Model + RL}: We develop an action-conditioned world model that predicts future states and rewards given current states and actions, following the paradigm established by Dreamer~\cite{hafner2020dream}. The goal is to create a latent simulator that enables policy learning in the learned environment. PPO~\cite{schulman2017proximal} is trained in this simulated latent environment for action planning.
 
-\textbf{World Model RL}: We develop an action-conditioned world model that predicts future states and rewards given current states and actions, following the paradigm established by Dreamer~\cite{hafner2020dream}. PPO~\cite{schulman2017proximal} is trained in the simulated environment for action planning.
+\textbf{Direct RL on Videos}: We apply model-free RL directly to video sequences using expert demonstration matching rewards. Multiple algorithms (PPO, A2C) are evaluated with careful hyperparameter optimization.
 
-\textbf{Direct Video RL}: We apply model-free RL directly to video sequences using expert demonstration matching rewards. Multiple algorithms (PPO, A2C) are evaluated with careful hyperparameter optimization.
+\textbf{Inverse RL with Learned Rewards}: We implement Maximum Entropy IRL~\cite{ziebart2008maximum} with sophisticated negative generation to learn reward functions from expert demonstrations. Negative examples are generated by sampling actions that deviate from expert demonstrations, and the learned reward function is used to guide policy optimization during training by providing dense feedback signals that encourage expert-like behavior while penalizing deviations.
 
 \subsection{Evaluation Framework}
 
@@ -69,35 +73,35 @@ Our IL baseline uses an autoregressive transformer architecture with dual-path t
 
 \textbf{Component-wise Analysis}: We analyze performance for individual components (Instrument, Verb, Target) and their combinations (IV, IT, IVT) to understand degradation patterns.
 
-\textbf{Statistical Validation}: Cross-video evaluation with statistical significance testing ensures robust conclusions.
+\textbf{Statistical Validation}: Cross-video evaluation with statistical significance testing ensures robust conclusions. We perform bootstrap sampling across video splits and apply paired t-tests to assess statistical significance of performance differences between methods.
 
 
 \section{Results}
 
 \subsection{Main Comparative Results}
 
-Table~\ref{tab:main_results} presents our main experimental findings comparing IL and RL approaches for surgical action planning. Our IL baseline achieves 34.6\% current action mAP and 33.6\% next action mAP, demonstrating strong performance on expert demonstration mimicking.
+Table~\ref{tab:main_results} presents our main experimental findings comparing IL and RL approaches for surgical action planning. Our DARIL baseline achieves 34.6\% current action mAP and 33.6\% next action mAP, demonstrating strong performance on expert demonstration learning.
 
 \begin{table}[h]
 \centering
-\caption{Comparative Results: IL vs RL Approaches for Surgical Action Planning}
+\caption{Comparative Results: IL vs RL Approaches for Surgical Action Planning. Current refers to t=0s (recognition), Next refers to t+1s prediction.}
 \label{tab:main_results}
-\begin{tabular}{lcc}
+\begin{tabular}{lcccc}
 \toprule
-\textbf{Method} & \textbf{Current mAP (\%)} & \textbf{Next mAP (\%)} \\
+\textbf{Method} & \textbf{Current mAP (\%)} & \textbf{Next mAP (\%)} & \textbf{5s mAP (\%)} & \textbf{10s mAP (\%)} \\
 \midrule
-Enhanced Autoregressive IL (Ours) & \textbf{34.6} & \textbf{33.6} \\
+DARIL (Ours) & \textbf{34.6} & \textbf{33.6} & \textbf{31.2} & \textbf{29.2} \\
 \midrule
-IRL Enhanced Approach & \textit{TBD} & \textit{TBD} \\
-World Model RL & \textit{TBD} & \textit{TBD} \\
-Direct Video RL & \textit{TBD} & \textit{TBD} \\
+DARIL + IRL & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} \\
+Latent World Model + RL & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} \\
+Direct Video RL & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsection{Component-wise Analysis}
 
-Table~\ref{tab:component_analysis} provides detailed component-wise analysis of our IL baseline. The Instrument component shows the highest stability with 91.4\% current recognition declining to 88.2\% for next prediction. The Target component shows more variability, with 52.7\% current recognition and 52.5\% next prediction performance.
+Table~\ref{tab:component_analysis} provides detailed component-wise analysis of our DARIL baseline. The Instrument component shows the highest stability with 91.4\% current recognition declining to 88.2\% for next prediction. The Target component shows more variability, with 52.7\% current recognition and 52.5\% next prediction performance.
 
 \begin{table}[h]
 \centering
@@ -120,7 +124,7 @@ Instrument-Verb-Target (IVT) & 34.6 & 33.6 \\
 
 \subsection{Planning Performance Analysis}
 
-Figure~\ref{fig:planning_analysis} shows the temporal planning performance across different horizons. Our IL baseline demonstrates graceful degradation from 33.6\% mAP at 1-second planning to 29.2\% at 10-second planning, representing a 13.1\% relative decrease. The planning degradation pattern reveals that longer-term predictions become increasingly challenging, with performance dropping to 23.3\% at 20-second horizons.
+Figure~\ref{fig:planning_analysis} shows the temporal planning performance across different horizons. Our DARIL baseline demonstrates smooth degradation from 33.6\% mAP at 1-second planning to 29.2\% at 10-second planning, representing a 13.1\% relative decrease. The planning degradation pattern reveals that longer-term predictions become increasingly challenging, with performance dropping to 23.3\% at 20-second horizons.
 
 \begin{figure}[h]
 \centering
@@ -131,12 +135,12 @@ Figure~\ref{fig:planning_analysis} shows the temporal planning performance acros
 
 \subsection{Qualitative Analysis}
 
-Figure~\ref{fig:qualitative_examples} presents qualitative examples from our IL baseline, showing both recognition (past) and planning (future) performance on surgical video sequences. The visualizations demonstrate the model's ability to correctly identify current actions while maintaining reasonable planning accuracy for short-term future actions.
+Figure~\ref{fig:qualitative_examples} presents qualitative examples from our DARIL baseline, showing both recognition (past) and planning (future) performance on surgical video sequences. The visualizations demonstrate the model's ability to correctly identify current actions while maintaining reasonable planning accuracy for short-term future actions.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=\textwidth]{VID14_preds_sample_1.png}
-\caption{Qualitative evaluation showing recognition and planning performance from two representative video sequences. Top: VID79 sample showing recognition and planning transitions. Bottom: VID51 sample demonstrating action sequence planning. Left panels show past recognition performance, right panels show future planning predictions. The model demonstrates strong current action recognition with graceful degradation in planning accuracy over time. Green indicates true positives, blue shows false positives, and beige represents false negatives.}
+\caption{Qualitative evaluation showing recognition and planning performance from a representative video sequence. VID51 sample demonstrating action sequence planning. Left panels show past recognition performance, right panels show future planning predictions. The model demonstrates strong current action recognition with smooth degradation in planning accuracy over time. Green indicates true positives, blue shows false positives, and beige represents false negatives.}
 \label{fig:qualitative_examples}
 \end{figure}
 

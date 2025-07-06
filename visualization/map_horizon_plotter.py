@@ -199,8 +199,9 @@ def plot_map_vs_horizon(planning_results: Dict,
         add_performance_annotations(ax, horizon_data, horizons, horizon_seconds, font_size)
     
     # Add statistical significance indicators (if multiple videos)
-    if num_videos > 1:
-        add_significance_indicators(ax, horizon_data, horizons, horizon_seconds)
+    # Commented out as these orange stars may not be meaningful for single video analysis
+    # if num_videos > 1:
+    #     add_significance_indicators(ax, horizon_data, horizons, horizon_seconds)
     
     # Style improvements
     ax.spines['top'].set_visible(False)
@@ -386,25 +387,20 @@ def add_significance_indicators(ax, horizon_data, horizons, horizon_seconds):
                       s=50, c='orange', alpha=0.8, zorder=10)
 
 def add_background_shading(ax, horizon_seconds):
-    """Add subtle background shading to separate time ranges."""
+    """Add dashed vertical lines to separate time ranges instead of background shading."""
     
-    # Short-term (1-5s)
-    ax.axvspan(0.5, 5.0, alpha=0.05, color='green', zorder=0)
-    ax.text(2.5, # Center of 1-5s range
-        0.02, 'Short-term', ha='center', va='bottom', 
-        fontsize=9, alpha=0.6, style='italic')
+    # Add vertical lines at key transition points
+    transition_points = [5.0, 10.0]  # Transitions between short/medium/long-term
     
-    # Medium-term (5-10s)
-    ax.axvspan(5.0, 10.0, alpha=0.05, color='orange', zorder=0)
-    ax.text(7.5, # Center of 5-10s range
-        0.02, 'Medium-term', ha='center', va='bottom', 
-        fontsize=9, alpha=0.6, style='italic')
+    for x in transition_points:
+        if x <= max(horizon_seconds):
+            ax.axvline(x=x, color='gray', linestyle='--', alpha=0.5, linewidth=1, zorder=1)
     
-    # Long-term (10s-20s)
-    ax.axvspan(10.0, 20.0, alpha=0.05, color='red', zorder=0)
-    ax.text(15.0, # Center of 10-20s range
-        0.02, 'Long-term', ha='center', va='bottom', 
-        fontsize=9, alpha=0.6, style='italic')
+    # Add text labels for time ranges at the bottom
+    ax.text(2.5, 0.02, 'Short-term', ha='center', va='bottom', 
+            fontsize=9, alpha=0.6, style='italic', transform=ax.transData)
+    ax.text(7.5, 0.02, 'Medium-term', ha='center', va='bottom', 
+            fontsize=9, alpha=0.6, style='italic', transform=ax.transData)
 
 def plot_sparsity_analysis(planning_results: Dict, save_path: Optional[str] = None) -> plt.Figure:
     """
