@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.5.8)  7 JUL 2025 10:49
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.5.8)  7 JUL 2025 09:40
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**c:/Users/maxboels/projects/surl/paper_manuscript/results/2025-07-05_21-17-49/fold0/miccai_paper/paper_manuscript.tex
-(c:/Users/maxboels/projects/surl/paper_manuscript/results/2025-07-05_21-17-49/fold0/miccai_paper/paper_manuscript.tex
+**"c:/Users/maxboels/projects/surl/paper_manuscript/results/2025-07-05_21-17-49/fold0/miccai_paper/paper_manuscript copy 2.tex"
+(c:/Users/maxboels/projects/surl/paper_manuscript/results/2025-07-05_21-17-49/fold0/miccai_paper/paper_manuscript copy 2.tex
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-04-14>
 (c:/texlive/2025/texmf-dist/tex/latex/llncs/llncs.cls
@@ -273,8 +273,8 @@ LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
 )) (c:/texlive/2025/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2025-04-14 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count326
-) (./paper_manuscript.aux)
-\openout1 = `paper_manuscript.aux'.
+) (./paper_manuscript copy 2.aux)
+\openout1 = `"paper_manuscript copy 2.aux"'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 8.
 LaTeX Font Info:    ... okay on input line 8.
@@ -332,46 +332,51 @@ Overfull \hbox (6.60567pt too wide) in paragraph at lines 20--21
 
 [2]
 
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Overfull \hbox (44.88371pt too wide) in paragraph at lines 108--117
+ [][] 
+ []
+
+
+
 [3]
+<planning_analysis_simple.png, id=28, 1004.553pt x 377.9721pt>
+File: planning_analysis_simple.png Graphic file (type png)
+<use planning_analysis_simple.png>
+Package pdftex.def Info: planning_analysis_simple.png  used on input line 125.
+(pdftex.def)             Requested size: 347.12354pt x 130.60814pt.
+
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<planning_analysis_simple.png, id=29, 1004.553pt x 377.9721pt>
-File: planning_analysis_simple.png Graphic file (type png)
-<use planning_analysis_simple.png>
-Package pdftex.def Info: planning_analysis_simple.png  used on input line 131.
-(pdftex.def)             Requested size: 347.12354pt x 130.60814pt.
+<VID14_preds_sample_1.png, id=30, 1438.8957pt x 714.7503pt>
+File: VID14_preds_sample_1.png Graphic file (type png)
+<use VID14_preds_sample_1.png>
+Package pdftex.def Info: VID14_preds_sample_1.png  used on input line 136.
+(pdftex.def)             Requested size: 347.12354pt x 172.42697pt.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
 
 [4]
-<VID14_preds_sample_1.png, id=34, 1438.8957pt x 714.7503pt>
-File: VID14_preds_sample_1.png Graphic file (type png)
-<use VID14_preds_sample_1.png>
-Package pdftex.def Info: VID14_preds_sample_1.png  used on input line 142.
-(pdftex.def)             Requested size: 347.12354pt x 172.42697pt.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-Overfull \hbox (0.17894pt too wide) in paragraph at lines 159--160
-[]\T1/cmr/bx/n/10 State-Action Rep-re-sen-ta-tion Chal-lenges\T1/cmr/m/n/10 : Our RL im-ple-men-ta-tions used
+Overfull \hbox (3.1782pt too wide) in paragraph at lines 151--152
+[]\T1/cmr/bx/n/10 State-Action Rep-re-sen-ta-tion Chal-lenges\T1/cmr/m/n/10 : Our RL im-ple-men-ta-tions faced
  []
 
 
 
 [5 <./planning_analysis_simple.png>]
-
-[6 <./VID14_preds_sample_1.png>]
-Overfull \hbox (12.51086pt too wide) in paragraph at lines 179--180
+Overfull \hbox (12.51086pt too wide) in paragraph at lines 171--172
 \T1/cmr/m/n/10 Several lim-i-ta-tions should be con-sid-ered: (1) Sin-gle dataset eval-u-a-tion on CholecT50
  []
 
 
-Overfull \hbox (2.57251pt too wide) in paragraph at lines 181--182
+
+[6 <./VID14_preds_sample_1.png>]
+Overfull \hbox (2.57251pt too wide) in paragraph at lines 173--174
 []\T1/cmr/m/n/10 Future work should ex-plore di-verse sur-gi-cal datasets, de-velop outcome-focused
  []
 
@@ -379,25 +384,25 @@ Overfull \hbox (2.57251pt too wide) in paragraph at lines 181--182
 
 [7]
 
-[8] (./paper_manuscript.aux)
+[8] (./paper_manuscript copy 2.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-04-14>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 3410 strings out of 469608
- 47561 string characters out of 5474780
- 436730 words of memory out of 5000000
- 30212 multiletter control sequences out of 15000+600000
+ 3406 strings out of 469608
+ 47577 string characters out of 5474780
+ 437728 words of memory out of 5000000
+ 30208 multiletter control sequences out of 15000+600000
  640659 words of font info for 73 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 57i,8n,65p,1325b,327s stack positions out of 10000i,1000n,20000p,200000b,200000s
-<c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx0900.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx1000.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx1200.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx1440.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm0700.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm0900.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm1000.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfti1000.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sftt0900.pfb>
-Output written on paper_manuscript.pdf (8 pages, 1166159 bytes).
+ 57i,8n,65p,1334b,325s stack positions out of 10000i,1000n,20000p,200000b,200000s
+<c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx0900.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx1000.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx1200.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx1440.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm0700.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm0900.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm1000.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfti1000.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sftt0900.pfb>
+Output written on "paper_manuscript copy 2.pdf" (8 pages, 1152711 bytes).
 PDF statistics:
- 121 PDF objects out of 1000 (max. 8388607)
- 73 compressed objects within 1 object stream
+ 116 PDF objects out of 1000 (max. 8388607)
+ 70 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  11 words of extra memory for PDF output out of 10000 (max. 10000000)
 

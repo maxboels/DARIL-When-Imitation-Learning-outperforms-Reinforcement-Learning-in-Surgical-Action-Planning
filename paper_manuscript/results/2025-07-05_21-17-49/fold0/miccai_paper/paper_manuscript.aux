@@ -1,59 +1,68 @@
 \relax 
 \citation{nwoye2022cholect50,nwoye2020recognition,nwoye2023cholectriplet2021}
-\citation{liu2024surgical}
-\citation{shi2022recognition,weerasinghe2024multimodal}
-\citation{wagner2023vision,liu2023skit}
-\citation{boels2025swag}
+\citation{robertshaw2024autonomous,robertshaw2025reinforcement}
+\citation{hafner2023mastering,hansen2024tdmpc2,hu2023gaia}
 \@writefile{toc}{\contentsline {title}{When Imitation Learning Outperforms Reinforcement Learning in Surgical Action Planning}{1}{}\protected@file@percent }
 \@writefile{toc}{\authcount {1}}
 \@writefile{toc}{\contentsline {author}{Anonymized Authors}{1}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{}\protected@file@percent }
+\citation{shi2022recognition,weerasinghe2024multimodal}
+\citation{wagner2023vision,liu2023skit}
+\citation{boels2025swag}
 \citation{nwoye2022cholect50}
 \citation{nwoye2022cholect50}
-\citation{liu2021swin}
-\citation{radford2019language}
+\citation{nwoye2022data}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Methods}{2}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Problem Formulation}{2}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Dataset}{2}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Dual-task Autoregressive Imitation Learning (DARIL)}{2}{}\protected@file@percent }
+\citation{liu2021swin}
+\citation{radford2019language}
 \citation{hafner2020dream}
 \citation{schulman2017proximal}
+\citation{schulman2017proximal}
+\citation{mnih2016asynchronous}
 \citation{ziebart2008maximum}
-\citation{nwoye2022data}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Dual-task Autoregressive Imitation Learning (DARIL)}{3}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Reinforcement Learning Approaches}{3}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Evaluation Framework}{3}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {3}Results}{3}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Main Comparative Results}{3}{}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces IL vs RL Performance Comparison. All values are IVT mAP (\%). Current refers to action triplet recognition, 1s/5s/10s refer to next frame prediction at different horizons. Statistical significance (p<0.05) confirmed via paired t-tests across video splits.}}{4}{}\protected@file@percent }
-\newlabel{tab:main_results}{{1}{4}{}{}{}}
+\citation{nwoye2022data}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Evaluation Framework}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Results}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Main Comparative Results}{4}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces IL vs RL Performance Comparison. All values are IVT mAP (\%). Current refers to action triplet recognition, 1s/5s/10s refer to next frame prediction at different horizons.}}{4}{}\protected@file@percent }
+\newlabel{tab:main_results}{{1}{4}{}{table.1}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Component-wise Analysis}{4}{}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces DARIL Component-wise Performance Analysis. Current refers to action triplet recognition, Next refers to next frame prediction.}}{4}{}\protected@file@percent }
-\newlabel{tab:component_analysis}{{2}{4}{}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Planning Performance Analysis}{4}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Qualitative Analysis}{4}{}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Planning performance comparison across methods and time horizons. DARIL maintains superior and stable performance while RL approaches show varying degrees of degradation. Error bars indicate 95\% confidence intervals.}}{5}{}\protected@file@percent }
-\newlabel{fig:planning_analysis}{{1}{5}{}{}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Analysis: Why RL Underperformed}{5}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces DARIL Component-wise Performance Analysis. Current refers to action triplet recognition, Next refers to next frame prediction.}}{5}{}\protected@file@percent }
+\newlabel{tab:component_analysis}{{2}{5}{}{table.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces DARIL planning performance across time horizons. The model maintains stable performance across different IVT mAP score components with graceful degradation over longer planning horizons. Error bars indicate 95\% confidence intervals.}}{5}{}\protected@file@percent }
+\newlabel{fig:planning_analysis}{{1}{5}{}{figure.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Qualitative Analysis}{5}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {4}Discussion}{5}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Implications for Surgical AI}{5}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Analysis: Why RL Underperformed}{5}{}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Qualitative evaluation showing recognition (past) and planning (future) performance. Green indicates true positives, blue shows false positives, beige represents false negatives. The model demonstrates strong current recognition with smooth planning degradation.}}{6}{}\protected@file@percent }
-\newlabel{fig:qualitative}{{2}{6}{}{}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Limitations and Future Work}{6}{}\protected@file@percent }
+\newlabel{fig:qualitative}{{2}{6}{}{figure.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Implications for Surgical AI}{6}{}\protected@file@percent }
 \bibstyle{splncs04}
 \bibcite{nwoye2022cholect50}{1}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Limitations and Future Work}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Conclusion}{7}{}\protected@file@percent }
 \bibcite{nwoye2020recognition}{2}
 \bibcite{nwoye2023cholectriplet2021}{3}
-\bibcite{shi2022recognition}{4}
-\bibcite{weerasinghe2024multimodal}{5}
-\bibcite{wagner2023vision}{6}
-\bibcite{liu2023skit}{7}
-\bibcite{boels2025swag}{8}
-\bibcite{liu2024surgical}{9}
-\bibcite{liu2021swin}{10}
-\bibcite{radford2019language}{11}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Conclusion}{7}{}\protected@file@percent }
-\bibcite{hafner2020dream}{12}
-\bibcite{schulman2017proximal}{13}
-\bibcite{ziebart2008maximum}{14}
-\bibcite{nwoye2022data}{15}
+\bibcite{robertshaw2024autonomous}{4}
+\bibcite{robertshaw2025reinforcement}{5}
+\bibcite{hafner2023mastering}{6}
+\bibcite{hansen2024tdmpc2}{7}
+\bibcite{hu2023gaia}{8}
+\bibcite{shi2022recognition}{9}
+\bibcite{weerasinghe2024multimodal}{10}
+\bibcite{wagner2023vision}{11}
+\bibcite{liu2023skit}{12}
+\bibcite{boels2025swag}{13}
+\bibcite{liu2021swin}{14}
+\bibcite{radford2019language}{15}
+\bibcite{hafner2020dream}{16}
+\bibcite{schulman2017proximal}{17}
+\bibcite{mnih2016asynchronous}{18}
+\bibcite{ziebart2008maximum}{19}
+\bibcite{nwoye2022data}{20}
 \gdef \@abspage@last{8}

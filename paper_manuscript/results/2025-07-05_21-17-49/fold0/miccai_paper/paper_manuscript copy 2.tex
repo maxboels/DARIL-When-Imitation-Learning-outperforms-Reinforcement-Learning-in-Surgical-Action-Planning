@@ -24,52 +24,46 @@ Surgical action planning requires predicting future instrument-verb-target tripl
 
 \section{Introduction}
 
-Surgical action planning, predicting future instrument-verb-target relationships in surgical videos, represents a critical component for real-time surgical assistance systems. Accurate future prediction is essential for enabling proactive surgical guidance, reducing surgeon cognitive load, and facilitating autonomous robotic assistance in complex procedures. While prior work has predominantly focused on recognition tasks~\cite{nwoye2022cholect50,nwoye2020recognition,nwoye2023cholectriplet2021}, prospective action planning presents unique challenges requiring multi-horizon prediction capabilities under safety-critical constraints.
+Surgical action planning, predicting future instrument-verb-target relationships in surgical videos, represents a critical component for real-time surgical assistance systems. While prior work has predominantly focused on recognition tasks~\cite{nwoye2022cholect50,nwoye2020recognition,nwoye2023cholectriplet2021}, prospective action planning presents unique challenges requiring multi-horizon prediction capabilities under safety-critical constraints.
 
-The fundamental question for surgical AI systems is the optimal learning paradigm: should systems learn through imitation of expert demonstrations (IL) or through trial-and-error optimization via reinforcement learning (RL)? Teleoperated robotic surgery provides natural access to expert demonstrations, making IL attractive. However, RL could theoretically discover strategies beyond expert-level performance through exploration. Recent work in endovascular surgery has demonstrated RL's potential for autonomous navigation tasks, with successful applications in mechanical thrombectomy achieving high success rates while maintaining safety constraints~\cite{robertshaw2024autonomous,robertshaw2025reinforcement}. More broadly, RL world models in particular have shown that single configurations with no hyperparameter tuning can outperform specialized methods across diverse benchmark tasks, complete farsighted tasks such as collecting diamonds in Minecraft without human data or curricula, and capture expectations of future events during autonomous driving~\cite{hafner2023mastering,hansen2024tdmpc2,hu2023gaia}.
+The fundamental question for surgical AI systems is the optimal learning paradigm: should systems learn through imitation of expert demonstrations (IL) or through trial-and-error optimization via reinforcement learning (RL)? Teleoperated robotic surgery provides natural access to expert demonstrations, making IL attractive. However, RL could theoretically discover strategies beyond expert-level performance through exploration~\cite{liu2024surgical}.
 
 Recent advances in surgical gesture prediction~\cite{shi2022recognition,weerasinghe2024multimodal} and vision transformers for surgical analysis~\cite{wagner2023vision,liu2023skit} have shown promise, while long-term workflow prediction~\cite{boels2025swag} demonstrates the potential for anticipatory systems. Yet the comparative effectiveness of IL versus RL for surgical action planning remains unexplored.
 
 This work addresses this gap through the first systematic comparison of IL and RL approaches for surgical action planning. Using the CholecT50 dataset~\cite{nwoye2022cholect50}, we evaluate recognition accuracy and planning capability across multiple time horizons.
 
-\textbf{Contributions}: (1) \textit{First systematic IL vs RL comparison}: Comprehensive evaluation addressing fundamental methodological questions in surgical AI. (2) \textit{Surprising negative results}: RL methods consistently underperform IL with world model RL dropping to 3.1\% mAP vs 29.2\% for our Dual-task Autoregressive Imitation Learning (DARIL) at 10s planning. (3) \textit{Novel DARIL architecture}: Dual-task autoregressive approach maintaining robust temporal consistency (34.6\% action triplet recognition degrading smoothly to 29.2\% at 10s). (4) \textit{Evaluation bias insights}: Analysis of how expert demonstration alignment systematically favors IL over valid RL policies.
+\textbf{Contributions}: (1) \textit{First systematic IL vs RL comparison}: Comprehensive evaluation addressing fundamental methodological questions in surgical AI. (2) \textit{Surprising negative results}: RL methods consistently underperform IL with world model RL dropping to 3.1\% mAP vs 29.2\% for DARIL at 10s planning. (3) \textit{Novel DARIL architecture}: Dual-task autoregressive approach maintaining robust temporal consistency (34.6\% action triplet recognition degrading smoothly to 29.2\% at 10s). (4) \textit{Evaluation bias insights}: Analysis of how expert demonstration alignment systematically favors IL over valid RL policies.
 
 \section{Methods}
 
 \subsection{Problem Formulation}
 
-Given surgical video frames $\{f_1, f_2, ..., f_t\}$, we predict future action triplets $\{a_{t+1}, a_{t+2}, ..., a_{t+H}\}$ where $H$ represents the planning horizon. Each triplet $a_i = (I_i, V_i, T_i)$ consists of instrument, verb, and target components from predefined vocabularies. Importantly, each frame can contain multiple simultaneous actions (0-3 per frame) due to multiple robotic arms with different instruments, making the problem highly sparse with 100 distinct action classes total. We evaluate both current action recognition and future action prediction with single-step ($H=1$) next frame prediction and multi-step prediction ($H>1$) for planning assessment across longer horizons.
+Given surgical video frames $\{f_1, f_2, ..., f_t\}$, we predict future action triplets $\{a_{t+1}, a_{t+2}, ..., a_{t+H}\}$ where $H$ represents the planning horizon. Each triplet $a_i = (I_i, V_i, T_i)$ consists of instrument, verb, and target components from predefined vocabularies. Importantly, each frame can contain multiple simultaneous actions (0-3 per frame) due to multiple robotic arms with different instruments, making the problem highly sparse with 100 distinct action classes total. We evaluate both single-step prediction ($H=1$) for recognition and multi-step prediction ($H>1$) for planning assessment.
 
 \subsection{Dataset}
 
-We use CholecT50~\cite{nwoye2022cholect50}, containing 50 laparoscopic cholecystectomy videos with frame-level annotations for 100 distinct triplet classes. Following the standard evaluation protocol~\cite{nwoye2022data}, we use videos [2,6,14,23,25,50,51,66,79,111] for testing and the remaining 40 videos for training. The training set contains 78,968 frames while the test set contains 21,895 frames, representing expert-level surgical demonstrations at 1 FPS sampling.
+We use CholecT50~\cite{nwoye2022cholect50}, containing 50 laparoscopic cholecystectomy videos with frame-level annotations for 100 distinct triplet classes. The training set (40 videos, 78,968 frames) and test set (10 videos, 21,895 frames) represent expert-level surgical demonstrations at 1 FPS sampling.
 
 \subsection{Dual-task Autoregressive Imitation Learning (DARIL)}
 
 Our IL baseline models surgical action prediction as causal sequence generation, combining frame-level processing with autoregressive action generation:
 
 \begin{equation}
-p(a_{t+1}|f_{t-w+1:t}) = \text{GPT-2}(\text{FrameEmb}(f_{t-w+1:t}))
+p(a_{t+1}|f_{1:t}) = \text{GPT-2}(\text{FrameEmb}(f_{1:t}))
 \end{equation}
 
-where $w=20$ represents the context window size.
+\textbf{Architecture}: The model processes 1024-dimensional Swin transformer features~\cite{liu2021swin} through: (1) BiLSTM encoder for temporal current action recognition, (2) GPT-2 decoder~\cite{radford2019language} for causal future action generation using only frame embeddings as input, and (3) separate prediction heads for instrument, verb, and target components.
 
-\textbf{Architecture}: The model processes 1024-dimensional Swin transformer features~\cite{liu2021swin} through: (1) BiLSTM encoder for temporal current action recognition, (2) GPT-2 decoder~\cite{radford2019language} for causal future action generation using a context window of $w=20$ frame embeddings as input, and (3) separate prediction heads for the combined <instrument, verb, and target> class and surgical phase components.
-
-\textbf{Training}: Dual-task optimization combines current action recognition and next action prediction losses, with additional auxiliary losses:
+\textbf{Training}: Dual-task optimization combines current action recognition and next action prediction losses:
 \begin{equation}
-\mathcal{L} = \mathcal{L}_{\text{current}} + \mathcal{L}_{\text{next}} + \mathcal{L}_{\text{embed}} + \mathcal{L}_{\text{phase}}
+\mathcal{L} = \mathcal{L}_{\text{current}} + \mathcal{L}_{\text{next}} = -\sum_{t} \log p(a_t|f_{1:t}) - \sum_{t} \log p(a_{t+1}|f_{1:t})
 \end{equation}
-where $\mathcal{L}_{\text{current}} = -\sum_{t} \log p(a_t|f_{t-w+1:t})$ and $\mathcal{L}_{\text{next}} = -\sum_{t} \log p(a_{t+1}|f_{t-w+1:t})$ represent cross-entropy losses for direct prediction of the 100 action classes, $\mathcal{L}_{\text{embed}} = \sum_{t} ||e_{t+1} - \hat{e}_{t+1}||^2$ is the MSE loss for next frame embedding prediction, and $\mathcal{L}_{\text{phase}}$ is the phase recognition loss.
-
 
 \subsection{Reinforcement Learning Approaches}
 
-For reproducibility, we detail our RL problem formulation: we define states as sequences of frame embeddings, actions as predicted triplets, and design reward functions based on expert demonstration matching using cosine similarity between predicted and ground truth action sequences.
+\textbf{Latent World Model + RL}: Following Dreamer~\cite{hafner2020dream}, we learn an action-conditioned world model predicting future states and rewards: $p(s_{t+1}, r_t|s_t, a_t)$. PPO~\cite{schulman2017proximal} trains policies in the learned latent environment with rewards designed for expert demonstration matching.
 
-\textbf{Latent World Model + RL}: Following Dreamer~\cite{hafner2020dream}, the current state-of-the-art for image-based RL tasks, we learn an action-conditioned world model predicting future states and rewards: $p(s_{t+1}, r_t|s_t, a_t)$. PPO~\cite{schulman2017proximal} trains policies in the learned latent environment with rewards designed for expert demonstration matching.
-
-\textbf{Direct Video RL}: Model-free RL applied directly to video sequences using expert demonstration matching rewards. We evaluate PPO~\cite{schulman2017proximal} and A2C~\cite{mnih2016asynchronous}. These algorithms were selected as representative model-free methods with proven stability for continuous control tasks. We performed careful hyperparameter optimization, treating frame sequences as states and predicted triplets as actions.
+\textbf{Direct Video RL}: Model-free RL applied directly to video sequences using expert demonstration matching rewards. We evaluate PPO and A2C with careful hyperparameter optimization, treating frame sequences as states and predicted triplets as actions.
 
 \textbf{Inverse RL Enhancement}: Maximum Entropy IRL~\cite{ziebart2008maximum} learns reward functions from expert trajectories. We generate negative examples by sampling actions deviating from expert demonstrations, then use learned rewards to guide policy optimization while maintaining IL baseline performance.
 
@@ -77,7 +71,7 @@ For reproducibility, we detail our RL problem formulation: we define states as s
 
 \textbf{Recognition Evaluation}: Standard mAP computation on current and next action predictions using IVT metrics~\cite{nwoye2022data}.
 
-\textbf{Planning Evaluation}: Multi-horizon assessment across 1s, 2s, 3s, 5s, 10s, and 20s using mAP degradation analysis.
+\textbf{Planning Evaluation}: Multi-horizon assessment across 1s, 2s, 3s, 5s, 10s, and 20s using mAP degradation analysis. We perform bootstrap sampling across video splits with paired t-tests for statistical significance testing.
 
 \textbf{Component Analysis}: Individual performance analysis for instruments, verbs, targets, and their combinations (IV, IT, IVT) to understand degradation patterns.
 
@@ -89,7 +83,7 @@ Table~\ref{tab:main_results} presents our experimental findings. DARIL achieves 
 
 \begin{table}[h]
 \centering
-\caption{IL vs RL Performance Comparison. All values are IVT mAP (\%). Current refers to action triplet recognition, 1s/5s/10s refer to next frame prediction at different horizons.}
+\caption{IL vs RL Performance Comparison. All values are IVT mAP (\%). Current refers to action triplet recognition, 1s/5s/10s refer to next frame prediction at different horizons. Statistical significance (p<0.05) confirmed via paired t-tests across video splits.}
 \label{tab:main_results}
 \begin{tabular}{lcccc}
 \toprule
@@ -113,7 +107,7 @@ Table~\ref{tab:component_analysis} shows DARIL's component-wise performance. Ins
 \label{tab:component_analysis}
 \begin{tabular}{lcccccc}
 \toprule
-\textbf{Component} & \textbf{Current} & \textbf{Next} & \textbf{Component} & \textbf{Current} & \textbf{Next} \\
+\textbf{Component} & \textbf{Recognition} & \textbf{Next Frame} & \textbf{Component} & \textbf{Recognition} & \textbf{Next Frame} \\
 \midrule
 Instrument (I) & 91.4 & 88.2 & Instrument-Verb (IV) & 42.9 & 38.8 \\
 Verb (V) & 69.4 & 68.1 & Instrument-Target (IT) & 43.5 & 43.6 \\
@@ -124,12 +118,12 @@ Target (T) & 52.7 & 52.5 & IVT & 34.6 & 33.6 \\
 
 \subsection{Planning Performance Analysis}
 
-Figure~\ref{fig:planning_analysis} demonstrates DARIL's smooth degradation across horizons from 33.6\% at 1s to 29.2\% at 10s (13.1\% relative decrease). This demonstrates the model's robust temporal consistency across different planning horizons.
+Figure~\ref{fig:planning_analysis} demonstrates DARIL's smooth degradation across horizons from 33.6\% at 1s to 29.2\% at 10s (13.1\% relative decrease). This contrasts with RL approaches showing steeper degradation patterns, particularly world model RL exhibiting catastrophic performance loss.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=\textwidth]{planning_analysis_simple.png}
-\caption{DARIL planning performance across time horizons. The model maintains stable performance across different IVT mAP score components with graceful degradation over longer planning horizons. Error bars indicate 95\% confidence intervals.}
+\caption{Planning performance comparison across methods and time horizons. DARIL maintains superior and stable performance while RL approaches show varying degrees of degradation. Error bars indicate 95\% confidence intervals.}
 \label{fig:planning_analysis}
 \end{figure}
 
@@ -144,8 +138,6 @@ Figure~\ref{fig:qualitative} presents qualitative examples showing DARIL's recog
 \label{fig:qualitative}
 \end{figure}
 
-\section{Discussion}
-
 \subsection{Analysis: Why RL Underperformed}
 
 Our analysis identifies key factors explaining RL's underperformance:
@@ -156,9 +148,11 @@ Our analysis identifies key factors explaining RL's underperformance:
 
 \textbf{Limited Exploration Benefits}: Surgical domains have strong safety constraints limiting exploration benefits. While RL may discover novel approaches, these appear suboptimal for standard evaluation criteria.
 
-\textbf{State-Action Representation Challenges}: Our RL implementations used frame embeddings as states and action triplets as discrete actions, with reward functions based on expert demonstration similarity. This design faced difficulties with comprehensive state representation and reward signal sparsity, potentially limiting learning effectiveness.
+\textbf{State-Action Representation Challenges}: Our RL implementations faced difficulties with comprehensive state representation and reward signal design, potentially limiting learning effectiveness.
 
 \textbf{Distribution Mismatch}: RL policies trained on different objective functions may produce valid but different behaviors that test metrics penalize due to expert demonstration alignment.
+
+\section{Discussion}
 
 \subsection{Implications for Surgical AI}
 
@@ -172,11 +166,9 @@ Our findings have significant implications for surgical AI development:
 
 \textbf{Clinical Translation}: Simpler IL models are easier to validate, interpret, and deploy in clinical settings compared to complex RL systems with learned reward functions.
 
-\textbf{Cross-Dataset Generalization}: RL may prove advantageous when working across multiple datasets due to its ability to generalise more effectively, especially on non-expert trajectories. This suggests potential future work directions where RL's exploration capabilities could be beneficial for handling diverse surgical scenarios and skill levels.
-
 \subsection{Limitations and Future Work}
 
-Several limitations should be considered: (1) Single dataset evaluation on CholecT50 may not generalise to other surgical procedures. (2) Expert test data similar to training distributions may favor IL—results might differ with sub-expert or out-of-distribution scenarios. (3) Evaluation metrics directly reward expert-like behavior—alternative criteria focusing on patient outcomes might favor RL. (4) More sophisticated RL implementations with better state representations and reward design might outperform IL. (5) Overfitting concerns: Our models likely overfit to the limited number of videos and may not generalise well to test videos, indicating need for larger datasets and better simulators, whether world models or physics engines. (6) Lack of reward feedback: Our RL approaches suffered from insufficient reward signals from possible future states and lack of outcome data, limiting their learning effectiveness.
+Several limitations should be considered: (1) Single dataset evaluation on CholecT50 may not generalize to other surgical procedures. (2) Expert test data similar to training distributions may favor IL—results might differ with sub-expert or out-of-distribution scenarios. (3) Evaluation metrics directly reward expert-like behavior—alternative criteria focusing on patient outcomes might favor RL. (4) More sophisticated RL implementations with better state representations and reward design might outperform IL. (5) \textbf{Overfitting concerns}: Our models likely overfit to the limited number of videos and may not generalize well to test videos, indicating need for larger datasets and better simulators, whether world models or physics engines. (6) \textbf{Lack of reward feedback}: Our RL approaches suffered from insufficient reward signals from possible future states and lack of outcome data, limiting their learning effectiveness.
 
 Future work should explore diverse surgical datasets, develop outcome-focused evaluation metrics, and investigate advanced RL techniques specifically designed for expert domains with comprehensive state-action-reward modeling.
 
@@ -201,21 +193,6 @@ Nwoye, C.I., et al.: Recognition of instrument-tissue interactions in endoscopic
 \bibitem{nwoye2023cholectriplet2021}
 Nwoye, C.I., et al.: CholecTriplet2021: A benchmark challenge for surgical action triplet recognition. Medical Image Analysis \textbf{86}, 102803 (2023)
 
-\bibitem{robertshaw2024autonomous}
-Robertshaw, H., et al.: Autonomous navigation of catheters and guidewires in mechanical thrombectomy using inverse reinforcement learning. International Journal of Computer Assisted Radiology and Surgery \textbf{19}(8), 1569--1578 (2024)
-
-\bibitem{robertshaw2025reinforcement}
-Robertshaw, H., et al.: Reinforcement learning for safe autonomous two-device navigation of cerebral vessels in mechanical thrombectomy. International Journal of Computer Assisted Radiology and Surgery, pp. 1--10 (2025)
-
-\bibitem{hafner2023mastering}
-Hafner, D., Pasukonis, J., Ba, J., Lillicrap, T.: Mastering diverse domains through world models (2023), http://arxiv.org/abs/2301.04104
-
-\bibitem{hansen2024tdmpc2}
-Hansen, N., Su, H., Wang, X.: Td-mpc2: Scalable, robust world models for continuous control. In: The Twelfth International Conference on Learning Representations (2024), http://arxiv.org/abs/2310.16828
-
-\bibitem{hu2023gaia}
-Hu, A., Russell, L., Yeo, H., Murez, Z., Fedoseev, G., Kendall, A., Shotton, J., Corrado, G.: Gaia-1: A generative world model for autonomous driving (2023), http://arxiv.org/abs/2309.17080
-
 \bibitem{shi2022recognition}
 Shi, C., et al.: Recognition and prediction of surgical gestures and trajectories using transformer models in robot-assisted surgery. IEEE Robotics and Automation Letters \textbf{7}(4), 9821--9828 (2022)
 
@@ -231,6 +208,9 @@ Liu, Y., et al.: SKiT: a fast key information video transformer for online surgi
 \bibitem{boels2025swag}
 Boels, M., et al.: SWAG: long-term surgical workflow prediction with generative-based anticipation. International Journal of Computer Assisted Radiology and Surgery, pp. 1--11 (2025)
 
+\bibitem{liu2024surgical}
+Liu, J., et al.: Surgical task automation using actor-critic frameworks and self-supervised imitation learning. arXiv preprint arXiv:2409.02724 (2024)
+
 \bibitem{liu2021swin}
 Liu, Z., et al.: Swin transformer: Hierarchical vision transformer using shifted windows. In: ICCV, pp. 10012--10022 (2021)
 
@@ -242,9 +222,6 @@ Hafner, D., et al.: Dream to control: Learning behaviors by latent imagination. 
 
 \bibitem{schulman2017proximal}
 Schulman, J., et al.: Proximal policy optimization algorithms. arXiv preprint arXiv:1707.06347 (2017)
-
-\bibitem{mnih2016asynchronous}
-Mnih, V., et al.: Asynchronous methods for deep reinforcement learning. In: ICML, pp. 1928--1937 (2016)
 
 \bibitem{ziebart2008maximum}
 Ziebart, B.D., et al.: Maximum entropy inverse reinforcement learning. In: AAAI, pp. 1433--1438 (2008)
