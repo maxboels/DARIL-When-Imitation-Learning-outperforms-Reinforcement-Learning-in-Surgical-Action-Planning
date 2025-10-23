@@ -1,6 +1,0 @@
-
-\begin{abstract}
-Surgical action planning requires learning from expert demonstrations while ensuring safe and effective decision-making. While reinforcement learning (RL) has shown promise in various domains, its effectiveness compared to imitation learning (IL) in surgical contexts remains unclear. We conducted a comprehensive comparison of IL versus RL approaches for surgical action planning on the CholecT50 dataset. Our baseline autoregressive transformer achieves strong performance through expert demonstration learning. We systematically evaluated: (1) standard IL with causal prediction, (2) RL with learned rewards via inverse RL, and (3) world model-based RL with forward simulation. Our IL baseline achieves 45.6\% current action mAP and 44.9\% next action mAP with graceful planning degradation (47.1\% at 1s to 29.1\% at 10s). Surprisingly, sophisticated RL approaches failed to improve upon this baseline, achieving comparable or slightly worse performance. In surgical domains with expert demonstrations, well-optimized imitation learning can outperform complex RL approaches. This challenges the assumption that RL universally improves upon IL and provides crucial insights for surgical AI development.
-
-\keywords{Surgical Action Planning \and Imitation Learning \and Reinforcement Learning \and Temporal Planning}
-\end{abstract}

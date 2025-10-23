@@ -1,8 +1,0 @@
-2025-06-23 10:25:21,677 - INFO - SuRL_FixedRL_139560312001200 - Shared experiment log directory: results/2025-06-23_10-25-21/logs
-2025-06-23 10:25:21,678 - INFO - SuRL_FixedRL_139560312001200 - 🎯 RL Experiment: 2025-06-23_10-25-21
-2025-06-23 10:25:21,678 - INFO - SuRL_FixedRL_139560312001200 - 📁 Results dir: results/2025-06-23_10-25-21
-2025-06-23 10:25:21,678 - INFO - SuRL_FixedRL_139560312001200 - 🚀 Starting Complete RL Comparison
-2025-06-23 10:25:21,678 - INFO - SuRL_FixedRL_139560312001200 - ============================================================
-2025-06-23 10:25:21,678 - INFO - SuRL_FixedRL_139560312001200 - 📂 Loading CholecT50 data...
-2025-06-23 10:25:21,678 - INFO - SuRL_FixedRL_139560312001200 -    Training videos: 40
-2025-06-23 10:25:21,678 - INFO - SuRL_FixedRL_139560312001200 -    Test videos: 10

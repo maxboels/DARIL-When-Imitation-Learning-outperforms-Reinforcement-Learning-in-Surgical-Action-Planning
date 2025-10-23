@@ -1,33 +1,52 @@
+# Python
 *.pyc
+__pycache__/
+*.egg-info/
+.pytest_cache/
 
+# Outputs (large files)
+outputs/results/
+outputs/models_saved/*.pt
+outputs/logs/
+outputs/figures/
+outputs/data/enhanced_data/
+outputs/data/datasets/
+
+# Checkpoints and models
+*.pt
+best_model_*.pt
+checkpoints/
+
+# TensorBoard
+events.out.tfevents.*
+tensorboard/
+
+# Data (too large for git)
+data/cholect50/
+
+# Archive
 archive/*/*/*.pt
 archive/*/*.pt
 archive/*/events.*
 archive/*/tensorboard/*
-archive/*/checkpoints/*/*.pt
-archive/*/checkpoints/*/events.*
-archive/*/checkpoints/*/tensorboard/*
-archive/*/checkpoints/*/best_model_*.pt
+archive/*/checkpoints/*
 
-checkpoints/*/*.pt
-logs/*/events.*
-__pycache__/*.pyc
-__pycache__/*.pyc
-*/*/*.pyc
-*/*/__pycache__/*.pyc
-logs/*/*/*.pt
-logs/*/tensorboard/*
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
-best_model_*.pt
-saved_models/*.pt
-logs/*/*.pt
-logs/*/*.pt
-results/*/*.pt
-models_backup/world_model_best_epoch_2.pt
-clinical_evaluation_results/phase_recognizer.pt
-models_saved/*.pt
-results/*/*/checkpoints/*.pt
-results/*/paper/*
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+*.log
+
 results/*/*/*/*.zip
 results/*/*/*.zip
 
